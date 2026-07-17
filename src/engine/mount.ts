@@ -9,12 +9,24 @@
 // tokens are re-scoped to `:host`. Fonts are injected document-level by loadTheme.
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
+import { pageInFor, pageOutFor, type PageSpec } from "../components/runtime/transitions";
 import type { ComponentInstance, ThemeTokens, TreatmentInstance } from "../components/runtime/types";
+import { TIMING_SECONDS } from "../types/transitions";
 import { bootstrapFx } from "./fx";
 
-type Timeline = { restart: () => void; progress: (p: number) => Timeline; pause: () => Timeline; kill: () => void };
+type Timeline = {
+  restart: () => void;
+  progress: (p: number) => Timeline;
+  pause: () => Timeline;
+  kill: () => void;
+  duration: () => number;
+  time: (t: number) => Timeline;
+  eventCallback: (name: string, cb: () => void) => Timeline;
+};
 type McGlobal = { applyAnims: (tl: unknown, anims: unknown, ctx: unknown) => void; showcaseCtx: (root: Element) => unknown };
 type GsapGlobal = { timeline: (o?: { paused?: boolean }) => Timeline };
+/** A whole-page transition factory on window.MC (fadeIn/slideOut/…), called to preview the page IN/OUT. */
+type PageFactory = (tl: unknown, target: Element, at: number, opts: Record<string, unknown>) => void;
 
 export type PreviewHandle = {
   /** Restart the entrance animation from the top. */
@@ -86,11 +98,33 @@ export const mountPreview = (
     if (frame) inner.style.transform = `scale(${stage.clientWidth / 1920})`;
   };
   let tl: Timeline | null = null;
+  const HOLD = 0.5; // preview beat between the last reveal and the page exit
+  // The resolved whole-scene page transition (treatments only) — replayed live below.
+  const pageTx = instance.kind === "treatment" ? (instance as TreatmentInstance).pageTransition() : null;
   const settle = (): void => {
     if (!gsap || !MC) return;
-    tl = gsap.timeline({ paused: true });
-    MC.applyAnims(tl, anims, MC.showcaseCtx(inner));
-    tl.progress(1).pause(); // settle to the end state so content is visible at rest
+    const timeline = (tl = gsap.timeline({ paused: true }));
+    MC.applyAnims(timeline, anims, MC.showcaseCtx(inner));
+    // Replay the whole-PAGE transition the render emits (buildScene's entranceJs /
+    // exitJs): page IN over the reveals at t=0, page OUT after a hold. buildNode omits
+    // these (the render adds them separately), so the preview reconstructs them here
+    // from the pageInFor / pageOutFor data — otherwise the OUT is never visible.
+    let holdAt = timeline.duration();
+    if (pageTx && (pageTx.animIn || pageTx.animOut)) {
+      const pageEl = (inner.querySelector(`.${compId}-root`) as Element | null) ?? inner;
+      const play = (spec: PageSpec | null, at: number, durSec: number): void => {
+        if (!spec) return;
+        const fn = (MC as unknown as Record<string, PageFactory>)[spec.fn];
+        if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
+      };
+      if (pageTx.animIn && pageTx.animIn !== "none") play(pageInFor(pageTx.animIn), 0, TIMING_SECONDS[pageTx.timeIn ?? "short"]);
+      holdAt = timeline.duration(); // the composed frame: after reveals + page-in settle
+      if (pageTx.animOut && pageTx.animOut !== "none") {
+        play(pageOutFor(pageTx.animOut), holdAt + HOLD, TIMING_SECONDS[pageTx.timeOut ?? "short"]);
+        timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause()); // rest revealed, not faded-out
+      }
+    }
+    timeline.time(holdAt).pause(); // settle to the composed frame so content is visible at rest
   };
 
   // Scale + settle after the shadow is attached + laid out (gsap needs real layout).

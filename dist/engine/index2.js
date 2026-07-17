@@ -5282,11 +5282,28 @@ ${css}`;
     if (frame) inner.style.transform = `scale(${stage.clientWidth / 1920})`;
   };
   let tl = null;
+  const HOLD = 0.5;
+  const pageTx = instance.kind === "treatment" ? instance.pageTransition() : null;
   const settle = () => {
     if (!gsap || !MC) return;
-    tl = gsap.timeline({ paused: true });
-    MC.applyAnims(tl, anims, MC.showcaseCtx(inner));
-    tl.progress(1).pause();
+    const timeline = tl = gsap.timeline({ paused: true });
+    MC.applyAnims(timeline, anims, MC.showcaseCtx(inner));
+    let holdAt = timeline.duration();
+    if (pageTx && (pageTx.animIn || pageTx.animOut)) {
+      const pageEl = inner.querySelector(`.${compId}-root`) ?? inner;
+      const play = (spec, at, durSec) => {
+        if (!spec) return;
+        const fn = MC[spec.fn];
+        if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
+      };
+      if (pageTx.animIn && pageTx.animIn !== "none") play(pageInFor(pageTx.animIn), 0, TIMING_SECONDS[pageTx.timeIn ?? "short"]);
+      holdAt = timeline.duration();
+      if (pageTx.animOut && pageTx.animOut !== "none") {
+        play(pageOutFor(pageTx.animOut), holdAt + HOLD, TIMING_SECONDS[pageTx.timeOut ?? "short"]);
+        timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause());
+      }
+    }
+    timeline.time(holdAt).pause();
   };
   requestAnimationFrame(() => {
     scale();

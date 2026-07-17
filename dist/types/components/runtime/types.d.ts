@@ -109,6 +109,10 @@ export interface TreatmentInstance extends ComponentInstance {
     addDecorations(...decorations: ComponentInstance[]): this;
     /** Build a full scene sub-composition (ready for wrapSubComposition). */
     buildScene(ctx: BuildContext): SubComposition;
+    /** The resolved whole-scene page transition (caller override ?? treatment defaults).
+     *  Lets the live preview replay the same page IN/OUT the render emits — the render
+     *  path stays in buildScene (entranceJs/exitJs), this is the data seam for the editor. */
+    pageTransition(): TransitionSpec;
 }
 export type ComponentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((params?: Partial<z.input<S>>) => ComponentInstance) & {
     readonly componentName: string;

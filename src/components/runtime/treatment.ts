@@ -168,6 +168,16 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const bn = this.buildNode(ctx);
         return { html: serialize(bn.node), css: bn.css, anims: bn.anims };
       },
+      pageTransition(): TransitionSpec {
+        // Caller override wins over the treatment's own defaults, field by field.
+        const t = transitionOverride ?? {};
+        return {
+          animIn: t.animIn ?? def.animIn,
+          animOut: t.animOut ?? def.animOut,
+          timeIn: t.timeIn ?? def.timeIn,
+          timeOut: t.timeOut ?? def.timeOut,
+        };
+      },
       buildScene(ctx: BuildContext): SubComposition {
         const bn = this.buildNode(ctx);
         const root = bn.node;
@@ -178,11 +188,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const bodyJs = serializeAnims(bn.anims);
         // Whole-page transition: an assigned animIn/animOut wins over the legacy
         // def.entrance; unset ⇒ the byte-identical DEFAULT_ENTRANCE + no exit.
-        const t = transitionOverride ?? {};
-        const animIn = t.animIn ?? def.animIn;
-        const animOut = t.animOut ?? def.animOut;
-        const timeIn = t.timeIn ?? def.timeIn;
-        const timeOut = t.timeOut ?? def.timeOut;
+        const { animIn, animOut, timeIn, timeOut } = this.pageTransition();
         const entranceJs =
           animIn && animIn !== "none" ? sceneEntranceJs(animIn, timeIn) : (def.entrance ?? DEFAULT_ENTRANCE);
         const exitJs = animOut && animOut !== "none" ? sceneExitJs(animOut, timeIn, timeOut) : "";

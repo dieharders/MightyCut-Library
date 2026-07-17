@@ -95,6 +95,15 @@ function treatment(def) {
         const bn = this.buildNode(ctx);
         return { html: serialize(bn.node), css: bn.css, anims: bn.anims };
       },
+      pageTransition() {
+        const t = transitionOverride ?? {};
+        return {
+          animIn: t.animIn ?? def.animIn,
+          animOut: t.animOut ?? def.animOut,
+          timeIn: t.timeIn ?? def.timeIn,
+          timeOut: t.timeOut ?? def.timeOut
+        };
+      },
       buildScene(ctx) {
         const bn = this.buildNode(ctx);
         const root = bn.node;
@@ -103,11 +112,7 @@ function treatment(def) {
         const ground = `background: var(--${def.ground})`;
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
-        const t = transitionOverride ?? {};
-        const animIn = t.animIn ?? def.animIn;
-        const animOut = t.animOut ?? def.animOut;
-        const timeIn = t.timeIn ?? def.timeIn;
-        const timeOut = t.timeOut ?? def.timeOut;
+        const { animIn, animOut, timeIn, timeOut } = this.pageTransition();
         const entranceJs = animIn && animIn !== "none" ? sceneEntranceJs(animIn, timeIn) : def.entrance ?? DEFAULT_ENTRANCE;
         const exitJs = animOut && animOut !== "none" ? sceneExitJs(animOut, timeIn, timeOut) : "";
         scrubDeterminism(`${entranceJs}
