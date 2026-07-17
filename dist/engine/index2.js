@@ -5251,7 +5251,7 @@ const previewCss = (frame) => `
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
 .mc-stage--comp { display: grid; place-items: center; padding: 24px; container-type: inline-size; }
 .mc-stage--comp .mc-stage-inner { width: 100%; container-type: size; position: relative; min-height: 180px; }
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: grid; place-items: center; }"}
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }"}
 `;
 const mountPreview = (container, instance, theme, opts = {}) => {
   bootstrapFx();
