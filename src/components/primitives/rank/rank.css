@@ -1,0 +1,36 @@
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 1.6cqw;
+}
+.rank .bl {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.1cqw;
+  width: 16cqw;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 3.2cqw;
+  background: var(--white);
+  border: 0.3cqw solid var(--black);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: var(--col, var(--blue));
+  transform-origin: left center;
+}
+.rank .bv {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 1.8cqw;
+  width: 5cqw;
+  text-align: right;
+  flex-shrink: 0;
+}

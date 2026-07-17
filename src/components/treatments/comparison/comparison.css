@@ -1,0 +1,41 @@
+/* 7 · Comparison — a ledger grid (1.3fr 1fr 1fr): a row-label column plus a
+   "them"/"us" pair. The empty corner + the two .ch headers are the treatment's
+   own markup on the grid's first row; each Row child flows into the SAME grid
+   (its .rows wrapper and each .row are display:contents). Yellow ground; the
+   "us" column is picked out in green. Row cells live in row.css. */
+.comparison > .body {
+  justify-content: center;
+  padding: 12cqh 5cqw 20cqh;
+}
+.comparison h3 {
+  font-weight: 800;
+  font-size: 3.2cqw;
+  letter-spacing: -0.02em;
+  margin: 1.2cqw 0 2cqw;
+}
+.comparison .ledger {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1cqw 1.4cqw;
+  align-content: center;
+}
+.comparison .rows {
+  display: contents;
+}
+.comparison .ch {
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.1cqw;
+  padding: 0.6cqw 1cqw;
+}
+.comparison .ch.a {
+  background: var(--white);
+  border: 0.25cqw solid var(--black);
+}
+.comparison .ch.b {
+  background: var(--green);
+  border: 0.25cqw solid var(--black);
+  box-shadow: 0.3cqw 0.3cqw 0 var(--black);
+}

@@ -1,0 +1,16 @@
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  border: 0.55cqw solid var(--black);
+  background: var(--yellow);
+  box-shadow: 0.7cqw 0.7cqw 0 var(--black);
+  padding: 2.5cqw 5.7cqw;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.9cqw;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

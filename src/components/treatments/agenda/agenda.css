@@ -1,0 +1,17 @@
+.agenda > .body {
+  justify-content: center;
+  padding: 13cqh 6cqw 20cqh;
+}
+.agenda h3 {
+  font-weight: 800;
+  font-size: 3.4cqw;
+  letter-spacing: -0.02em;
+  margin: 1.2cqw 0 2.4cqw;
+}
+.agenda .alist {
+  display: flex;
+  flex-direction: column;
+}
+.agenda .alist > *:last-child {
+  border-bottom: 0.3cqw solid var(--black);
+}

@@ -1,0 +1,11 @@
+import type { ComponentFactory, TreatmentFactory } from "./types";
+export declare const registerComponent: (factory: ComponentFactory) => ComponentFactory;
+export declare const registerTreatment: (factory: TreatmentFactory) => TreatmentFactory;
+export declare const getComponent: (name: string) => ComponentFactory;
+export declare const getTreatment: (name: string) => TreatmentFactory;
+export declare const hasComponent: (name: string) => boolean;
+export declare const hasTreatment: (name: string) => boolean;
+export declare const componentNames: () => string[];
+export declare const treatmentNames: () => string[];
+export declare const allComponents: () => ComponentFactory[];
+export declare const allTreatments: () => TreatmentFactory[];

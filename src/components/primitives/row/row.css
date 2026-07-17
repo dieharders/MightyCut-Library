@@ -1,0 +1,28 @@
+/* A ledger row: a row label plus a "them"/"us" cell pair. The root is
+   display:contents so its three cells participate directly in the parent
+   .ledger grid (mirrors the legacy .rrow). The "us" cell (.cell.b) takes the
+   green accent + hard offset shadow. */
+.row {
+  display: contents;
+}
+.row .rl {
+  font-family: var(--disp);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.2cqw;
+  align-self: center;
+}
+.row .cell {
+  border: 0.25cqw solid var(--black);
+  background: var(--white);
+  padding: 0.9cqw 1.2cqw;
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: 1.1cqw;
+  line-height: 1.35;
+}
+.row .cell.b {
+  background: var(--green);
+  box-shadow: 0.3cqw 0.3cqw 0 var(--black);
+  font-weight: 700;
+}

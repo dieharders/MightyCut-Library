@@ -1,0 +1,24 @@
+.listnum-c {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5cqw;
+}
+.listnum-c .ln-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 6.4cqw;
+  height: 6.4cqw;
+  flex-shrink: 0;
+  border: 0.55cqw solid var(--black);
+  background: var(--yellow);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 2.5cqw;
+  color: var(--black);
+}
+.listnum-c .ln-text {
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: 2.7cqw;
+  color: var(--black);
+}

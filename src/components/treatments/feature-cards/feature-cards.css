@@ -1,0 +1,15 @@
+.feature-cards > .body {
+  justify-content: center;
+  padding: 12cqh 5cqw 20cqh;
+}
+.feature-cards h3 {
+  font-weight: 800;
+  font-size: 3.4cqw;
+  letter-spacing: -0.02em;
+  margin: 1.2cqw 0 2.2cqw;
+}
+.feature-cards .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 1.8cqw;
+}

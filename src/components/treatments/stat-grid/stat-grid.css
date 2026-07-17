@@ -1,0 +1,24 @@
+.stat-grid > .body {
+  justify-content: center;
+  padding: 12cqh 5cqw 20cqh;
+}
+.stat-grid h3 {
+  font-weight: 800;
+  font-size: 3.4cqw;
+  letter-spacing: -0.02em;
+  margin: 1.2cqw 0 2.6cqw;
+}
+.stat-grid .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2cqw;
+}
+.stat-grid .row > *:nth-child(odd) {
+  transform: rotate(-2deg);
+}
+.stat-grid .row > *:nth-child(even) {
+  transform: rotate(2deg);
+}
+.stat-grid[style*="--dense"] .stat-number {
+  font-size: 3.4cqw;
+}

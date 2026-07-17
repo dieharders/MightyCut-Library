@@ -1,0 +1,34 @@
+.closing-plate > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 12cqh 6cqw 20cqh;
+}
+.closing-plate .cardf {
+  position: relative;
+  border: 0.3cqw solid var(--black);
+  background: var(--white);
+  box-shadow: 1.2cqw 1.2cqw 0 var(--black);
+  padding: 4cqw 6cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.closing-plate h3 {
+  font-size: 5.5cqw;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  color: var(--black);
+}
+.closing-plate .cta {
+  margin-top: 2cqw;
+  border: 0.3cqw solid var(--black);
+  background: var(--yellow);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  padding: 1cqw 2.4cqw;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.6cqw;
+  color: var(--black);
+  text-transform: uppercase;
+}

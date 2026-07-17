@@ -1,0 +1,22 @@
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2cqw;
+  padding: 2.4cqw 4.4cqw;
+  background: var(--white);
+  border: 0.5cqw solid var(--black);
+  box-shadow: 1cqw 1cqw 0 var(--black);
+}
+.caption .cap-bar {
+  align-self: stretch;
+  width: 1cqw;
+  flex-shrink: 0;
+  background: var(--capbar, var(--pink));
+}
+.caption .cap-text {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 3cqw;
+  line-height: 1.25;
+  color: var(--black);
+}

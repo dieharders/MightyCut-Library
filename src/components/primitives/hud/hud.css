@@ -1,0 +1,83 @@
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--mono);
+  color: var(--black);
+  container-type: size;
+}
+.hud .hud-brand {
+  position: absolute;
+  top: 3.81cqw;
+  left: 6.86cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.33cqw;
+}
+.hud .hud-brand-mark {
+  width: 2.48cqw;
+  height: 2.48cqw;
+  flex-shrink: 0;
+  background: var(--pink);
+  border: 0.29cqw solid var(--black);
+  box-shadow: 0.38cqw 0.38cqw 0 var(--black);
+}
+.hud .hud-brand-name {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 2.29cqw;
+  letter-spacing: 0.05cqw;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.hud .hud-tagline {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1.43cqw;
+  color: var(--black);
+  opacity: 0.6;
+}
+.hud .hud-title {
+  position: absolute;
+  top: 3.81cqw;
+  right: 6.86cqw;
+  padding: 0.76cqw 1.52cqw;
+  background: var(--white);
+  border: 0.29cqw solid var(--black);
+  box-shadow: 0.38cqw 0.38cqw 0 var(--black);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.43cqw;
+  letter-spacing: 0.1cqw;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.hud .hud-counter {
+  position: absolute;
+  bottom: 4.19cqw;
+  right: 6.86cqw;
+}
+.hud .hud-counter-item {
+  white-space: nowrap;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 1.9cqw;
+  color: var(--black);
+}
+.hud .hud-track {
+  position: absolute;
+  bottom: 3.05cqw;
+  left: 6.86cqw;
+  right: 6.86cqw;
+  height: 0.76cqw;
+  background: var(--white);
+  border: 0.29cqw solid var(--black);
+  overflow: hidden;
+}
+.hud .hud-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--pink);
+  transform-origin: left center;
+  transform: scaleX(var(--pfill, 0));
+}

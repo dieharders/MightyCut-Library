@@ -1,0 +1,27 @@
+// The BLOCK theme payload — the lazy per-theme chunk. Importing this module
+// (only ever via `loadTheme('block')`'s dynamic import) pulls in every element
+// trio (they are block-only today) + the block theme tokens, registers them in
+// the runtime registry, and injects the block content fonts (inlined). Vite
+// code-splits this into its own chunk, so the base engine ships without any
+// theme and the WebUI fetches one payload per theme.
+import "../components/registry"; // side-effect: registerComponent/registerTreatment for every element
+import { blockTheme } from "../components/themes/block";
+import type { ThemeTokens } from "../components/runtime/types";
+import { BLOCK_FONTS_CSS } from "./block-fonts.generated";
+
+let fontsInjected = false;
+
+/** Inject the block @font-face rules once (document-level so Shadow DOM inherits them). */
+const injectBlockFonts = (): void => {
+  if (fontsInjected || typeof document === "undefined") return;
+  fontsInjected = true;
+  const style = document.createElement("style");
+  style.dataset.mcFonts = "block";
+  style.textContent = BLOCK_FONTS_CSS;
+  document.head.appendChild(style);
+};
+
+export const registerBlock = (): ThemeTokens => {
+  injectBlockFonts();
+  return blockTheme;
+};

@@ -1,0 +1,33 @@
+.quote > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 12cqh 8cqw 20cqh;
+}
+.quote .pill {
+  align-self: center;
+  margin-bottom: 2cqw;
+}
+.quote .qcard {
+  border: 0.3cqw solid var(--black);
+  background: var(--white);
+  box-shadow: 0.8cqw 0.8cqw 0 var(--black);
+  padding: 3.5cqw 4.5cqw;
+  max-width: 74cqw;
+}
+.quote .qt {
+  font-family: var(--disp);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-size: 3cqw;
+  line-height: 1.15;
+}
+.quote .attr {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.2cqw;
+  margin-top: 2cqw;
+}

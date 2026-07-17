@@ -1,0 +1,31 @@
+.agenda-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  padding: 1.5cqw 0;
+  border-top: 0.3cqw solid var(--black);
+}
+.agenda-item .num {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 2.8cqw;
+  color: var(--pink);
+  min-width: 5cqw;
+}
+.agenda-item .t {
+  font-family: var(--disp);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 2.4cqw;
+  letter-spacing: -0.01em;
+}
+.agenda-item .d {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.1cqw;
+  color: #333;
+  margin-left: auto;
+  align-self: center;
+}

@@ -1,0 +1,6 @@
+node_modules/
+*.log
+
+# dist/ is intentionally TRACKED: consumers (the WebUI) import the prebuilt engine
+# (dist/engine) + its types (dist/types) directly, with no build step. Rebuild with
+# `pnpm build:engine` and commit dist/ when the engine changes.

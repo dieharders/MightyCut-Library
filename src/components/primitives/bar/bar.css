@@ -1,0 +1,32 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+}
+.bar .bv {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 1.6cqw;
+  margin-bottom: 0.6cqw;
+}
+.bar .bcol {
+  width: 100%;
+  max-width: 9cqw;
+  height: var(--fill);
+  background: var(--col);
+  border: 0.3cqw solid var(--black);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  transform-origin: bottom;
+}
+.bar .bl {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1cqw;
+  margin-top: 0.8cqw;
+  text-align: center;
+}

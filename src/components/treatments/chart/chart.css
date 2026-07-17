@@ -1,0 +1,27 @@
+.chart > .body {
+  justify-content: center;
+  padding: 12cqh 5cqw 20cqh;
+}
+.chart h3 {
+  font-weight: 800;
+  font-size: 3.2cqw;
+  letter-spacing: -0.02em;
+  margin: 1.2cqw 0 2cqw;
+}
+.chart .bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 2cqw;
+  height: 42cqh;
+  border-bottom: 0.3cqw solid var(--black);
+  padding: 0 2cqw;
+}
+.chart .caption {
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: 1.2cqw;
+  color: #222;
+  margin-top: 1.6cqw;
+  text-align: center;
+}

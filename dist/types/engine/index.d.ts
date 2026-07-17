@@ -1,0 +1,11 @@
+export { THEMES, loadTheme, type ThemeName } from "./load-theme";
+export { mountShowcase, type ShowcaseHandle } from "./showcase";
+export { mountEditor, type EditorHandle, type MountEditorOptions } from "./editor";
+export { mountPreview, type MountOptions, type PreviewHandle } from "./mount";
+export { bootstrapFx } from "./fx";
+export { SHOWCASE_CHROME, EDITOR_CHROME } from "./chrome";
+export { allComponents, allTreatments, componentNames, treatmentNames, getComponent, getTreatment, hasComponent, hasTreatment, } from "../components/runtime/registry";
+export { buildPreview, type Preview } from "../components/runtime/emit";
+export { rootContext } from "../components/runtime";
+export type { ComponentFactory, ComponentInstance, ThemeTokens, TreatmentFactory, TreatmentInstance, } from "../components/runtime/types";
+export type { DeckDocument, DeckScene } from "../types/deck";

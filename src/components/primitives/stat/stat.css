@@ -1,0 +1,32 @@
+.stat {
+  position: relative;
+  border: 0.25cqw solid var(--black);
+  background: var(--white);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  padding: 2cqw;
+}
+.stat-dot {
+  position: absolute;
+  top: 1.2cqw;
+  right: 1.2cqw;
+  width: 1.1cqw;
+  height: 1.1cqw;
+  border-radius: 50%;
+  border: 0.15cqw solid var(--black);
+  background: var(--dot, var(--pink));
+}
+.stat-number {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 4.6cqw;
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1cqw;
+  margin-top: 0.7cqw;
+  line-height: 1.3;
+}
