@@ -21,7 +21,6 @@ import {
   buildCard,
   type CardSnapshot,
   el,
-  resetRefreshers,
   settleAfterAttach,
 } from "./editor-core";
 import { SHOWCASE_CHROME, EDITOR_CHROME } from "./chrome";
@@ -61,13 +60,20 @@ export const mountEditor = async (
   const themeName = opts.themeName ?? "block";
   const theme: ThemeTokens = await loadTheme(themeName);
 
-  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
-  shadow.replaceChildren();
+  // Own wrapper + shadow per mount (React StrictMode double-invoke safe — a stale
+  // mount's teardown can't wipe a live sibling mount's content).
+  const wrapper = document.createElement("div");
+  container.appendChild(wrapper);
+  const shadow = wrapper.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${SHOWCASE_CHROME}\n${EDITOR_CHROME}`;
   shadow.appendChild(style);
   const rootEl = document.createElement("div");
   shadow.appendChild(rootEl);
+
+  // Per-mount refresher queue + the current settle teardown (renderDeck may re-run).
+  const refreshers: Array<() => void> = [];
+  let settleTeardown: (() => void) | null = null;
 
   // --- toolbar ---
   const toolbar = el("div", "toolbar");
@@ -107,12 +113,14 @@ export const mountEditor = async (
     themeLabel.textContent = `theme: ${doc.theme}  ·  ${doc.scenes.length} slides`;
     deckGrid.replaceChildren();
     cards = [];
+    refreshers.length = 0; // fresh queue for this (re)render
     doc.scenes.forEach((scene, i) => {
       const compId = `ed-${String(i + 1).padStart(2, "0")}-${scene.id}`;
       const label = `${i + 1}. ${scene.id} · ${scene.treatment}`;
       try {
         const built = buildCard(getTreatment(scene.treatment), {
           theme,
+          refreshers,
           compId,
           label,
           initial: scene.params,
@@ -135,7 +143,8 @@ export const mountEditor = async (
         cards.push({ scene, snapshot: null, lastEdit: null });
       }
     });
-    settleAfterAttach(shadow);
+    settleTeardown?.(); // drop the prior render's resize listener before re-settling
+    settleTeardown = settleAfterAttach(shadow, refreshers);
   };
 
   const gatherDeck = (): { doc: DeckDocument; invalidIds: string[] } | null => {
@@ -237,6 +246,9 @@ export const mountEditor = async (
 
   return {
     load: (raw: unknown) => loadFromUnknown(raw, "the deck"),
-    destroy: () => shadow.replaceChildren(),
+    destroy: () => {
+      settleTeardown?.();
+      wrapper.remove();
+    },
   };
 };

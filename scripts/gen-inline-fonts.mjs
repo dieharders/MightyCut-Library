@@ -10,11 +10,14 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const fontsDir = path.join(root, "assets", "themes", "block", "fonts");
 const cssPath = path.join(fontsDir, "theme-fonts.css");
 
+// Replace ONLY the url(...) with a data: URI — the source CSS already carries its
+// own `format("woff2")` after each url(), so appending another here would produce an
+// invalid `... format("woff2") format("woff2")` src and the @font-face would be dropped.
 const css = fs.readFileSync(cssPath, "utf8").replace(
   /url\(["']?([^"')]+\.woff2)["']?\)/g,
   (_m, file) => {
     const b64 = fs.readFileSync(path.join(fontsDir, file)).toString("base64");
-    return `url("data:font/woff2;base64,${b64}") format("woff2")`;
+    return `url("data:font/woff2;base64,${b64}")`;
   },
 );
 

@@ -89,12 +89,13 @@ export type CardOpts = {
     /** Theme tokens (palette/decorations/`:root` css) — threaded into the render context
      *  and the decoration-family list, so the card is theme-agnostic. Required. */
     theme?: ThemeTokens;
+    /** Per-mount re-settle queue (isolates concurrent mounts, e.g. React StrictMode's
+     *  double-invoke). Falls back to the module singleton for standalone use. */
+    refreshers?: Array<() => void>;
 };
 export declare const buildCard: (factory: Factory, opts?: CardOpts) => {
     el: HTMLElement;
     snapshot: () => CardSnapshot | null;
 };
-/** Clear the per-mount refresher queue (call before (re)building a mount's cards). */
-export declare const resetRefreshers: () => void;
 export declare const scaleFrames: (root?: ParentNode) => void;
-export declare const settleAfterAttach: (root?: ParentNode) => (() => void);
+export declare const settleAfterAttach: (root?: ParentNode, queue?: Array<() => void>) => (() => void);

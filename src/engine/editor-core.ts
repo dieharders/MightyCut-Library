@@ -500,6 +500,9 @@ export type CardOpts = {
   /** Theme tokens (palette/decorations/`:root` css) — threaded into the render context
    *  and the decoration-family list, so the card is theme-agnostic. Required. */
   theme?: ThemeTokens;
+  /** Per-mount re-settle queue (isolates concurrent mounts, e.g. React StrictMode's
+   *  double-invoke). Falls back to the module singleton for standalone use. */
+  refreshers?: Array<() => void>;
 };
 
 export const buildCard = (
@@ -511,6 +514,7 @@ export const buildCard = (
   const compId = opts.compId ?? `sc-${name}`;
   const theme = opts.theme;
   if (!theme) throw new Error("buildCard: opts.theme is required");
+  const refreshQueue = opts.refreshers ?? refreshers;
   const schema = factory.jsonSchema() as Schema;
   const fields = schema.properties ?? {};
   const useFrame = isTreatment(factory) || isFrameComp(factory);
@@ -799,7 +803,7 @@ export const buildCard = (
     childApi ? (childApi.snapshot() ?? []) : [],
     decoApi ? (decoApi.snapshot() ?? []) : [],
   );
-  refreshers.push(() =>
+  refreshQueue.push(() =>
     render(
       current,
       childApi ? (childApi.snapshot() ?? []) : [],
@@ -841,11 +845,6 @@ export const buildCard = (
   return { el: card, snapshot };
 };
 
-/** Clear the per-mount refresher queue (call before (re)building a mount's cards). */
-export const resetRefreshers = (): void => {
-  refreshers.length = 0;
-};
-
 // Scale each 1920×1080 frame to fit its (responsive) card width. `root` scopes the
 // query so the engine works inside a Shadow DOM (where document.querySelectorAll
 // can't see the mounted subtree) — defaults to `document` for standalone use.
@@ -858,13 +857,17 @@ export const scaleFrames = (root: ParentNode = document): void => {
 
 // Re-settle every card once it's ATTACHED + laid out — the fix for the "renders
 // correctly only after I touch it" behavior: a detached card mis-settles gsap.
-// Call once, after the page's cards are appended. Returns a teardown that removes
-// the resize listener (so a React unmount doesn't leak it).
-export const settleAfterAttach = (root: ParentNode = document): (() => void) => {
+// Call once, after the page's cards are appended. `queue` is the mount's own
+// refresher list (isolates concurrent mounts); defaults to the module singleton.
+// Returns a teardown that removes the resize listener (so a React unmount doesn't leak it).
+export const settleAfterAttach = (
+  root: ParentNode = document,
+  queue: Array<() => void> = refreshers,
+): (() => void) => {
   const onResize = (): void => scaleFrames(root);
   requestAnimationFrame(() => {
     scaleFrames(root);
-    for (const r of refreshers) r();
+    for (const r of queue) r();
   });
   window.addEventListener("resize", onResize);
   return () => window.removeEventListener("resize", onResize);

@@ -6,7 +6,9 @@
 // shadow content), and fonts are injected document-level by loadTheme.
 import { allComponents, allTreatments, getComponent } from "../components/runtime/registry";
 import type { ThemeTokens } from "../components/runtime/types";
-import { buildCard, el, resetRefreshers, settleAfterAttach, type Factory } from "./editor-core";
+import { buildCard, el, settleAfterAttach, type Factory } from "./editor-core";
+
+type Refreshers = Array<() => void>;
 import { SHOWCASE_CHROME } from "./chrome";
 import { bootstrapFx } from "./fx";
 import { loadTheme } from "./load-theme";
@@ -20,11 +22,16 @@ const sectionHead = (title: string): HTMLElement => {
   return head;
 };
 
-const cardsSection = (title: string, factories: Factory[], theme: ThemeTokens): HTMLElement => {
+const cardsSection = (
+  title: string,
+  factories: Factory[],
+  theme: ThemeTokens,
+  refreshers: Refreshers,
+): HTMLElement => {
   const sec = el("section");
   sec.appendChild(sectionHead(title));
   const grid = el("div", "grid");
-  for (const f of factories) grid.appendChild(buildCard(f, { theme }).el);
+  for (const f of factories) grid.appendChild(buildCard(f, { theme, refreshers }).el);
   sec.appendChild(grid);
   return sec;
 };
@@ -80,21 +87,21 @@ const typographySection = (theme: ThemeTokens): HTMLElement => {
   return sec;
 };
 
-const hudSection = (theme: ThemeTokens): HTMLElement => {
+const hudSection = (theme: ThemeTokens, refreshers: Refreshers): HTMLElement => {
   const sec = el("section");
   sec.appendChild(sectionHead("HUD"));
   const grid = el("div", "grid grid--full");
-  grid.appendChild(buildCard(getComponent("hud"), { theme }).el);
+  grid.appendChild(buildCard(getComponent("hud"), { theme, refreshers }).el);
   sec.appendChild(grid);
   return sec;
 };
 
-const decorationsSection = (theme: ThemeTokens): HTMLElement => {
+const decorationsSection = (theme: ThemeTokens, refreshers: Refreshers): HTMLElement => {
   const sec = el("section");
   sec.appendChild(sectionHead("Decorations"));
   const grid = el("div", "grid");
   for (const name of theme.decorations ?? []) {
-    grid.appendChild(buildCard(getComponent(name), { theme }).el);
+    grid.appendChild(buildCard(getComponent(name), { theme, refreshers }).el);
   }
   sec.appendChild(grid);
   return sec;
@@ -130,8 +137,11 @@ export const mountShowcase = async (
   bootstrapFx();
   const theme = await loadTheme(themeName);
 
-  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
-  shadow.replaceChildren();
+  // Each mount owns its own wrapper + shadow root, so concurrent mounts (e.g. React
+  // StrictMode's dev double-invoke) can't clear each other's content on teardown.
+  const wrapper = document.createElement("div");
+  container.appendChild(wrapper);
+  const shadow = wrapper.attachShadow({ mode: "open" });
 
   const style = document.createElement("style");
   // Re-scope the theme's `:root` tokens to `:host` so they define on the shadow
@@ -142,7 +152,7 @@ export const mountShowcase = async (
   const root = document.createElement("div");
   shadow.appendChild(root);
 
-  resetRefreshers();
+  const refreshers: Refreshers = [];
   const decoNames = new Set(theme.decorations ?? []);
   const leafComponents = allComponents().filter(
     (f) => f.componentName !== "hud" && !decoNames.has(f.componentName),
@@ -150,17 +160,17 @@ export const mountShowcase = async (
   root.appendChild(headerBand(theme));
   root.appendChild(paletteSection(theme));
   root.appendChild(typographySection(theme));
-  root.appendChild(cardsSection("Components", leafComponents, theme));
-  root.appendChild(hudSection(theme));
-  root.appendChild(decorationsSection(theme));
-  root.appendChild(cardsSection("Treatments", allTreatments(), theme));
+  root.appendChild(cardsSection("Components", leafComponents, theme, refreshers));
+  root.appendChild(hudSection(theme, refreshers));
+  root.appendChild(decorationsSection(theme, refreshers));
+  root.appendChild(cardsSection("Treatments", allTreatments(), theme, refreshers));
   root.appendChild(rulesSection(theme));
 
-  const teardown = settleAfterAttach(shadow);
+  const teardown = settleAfterAttach(shadow, refreshers);
   return {
     destroy: () => {
       teardown();
-      shadow.replaceChildren();
+      wrapper.remove();
     },
   };
 };

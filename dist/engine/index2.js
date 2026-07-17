@@ -3979,6 +3979,7 @@ const buildCard = (factory, opts = {}) => {
   const compId = opts.compId ?? `sc-${name}`;
   const theme = opts.theme;
   if (!theme) throw new Error("buildCard: opts.theme is required");
+  const refreshQueue = opts.refreshers ?? refreshers;
   const schema = factory.jsonSchema();
   const fields = schema.properties ?? {};
   const useFrame = isTreatment(factory) || isFrameComp(factory);
@@ -4203,7 +4204,7 @@ const buildCard = (factory, opts = {}) => {
     childApi ? childApi.snapshot() ?? [] : [],
     decoApi ? decoApi.snapshot() ?? [] : []
   );
-  refreshers.push(
+  refreshQueue.push(
     () => render(
       current,
       childApi ? childApi.snapshot() ?? [] : [],
@@ -4238,20 +4239,17 @@ const buildCard = (factory, opts = {}) => {
   };
   return { el: card, snapshot };
 };
-const resetRefreshers = () => {
-  refreshers.length = 0;
-};
 const scaleFrames = (root = document) => {
   root.querySelectorAll(".stage--frame").forEach((s) => {
     const inner = s.querySelector(".stage-inner");
     if (inner) inner.style.transform = `scale(${s.clientWidth / 1920})`;
   });
 };
-const settleAfterAttach = (root = document) => {
+const settleAfterAttach = (root = document, queue = refreshers) => {
   const onResize = () => scaleFrames(root);
   requestAnimationFrame(() => {
     scaleFrames(root);
-    for (const r of refreshers) r();
+    for (const r of queue) r();
   });
   window.addEventListener("resize", onResize);
   return () => window.removeEventListener("resize", onResize);
@@ -5009,11 +5007,11 @@ const sectionHead = (title) => {
   head.appendChild(el("span", "sp"));
   return head;
 };
-const cardsSection = (title, factories, theme) => {
+const cardsSection = (title, factories, theme, refreshers2) => {
   const sec = el("section");
   sec.appendChild(sectionHead(title));
   const grid = el("div", "grid");
-  for (const f of factories) grid.appendChild(buildCard(f, { theme }).el);
+  for (const f of factories) grid.appendChild(buildCard(f, { theme, refreshers: refreshers2 }).el);
   sec.appendChild(grid);
   return sec;
 };
@@ -5065,20 +5063,20 @@ const typographySection = (theme) => {
   }
   return sec;
 };
-const hudSection = (theme) => {
+const hudSection = (theme, refreshers2) => {
   const sec = el("section");
   sec.appendChild(sectionHead("HUD"));
   const grid = el("div", "grid grid--full");
-  grid.appendChild(buildCard(getComponent("hud"), { theme }).el);
+  grid.appendChild(buildCard(getComponent("hud"), { theme, refreshers: refreshers2 }).el);
   sec.appendChild(grid);
   return sec;
 };
-const decorationsSection = (theme) => {
+const decorationsSection = (theme, refreshers2) => {
   const sec = el("section");
   sec.appendChild(sectionHead("Decorations"));
   const grid = el("div", "grid");
   for (const name of theme.decorations ?? []) {
-    grid.appendChild(buildCard(getComponent(name), { theme }).el);
+    grid.appendChild(buildCard(getComponent(name), { theme, refreshers: refreshers2 }).el);
   }
   sec.appendChild(grid);
   return sec;
@@ -5103,15 +5101,16 @@ const rulesSection = (theme) => {
 const mountShowcase = async (container, themeName = "block") => {
   bootstrapFx();
   const theme = await loadTheme(themeName);
-  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
-  shadow.replaceChildren();
+  const wrapper = document.createElement("div");
+  container.appendChild(wrapper);
+  const shadow = wrapper.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = `${theme.css.replace(/:root/g, ":host")}
 ${SHOWCASE_CHROME}`;
   shadow.appendChild(style);
   const root = document.createElement("div");
   shadow.appendChild(root);
-  resetRefreshers();
+  const refreshers2 = [];
   const decoNames = new Set(theme.decorations ?? []);
   const leafComponents = allComponents().filter(
     (f) => f.componentName !== "hud" && !decoNames.has(f.componentName)
@@ -5119,16 +5118,16 @@ ${SHOWCASE_CHROME}`;
   root.appendChild(headerBand(theme));
   root.appendChild(paletteSection(theme));
   root.appendChild(typographySection(theme));
-  root.appendChild(cardsSection("Components", leafComponents, theme));
-  root.appendChild(hudSection(theme));
-  root.appendChild(decorationsSection(theme));
-  root.appendChild(cardsSection("Treatments", allTreatments(), theme));
+  root.appendChild(cardsSection("Components", leafComponents, theme, refreshers2));
+  root.appendChild(hudSection(theme, refreshers2));
+  root.appendChild(decorationsSection(theme, refreshers2));
+  root.appendChild(cardsSection("Treatments", allTreatments(), theme, refreshers2));
   root.appendChild(rulesSection(theme));
-  const teardown = settleAfterAttach(shadow);
+  const teardown = settleAfterAttach(shadow, refreshers2);
   return {
     destroy: () => {
       teardown();
-      shadow.replaceChildren();
+      wrapper.remove();
     }
   };
 };
@@ -5184,8 +5183,9 @@ const mountEditor = async (container, opts = {}) => {
   bootstrapFx();
   const themeName = opts.themeName ?? "block";
   const theme = await loadTheme(themeName);
-  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
-  shadow.replaceChildren();
+  const wrapper = document.createElement("div");
+  container.appendChild(wrapper);
+  const shadow = wrapper.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = `${theme.css.replace(/:root/g, ":host")}
 ${SHOWCASE_CHROME}
@@ -5193,6 +5193,8 @@ ${EDITOR_CHROME}`;
   shadow.appendChild(style);
   const rootEl = document.createElement("div");
   shadow.appendChild(rootEl);
+  const refreshers2 = [];
+  let settleTeardown = null;
   const toolbar = el("div", "toolbar");
   toolbar.appendChild(el("span", "tb-title", "DECK EDITOR"));
   const themeLabel = el("span", "tb-theme");
@@ -5222,12 +5224,14 @@ ${EDITOR_CHROME}`;
     themeLabel.textContent = `theme: ${doc.theme}  ·  ${doc.scenes.length} slides`;
     deckGrid.replaceChildren();
     cards = [];
+    refreshers2.length = 0;
     doc.scenes.forEach((scene, i) => {
       const compId = `ed-${String(i + 1).padStart(2, "0")}-${scene.id}`;
       const label = `${i + 1}. ${scene.id} · ${scene.treatment}`;
       try {
         const built = buildCard(getTreatment(scene.treatment), {
           theme,
+          refreshers: refreshers2,
           compId,
           label,
           initial: scene.params,
@@ -5250,7 +5254,8 @@ ${EDITOR_CHROME}`;
         cards.push({ scene, snapshot: null, lastEdit: null });
       }
     });
-    settleAfterAttach(shadow);
+    settleTeardown?.();
+    settleTeardown = settleAfterAttach(shadow, refreshers2);
   };
   const gatherDeck = () => {
     if (!currentDoc) return null;
@@ -5338,7 +5343,10 @@ ${EDITOR_CHROME}`;
   else setMsg("Load a deck.json to begin.");
   return {
     load: (raw) => loadFromUnknown(raw, "the deck"),
-    destroy: () => shadow.replaceChildren()
+    destroy: () => {
+      settleTeardown?.();
+      wrapper.remove();
+    }
   };
 };
 const mountPreview = (container, instance, theme, opts = {}) => {
