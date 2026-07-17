@@ -12,7 +12,7 @@ If additions or edits are made to the library,
 1. Rebuild the engine:
 
    ```bash
-   pnpm build:engine +  +  + pnpm install
+   pnpm build:engine
    ```
 
 2. Commit the new code in `/dist` and push to origin
