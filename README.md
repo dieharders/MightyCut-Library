@@ -5,6 +5,33 @@ treatments, themes, FX descriptors, and the Zod contracts. Consumed by BOTH the 
 harness (`../MightyCut`) and the web UI (`../MightyCut-WebUI`), so the exact same
 component `build()` code drives final MP4 renders and interactive previews.
 
+## Quick Start
+
+If additions or edits are made to the library,
+
+1. Rebuild the engine:
+
+   ```bash
+   pnpm build:engine +  +  + pnpm install
+   ```
+
+2. Commit the new code in `/dist` and push to origin
+
+To sync changes to the WebUI consumer, pull latest from the submodule:
+
+```bash
+git -C packages/library pull        # (or: git submodule update --remote packages/library)
+pnpm install                        # pnpm COPIES the file: dep into its store, required
+```
+
+To sync changes to the media server consumer:
+
+```bash
+# after a normal clone:
+git submodule update --init --recursive
+# git submodule update --remote packages/mightycut-library
+```
+
 ## Layout
 
 ```
