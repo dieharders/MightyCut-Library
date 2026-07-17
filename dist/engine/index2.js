@@ -9,38 +9,6 @@ const loadTheme = async (name) => {
       throw new Error(`unknown theme: ${name} (available: ${THEMES.join(", ")})`);
   }
 };
-const components = /* @__PURE__ */ new Map();
-const treatments = /* @__PURE__ */ new Map();
-const registerComponent = (factory) => {
-  if (components.has(factory.componentName)) {
-    throw new Error(`duplicate component '${factory.componentName}'`);
-  }
-  components.set(factory.componentName, factory);
-  return factory;
-};
-const registerTreatment = (factory) => {
-  if (treatments.has(factory.treatmentName)) {
-    throw new Error(`duplicate treatment '${factory.treatmentName}'`);
-  }
-  treatments.set(factory.treatmentName, factory);
-  return factory;
-};
-const getComponent = (name) => {
-  const f = components.get(name);
-  if (!f) throw new Error(`unknown component '${name}' (registered: ${[...components.keys()].join(", ")})`);
-  return f;
-};
-const getTreatment = (name) => {
-  const f = treatments.get(name);
-  if (!f) throw new Error(`unknown treatment '${name}' (registered: ${[...treatments.keys()].join(", ")})`);
-  return f;
-};
-const hasComponent = (name) => components.has(name);
-const hasTreatment = (name) => treatments.has(name);
-const componentNames = () => [...components.keys()].sort();
-const treatmentNames = () => [...treatments.keys()].sort();
-const allComponents = () => [...components.values()];
-const allTreatments = () => [...treatments.values()];
 const VOID_TAGS = /* @__PURE__ */ new Set(["br", "hr", "img", "input", "meta", "link", "source"]);
 const parseFragment = (html) => {
   const roots = [];
@@ -89,9 +57,9 @@ const parseFragment = (html) => {
       const rawTag = html.slice(i + 1, j);
       const tagEnd = rawTag.replace(/\s+$/, "");
       const selfClose = tagEnd.endsWith("/") && /[\s"']/.test(tagEnd.charAt(tagEnd.length - 2) || " ");
-      const el2 = parseOpenTag(selfClose ? tagEnd.slice(0, -1) : rawTag);
-      push(el2);
-      if (!selfClose && !VOID_TAGS.has(el2.tag)) stack.push(el2);
+      const el = parseOpenTag(selfClose ? tagEnd.slice(0, -1) : rawTag);
+      push(el);
+      if (!selfClose && !VOID_TAGS.has(el.tag)) stack.push(el);
       i = j + 1;
       continue;
     }
@@ -140,8 +108,8 @@ const findAll = (node, pred) => {
   return out;
 };
 const find = (node, pred) => findAll(node, pred)[0] ?? null;
-const setText = (el2, text) => {
-  el2.children = [{ type: "text", text }];
+const setText = (el, text) => {
+  el.children = [{ type: "text", text }];
 };
 const removeWhere = (nodes, pred) => {
   for (let i = nodes.length - 1; i >= 0; i--) {
@@ -155,8 +123,81 @@ const removeWhere = (nodes, pred) => {
     }
   }
 };
-const attrEq = (name, value) => (el2) => el2.attrs[name] === value;
-const hasAttr = (name) => (el2) => name in el2.attrs;
+const attrEq = (name, value) => (el) => el.attrs[name] === value;
+const hasAttr = (name) => (el) => name in el.attrs;
+const js = (s) => JSON.stringify(s).replace(/<\//g, "<\\/");
+const wrapSubComposition = (parts) => {
+  const { compId, voIds, bodyHtml, entranceJs, pageClasses } = parts;
+  const cls = compId;
+  const bodyCss = parts.bodyCss ?? "";
+  const bodyJs = parts.bodyJs ?? "";
+  const exitJs = parts.exitJs ?? "";
+  const exitBlock = exitJs ? `
+          ${exitJs}` : "";
+  const pageStyle = parts.pageStyle ? ` style="${parts.pageStyle}"` : "";
+  const preBody = parts.preBody ?? "";
+  const extraHead = parts.extraHead ?? "";
+  return `<!doctype html>
+<html
+  lang="en"
+  data-composition-variables='[
+    {"id":"dur","type":"number","label":"Scene duration (s)","default":6},
+    {"id":"leadIn","type":"number","label":"Lead-in (s)","default":0.4},
+    {"id":"lines","type":"string","label":"VO line offsets JSON","default":"{}"}
+  ]'
+>
+  <body>
+    <template id="${compId}-template">
+      <div data-composition-id="${compId}" data-width="1920" data-height="1080">${extraHead}
+        <style>
+          .${cls}-root { position: absolute; inset: 0; overflow: hidden; }${bodyCss}
+        </style>
+        <div class="${cls}-root">
+          ${preBody}
+          <div class="${pageClasses} ${cls}-page"${pageStyle}>${bodyHtml}
+          </div>
+        </div>
+        <script>
+          // Bare __hyperframes/document/gsap — the bundler injects per-instance
+          // scoped versions as function parameters. Never use window.* forms.
+          var v =
+            typeof __hyperframes !== "undefined" && __hyperframes && __hyperframes.getVariables
+              ? __hyperframes.getVariables()
+              : {};
+          var lines = {};
+          try {
+            lines = typeof v.lines === "string" ? JSON.parse(v.lines || "{}") : v.lines || {};
+          } catch (e) { lines = {}; }
+          var dur = typeof v.dur === "number" ? v.dur : 6;
+          var leadIn = typeof v.leadIn === "number" ? v.leadIn : 0.4;
+          // Narration sync: scene-local start (s) of a VO line, with fallback.
+          var at = function (id, fb) { return lines[id] != null ? lines[id] : fb != null ? fb : leadIn; };
+          var lineStarts = Object.keys(lines).map(function (k) { return lines[k]; });
+          var atIndex = function (n) {
+            if (!lineStarts.length) return leadIn + Math.min(n, 3) * 0.45;
+            return lineStarts[Math.max(0, Math.min(n, lineStarts.length - 1))];
+          };
+          // This slide's VO line ids, in narration order (from spec.json).
+          var voIds = ${JSON.stringify(voIds)};
+          var lineId = function (n) { return voIds[Math.min(n, Math.max(voIds.length - 1, 0))] || ""; };
+
+          var q = function (sel) { return document.querySelector(sel); };
+          var qa = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
+          var page = q(".${cls}-page");
+
+          var tl = gsap.timeline({ paused: true });
+          ${entranceJs}
+${bodyJs}${exitBlock}
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines[${js(compId)}] = tl;
+        <\/script>
+      </div>
+    </template>
+  </body>
+</html>
+`;
+};
 const scopeCss = (css, root) => {
   const prefix = `.${root}-root`;
   return css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|})\s*([^{}@]+)\{/g, (_m, close, selector) => {
@@ -177,6 +218,17 @@ ${trimmed}`);
   }
   return out.join("\n\n");
 };
+const buildScene = (treatment, ctx, overrides) => {
+  const parts = treatment.buildScene(ctx);
+  if (overrides?.ground) {
+    parts.pageStyle = (parts.pageStyle ?? "").replace(
+      /background:\s*var\(--[a-z]+\)/,
+      `background: var(--${overrides.ground})`
+    );
+  }
+  return parts;
+};
+const renderScene = (treatment, ctx, overrides) => wrapSubComposition(buildScene(treatment, ctx, overrides));
 const buildPreview = (inst, ctx) => {
   const bn = inst.buildNode(ctx);
   if (inst.kind === "treatment") {
@@ -304,7 +356,7 @@ function assignProp(target, prop, value) {
     configurable: true
   });
 }
-function esc(str) {
+function esc$1(str) {
   return JSON.stringify(str);
 }
 const captureStackTrace = Error.captureStackTrace ? Error.captureStackTrace : (..._args) => {
@@ -505,8 +557,8 @@ function aborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path, issues2) {
-  return issues2.map((iss) => {
+function prefixIssues(path, issues) {
+  return issues.map((iss) => {
     var _a;
     (_a = iss).path ?? (_a.path = []);
     iss.path.unshift(path);
@@ -593,7 +645,7 @@ function formatError(error, _mapper) {
   const processError = (error2) => {
     for (const issue2 of error2.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues2) => processError({ issues: issues2 }));
+        issue2.errors.map((issues) => processError({ issues }));
       } else if (issue2.code === "invalid_key") {
         processError({ issues: issue2.issues });
       } else if (issue2.code === "invalid_element") {
@@ -604,15 +656,15 @@ function formatError(error, _mapper) {
         let curr = fieldErrors;
         let i = 0;
         while (i < issue2.path.length) {
-          const el2 = issue2.path[i];
+          const el = issue2.path[i];
           const terminal = i === issue2.path.length - 1;
           if (!terminal) {
-            curr[el2] = curr[el2] || { _errors: [] };
+            curr[el] = curr[el] || { _errors: [] };
           } else {
-            curr[el2] = curr[el2] || { _errors: [] };
-            curr[el2]._errors.push(mapper(issue2));
+            curr[el] = curr[el] || { _errors: [] };
+            curr[el]._errors.push(mapper(issue2));
           }
-          curr = curr[el2];
+          curr = curr[el];
           i++;
         }
       }
@@ -1692,7 +1744,7 @@ const $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     const doc = new Doc(["shape", "payload", "ctx"]);
     const normalized = _normalized.value;
     const parseStr = (key) => {
-      const k = esc(key);
+      const k = esc$1(key);
       return `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
     };
     doc.write(`const input = payload.value;`);
@@ -1706,7 +1758,7 @@ const $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
       if (normalized.optionalKeys.has(key)) {
         const id2 = ids[key];
         doc.write(`const ${id2} = ${parseStr(key)};`);
-        const k = esc(key);
+        const k = esc$1(key);
         doc.write(`
         if (${id2}.issues.length) {
           if (input[${k}] === undefined) {
@@ -1733,9 +1785,9 @@ const $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
         doc.write(`
           if (${id2}.issues.length) payload.issues = payload.issues.concat(${id2}.issues.map(iss => ({
             ...iss,
-            path: iss.path ? [${esc(key)}, ...iss.path] : [${esc(key)}]
+            path: iss.path ? [${esc$1(key)}, ...iss.path] : [${esc$1(key)}]
           })));`);
-        doc.write(`newResult[${esc(key)}] = ${id2}.value`);
+        doc.write(`newResult[${esc$1(key)}] = ${id2}.value`);
       }
     }
     doc.write(`payload.value = newResult;`);
@@ -1771,9 +1823,9 @@ const $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
       payload.value = {};
       const shape = value.shape;
       for (const key of value.keys) {
-        const el2 = shape[key];
-        const r = el2._zod.run({ value: input[key], issues: [] }, ctx);
-        const isOptional = el2._zod.optin === "optional" && el2._zod.optout === "optional";
+        const el = shape[key];
+        const r = el._zod.run({ value: input[key], issues: [] }, ctx);
+        const isOptional = el._zod.optin === "optional" && el._zod.optout === "optional";
         if (r instanceof Promise) {
           proms.push(r.then((r2) => isOptional ? handleOptionalObjectResult(r2, payload, key, input) : handleObjectResult(r2, payload, key)));
         } else if (isOptional) {
@@ -1999,10 +2051,10 @@ const $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
     }
     if (def.rest) {
       const rest = input.slice(items.length);
-      for (const el2 of rest) {
+      for (const el of rest) {
         i++;
         const result = def.rest._zod.run({
-          value: el2,
+          value: el,
           issues: []
         }, ctx);
         if (result instanceof Promise) {
@@ -2840,6 +2892,765 @@ function _refine(Class, fn, _params) {
   });
   return schema;
 }
+class JSONSchemaGenerator {
+  constructor(params) {
+    this.counter = 0;
+    this.metadataRegistry = params?.metadata ?? globalRegistry;
+    this.target = params?.target ?? "draft-2020-12";
+    this.unrepresentable = params?.unrepresentable ?? "throw";
+    this.override = params?.override ?? (() => {
+    });
+    this.io = params?.io ?? "output";
+    this.seen = /* @__PURE__ */ new Map();
+  }
+  process(schema, _params = { path: [], schemaPath: [] }) {
+    var _a;
+    const def = schema._zod.def;
+    const formatMap = {
+      guid: "uuid",
+      url: "uri",
+      datetime: "date-time",
+      json_string: "json-string",
+      regex: ""
+      // do not set
+    };
+    const seen = this.seen.get(schema);
+    if (seen) {
+      seen.count++;
+      const isCycle = _params.schemaPath.includes(schema);
+      if (isCycle) {
+        seen.cycle = _params.path;
+      }
+      return seen.schema;
+    }
+    const result = { schema: {}, count: 1, cycle: void 0, path: _params.path };
+    this.seen.set(schema, result);
+    const overrideSchema = schema._zod.toJSONSchema?.();
+    if (overrideSchema) {
+      result.schema = overrideSchema;
+    } else {
+      const params = {
+        ..._params,
+        schemaPath: [..._params.schemaPath, schema],
+        path: _params.path
+      };
+      const parent = schema._zod.parent;
+      if (parent) {
+        result.ref = parent;
+        this.process(parent, params);
+        this.seen.get(parent).isParent = true;
+      } else {
+        const _json = result.schema;
+        switch (def.type) {
+          case "string": {
+            const json = _json;
+            json.type = "string";
+            const { minimum, maximum, format, patterns, contentEncoding } = schema._zod.bag;
+            if (typeof minimum === "number")
+              json.minLength = minimum;
+            if (typeof maximum === "number")
+              json.maxLength = maximum;
+            if (format) {
+              json.format = formatMap[format] ?? format;
+              if (json.format === "")
+                delete json.format;
+            }
+            if (contentEncoding)
+              json.contentEncoding = contentEncoding;
+            if (patterns && patterns.size > 0) {
+              const regexes = [...patterns];
+              if (regexes.length === 1)
+                json.pattern = regexes[0].source;
+              else if (regexes.length > 1) {
+                result.schema.allOf = [
+                  ...regexes.map((regex) => ({
+                    ...this.target === "draft-7" ? { type: "string" } : {},
+                    pattern: regex.source
+                  }))
+                ];
+              }
+            }
+            break;
+          }
+          case "number": {
+            const json = _json;
+            const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
+            if (typeof format === "string" && format.includes("int"))
+              json.type = "integer";
+            else
+              json.type = "number";
+            if (typeof exclusiveMinimum === "number")
+              json.exclusiveMinimum = exclusiveMinimum;
+            if (typeof minimum === "number") {
+              json.minimum = minimum;
+              if (typeof exclusiveMinimum === "number") {
+                if (exclusiveMinimum >= minimum)
+                  delete json.minimum;
+                else
+                  delete json.exclusiveMinimum;
+              }
+            }
+            if (typeof exclusiveMaximum === "number")
+              json.exclusiveMaximum = exclusiveMaximum;
+            if (typeof maximum === "number") {
+              json.maximum = maximum;
+              if (typeof exclusiveMaximum === "number") {
+                if (exclusiveMaximum <= maximum)
+                  delete json.maximum;
+                else
+                  delete json.exclusiveMaximum;
+              }
+            }
+            if (typeof multipleOf === "number")
+              json.multipleOf = multipleOf;
+            break;
+          }
+          case "boolean": {
+            const json = _json;
+            json.type = "boolean";
+            break;
+          }
+          case "bigint": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("BigInt cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "symbol": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Symbols cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "null": {
+            _json.type = "null";
+            break;
+          }
+          case "any": {
+            break;
+          }
+          case "unknown": {
+            break;
+          }
+          case "undefined": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Undefined cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "void": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Void cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "never": {
+            _json.not = {};
+            break;
+          }
+          case "date": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Date cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "array": {
+            const json = _json;
+            const { minimum, maximum } = schema._zod.bag;
+            if (typeof minimum === "number")
+              json.minItems = minimum;
+            if (typeof maximum === "number")
+              json.maxItems = maximum;
+            json.type = "array";
+            json.items = this.process(def.element, { ...params, path: [...params.path, "items"] });
+            break;
+          }
+          case "object": {
+            const json = _json;
+            json.type = "object";
+            json.properties = {};
+            const shape = def.shape;
+            for (const key in shape) {
+              json.properties[key] = this.process(shape[key], {
+                ...params,
+                path: [...params.path, "properties", key]
+              });
+            }
+            const allKeys = new Set(Object.keys(shape));
+            const requiredKeys = new Set([...allKeys].filter((key) => {
+              const v = def.shape[key]._zod;
+              if (this.io === "input") {
+                return v.optin === void 0;
+              } else {
+                return v.optout === void 0;
+              }
+            }));
+            if (requiredKeys.size > 0) {
+              json.required = Array.from(requiredKeys);
+            }
+            if (def.catchall?._zod.def.type === "never") {
+              json.additionalProperties = false;
+            } else if (!def.catchall) {
+              if (this.io === "output")
+                json.additionalProperties = false;
+            } else if (def.catchall) {
+              json.additionalProperties = this.process(def.catchall, {
+                ...params,
+                path: [...params.path, "additionalProperties"]
+              });
+            }
+            break;
+          }
+          case "union": {
+            const json = _json;
+            json.anyOf = def.options.map((x, i) => this.process(x, {
+              ...params,
+              path: [...params.path, "anyOf", i]
+            }));
+            break;
+          }
+          case "intersection": {
+            const json = _json;
+            const a = this.process(def.left, {
+              ...params,
+              path: [...params.path, "allOf", 0]
+            });
+            const b = this.process(def.right, {
+              ...params,
+              path: [...params.path, "allOf", 1]
+            });
+            const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
+            const allOf = [
+              ...isSimpleIntersection(a) ? a.allOf : [a],
+              ...isSimpleIntersection(b) ? b.allOf : [b]
+            ];
+            json.allOf = allOf;
+            break;
+          }
+          case "tuple": {
+            const json = _json;
+            json.type = "array";
+            const prefixItems = def.items.map((x, i) => this.process(x, { ...params, path: [...params.path, "prefixItems", i] }));
+            if (this.target === "draft-2020-12") {
+              json.prefixItems = prefixItems;
+            } else {
+              json.items = prefixItems;
+            }
+            if (def.rest) {
+              const rest = this.process(def.rest, {
+                ...params,
+                path: [...params.path, "items"]
+              });
+              if (this.target === "draft-2020-12") {
+                json.items = rest;
+              } else {
+                json.additionalItems = rest;
+              }
+            }
+            if (def.rest) {
+              json.items = this.process(def.rest, {
+                ...params,
+                path: [...params.path, "items"]
+              });
+            }
+            const { minimum, maximum } = schema._zod.bag;
+            if (typeof minimum === "number")
+              json.minItems = minimum;
+            if (typeof maximum === "number")
+              json.maxItems = maximum;
+            break;
+          }
+          case "record": {
+            const json = _json;
+            json.type = "object";
+            json.propertyNames = this.process(def.keyType, { ...params, path: [...params.path, "propertyNames"] });
+            json.additionalProperties = this.process(def.valueType, {
+              ...params,
+              path: [...params.path, "additionalProperties"]
+            });
+            break;
+          }
+          case "map": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Map cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "set": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Set cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "enum": {
+            const json = _json;
+            const values = getEnumValues(def.entries);
+            if (values.every((v) => typeof v === "number"))
+              json.type = "number";
+            if (values.every((v) => typeof v === "string"))
+              json.type = "string";
+            json.enum = values;
+            break;
+          }
+          case "literal": {
+            const json = _json;
+            const vals = [];
+            for (const val of def.values) {
+              if (val === void 0) {
+                if (this.unrepresentable === "throw") {
+                  throw new Error("Literal `undefined` cannot be represented in JSON Schema");
+                }
+              } else if (typeof val === "bigint") {
+                if (this.unrepresentable === "throw") {
+                  throw new Error("BigInt literals cannot be represented in JSON Schema");
+                } else {
+                  vals.push(Number(val));
+                }
+              } else {
+                vals.push(val);
+              }
+            }
+            if (vals.length === 0) ;
+            else if (vals.length === 1) {
+              const val = vals[0];
+              json.type = val === null ? "null" : typeof val;
+              json.const = val;
+            } else {
+              if (vals.every((v) => typeof v === "number"))
+                json.type = "number";
+              if (vals.every((v) => typeof v === "string"))
+                json.type = "string";
+              if (vals.every((v) => typeof v === "boolean"))
+                json.type = "string";
+              if (vals.every((v) => v === null))
+                json.type = "null";
+              json.enum = vals;
+            }
+            break;
+          }
+          case "file": {
+            const json = _json;
+            const file = {
+              type: "string",
+              format: "binary",
+              contentEncoding: "binary"
+            };
+            const { minimum, maximum, mime } = schema._zod.bag;
+            if (minimum !== void 0)
+              file.minLength = minimum;
+            if (maximum !== void 0)
+              file.maxLength = maximum;
+            if (mime) {
+              if (mime.length === 1) {
+                file.contentMediaType = mime[0];
+                Object.assign(json, file);
+              } else {
+                json.anyOf = mime.map((m) => {
+                  const mFile = { ...file, contentMediaType: m };
+                  return mFile;
+                });
+              }
+            } else {
+              Object.assign(json, file);
+            }
+            break;
+          }
+          case "transform": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Transforms cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "nullable": {
+            const inner = this.process(def.innerType, params);
+            _json.anyOf = [inner, { type: "null" }];
+            break;
+          }
+          case "nonoptional": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            break;
+          }
+          case "success": {
+            const json = _json;
+            json.type = "boolean";
+            break;
+          }
+          case "default": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            _json.default = JSON.parse(JSON.stringify(def.defaultValue));
+            break;
+          }
+          case "prefault": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            if (this.io === "input")
+              _json._prefault = JSON.parse(JSON.stringify(def.defaultValue));
+            break;
+          }
+          case "catch": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            let catchValue;
+            try {
+              catchValue = def.catchValue(void 0);
+            } catch {
+              throw new Error("Dynamic catch values are not supported in JSON Schema");
+            }
+            _json.default = catchValue;
+            break;
+          }
+          case "nan": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("NaN cannot be represented in JSON Schema");
+            }
+            break;
+          }
+          case "template_literal": {
+            const json = _json;
+            const pattern = schema._zod.pattern;
+            if (!pattern)
+              throw new Error("Pattern not found in template literal");
+            json.type = "string";
+            json.pattern = pattern.source;
+            break;
+          }
+          case "pipe": {
+            const innerType = this.io === "input" ? def.in._zod.def.type === "transform" ? def.out : def.in : def.out;
+            this.process(innerType, params);
+            result.ref = innerType;
+            break;
+          }
+          case "readonly": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            _json.readOnly = true;
+            break;
+          }
+          // passthrough types
+          case "promise": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            break;
+          }
+          case "optional": {
+            this.process(def.innerType, params);
+            result.ref = def.innerType;
+            break;
+          }
+          case "lazy": {
+            const innerType = schema._zod.innerType;
+            this.process(innerType, params);
+            result.ref = innerType;
+            break;
+          }
+          case "custom": {
+            if (this.unrepresentable === "throw") {
+              throw new Error("Custom types cannot be represented in JSON Schema");
+            }
+            break;
+          }
+        }
+      }
+    }
+    const meta = this.metadataRegistry.get(schema);
+    if (meta)
+      Object.assign(result.schema, meta);
+    if (this.io === "input" && isTransforming(schema)) {
+      delete result.schema.examples;
+      delete result.schema.default;
+    }
+    if (this.io === "input" && result.schema._prefault)
+      (_a = result.schema).default ?? (_a.default = result.schema._prefault);
+    delete result.schema._prefault;
+    const _result = this.seen.get(schema);
+    return _result.schema;
+  }
+  emit(schema, _params) {
+    const params = {
+      cycles: _params?.cycles ?? "ref",
+      reused: _params?.reused ?? "inline",
+      // unrepresentable: _params?.unrepresentable ?? "throw",
+      // uri: _params?.uri ?? ((id) => `${id}`),
+      external: _params?.external ?? void 0
+    };
+    const root = this.seen.get(schema);
+    if (!root)
+      throw new Error("Unprocessed schema. This is a bug in Zod.");
+    const makeURI = (entry) => {
+      const defsSegment = this.target === "draft-2020-12" ? "$defs" : "definitions";
+      if (params.external) {
+        const externalId = params.external.registry.get(entry[0])?.id;
+        const uriGenerator = params.external.uri ?? ((id3) => id3);
+        if (externalId) {
+          return { ref: uriGenerator(externalId) };
+        }
+        const id2 = entry[1].defId ?? entry[1].schema.id ?? `schema${this.counter++}`;
+        entry[1].defId = id2;
+        return { defId: id2, ref: `${uriGenerator("__shared")}#/${defsSegment}/${id2}` };
+      }
+      if (entry[1] === root) {
+        return { ref: "#" };
+      }
+      const uriPrefix = `#`;
+      const defUriPrefix = `${uriPrefix}/${defsSegment}/`;
+      const defId = entry[1].schema.id ?? `__schema${this.counter++}`;
+      return { defId, ref: defUriPrefix + defId };
+    };
+    const extractToDef = (entry) => {
+      if (entry[1].schema.$ref) {
+        return;
+      }
+      const seen = entry[1];
+      const { ref, defId } = makeURI(entry);
+      seen.def = { ...seen.schema };
+      if (defId)
+        seen.defId = defId;
+      const schema2 = seen.schema;
+      for (const key in schema2) {
+        delete schema2[key];
+      }
+      schema2.$ref = ref;
+    };
+    if (params.cycles === "throw") {
+      for (const entry of this.seen.entries()) {
+        const seen = entry[1];
+        if (seen.cycle) {
+          throw new Error(`Cycle detected: #/${seen.cycle?.join("/")}/<root>
+
+Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.`);
+        }
+      }
+    }
+    for (const entry of this.seen.entries()) {
+      const seen = entry[1];
+      if (schema === entry[0]) {
+        extractToDef(entry);
+        continue;
+      }
+      if (params.external) {
+        const ext = params.external.registry.get(entry[0])?.id;
+        if (schema !== entry[0] && ext) {
+          extractToDef(entry);
+          continue;
+        }
+      }
+      const id2 = this.metadataRegistry.get(entry[0])?.id;
+      if (id2) {
+        extractToDef(entry);
+        continue;
+      }
+      if (seen.cycle) {
+        extractToDef(entry);
+        continue;
+      }
+      if (seen.count > 1) {
+        if (params.reused === "ref") {
+          extractToDef(entry);
+          continue;
+        }
+      }
+    }
+    const flattenRef = (zodSchema, params2) => {
+      const seen = this.seen.get(zodSchema);
+      const schema2 = seen.def ?? seen.schema;
+      const _cached = { ...schema2 };
+      if (seen.ref === null) {
+        return;
+      }
+      const ref = seen.ref;
+      seen.ref = null;
+      if (ref) {
+        flattenRef(ref, params2);
+        const refSchema = this.seen.get(ref).schema;
+        if (refSchema.$ref && params2.target === "draft-7") {
+          schema2.allOf = schema2.allOf ?? [];
+          schema2.allOf.push(refSchema);
+        } else {
+          Object.assign(schema2, refSchema);
+          Object.assign(schema2, _cached);
+        }
+      }
+      if (!seen.isParent)
+        this.override({
+          zodSchema,
+          jsonSchema: schema2,
+          path: seen.path ?? []
+        });
+    };
+    for (const entry of [...this.seen.entries()].reverse()) {
+      flattenRef(entry[0], { target: this.target });
+    }
+    const result = {};
+    if (this.target === "draft-2020-12") {
+      result.$schema = "https://json-schema.org/draft/2020-12/schema";
+    } else if (this.target === "draft-7") {
+      result.$schema = "http://json-schema.org/draft-07/schema#";
+    } else {
+      console.warn(`Invalid target: ${this.target}`);
+    }
+    if (params.external?.uri) {
+      const id2 = params.external.registry.get(schema)?.id;
+      if (!id2)
+        throw new Error("Schema is missing an `id` property");
+      result.$id = params.external.uri(id2);
+    }
+    Object.assign(result, root.def);
+    const defs = params.external?.defs ?? {};
+    for (const entry of this.seen.entries()) {
+      const seen = entry[1];
+      if (seen.def && seen.defId) {
+        defs[seen.defId] = seen.def;
+      }
+    }
+    if (params.external) ;
+    else {
+      if (Object.keys(defs).length > 0) {
+        if (this.target === "draft-2020-12") {
+          result.$defs = defs;
+        } else {
+          result.definitions = defs;
+        }
+      }
+    }
+    try {
+      return JSON.parse(JSON.stringify(result));
+    } catch (_err) {
+      throw new Error("Error converting schema to JSON.");
+    }
+  }
+}
+function toJSONSchema(input, _params) {
+  if (input instanceof $ZodRegistry) {
+    const gen2 = new JSONSchemaGenerator(_params);
+    const defs = {};
+    for (const entry of input._idmap.entries()) {
+      const [_, schema] = entry;
+      gen2.process(schema);
+    }
+    const schemas = {};
+    const external = {
+      registry: input,
+      uri: _params?.uri,
+      defs
+    };
+    for (const entry of input._idmap.entries()) {
+      const [key, schema] = entry;
+      schemas[key] = gen2.emit(schema, {
+        ..._params,
+        external
+      });
+    }
+    if (Object.keys(defs).length > 0) {
+      const defsSegment = gen2.target === "draft-2020-12" ? "$defs" : "definitions";
+      schemas.__shared = {
+        [defsSegment]: defs
+      };
+    }
+    return { schemas };
+  }
+  const gen = new JSONSchemaGenerator(_params);
+  gen.process(input);
+  return gen.emit(input, _params);
+}
+function isTransforming(_schema, _ctx) {
+  const ctx = _ctx ?? { seen: /* @__PURE__ */ new Set() };
+  if (ctx.seen.has(_schema))
+    return false;
+  ctx.seen.add(_schema);
+  const schema = _schema;
+  const def = schema._zod.def;
+  switch (def.type) {
+    case "string":
+    case "number":
+    case "bigint":
+    case "boolean":
+    case "date":
+    case "symbol":
+    case "undefined":
+    case "null":
+    case "any":
+    case "unknown":
+    case "never":
+    case "void":
+    case "literal":
+    case "enum":
+    case "nan":
+    case "file":
+    case "template_literal":
+      return false;
+    case "array": {
+      return isTransforming(def.element, ctx);
+    }
+    case "object": {
+      for (const key in def.shape) {
+        if (isTransforming(def.shape[key], ctx))
+          return true;
+      }
+      return false;
+    }
+    case "union": {
+      for (const option of def.options) {
+        if (isTransforming(option, ctx))
+          return true;
+      }
+      return false;
+    }
+    case "intersection": {
+      return isTransforming(def.left, ctx) || isTransforming(def.right, ctx);
+    }
+    case "tuple": {
+      for (const item of def.items) {
+        if (isTransforming(item, ctx))
+          return true;
+      }
+      if (def.rest && isTransforming(def.rest, ctx))
+        return true;
+      return false;
+    }
+    case "record": {
+      return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
+    }
+    case "map": {
+      return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
+    }
+    case "set": {
+      return isTransforming(def.valueType, ctx);
+    }
+    // inner types
+    case "promise":
+    case "optional":
+    case "nonoptional":
+    case "nullable":
+    case "readonly":
+      return isTransforming(def.innerType, ctx);
+    case "lazy":
+      return isTransforming(def.getter(), ctx);
+    case "default": {
+      return isTransforming(def.innerType, ctx);
+    }
+    case "prefault": {
+      return isTransforming(def.innerType, ctx);
+    }
+    case "custom": {
+      return false;
+    }
+    case "transform": {
+      return true;
+    }
+    case "pipe": {
+      return isTransforming(def.in, ctx) || isTransforming(def.out, ctx);
+    }
+    case "success": {
+      return false;
+    }
+    case "catch": {
+      return false;
+    }
+  }
+  throw new Error(`Unknown schema type: ${def.type}`);
+}
 const ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def) => {
   $ZodISODateTime.init(inst, def);
   ZodStringFormat.init(inst, def);
@@ -2868,8 +3679,8 @@ const ZodISODuration = /* @__PURE__ */ $constructor("ZodISODuration", (inst, def
 function duration(params) {
   return _isoDuration(ZodISODuration, params);
 }
-const initializer = (inst, issues2) => {
-  $ZodError.init(inst, issues2);
+const initializer = (inst, issues) => {
+  $ZodError.init(inst, issues);
   inst.name = "ZodError";
   Object.defineProperties(inst, {
     format: {
@@ -2885,7 +3696,7 @@ const initializer = (inst, issues2) => {
       // enumerable: false,
     },
     addIssues: {
-      value: (issues3) => inst.issues.push(...issues3)
+      value: (issues2) => inst.issues.push(...issues2)
       // enumerable: false,
     },
     isEmpty: {
@@ -3649,6 +4460,157 @@ const sceneExitJs = (animOut, timeIn = "short", timeOut = "short") => {
   return `var _dout = Math.min(${tOut}, Math.max(0, dur - Math.min(${tIn}, dur)));
           MC.${p.fn}(tl, page, dur - _dout, { dur: _dout${optStr(p.opts)} });`;
 };
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const rootElement = (html) => {
+  const root = parseFragment(html).find(isElement);
+  if (!root || !isElement(root)) throw new Error("template has no root element");
+  return root;
+};
+const addClass = (el, cls) => {
+  const cur = el.attrs.class ?? "";
+  el.attrs.class = cur ? `${cur} ${cls}` : cls;
+};
+const mergeStyle = (el, style) => {
+  if (!style) return;
+  const cur = (el.attrs.style ?? "").trim().replace(/;\s*$/, "");
+  el.attrs.style = cur ? `${cur}; ${style}` : style;
+};
+const styleProps = (props) => Object.entries(props).map(([k, v]) => `${k}: ${v}`).join("; ");
+const fillSlots = (root, fills) => {
+  for (const [slot, value] of Object.entries(fills)) {
+    const el = find(root, attrEq("data-slot", slot));
+    if (!el) continue;
+    if (value == null || value === "") {
+      el.attrs["data-remove"] = "";
+      continue;
+    }
+    setText(el, esc(String(value)));
+    delete el.attrs["data-slot"];
+  }
+};
+const fillRaw = (root, fills) => {
+  for (const [slot, value] of Object.entries(fills)) {
+    const el = find(root, attrEq("data-html", slot));
+    if (!el) continue;
+    if (value == null || value === "") {
+      el.attrs["data-remove"] = "";
+      continue;
+    }
+    el.children = [{ type: "text", text: value }];
+    delete el.attrs["data-html"];
+  }
+};
+const stampAnims = (root, prefix) => {
+  const ids = /* @__PURE__ */ new Set();
+  for (const el of findAll(root, hasAttr("data-anim"))) {
+    const id2 = el.attrs["data-anim"];
+    ids.add(id2);
+    addClass(el, `${prefix}-${id2}`);
+    delete el.attrs["data-anim"];
+  }
+  return ids;
+};
+const pruneRemoved = (root) => {
+  removeWhere(root.children, hasAttr("data-remove"));
+};
+const ANNOTATION_ATTRS = ["data-slot", "data-html", "data-anim", "data-children", "data-remove", "data-deco", "data-deco-dot"];
+const stripAnnotations = (root) => {
+  for (const el of findAll(root, () => true)) {
+    for (const a of ANNOTATION_ATTRS) delete el.attrs[a];
+  }
+};
+const childrenContainer = (root) => find(root, hasAttr("data-children"));
+function component(def) {
+  let cachedJson = null;
+  const jsonSchema = () => cachedJson ??= toJSONSchema(def.schema, { io: "input" });
+  const parse2 = (raw) => def.schema.parse(raw === void 0 ? def.example : raw);
+  const factory = ((raw) => {
+    let animOverride = null;
+    let transitionOverride = null;
+    const instance = {
+      name: def.name,
+      kind: "component",
+      jsonSchema,
+      defaults: () => def.schema.parse(def.example),
+      withAnim(anims) {
+        animOverride = anims;
+        return this;
+      },
+      withTransition(t) {
+        transitionOverride = t;
+        return this;
+      },
+      buildNode(ctx) {
+        const p = parse2(raw);
+        const root = rootElement(def.template);
+        if (def.fill) fillSlots(root, def.fill(p));
+        if (def.rawFill) fillRaw(root, def.rawFill(p));
+        pruneRemoved(root);
+        stampAnims(root, ctx.idPrefix);
+        if (def.layout) mergeStyle(root, styleProps(def.layout(p)));
+        stripAnnotations(root);
+        const internals = animOverride ?? (def.anim ? def.anim(p) : []);
+        const useDefault = !transitionOverride?.animIn;
+        const inName = transitionOverride?.animIn ?? def.animIn;
+        const inTime = transitionOverride?.timeIn ?? def.timeIn;
+        const entrance = inName && inName !== "none" ? elementIn(
+          inName,
+          def.animTarget ?? "item",
+          inTime ? TIMING_SECONDS[inTime] : void 0,
+          useDefault ? def.animInOpts : void 0
+        ) : null;
+        const local = entrance ? [entrance, ...internals] : internals;
+        const anims = local.map((a) => qualifyAnim(a, ctx.idPrefix));
+        return { node: root, css: def.css, anims };
+      },
+      build(ctx) {
+        const bn = this.buildNode(ctx);
+        return { html: serialize(bn.node), css: bn.css, anims: bn.anims };
+      }
+    };
+    return instance;
+  });
+  return Object.assign(factory, {
+    componentName: def.name,
+    kind: "component",
+    schema: def.schema,
+    frame: def.frame,
+    jsonSchema,
+    defaults: () => def.schema.parse(def.example)
+  });
+}
+const components = /* @__PURE__ */ new Map();
+const treatments = /* @__PURE__ */ new Map();
+const registerComponent = (factory) => {
+  if (components.has(factory.componentName)) {
+    throw new Error(`duplicate component '${factory.componentName}'`);
+  }
+  components.set(factory.componentName, factory);
+  return factory;
+};
+const registerTreatment = (factory) => {
+  if (treatments.has(factory.treatmentName)) {
+    throw new Error(`duplicate treatment '${factory.treatmentName}'`);
+  }
+  treatments.set(factory.treatmentName, factory);
+  return factory;
+};
+const getComponent = (name) => {
+  const f = components.get(name);
+  if (!f) throw new Error(`unknown component '${name}' (registered: ${[...components.keys()].join(", ")})`);
+  return f;
+};
+const getTreatment = (name) => {
+  const f = treatments.get(name);
+  if (!f) throw new Error(`unknown treatment '${name}' (registered: ${[...treatments.keys()].join(", ")})`);
+  return f;
+};
+const hasComponent = (name) => components.has(name);
+const hasTreatment = (name) => treatments.has(name);
+const componentNames = () => [...components.keys()].sort();
+const treatmentNames = () => [...treatments.keys()].sort();
+const allComponents = () => [...components.values()];
+const allTreatments = () => [...treatments.values()];
 const rootContext = (compId, theme, opts) => ({
   compId,
   idPrefix: compId,
@@ -3656,726 +4618,6 @@ const rootContext = (compId, theme, opts) => ({
   mode: opts?.mode ?? "render",
   voIds: opts?.voIds
 });
-const id = string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
-const FRAME_THEME_NAMES = ["block", "capsule", "creative", "professional", "standard", "future"];
-const FRAME_TREATMENTS = [
-  "cover",
-  "feature-cards",
-  "stat-grid",
-  "closing-plate",
-  "quote",
-  "timeline",
-  "comparison",
-  "chart",
-  "bar-ranking",
-  "agenda"
-];
-const FRAME_GROUNDS = [
-  "offwhite",
-  "cream",
-  "blue",
-  "pink",
-  "green",
-  "yellow",
-  "black"
-];
-const SceneStoryboardSchema = object({
-  /** MUST equal a spec slide id — the builder cross-checks (tolerate-and-warn). */
-  sceneId: id,
-  treatment: _enum(FRAME_TREATMENTS),
-  options: object({
-    ground: _enum(FRAME_GROUNDS).optional(),
-    transition: TransitionSpecSchema.optional()
-  }).optional()
-});
-object({
-  theme: _enum(FRAME_THEME_NAMES),
-  scenes: array(SceneStoryboardSchema).min(3)
-}).superRefine((sb, ctx) => {
-  const seen = /* @__PURE__ */ new Set();
-  for (const [i, scene] of sb.scenes.entries()) {
-    if (seen.has(scene.sceneId)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["scenes", i, "sceneId"],
-        message: `duplicate sceneId '${scene.sceneId}'`
-      });
-    }
-    seen.add(scene.sceneId);
-  }
-});
-const mcFn = (name) => MC[name];
-const nameOf = (f) => "treatmentName" in f ? f.treatmentName : f.componentName;
-const isTreatment = (f) => "treatmentName" in f;
-const isFrameComp = (f) => !isTreatment(f) && f.frame === true;
-const el = (tag, cls, text) => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (text != null) n.textContent = text;
-  return n;
-};
-const refreshers = [];
-const coerce = (field, raw, checked) => {
-  if (field.type === "boolean") return !!checked;
-  if (field.type === "number" || field.type === "integer")
-    return raw === "" ? void 0 : Number(raw);
-  if (field.type === "array") {
-    if (raw.trim() === "") return void 0;
-    const parts = raw.split(",").map((s) => s.trim());
-    const itemType = field.items?.type ?? field.prefixItems?.[0]?.type;
-    return itemType === "number" || itemType === "integer" ? parts.map(Number) : parts;
-  }
-  return raw === "" ? void 0 : raw;
-};
-const inputFor = (field, value, onChange) => {
-  if (field.enum) {
-    const sel = el("select");
-    if (value == null) {
-      const empty = el("option");
-      empty.value = "";
-      empty.textContent = "— unset —";
-      empty.selected = true;
-      sel.appendChild(empty);
-    }
-    for (const opt of field.enum) {
-      const o = el("option");
-      o.value = opt;
-      o.textContent = opt;
-      if (opt === value) o.selected = true;
-      sel.appendChild(o);
-    }
-    sel.addEventListener("change", onChange);
-    return sel;
-  }
-  if (field.type === "boolean") {
-    const cb = el("input");
-    cb.type = "checkbox";
-    cb.checked = !!value;
-    cb.addEventListener("change", onChange);
-    return cb;
-  }
-  const inp = el("input");
-  inp.type = field.type === "number" || field.type === "integer" ? "number" : "text";
-  if (value != null) inp.value = String(value);
-  inp.addEventListener("input", onChange);
-  return inp;
-};
-const issues = (e) => e.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).join("; ");
-const buildInstanceEditor = (componentNames2, title, onChange, initialRows, showTransition = false) => {
-  const rows = [];
-  const list = el("div", "kids");
-  const errAll = el("div", "err");
-  const readRow = (row) => {
-    const fields = getComponent(row.name).jsonSchema().properties ?? {};
-    const next = {};
-    for (const [key, field] of Object.entries(fields)) {
-      const ctrl = row.el.querySelector(
-        `[data-cfield="${key}"]`
-      );
-      if (!ctrl) continue;
-      const val = coerce(field, ctrl.value, ctrl.checked);
-      if (val !== void 0) next[key] = val;
-    }
-    row.params = next;
-    const inSel = row.el.querySelector(
-      '[data-tfield="animIn"]'
-    );
-    const tSel = row.el.querySelector(
-      '[data-tfield="timeIn"]'
-    );
-    row.animIn = inSel?.value || void 0;
-    row.timeIn = tSel?.value || void 0;
-  };
-  const addRow = (compName, init) => {
-    const factory = getComponent(compName);
-    const fields = factory.jsonSchema().properties ?? {};
-    const params = {
-      ...factory.defaults(),
-      ...init?.params ?? {}
-    };
-    const rowEl = el("div", "kid");
-    const grid = el("div", "kid-fields");
-    const row = {
-      name: compName,
-      params,
-      el: rowEl,
-      animIn: init?.animIn,
-      timeIn: init?.timeIn
-    };
-    if (componentNames2.length > 1)
-      grid.appendChild(el("span", "kid-type", compName));
-    for (const [key, field] of Object.entries(fields)) {
-      const cell = el("label", "kid-cell");
-      cell.appendChild(el("span", "kid-key", key));
-      const ctrl = inputFor(field, params[key], () => {
-        readRow(row);
-        onChange();
-      });
-      ctrl.setAttribute("data-cfield", key);
-      cell.appendChild(ctrl);
-      grid.appendChild(cell);
-    }
-    if (showTransition) {
-      const tcell = (labelText, tfield, options, value) => {
-        const cell = el("label", "kid-cell");
-        cell.appendChild(el("span", "kid-key", labelText));
-        const s = el("select");
-        s.setAttribute("data-tfield", tfield);
-        const empty = el("option");
-        empty.value = "";
-        empty.textContent = "— inherit —";
-        s.appendChild(empty);
-        for (const o of options) {
-          const opt = el("option");
-          opt.value = o;
-          opt.textContent = o;
-          if (o === value) opt.selected = true;
-          s.appendChild(opt);
-        }
-        if (!value) empty.selected = true;
-        s.addEventListener("change", () => {
-          readRow(row);
-          onChange();
-        });
-        cell.appendChild(s);
-        return cell;
-      };
-      grid.appendChild(
-        tcell("in-anim", "animIn", TRANSITION_NAMES, init?.animIn)
-      );
-      grid.appendChild(
-        tcell("in-time", "timeIn", TIMING_PRESETS, init?.timeIn)
-      );
-    }
-    rowEl.appendChild(grid);
-    const rm = el("button", "kid-rm", "×");
-    rm.addEventListener("click", () => {
-      const i = rows.indexOf(row);
-      if (i >= 0) {
-        rows.splice(i, 1);
-        rowEl.remove();
-        onChange();
-      }
-    });
-    rowEl.appendChild(rm);
-    rows.push(row);
-    list.appendChild(rowEl);
-  };
-  const bar = el("div", "kids-bar");
-  bar.appendChild(el("span", "kids-title", title));
-  const btns = el("div", "kids-btns");
-  for (const cn of componentNames2) {
-    const add = el(
-      "button",
-      "kids-add",
-      componentNames2.length > 1 ? `+ ${cn}` : `+ add ${cn}`
-    );
-    add.addEventListener("click", () => {
-      addRow(cn);
-      onChange();
-    });
-    btns.appendChild(add);
-  }
-  bar.appendChild(btns);
-  const wrap = el("div", "child-editor");
-  wrap.appendChild(bar);
-  wrap.appendChild(list);
-  wrap.appendChild(errAll);
-  for (const r of initialRows ?? []) {
-    try {
-      addRow(r.name, r);
-    } catch {
-    }
-  }
-  const snapshot = () => {
-    for (let i = 0; i < rows.length; i++) {
-      const parsed = getComponent(rows[i].name).schema.safeParse(
-        rows[i].params
-      );
-      if (!parsed.success) {
-        errAll.textContent = `${rows[i].name} ${i + 1}: ${issues(parsed.error)}`;
-        return null;
-      }
-    }
-    errAll.textContent = "";
-    return rows.map((r) => ({
-      name: r.name,
-      params: r.params,
-      ...r.animIn ? { animIn: r.animIn } : {},
-      ...r.timeIn ? { timeIn: r.timeIn } : {}
-    }));
-  };
-  return { el: wrap, snapshot };
-};
-const buildTransitionControls = (isT, initial, onChange) => {
-  const row = el("div", "trans-row");
-  const sel = (labelText, options, value) => {
-    const field = el("label", "trans-field");
-    field.appendChild(el("span", "trans-label", labelText));
-    const s = el("select", "trans-select");
-    const empty = el("option");
-    empty.value = "";
-    empty.textContent = "— inherit —";
-    s.appendChild(empty);
-    for (const o of options) {
-      const opt = el("option");
-      opt.value = o;
-      opt.textContent = o;
-      if (o === value) opt.selected = true;
-      s.appendChild(opt);
-    }
-    if (!value) empty.selected = true;
-    s.addEventListener("change", onChange);
-    field.appendChild(s);
-    row.appendChild(field);
-    return s;
-  };
-  const animIn = sel("in-anim", TRANSITION_NAMES, initial?.animIn);
-  const timeIn = sel("in-time", TIMING_PRESETS, initial?.timeIn);
-  const animOut = isT ? sel("out-anim", TRANSITION_NAMES, initial?.animOut) : null;
-  const timeOut = isT ? sel("out-time", TIMING_PRESETS, initial?.timeOut) : null;
-  const snapshot = () => {
-    const t = {};
-    if (animIn.value) t.animIn = animIn.value;
-    if (timeIn.value) t.timeIn = timeIn.value;
-    if (animOut?.value) t.animOut = animOut.value;
-    if (timeOut?.value) t.timeOut = timeOut.value;
-    return Object.keys(t).length ? t : void 0;
-  };
-  return { el: row, snapshot };
-};
-const buildVoEditor = (initialVo, onChange) => {
-  const wrap = el("div", "vo-editor");
-  const bar = el("div", "vo-bar");
-  bar.appendChild(el("span", "vo-title", "captions"));
-  bar.appendChild(
-    el(
-      "span",
-      "vo-note",
-      "Editing requires re-render of voiceover and timings"
-    )
-  );
-  wrap.appendChild(bar);
-  const list = el("div", "vo-list");
-  const rows = [];
-  initialVo.forEach((line, i) => {
-    const row = el("label", "vo-row");
-    row.appendChild(el("span", "vo-key", `caption ${i + 1}`));
-    const input = el("input", "vo-input");
-    input.type = "text";
-    input.value = line.text;
-    input.addEventListener("input", onChange);
-    row.appendChild(input);
-    list.appendChild(row);
-    rows.push({ id: line.id, input });
-  });
-  wrap.appendChild(list);
-  const snapshot = () => rows.map(({ id: id2, input }) => ({ id: id2, text: input.value }));
-  return { el: wrap, snapshot };
-};
-const buildCard = (factory, opts = {}) => {
-  const name = nameOf(factory);
-  const kind = isTreatment(factory) ? "treatment" : "component";
-  const compId = opts.compId ?? `sc-${name}`;
-  const theme = opts.theme;
-  if (!theme) throw new Error("buildCard: opts.theme is required");
-  const refreshQueue = opts.refreshers ?? refreshers;
-  const schema = factory.jsonSchema();
-  const fields = schema.properties ?? {};
-  const useFrame = isTreatment(factory) || isFrameComp(factory);
-  const card = el("div", "card");
-  const head = el("div", "card-head");
-  head.appendChild(el("span", "card-name", opts.label ?? name));
-  head.appendChild(el("span", "card-kind", kind));
-  card.appendChild(head);
-  const stage = el(
-    "div",
-    useFrame ? "stage stage--frame" : "stage stage--comp"
-  );
-  if (isFrameComp(factory)) stage.classList.add("stage--chrome");
-  const inner = el("div", "stage-inner");
-  stage.appendChild(inner);
-  card.appendChild(stage);
-  const err = el("div", "err");
-  card.appendChild(err);
-  const current = {
-    ...factory.defaults(),
-    ...opts.initial ?? {}
-  };
-  const childApi = isTreatment(factory) && factory.childComponent ? buildInstanceEditor(
-    [factory.childComponent],
-    `children · ${factory.childComponent} (empty = defaults)`,
-    () => applyRender(),
-    opts.initialChildren,
-    true
-  ) : null;
-  const decoApi = isTreatment(factory) ? buildInstanceEditor(
-    [...theme.decorations ?? []],
-    "decorations · background / foreground",
-    () => applyRender(),
-    opts.initialDecorations,
-    true
-  ) : null;
-  const voApi = opts.initialVo && opts.initialVo.length ? buildVoEditor(opts.initialVo, () => {
-  }) : null;
-  let groundSel = null;
-  if (isTreatment(factory)) {
-    groundSel = el("select", "ground-select");
-    const inherit = el("option");
-    inherit.value = "";
-    inherit.textContent = "— inherit —";
-    if (!opts.initialGround) inherit.selected = true;
-    groundSel.appendChild(inherit);
-    for (const g of FRAME_GROUNDS) {
-      const o = el("option");
-      o.value = g;
-      o.textContent = g;
-      if (g === opts.initialGround) o.selected = true;
-      groundSel.appendChild(o);
-    }
-    groundSel.addEventListener("change", () => applyRender());
-  }
-  let tl = null;
-  let resetTime = 0;
-  let hasOut = false;
-  let replayToken = 0;
-  const scheduleReturn = () => {
-    if (!hasOut || !tl) return;
-    const token = ++replayToken;
-    const thisTl = tl;
-    thisTl.eventCallback("onComplete", () => {
-      window.setTimeout(() => {
-        if (tl === thisTl && token === replayToken) {
-          thisTl.time(resetTime);
-          thisTl.pause();
-        }
-      }, 800);
-    });
-  };
-  const replay = () => {
-    if (!tl) return;
-    tl.restart();
-    scheduleReturn();
-  };
-  const transApi = isFrameComp(factory) ? null : buildTransitionControls(isTreatment(factory), opts.initialTransition, () => {
-    applyRender();
-    replay();
-  });
-  const render = (params, kids, decos) => {
-    try {
-      const inst = factory(params);
-      if (childApi && isTreatment(factory) && kids && kids.length) {
-        inst.addChildren(
-          ...kids.map((k) => {
-            const c = getComponent(k.name)(k.params);
-            if (k.animIn || k.timeIn)
-              c.withTransition({ animIn: k.animIn, timeIn: k.timeIn });
-            return c;
-          })
-        );
-      }
-      if (decoApi && isTreatment(factory) && decos && decos.length) {
-        inst.addDecorations(
-          ...decos.map((d) => {
-            const c = getComponent(d.name)(d.params);
-            if (d.animIn || d.timeIn)
-              c.withTransition({ animIn: d.animIn, timeIn: d.timeIn });
-            return c;
-          })
-        );
-      }
-      const trans = transApi?.snapshot();
-      if (!isTreatment(factory) && trans) {
-        inst.withTransition({
-          animIn: trans.animIn,
-          timeIn: trans.timeIn
-        });
-      }
-      const preview = buildPreview(
-        inst,
-        rootContext(compId, theme, { mode: "showcase" })
-      );
-      const g = groundSel?.value;
-      const html = g ? preview.html.replace(
-        /background:\s*var\(--[a-z]+\)/,
-        `background: var(--${g})`
-      ) : preview.html;
-      inner.innerHTML = `<style>${preview.css}</style>${html}`;
-      tl = gsap.timeline({ paused: true });
-      MC.applyAnims(tl, preview.anims, MC.showcaseCtx(inner));
-      hasOut = false;
-      let settled = false;
-      if (isTreatment(factory) && trans) {
-        const page = inner.querySelector(`.${compId}-root`);
-        if (page) {
-          const inSpec = trans.animIn && trans.animIn !== "none" ? pageInFor(trans.animIn) : null;
-          const outSpec = trans.animOut && trans.animOut !== "none" ? pageOutFor(trans.animOut) : null;
-          if (inSpec)
-            mcFn(inSpec.fn)(tl, page, 0, {
-              dur: TIMING_SECONDS[trans.timeIn ?? "short"],
-              ...inSpec.opts
-            });
-          const holdTime = tl.duration();
-          if (outSpec) {
-            mcFn(outSpec.fn)(tl, page, holdTime, {
-              dur: TIMING_SECONDS[trans.timeOut ?? "short"],
-              ...outSpec.opts
-            });
-            tl.time(holdTime);
-            resetTime = holdTime;
-            hasOut = true;
-            settled = true;
-          }
-        }
-      }
-      if (!settled) {
-        tl.progress(1);
-        resetTime = tl.duration();
-      }
-      err.textContent = "";
-    } catch (e) {
-      err.textContent = e.message;
-    }
-  };
-  const readMainForm = () => {
-    const next = {};
-    for (const [key, field] of Object.entries(fields)) {
-      const ctrl = card.querySelector(
-        `[data-field="${key}"]`
-      );
-      if (!ctrl) continue;
-      const val = coerce(
-        field,
-        ctrl.value,
-        ctrl.checked
-      );
-      if (val !== void 0) next[key] = val;
-    }
-    const parsed = factory.schema.safeParse(next);
-    if (!parsed.success) {
-      err.textContent = issues(parsed.error);
-      return null;
-    }
-    err.textContent = "";
-    return parsed.data;
-  };
-  function applyRender() {
-    const params = readMainForm();
-    if (!params) return;
-    const kids = childApi ? childApi.snapshot() : null;
-    if (childApi && kids === null) return;
-    const decos = decoApi ? decoApi.snapshot() : null;
-    if (decoApi && decos === null) return;
-    render(params, kids, decos);
-  }
-  const table = el("table", "params");
-  for (const [key, field] of Object.entries(fields)) {
-    const tr = el("tr");
-    const label = el("td", "p-name");
-    label.appendChild(el("code", void 0, key));
-    if (field.description)
-      label.appendChild(el("div", "p-desc", field.description));
-    tr.appendChild(label);
-    const cell = el("td", "p-input");
-    const ctrl = inputFor(field, current[key], applyRender);
-    ctrl.setAttribute("data-field", key);
-    cell.appendChild(ctrl);
-    tr.appendChild(cell);
-    table.appendChild(tr);
-  }
-  card.appendChild(table);
-  if (voApi) card.appendChild(voApi.el);
-  if (transApi) {
-    const tOuter = el("div", "trans-outer");
-    tOuter.appendChild(el("span", "trans-title", "transition"));
-    tOuter.appendChild(transApi.el);
-    card.appendChild(tOuter);
-  }
-  if (groundSel) {
-    const gRow = el("div", "ground-row");
-    gRow.appendChild(el("span", "ground-label", "background"));
-    gRow.appendChild(groundSel);
-    card.appendChild(gRow);
-  }
-  if (childApi) card.appendChild(childApi.el);
-  if (decoApi) card.appendChild(decoApi.el);
-  render(
-    current,
-    childApi ? childApi.snapshot() ?? [] : [],
-    decoApi ? decoApi.snapshot() ?? [] : []
-  );
-  refreshQueue.push(
-    () => render(
-      current,
-      childApi ? childApi.snapshot() ?? [] : [],
-      decoApi ? decoApi.snapshot() ?? [] : []
-    )
-  );
-  stage.addEventListener("mouseenter", replay);
-  stage.addEventListener("mouseleave", () => {
-    if (tl && hasOut) {
-      replayToken++;
-      tl.time(resetTime);
-      tl.pause();
-    }
-  });
-  const snapshot = () => {
-    const params = readMainForm();
-    if (!params) return null;
-    const kids = childApi ? childApi.snapshot() : [];
-    if (childApi && kids === null) return null;
-    const decos = decoApi ? decoApi.snapshot() : [];
-    if (decoApi && decos === null) return null;
-    const transition = transApi?.snapshot();
-    return {
-      name,
-      params,
-      children: kids ?? [],
-      decorations: decos ?? [],
-      ...groundSel && groundSel.value ? { ground: groundSel.value } : {},
-      ...transition ? { transition } : {},
-      ...voApi ? { vo: voApi.snapshot() } : {}
-    };
-  };
-  return { el: card, snapshot };
-};
-const scaleFrames = (root = document) => {
-  root.querySelectorAll(".stage--frame").forEach((s) => {
-    const inner = s.querySelector(".stage-inner");
-    if (inner) inner.style.transform = `scale(${s.clientWidth / 1920})`;
-  });
-};
-const settleAfterAttach = (root = document, queue = refreshers) => {
-  const onResize = () => scaleFrames(root);
-  requestAnimationFrame(() => {
-    scaleFrames(root);
-    for (const r of queue) r();
-  });
-  window.addEventListener("resize", onResize);
-  return () => window.removeEventListener("resize", onResize);
-};
-const SHOWCASE_CHROME = `
-:root { color-scheme: light; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: var(--disp, "Inter", system-ui, sans-serif); background: var(--offwhite, #fffdf5); color: var(--black, #000); }
-
-/* BLOCKFRAME header band (ported from the styleguide .foot) */
-.bf-header { padding: 40px 48px; background: var(--black, #000); color: var(--white, #fff); display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; }
-.bf-wordmark { font-family: var(--disp, "Inter", sans-serif); font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; font-size: 34px; }
-.bf-desc { font-family: var(--mono, "Space Grotesk", ui-monospace, monospace); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px; color: #aaa; max-width: 520px; text-align: right; line-height: 1.5; }
-
-section { padding: 44px 48px; border-bottom: 4px solid var(--black, #000); }
-.sec-head { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-.sec-head h2 { font-family: var(--disp, "Inter", sans-serif); font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; font-size: 40px; line-height: 1; margin: 0; }
-.sec-head .sp { flex: 1; height: 4px; background: var(--black, #000); }
-
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 24px; }
-.grid--full { grid-template-columns: 1fr; } /* a single full-width card (e.g. the HUD frame) */
-.card { background: var(--white, #fff); border: 3px solid var(--black, #000); box-shadow: 6px 6px 0 var(--black, #000); padding: 16px; }
-.card-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-.card-name { font-family: var(--disp, "Inter", sans-serif); font-weight: 800; text-transform: uppercase; font-size: 17px; }
-.card-kind { font-family: var(--mono, "Space Grotesk", monospace); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #888; }
-.stage { border: 2px solid var(--black, #000); background: #fafafa; overflow: hidden; }
-.stage--frame { width: 100%; aspect-ratio: 16/9; position: relative; }
-.stage--frame .stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
-.stage--frame .stage-inner > div { position: absolute; inset: 0; }
-.stage--chrome { background: var(--blue, #c0f7fe); }
-.stage--comp { width: 100%; aspect-ratio: 16/9; display: grid; place-items: center; }
-.stage--comp .stage-inner { container-type: size; width: 100%; height: 100%; position: relative; }
-.stage--comp .stage-inner > div { position: absolute; inset: 0; display: grid; place-items: center; }
-.err { color: #c0392b; font-size: 12px; min-height: 16px; margin-top: 6px; font-family: var(--mono, ui-monospace, monospace); }
-
-.params { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-.params tr { border-top: 1px solid #eee; }
-.p-name { padding: 6px 8px 6px 0; vertical-align: top; width: 42%; }
-.p-name code { font-family: var(--mono, monospace); font-weight: 700; }
-.p-desc { color: #777; font-weight: 400; margin-top: 2px; }
-.p-input { padding: 6px 0; }
-.p-input input, .p-input select { width: 100%; padding: 4px 6px; border: 1px solid #bbb; font: inherit; font-size: 12px; }
-
-/* Palette — block swatch chrome */
-.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px; }
-.sw { border: 4px solid var(--black, #000); background: var(--white, #fff); box-shadow: 8px 8px 0 var(--black, #000); }
-.sw .chip { height: 120px; border-bottom: 4px solid var(--black, #000); }
-.sw .meta { padding: 14px 16px; }
-.sw .name { font-family: var(--disp, "Inter", sans-serif); font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; font-size: 18px; }
-.sw .hex { font-family: var(--mono, monospace); font-weight: 500; font-size: 12px; letter-spacing: 0.04em; margin-top: 6px; }
-
-/* Typography */
-.type-row { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 24px; padding: 22px 0; border-bottom: 4px solid var(--black, #000); }
-.type-row:last-child { border-bottom: 0; }
-.type-row .tok { font-family: var(--mono, monospace); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; }
-.type-row .m { font-family: var(--mono, monospace); font-weight: 500; font-size: 11px; color: #444; margin-top: 8px; line-height: 1.5; }
-.type-spec { overflow: hidden; }
-
-/* Frame Rules */
-.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-.do-card { border: 4px solid var(--black, #000); box-shadow: 8px 8px 0 var(--black, #000); padding: 32px; }
-.do-card.do { background: var(--green, #99e885); }
-.do-card.dont { background: var(--white, #fff); }
-.do-card h4 { font-family: var(--disp, "Inter", sans-serif); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; font-size: 28px; margin: 0 0 18px; }
-.do-card ul { list-style: none; margin: 0; padding: 0; }
-.do-card li { font-family: var(--disp, "Inter", sans-serif); font-weight: 500; font-size: 15px; line-height: 1.55; padding-left: 26px; position: relative; margin-bottom: 12px; }
-.do-card li::before { position: absolute; left: 0; font-family: var(--disp, "Inter", sans-serif); font-weight: 900; }
-.do-card.do li::before { content: "+"; }
-.do-card.dont li::before { content: "\\00d7"; }
-
-/* Child editor (data entry) */
-.child-editor { margin-top: 12px; border-top: 3px solid var(--black, #000); padding-top: 10px; }
-.kids-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-.kids-title { font-family: var(--mono, monospace); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; color: #555; }
-.kids-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-.kids-add { font-family: var(--mono, monospace); font-weight: 700; text-transform: uppercase; font-size: 11px; border: 2px solid var(--black, #000); background: var(--yellow, #f7cb46); box-shadow: 2px 2px 0 var(--black, #000); padding: 5px 10px; cursor: pointer; }
-.kids-add:active { box-shadow: 0 0 0 var(--black, #000); transform: translate(2px, 2px); }
-.kids { display: flex; flex-direction: column; gap: 8px; }
-.kid { display: flex; align-items: flex-start; gap: 8px; border: 1px solid #ccc; padding: 8px; }
-.kid-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; flex: 1; }
-.kid-type { grid-column: 1 / -1; justify-self: start; font-family: var(--mono, monospace); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; color: var(--black, #000); background: var(--yellow, #f7cb46); border: 1px solid var(--black, #000); padding: 1px 7px; }
-.kid-cell { display: flex; flex-direction: column; gap: 3px; }
-.kid-key { font-family: var(--mono, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #777; }
-.kid-cell input, .kid-cell select { width: 100%; padding: 3px 5px; border: 1px solid #bbb; font: inherit; font-size: 11px; }
-.kid-rm { flex-shrink: 0; border: 2px solid var(--black, #000); background: var(--pink, #fe90e8); font-weight: 800; width: 26px; height: 26px; cursor: pointer; line-height: 1; }
-
-/* Ground override control (treatment cards) */
-.ground-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; border-top: 3px solid var(--black, #000); padding-top: 10px; }
-.ground-label { font-family: var(--mono, monospace); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; color: #555; }
-.ground-select { padding: 4px 6px; border: 1px solid #bbb; font: inherit; font-size: 12px; }
-
-/* Transition controls (component + treatment cards) — assign in/out + timing, replay live */
-.trans-outer { display: flex; align-items: center; gap: 12px; margin-top: 12px; border-top: 3px solid var(--black, #000); padding-top: 10px; flex-wrap: wrap; }
-.trans-title { font-family: var(--mono, monospace); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; color: #555; }
-.trans-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.trans-field { display: flex; align-items: center; gap: 5px; }
-.trans-label { font-family: var(--mono, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #777; }
-.trans-select { padding: 4px 6px; border: 1px solid #bbb; font: inherit; font-size: 12px; }
-
-@media (max-width: 1100px) {
-  .grid { grid-template-columns: 1fr; }
-  .dos { grid-template-columns: 1fr; }
-  .type-row { grid-template-columns: 1fr; }
-}
-`;
-const EDITOR_CHROME = `
-.toolbar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 14px; padding: 14px 24px; background: var(--black,#000); color: var(--white,#fff); border-bottom: 4px solid var(--black,#000); flex-wrap: wrap; }
-.tb-title { font-family: var(--disp,"Inter",sans-serif); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; font-size: 20px; }
-.tb-theme { font-family: var(--mono,"Space Grotesk",monospace); font-size: 12px; letter-spacing: .06em; color: #aaa; text-transform: uppercase; }
-.tb-spacer { flex: 1; }
-.tb-btn { font-family: var(--mono,monospace); font-weight: 700; text-transform: uppercase; font-size: 12px; border: 2px solid var(--white,#fff); background: transparent; color: var(--white,#fff); padding: 7px 14px; cursor: pointer; }
-.tb-btn:hover { background: var(--white,#fff); color: var(--black,#000); }
-.tb-btn--primary { background: var(--yellow,#f7cb46); color: var(--black,#000); border-color: var(--black,#000); box-shadow: 3px 3px 0 rgba(255,255,255,.35); }
-.tb-msg { padding: 8px 24px; font-family: var(--mono,monospace); font-size: 12px; color: #555; min-height: 16px; background: var(--offwhite,#fffdf5); border-bottom: 1px solid #ddd; }
-.tb-msg--err { color: #c0392b; font-weight: 700; }
-.grid { padding: 24px; }
-/* Captions editor (deck-scene cards) — one text field per VO/caption line */
-.vo-editor { margin-top: 12px; border-top: 3px solid var(--black,#000); padding-top: 10px; }
-.vo-bar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-.vo-title { font-family: var(--mono,monospace); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; color: #555; }
-.vo-note { font-family: var(--mono,monospace); font-size: 10px; color: #999; }
-.vo-list { display: flex; flex-direction: column; gap: 6px; }
-.vo-row { display: flex; align-items: center; gap: 8px; }
-.vo-key { flex-shrink: 0; width: 74px; font-family: var(--mono,monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #777; }
-.vo-input { flex: 1; min-width: 0; padding: 5px 7px; border: 1px solid #bbb; font: inherit; font-size: 12px; }
-`;
 const gsapSrc = `/*!\r
  * GSAP 3.14.2\r
  * https://gsap.com\r
@@ -5001,136 +5243,435 @@ const bootstrapFx = () => {
   if (!w.gsap) inject(gsapSrc);
   if (!w.MC) inject(mcSrc);
 };
-const sectionHead = (title) => {
-  const head = el("div", "sec-head");
-  head.appendChild(el("h2", void 0, title));
-  head.appendChild(el("span", "sp"));
-  return head;
-};
-const cardsSection = (title, factories, theme, refreshers2) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead(title));
-  const grid = el("div", "grid");
-  for (const f of factories) grid.appendChild(buildCard(f, { theme, refreshers: refreshers2 }).el);
-  sec.appendChild(grid);
-  return sec;
-};
-const headerBand = (theme) => {
-  const h = el("div", "bf-header");
-  h.appendChild(el("span", "bf-wordmark", `${theme.name}frame`.toUpperCase()));
-  h.appendChild(
-    el(
-      "span",
-      "bf-desc",
-      "Every treatment and component, rendered live from the registry. Hover a frame to replay its animation; edit any param — or add child data — to re-render."
-    )
-  );
-  return h;
-};
-const paletteSection = (theme) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead("Palette"));
-  const grid = el("div", "swatches");
-  for (const sw of theme.palette ?? []) {
-    const cardEl = el("div", "sw");
-    const chip = el("div", "chip");
-    chip.style.background = `var(--${sw.varName})`;
-    cardEl.appendChild(chip);
-    const meta = el("div", "meta");
-    meta.appendChild(el("div", "name", sw.name));
-    meta.appendChild(el("div", "hex", sw.note ? `${sw.hex} · ${sw.note}` : sw.hex));
-    cardEl.appendChild(meta);
-    grid.appendChild(cardEl);
-  }
-  sec.appendChild(grid);
-  return sec;
-};
-const typographySection = (theme) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead("Typography"));
-  for (const t of theme.typography ?? []) {
-    const row = el("div", "type-row");
-    const left = el("div");
-    left.appendChild(el("div", "tok", t.token));
-    left.appendChild(el("div", "m", t.spec));
-    row.appendChild(left);
-    const spec = el("div", "type-spec");
-    const sample = el("div", void 0, t.sample);
-    sample.setAttribute("style", t.style);
-    spec.appendChild(sample);
-    row.appendChild(spec);
-    sec.appendChild(row);
-  }
-  return sec;
-};
-const hudSection = (theme, refreshers2) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead("HUD"));
-  const grid = el("div", "grid grid--full");
-  grid.appendChild(buildCard(getComponent("hud"), { theme, refreshers: refreshers2 }).el);
-  sec.appendChild(grid);
-  return sec;
-};
-const decorationsSection = (theme, refreshers2) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead("Decorations"));
-  const grid = el("div", "grid");
-  for (const name of theme.decorations ?? []) {
-    grid.appendChild(buildCard(getComponent(name), { theme, refreshers: refreshers2 }).el);
-  }
-  sec.appendChild(grid);
-  return sec;
-};
-const rulesSection = (theme) => {
-  const sec = el("section");
-  sec.appendChild(sectionHead("Frame Rules"));
-  const dos = el("div", "dos");
-  const ruleCard = (kind, title, items) => {
-    const c = el("div", `do-card ${kind}`);
-    c.appendChild(el("h4", void 0, title));
-    const ul = el("ul");
-    for (const it of items) ul.appendChild(el("li", void 0, it));
-    c.appendChild(ul);
-    return c;
-  };
-  dos.appendChild(ruleCard("do", "Do", theme.rules?.do ?? []));
-  dos.appendChild(ruleCard("dont", "Don't", theme.rules?.dont ?? []));
-  sec.appendChild(dos);
-  return sec;
-};
-const mountShowcase = async (container, themeName = "block") => {
+const previewCss = (frame) => `
+:host { display: block; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+.mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
+.mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
+.mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
+.mc-stage--comp { display: grid; place-items: center; padding: 24px; container-type: inline-size; }
+.mc-stage--comp .mc-stage-inner { width: 100%; container-type: size; position: relative; min-height: 180px; }
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: grid; place-items: center; }"}
+`;
+const mountPreview = (container, instance, theme, opts = {}) => {
   bootstrapFx();
-  const theme = await loadTheme(themeName);
-  const wrapper = document.createElement("div");
-  container.appendChild(wrapper);
-  const shadow = wrapper.attachShadow({ mode: "open" });
+  const compId = opts.compId ?? "mc-preview";
+  const frame = opts.frame ?? instance.kind === "treatment";
+  const ctx = rootContext(compId, theme, { mode: "showcase" });
+  const built = buildPreview(instance, ctx);
+  const css = built.css;
+  const anims = built.anims;
+  const html = opts.ground ? built.html.replace(/background:\s*var\(--[a-z]+\)/, `background: var(--${opts.ground})`) : built.html;
+  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
+  shadow.replaceChildren();
   const style = document.createElement("style");
   style.textContent = `${theme.css.replace(/:root/g, ":host")}
-${SHOWCASE_CHROME}`;
+${previewCss(frame)}
+${css}`;
   shadow.appendChild(style);
-  const root = document.createElement("div");
-  shadow.appendChild(root);
-  const refreshers2 = [];
-  const decoNames = new Set(theme.decorations ?? []);
-  const leafComponents = allComponents().filter(
-    (f) => f.componentName !== "hud" && !decoNames.has(f.componentName)
-  );
-  root.appendChild(headerBand(theme));
-  root.appendChild(paletteSection(theme));
-  root.appendChild(typographySection(theme));
-  root.appendChild(cardsSection("Components", leafComponents, theme, refreshers2));
-  root.appendChild(hudSection(theme, refreshers2));
-  root.appendChild(decorationsSection(theme, refreshers2));
-  root.appendChild(cardsSection("Treatments", allTreatments(), theme, refreshers2));
-  root.appendChild(rulesSection(theme));
-  const teardown = settleAfterAttach(shadow, refreshers2);
+  const stage = document.createElement("div");
+  stage.className = frame ? "mc-stage mc-stage--frame" : "mc-stage mc-stage--comp";
+  const inner = document.createElement("div");
+  inner.className = "mc-stage-inner";
+  inner.innerHTML = html;
+  stage.appendChild(inner);
+  shadow.appendChild(stage);
+  const gsap = window.gsap;
+  const MC = window.MC;
+  const scale = () => {
+    if (frame) inner.style.transform = `scale(${stage.clientWidth / 1920})`;
+  };
+  let tl = null;
+  const settle = () => {
+    if (!gsap || !MC) return;
+    tl = gsap.timeline({ paused: true });
+    MC.applyAnims(tl, anims, MC.showcaseCtx(inner));
+    tl.progress(1).pause();
+  };
+  requestAnimationFrame(() => {
+    scale();
+    settle();
+  });
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => scale()) : null;
+  ro?.observe(stage);
   return {
+    replay: () => tl?.restart(),
     destroy: () => {
-      teardown();
-      wrapper.remove();
+      ro?.disconnect();
+      tl?.kill();
+      shadow.replaceChildren();
     }
   };
 };
+const issuesSummary = (error) => error.issues.slice(0, 12).map((i) => `- ${i.path.join(".") || "(root)"}: ${i.message}`).join("\n");
+const DECORATION_COMPONENTS = ["starburst", "slab", "stripe", "badge"];
+const STAR = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
+const BURST = "polygon(50% 0%, 60% 22%, 84% 12%, 78% 38%, 100% 50%, 78% 62%, 84% 88%, 60% 78%, 50% 100%, 40% 78%, 16% 88%, 22% 62%, 0% 50%, 22% 38%, 16% 12%, 40% 22%)";
+const TRIANGLE = "polygon(50% 2%, 98% 98%, 2% 98%)";
+const RHOMBUS = "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
+const HEXAGON = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
+const CROSS = "polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%)";
+const SHIELD = "polygon(50% 0%, 100% 18%, 100% 62%, 50% 100%, 0% 62%, 0% 18%)";
+const TAG = "polygon(0% 0%, 78% 0%, 100% 50%, 78% 100%, 0% 100%)";
+const SHAPES = {
+  // starburst family — pointed & round bursts
+  star: { clip: STAR },
+  burst: { clip: BURST },
+  triangle: { clip: TRIANGLE },
+  circle: { radius: "50%", box: true },
+  // slab family — angular blocks
+  square: { box: true },
+  rectangle: { box: true, h: 0.6 },
+  rhombus: { clip: RHOMBUS },
+  hexagon: { clip: HEXAGON },
+  cross: { clip: CROSS },
+  // stripe family — repeating-gradient fills
+  stripe: { pattern: "stripe", h: 0.42 },
+  bars: { pattern: "bars", h: 0.42 },
+  grid: { pattern: "grid" },
+  // badge family — rounded / tag shapes
+  shield: { clip: SHIELD },
+  tag: { clip: TAG },
+  ticket: { box: true, radius: "2cqw", h: 0.6 },
+  capsule: { box: true, radius: "999px", h: 0.5 }
+};
+const svgPoints = (clip) => clip.replace(/polygon\(|\)|%/g, "").split(",").map((pt) => pt.trim().replace(/\s+/g, ",")).join(" ");
+const patternBg = (kind, color) => {
+  if (kind === "stripe") {
+    return `repeating-linear-gradient(45deg, var(--black), var(--black) 0.8cqw, ${color} 0.8cqw, ${color} 2.4cqw)`;
+  }
+  if (kind === "bars") {
+    return `repeating-linear-gradient(90deg, var(--black), var(--black) 0.9cqw, ${color} 0.9cqw, ${color} 2.7cqw)`;
+  }
+  return `repeating-linear-gradient(0deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), repeating-linear-gradient(90deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), linear-gradient(${color}, ${color})`;
+};
+const DECO_TEMPLATE = `<div class="deco" data-anim="item"><i class="deco-shape" data-html="shape"></i></div>`;
+const DECO_CSS = `.deco {
+  position: absolute;
+  left: var(--d-x, 50%);
+  top: var(--d-y, 50%);
+  width: var(--d-w, 16cqw);
+  height: var(--d-h, 16cqw);
+  transform: translate(-50%, -50%) rotate(var(--d-rot, 0deg));
+  background: var(--d-bg, transparent);
+  border: var(--d-border, none);
+  border-radius: var(--d-radius, 0);
+  filter: drop-shadow(0.5cqw 0.5cqw 0 var(--black));
+  z-index: var(--d-z, 1);
+  pointer-events: none;
+}
+.deco-shape { position: absolute; inset: 0; }
+.deco-shape svg { display: block; width: 100%; height: 100%; overflow: visible; }`;
+const decorationLayout = (p) => {
+  const s = SHAPES[p.variant] ?? SHAPES.square;
+  const color = `var(--${p.accent})`;
+  const vars = {
+    "--d-x": `${p.x}%`,
+    "--d-y": `${p.y}%`,
+    "--d-w": `${p.size}cqw`,
+    "--d-h": `${(p.size * (s.h ?? 1)).toFixed(2)}cqw`,
+    "--d-rot": `${p.rotate}deg`,
+    "--d-z": p.layer === "front" ? "5" : "1"
+  };
+  if (!s.clip) {
+    vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
+    if (s.radius) vars["--d-radius"] = s.radius;
+    if (s.box) vars["--d-border"] = "0.3cqw solid var(--black)";
+  }
+  return vars;
+};
+const decoSvg = (p) => {
+  const clip = SHAPES[p.variant]?.clip;
+  if (!clip) return "";
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon points="${svgPoints(clip)}" vector-effect="non-scaling-stroke" style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: 3.5; stroke-linejoin: round"></polygon></svg>`;
+};
+const decorationComponent = (name, variants, example) => component({
+  name,
+  schema: object({
+    variant: _enum(variants).default(variants[0]).describe(`Shape (this decoration's family: ${variants.join(", ")})`),
+    x: number().min(0).max(100).default(50).describe("Center X in page-space % (0 = left … 100 = right; edges bleed off-frame)"),
+    y: number().min(0).max(100).default(50).describe("Center Y in page-space % (0 = top … 100 = bottom)"),
+    size: number().positive().max(60).default(16).describe("Size in cqw (percent of page width)"),
+    rotate: number().min(-180).max(180).default(0).describe("Rotation in degrees (block tilt: ±2–12°)"),
+    layer: _enum(["back", "front"]).default("back").describe("Behind the content (back) or over it (front)"),
+    accent: _enum(["pink", "blue", "green", "yellow", "cream"]).default("pink").describe("Fill color token")
+  }),
+  template: DECO_TEMPLATE,
+  css: DECO_CSS,
+  example,
+  // Polygon variants inject their shape as inline SVG; box/pattern variants leave the
+  // slot empty (null ⇒ the shape span self-removes) and render via CSS on the div.
+  rawFill: (p) => ({ shape: SHAPES[p.variant]?.clip ? decoSvg(p) : null }),
+  layout: decorationLayout,
+  // The whole-shape entrance IS the transition (so an assigned animIn REPLACES it
+  // rather than doubling up). Default reproduces the old decorationAnim byte-for-byte.
+  animIn: "scale",
+  animInOpts: { from: 0.4 }
+});
+const tokensCss = `:root {
+  --black: #000000;
+  --white: #ffffff;
+  --offwhite: #fffdf5;
+  --pink: #fe90e8;
+  --blue: #c0f7fe;
+  --green: #99e885;
+  --yellow: #f7cb46;
+  --cream: #ffdc8b;
+  --disp: "Inter", sans-serif;
+  --mono: "Space Grotesk", sans-serif;
+}`;
+const frameCss = `.block-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  font-family: var(--disp);
+  color: var(--black);
+}
+.block-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.block-frame .pill {
+  display: inline-block;
+  align-self: flex-start;
+  border: 0.25cqw solid var(--black);
+  background: var(--white);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  padding: 0.5cqw 1.2cqw;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.1cqw;
+  line-height: 1.2;
+}
+.block-frame h3 {
+  font-family: var(--disp);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  margin: 0;
+}
+.block-frame .dg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  background-image: radial-gradient(circle, var(--black) 0.14cqw, transparent 0.14cqw);
+  background-size: 3cqw 3cqw;
+  z-index: 1;
+  pointer-events: none;
+}`;
+const palette = [
+  { name: "Pink", hex: "#FE90E8", varName: "pink" },
+  { name: "Blue", hex: "#C0F7FE", varName: "blue" },
+  { name: "Green", hex: "#99E885", varName: "green" },
+  { name: "Yellow", hex: "#F7CB46", note: "CTA", varName: "yellow" },
+  { name: "Cream", hex: "#FFDC8B", varName: "cream" },
+  { name: "Off-White", hex: "#FFFDF5", note: "canvas", varName: "offwhite" },
+  { name: "White", hex: "#FFFFFF", note: "cards", varName: "white" },
+  { name: "Black", hex: "#000000", note: "all borders", varName: "black" }
+];
+const displayBase = "font-family: var(--disp); text-transform: uppercase; line-height: 0.95;";
+const typography = [
+  {
+    token: "heading-xl",
+    spec: "Inter 900 · uppercase · −0.03em",
+    sample: "Maximal.",
+    style: `${displayBase} font-weight: 900; letter-spacing: -0.03em; font-size: 80px;`
+  },
+  {
+    token: "heading-lg",
+    spec: "Inter 800 · uppercase · −0.02em",
+    sample: "Bordered & Bold",
+    style: `${displayBase} font-weight: 800; letter-spacing: -0.02em; font-size: 50px;`
+  },
+  {
+    token: "stat-number",
+    spec: "Inter 900 · line 1",
+    sample: "240",
+    style: "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px;"
+  },
+  {
+    token: "body",
+    spec: "Inter 500 · sentence case · line 1.6",
+    sample: "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
+    style: "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px;"
+  },
+  {
+    token: "label",
+    spec: "Space Grotesk 600 · uppercase · 0.08em",
+    sample: "Section Eyebrow",
+    style: "display: inline-block; border: 3px solid var(--black); background: var(--white); box-shadow: 4px 4px 0 var(--black); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px;"
+  }
+];
+const rules = {
+  do: [
+    "4px borders + 8px shadows on primary cards; 3px + 4px on chrome.",
+    "Cycle pastel grounds across frames; keep the rhythm.",
+    "Inter 800–900 uppercase, negative tracking, for all display.",
+    "Open every region with a label-pill eyebrow.",
+    "Tilt decorations ±2°–12°; add one to every frame."
+  ],
+  dont: [
+    "No rounded corners (save the stat-deco dot); no blurred shadows.",
+    "No colored borders (black only, save the close-frame white).",
+    "No sentence-case Inter display; no sixth pastel.",
+    "No label rendered as plain text — pill or nothing.",
+    "Don't blow a headline edge-to-edge — fit to measure."
+  ]
+};
+const blockTheme = {
+  name: "block",
+  css: tokensCss,
+  frameCss,
+  fonts: {
+    // Staged from video-assets/themes/block/assets/fonts by the scaffold.
+    css: "assets/fonts/theme-fonts.css",
+    files: ["inter.woff2", "space-grotesk.woff2", "theme-fonts.css"]
+  },
+  palette,
+  typography,
+  rules,
+  // The decoration component families block offers (starburst · slab · stripe · badge).
+  decorations: [...DECORATION_COMPONENTS]
+};
+const validate = (schema, data, label) => {
+  const r = schema.safeParse(data);
+  if (!r.success) throw new Error(`${label} params invalid:
+${issuesSummary(r.error)}`);
+  return r.data;
+};
+const composeComponent = (name, params = {}) => {
+  const factory = getComponent(name);
+  validate(factory.schema, params, `component '${name}'`);
+  return factory(params);
+};
+const composeTreatment = (spec) => {
+  const factory = getTreatment(spec.treatment);
+  validate(factory.schema, spec.params ?? {}, `treatment '${spec.treatment}'`);
+  const inst = factory(spec.params ?? {});
+  if (spec.children?.length)
+    inst.addChildren(
+      ...spec.children.map((c) => {
+        const comp = composeComponent(c.name, c.params ?? {});
+        if (c.animIn || c.timeIn) comp.withTransition({ animIn: c.animIn, timeIn: c.timeIn });
+        return comp;
+      })
+    );
+  if (spec.decorations?.length)
+    inst.addDecorations(
+      ...spec.decorations.map((d) => {
+        const deco = composeComponent(d.name, d.params ?? {});
+        if (d.animIn || d.timeIn) deco.withTransition({ animIn: d.animIn, timeIn: d.timeIn });
+        return deco;
+      })
+    );
+  if (spec.anim) inst.withAnim(validate(array(AnimDescriptorSchema), spec.anim, "anim"));
+  if (spec.transition) inst.withTransition(spec.transition);
+  return inst;
+};
+const composeScene = (spec, compId, opts = {}) => {
+  const inst = composeTreatment(spec);
+  return renderScene(
+    inst,
+    rootContext(compId, opts.theme ?? blockTheme, { voIds: opts.voIds }),
+    opts.ground ? { ground: opts.ground } : void 0
+  );
+};
+const id = string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
+const FRAME_THEME_NAMES = ["block", "capsule", "creative", "professional", "standard", "future"];
+const FRAME_TREATMENTS = [
+  "cover",
+  "feature-cards",
+  "stat-grid",
+  "closing-plate",
+  "quote",
+  "timeline",
+  "comparison",
+  "chart",
+  "bar-ranking",
+  "agenda"
+];
+const FRAME_GROUNDS = [
+  "offwhite",
+  "cream",
+  "blue",
+  "pink",
+  "green",
+  "yellow",
+  "black"
+];
+const SceneStoryboardSchema = object({
+  /** MUST equal a spec slide id — the builder cross-checks (tolerate-and-warn). */
+  sceneId: id,
+  treatment: _enum(FRAME_TREATMENTS),
+  options: object({
+    ground: _enum(FRAME_GROUNDS).optional(),
+    transition: TransitionSpecSchema.optional()
+  }).optional()
+});
+object({
+  theme: _enum(FRAME_THEME_NAMES),
+  scenes: array(SceneStoryboardSchema).min(3)
+}).superRefine((sb, ctx) => {
+  const seen = /* @__PURE__ */ new Set();
+  for (const [i, scene] of sb.scenes.entries()) {
+    if (seen.has(scene.sceneId)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["scenes", i, "sceneId"],
+        message: `duplicate sceneId '${scene.sceneId}'`
+      });
+    }
+    seen.add(scene.sceneId);
+  }
+});
+const COMPONENT_NAMES = [
+  "stat",
+  // → stat-grid
+  "card",
+  // → feature-cards
+  "step",
+  // → timeline
+  "agenda-item",
+  // → agenda
+  "bar",
+  // → chart (vertical column)
+  "rank",
+  // → bar-ranking (horizontal ranked row)
+  "row",
+  // → comparison (ledger row)
+  // Chrome / decorative leaf pieces — library + showcase (no treatment child role):
+  "caption",
+  // VO-transcript pill (root caption rail in render)
+  "pill",
+  // label / eyebrow pill
+  "cta",
+  // call-to-action button
+  "list-number",
+  // numbered index row
+  // Decoration families — positioned page-space flourishes any treatment can add.
+  // Each has its OWN disjoint shape-variant list (no two render the same shape).
+  "starburst",
+  // star · burst · triangle · circle
+  "slab",
+  // square · rectangle · rhombus · hexagon · cross
+  "stripe",
+  // stripe · bars · grid
+  "badge",
+  // shield · tag · ticket · capsule
+  "icon",
+  // inline-SVG icon from the shared set
+  "hud"
+  // full-frame HUD overlay composite
+];
+const TREATMENT_NAMES = FRAME_TREATMENTS;
 const ChildSpecSchema = object({
   name: string().min(1),
   params: record(string(), unknown()).optional(),
@@ -5179,255 +5720,57 @@ const applySceneEdit = (original, edit) => {
   if (edit.vo) next.vo = edit.vo;
   return next;
 };
-const mountEditor = async (container, opts = {}) => {
-  bootstrapFx();
-  const themeName = opts.themeName ?? "block";
-  const theme = await loadTheme(themeName);
-  const wrapper = document.createElement("div");
-  container.appendChild(wrapper);
-  const shadow = wrapper.attachShadow({ mode: "open" });
-  const style = document.createElement("style");
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}
-${SHOWCASE_CHROME}
-${EDITOR_CHROME}`;
-  shadow.appendChild(style);
-  const rootEl = document.createElement("div");
-  shadow.appendChild(rootEl);
-  const refreshers2 = [];
-  let settleTeardown = null;
-  const toolbar = el("div", "toolbar");
-  toolbar.appendChild(el("span", "tb-title", "DECK EDITOR"));
-  const themeLabel = el("span", "tb-theme");
-  toolbar.appendChild(themeLabel);
-  toolbar.appendChild(el("span", "tb-spacer"));
-  const fileInput = el("input");
-  fileInput.type = "file";
-  fileInput.accept = "application/json,.json";
-  fileInput.style.display = "none";
-  const loadBtn = el("button", "tb-btn", "Load deck.json");
-  loadBtn.addEventListener("click", () => fileInput.click());
-  const exportBtn = el("button", "tb-btn", "Export deck.json");
-  const saveBtn = el("button", "tb-btn tb-btn--primary", "Save");
-  if (opts.onSave) toolbar.append(loadBtn, exportBtn, saveBtn, fileInput);
-  else toolbar.append(loadBtn, exportBtn, fileInput);
-  const msg = el("div", "tb-msg");
-  const deckGrid = el("div", "grid");
-  rootEl.append(toolbar, msg, deckGrid);
-  const setMsg = (text, isError = false) => {
-    msg.textContent = text;
-    msg.className = isError ? "tb-msg tb-msg--err" : "tb-msg";
-  };
-  let cards = [];
-  let currentDoc = null;
-  const renderDeck = (doc) => {
-    currentDoc = doc;
-    themeLabel.textContent = `theme: ${doc.theme}  ·  ${doc.scenes.length} slides`;
-    deckGrid.replaceChildren();
-    cards = [];
-    refreshers2.length = 0;
-    doc.scenes.forEach((scene, i) => {
-      const compId = `ed-${String(i + 1).padStart(2, "0")}-${scene.id}`;
-      const label = `${i + 1}. ${scene.id} · ${scene.treatment}`;
-      try {
-        const built = buildCard(getTreatment(scene.treatment), {
-          theme,
-          refreshers: refreshers2,
-          compId,
-          label,
-          initial: scene.params,
-          initialChildren: scene.children,
-          initialDecorations: scene.decorations,
-          initialGround: scene.ground,
-          initialTransition: scene.transition,
-          initialVo: scene.vo
-        });
-        deckGrid.appendChild(built.el);
-        cards.push({ scene, snapshot: built.snapshot, lastEdit: null });
-      } catch (e) {
-        const errCard = el("div", "card");
-        const head = el("div", "card-head");
-        head.appendChild(el("span", "card-name", label));
-        head.appendChild(el("span", "card-kind", "unrenderable"));
-        errCard.appendChild(head);
-        errCard.appendChild(el("div", "err", e.message));
-        deckGrid.appendChild(errCard);
-        cards.push({ scene, snapshot: null, lastEdit: null });
-      }
-    });
-    settleTeardown?.();
-    settleTeardown = settleAfterAttach(shadow, refreshers2);
-  };
-  const gatherDeck = () => {
-    if (!currentDoc) return null;
-    const scenes = [];
-    const invalidIds = [];
-    for (const c of cards) {
-      if (!c.snapshot) {
-        scenes.push(c.scene);
-        continue;
-      }
-      const snap = c.snapshot();
-      if (snap) {
-        c.lastEdit = {
-          params: snap.params,
-          children: snap.children,
-          decorations: snap.decorations,
-          ground: snap.ground,
-          transition: snap.transition,
-          vo: snap.vo
-        };
-      } else {
-        invalidIds.push(c.scene.id);
-      }
-      scenes.push(c.lastEdit ? applySceneEdit(c.scene, c.lastEdit) : c.scene);
-    }
-    return { doc: { ...currentDoc, scenes }, invalidIds };
-  };
-  const gatherForWrite = () => {
-    const res = gatherDeck();
-    if (!res) return null;
-    const warn = res.invalidIds.length ? ` (slides with errors kept their last valid values: ${res.invalidIds.join(", ")})` : "";
-    return { doc: res.doc, warn };
-  };
-  exportBtn.addEventListener("click", () => {
-    const g = gatherForWrite();
-    if (!g) return;
-    const json = `${JSON.stringify(g.doc, null, 2)}
-`;
-    const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
-    const a = el("a");
-    a.href = url;
-    a.download = "deck.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    setMsg(`Exported deck.json (${g.doc.scenes.length} slides)${g.warn}.`, g.warn !== "");
-  });
-  saveBtn.addEventListener("click", () => {
-    if (!opts.onSave) return;
-    const g = gatherForWrite();
-    if (!g) return;
-    setMsg(`Saved ${g.doc.scenes.length} slides${g.warn}.`, g.warn !== "");
-    opts.onSave(g.doc);
-  });
-  const loadFromUnknown = (raw, source) => {
-    const parsed = DeckDocumentSchema.safeParse(raw);
-    if (!parsed.success) {
-      const detail = parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).slice(0, 4).join("; ");
-      setMsg(`${source} is not a valid deck: ${detail}`, true);
-      return;
-    }
-    renderDeck(raw);
-    setMsg(`Loaded ${source}.`);
-  };
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      let raw;
-      try {
-        raw = JSON.parse(String(reader.result));
-      } catch (e) {
-        setMsg(`Could not parse ${file.name}: ${e.message}`, true);
-        return;
-      }
-      loadFromUnknown(raw, file.name);
-      fileInput.value = "";
-    };
-    reader.readAsText(file);
-  });
-  const injected = opts.deck ?? opts.sample;
-  if (injected) loadFromUnknown(injected, opts.deck ? "the deck" : "the sample deck");
-  else setMsg("Load a deck.json to begin.");
-  return {
-    load: (raw) => loadFromUnknown(raw, "the deck"),
-    destroy: () => {
-      settleTeardown?.();
-      wrapper.remove();
-    }
-  };
-};
-const mountPreview = (container, instance, theme, opts = {}) => {
-  bootstrapFx();
-  const compId = opts.compId ?? "mc-preview";
-  const ctx = rootContext(compId, theme, { mode: "showcase" });
-  const { html, css, anims } = buildPreview(instance, ctx);
-  const style = document.createElement("style");
-  style.textContent = css;
-  const holder = document.createElement("div");
-  holder.innerHTML = html;
-  const root = holder.firstElementChild ?? holder;
-  container.append(style, root);
-  const gsap2 = window.gsap;
-  const MC2 = window.MC;
-  let tl = null;
-  if (gsap2 && MC2) {
-    const build = () => {
-      const t = gsap2.timeline({ paused: true });
-      MC2.applyAnims(t, anims, MC2.showcaseCtx(root));
-      return t;
-    };
-    tl = build();
-    tl.progress(1).pause();
-  }
-  return {
-    root,
-    replay: () => tl?.restart(),
-    destroy: () => {
-      tl?.kill();
-      style.remove();
-      root.remove();
-    }
-  };
-};
 export {
-  $ZodRegistry as $,
-  THEMES as A,
-  allComponents as B,
-  allTreatments as C,
+  blockTheme as A,
+  DeckDocumentSchema as B,
+  COMPONENT_NAMES as C,
   DEFAULT_ENTRANCE as D,
-  EDITOR_CHROME as E,
-  bootstrapFx as F,
-  buildPreview as G,
-  componentNames as H,
-  getComponent as I,
-  getTreatment as J,
-  hasComponent as K,
-  hasTreatment as L,
-  loadTheme as M,
-  mountEditor as N,
-  mountPreview as O,
-  mountShowcase as P,
-  rootContext as Q,
-  treatmentNames as R,
-  SHOWCASE_CHROME as S,
-  TIMING_SECONDS as T,
+  FRAME_TREATMENTS as E,
+  FRAME_GROUNDS as F,
+  TIMING_PRESETS as G,
+  TIMING_SECONDS as H,
+  TRANSITION_NAMES as I,
+  TREATMENT_NAMES as J,
+  allComponents as K,
+  allTreatments as L,
+  applySceneEdit as M,
+  bootstrapFx as N,
+  componentNames as O,
+  composeComponent as P,
+  composeScene as Q,
+  composeTreatment as R,
+  getComponent as S,
+  THEMES as T,
+  getTreatment as U,
+  hasComponent as V,
+  hasTreatment as W,
+  loadTheme as X,
+  mountPreview as Y,
+  treatmentNames as Z,
   _enum as _,
-  getEnumValues as a,
-  findAll as b,
-  attrEq as c,
+  sceneEntranceJs as a,
+  sceneExitJs as b,
+  scopeCss as c,
   serialize as d,
-  elementIn as e,
-  find as f,
-  globalRegistry as g,
-  hasAttr as h,
-  isElement as i,
-  serializeAnims as j,
-  sceneEntranceJs as k,
-  sceneExitJs as l,
-  scopeCss as m,
-  collectCss as n,
+  stampAnims as e,
+  fillSlots as f,
+  childrenContainer as g,
+  styleProps as h,
+  stripAnnotations as i,
+  collectCss as j,
+  object as k,
+  string as l,
+  mergeStyle as m,
+  component as n,
   offsetAnim as o,
-  parseFragment as p,
+  pruneRemoved as p,
   qualifyAnim as q,
-  removeWhere as r,
-  setText as s,
-  object as t,
-  string as u,
-  boolean as v,
-  number as w,
+  rootElement as r,
+  serializeAnims as s,
+  toJSONSchema as t,
+  boolean as u,
+  number as v,
+  decorationComponent as w,
   tuple as x,
   registerComponent as y,
   registerTreatment as z

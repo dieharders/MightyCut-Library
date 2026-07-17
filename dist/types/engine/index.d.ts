@@ -1,11 +1,10 @@
 export { THEMES, loadTheme, type ThemeName } from "./load-theme";
-export { mountShowcase, type ShowcaseHandle } from "./showcase";
-export { mountEditor, type EditorHandle, type MountEditorOptions } from "./editor";
-export { mountPreview, type MountOptions, type PreviewHandle } from "./mount";
+export { mountPreview, type MountPreviewOptions, type PreviewHandle } from "./mount";
 export { bootstrapFx } from "./fx";
-export { SHOWCASE_CHROME, EDITOR_CHROME } from "./chrome";
 export { allComponents, allTreatments, componentNames, treatmentNames, getComponent, getTreatment, hasComponent, hasTreatment, } from "../components/runtime/registry";
-export { buildPreview, type Preview } from "../components/runtime/emit";
-export { rootContext } from "../components/runtime";
-export type { ComponentFactory, ComponentInstance, ThemeTokens, TreatmentFactory, TreatmentInstance, } from "../components/runtime/types";
-export type { DeckDocument, DeckScene } from "../types/deck";
+export { composeComponent, composeTreatment, composeScene, type ChildSpec, type SceneSpec, type ComposeOpts, } from "../components/compose";
+export type { ComponentFactory, ComponentInstance, PaletteSwatch, ThemeRules, ThemeTokens, TreatmentFactory, TreatmentInstance, TypeSpec, } from "../components/runtime/types";
+export { TRANSITION_NAMES, TIMING_PRESETS, TIMING_SECONDS, type TransitionName, type TimingPreset, type TransitionSpec, } from "../types/transitions";
+export { FRAME_GROUNDS, FRAME_TREATMENTS, type FrameGround, type FrameTreatment, } from "../types/storyboard";
+export { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
+export { DeckDocumentSchema, applySceneEdit, type DeckDocument, type DeckScene, type DeckVoLine, type SceneEdit, } from "../types/deck";
