@@ -5322,7 +5322,7 @@ ${css}`;
 };
 const issuesSummary = (error) => error.issues.slice(0, 12).map((i) => `- ${i.path.join(".") || "(root)"}: ${i.message}`).join("\n");
 const DECORATION_COMPONENTS = ["starburst", "slab", "stripe", "badge"];
-const STAR = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
+const STAR = "polygon(50% 4.5%, 61% 39.5%, 98% 39.5%, 68% 61.5%, 79% 95.5%, 50% 74.5%, 21% 95.5%, 32% 61.5%, 2% 39.5%, 39% 39.5%)";
 const BURST = "polygon(50% 0%, 60% 22%, 84% 12%, 78% 38%, 100% 50%, 78% 62%, 84% 88%, 60% 78%, 50% 100%, 40% 78%, 16% 88%, 22% 62%, 0% 50%, 22% 38%, 16% 12%, 40% 22%)";
 const TRIANGLE = "polygon(50% 2%, 98% 98%, 2% 98%)";
 const RHOMBUS = "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
