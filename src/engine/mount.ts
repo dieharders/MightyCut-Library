@@ -9,8 +9,16 @@
 // tokens are re-scoped to `:host`. Fonts are injected document-level by loadTheme.
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
-import { pageInFor, pageOutFor, type PageSpec } from "../components/runtime/transitions";
-import type { ComponentInstance, ThemeTokens, TreatmentInstance } from "../components/runtime/types";
+import {
+  pageInFor,
+  pageOutFor,
+  type PageSpec,
+} from "../components/runtime/transitions";
+import type {
+  ComponentInstance,
+  ThemeTokens,
+  TreatmentInstance,
+} from "../components/runtime/types";
 import { TIMING_SECONDS } from "../types/transitions";
 import { bootstrapFx } from "./fx";
 
@@ -23,10 +31,18 @@ type Timeline = {
   time: (t: number) => Timeline;
   eventCallback: (name: string, cb: () => void) => Timeline;
 };
-type McGlobal = { applyAnims: (tl: unknown, anims: unknown, ctx: unknown) => void; showcaseCtx: (root: Element) => unknown };
+type McGlobal = {
+  applyAnims: (tl: unknown, anims: unknown, ctx: unknown) => void;
+  showcaseCtx: (root: Element) => unknown;
+};
 type GsapGlobal = { timeline: (o?: { paused?: boolean }) => Timeline };
 /** A whole-page transition factory on window.MC (fadeIn/slideOut/…), called to preview the page IN/OUT. */
-type PageFactory = (tl: unknown, target: Element, at: number, opts: Record<string, unknown>) => void;
+type PageFactory = (
+  tl: unknown,
+  target: Element,
+  at: number,
+  opts: Record<string, unknown>,
+) => void;
 
 export type PreviewHandle = {
   /** Restart the entrance animation from the top. */
@@ -61,7 +77,7 @@ const previewCss = (frame: boolean): string => `
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-.mc-stage--comp { display: grid; place-items: center; padding: 24px; container-type: inline-size; }
+.mc-stage--comp { display: grid; box-sizing: border-box; place-items: center; padding: 24px; container-type: inline-size; }
 .mc-stage--comp .mc-stage-inner { width: 100%; container-type: size; position: relative; min-height: 180px; }
 ${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }"}
 `;
@@ -81,10 +97,14 @@ export const mountPreview = (
   const css = built.css;
   const anims = built.anims;
   const html = opts.ground
-    ? built.html.replace(/background:\s*var\(--[a-z]+\)/, `background: var(--${opts.ground})`)
+    ? built.html.replace(
+        /background:\s*var\(--[a-z]+\)/,
+        `background: var(--${opts.ground})`,
+      )
     : built.html;
 
-  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
+  const shadow =
+    container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
   const style = document.createElement("style");
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS.
@@ -92,7 +112,9 @@ export const mountPreview = (
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
-  stage.className = frame ? "mc-stage mc-stage--frame" : "mc-stage mc-stage--comp";
+  stage.className = frame
+    ? "mc-stage mc-stage--frame"
+    : "mc-stage mc-stage--comp";
   const inner = document.createElement("div");
   inner.className = "mc-stage-inner";
   inner.innerHTML = html;
@@ -107,7 +129,10 @@ export const mountPreview = (
   let tl: Timeline | null = null;
   const HOLD = 0.5; // preview beat between the last reveal and the page exit
   // The resolved whole-scene page transition (treatments only) — replayed live below.
-  const pageTx = instance.kind === "treatment" ? (instance as TreatmentInstance).pageTransition() : null;
+  const pageTx =
+    instance.kind === "treatment"
+      ? (instance as TreatmentInstance).pageTransition()
+      : null;
   const settle = (): void => {
     if (!gsap || !MC) return;
     const timeline = (tl = gsap.timeline({ paused: true }));
@@ -118,16 +143,30 @@ export const mountPreview = (
     // from the pageInFor / pageOutFor data — otherwise the OUT is never visible.
     let holdAt = timeline.duration();
     if (pageTx && (pageTx.animIn || pageTx.animOut)) {
-      const pageEl = (inner.querySelector(`.${compId}-root`) as Element | null) ?? inner;
-      const play = (spec: PageSpec | null, at: number, durSec: number): void => {
+      const pageEl =
+        (inner.querySelector(`.${compId}-root`) as Element | null) ?? inner;
+      const play = (
+        spec: PageSpec | null,
+        at: number,
+        durSec: number,
+      ): void => {
         if (!spec) return;
         const fn = (MC as unknown as Record<string, PageFactory>)[spec.fn];
         if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
       };
-      if (pageTx.animIn && pageTx.animIn !== "none") play(pageInFor(pageTx.animIn), 0, TIMING_SECONDS[pageTx.timeIn ?? "short"]);
+      if (pageTx.animIn && pageTx.animIn !== "none")
+        play(
+          pageInFor(pageTx.animIn),
+          0,
+          TIMING_SECONDS[pageTx.timeIn ?? "short"],
+        );
       holdAt = timeline.duration(); // the composed frame: after reveals + page-in settle
       if (pageTx.animOut && pageTx.animOut !== "none") {
-        play(pageOutFor(pageTx.animOut), holdAt + HOLD, TIMING_SECONDS[pageTx.timeOut ?? "short"]);
+        play(
+          pageOutFor(pageTx.animOut),
+          holdAt + HOLD,
+          TIMING_SECONDS[pageTx.timeOut ?? "short"],
+        );
         timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause()); // rest revealed, not faded-out
       }
     }
@@ -139,7 +178,10 @@ export const mountPreview = (
     scale();
     settle();
   });
-  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => scale()) : null;
+  const ro =
+    typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(() => scale())
+      : null;
   ro?.observe(stage);
 
   return {

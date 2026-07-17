@@ -5256,7 +5256,7 @@ const previewCss = (frame) => `
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-.mc-stage--comp { display: grid; place-items: center; padding: 24px; container-type: inline-size; }
+.mc-stage--comp { display: grid; box-sizing: border-box; place-items: center; padding: 24px; container-type: inline-size; }
 .mc-stage--comp .mc-stage-inner { width: 100%; container-type: size; position: relative; min-height: 180px; }
 ${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }"}
 `;
@@ -5268,7 +5268,10 @@ const mountPreview = (container, instance, theme, opts = {}) => {
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
-  const html = opts.ground ? built.html.replace(/background:\s*var\(--[a-z]+\)/, `background: var(--${opts.ground})`) : built.html;
+  const html = opts.ground ? built.html.replace(
+    /background:\s*var\(--[a-z]+\)/,
+    `background: var(--${opts.ground})`
+  ) : built.html;
   const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
   const style = document.createElement("style");
@@ -5303,10 +5306,19 @@ ${css}`;
         const fn = MC[spec.fn];
         if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
       };
-      if (pageTx.animIn && pageTx.animIn !== "none") play(pageInFor(pageTx.animIn), 0, TIMING_SECONDS[pageTx.timeIn ?? "short"]);
+      if (pageTx.animIn && pageTx.animIn !== "none")
+        play(
+          pageInFor(pageTx.animIn),
+          0,
+          TIMING_SECONDS[pageTx.timeIn ?? "short"]
+        );
       holdAt = timeline.duration();
       if (pageTx.animOut && pageTx.animOut !== "none") {
-        play(pageOutFor(pageTx.animOut), holdAt + HOLD, TIMING_SECONDS[pageTx.timeOut ?? "short"]);
+        play(
+          pageOutFor(pageTx.animOut),
+          holdAt + HOLD,
+          TIMING_SECONDS[pageTx.timeOut ?? "short"]
+        );
         timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause());
       }
     }
