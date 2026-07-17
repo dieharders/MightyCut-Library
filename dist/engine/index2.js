@@ -5244,7 +5244,14 @@ const bootstrapFx = () => {
   if (!w.MC) inject(mcSrc);
 };
 const previewCss = (frame) => `
-:host { display: block; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+/* The preview scaffold is padded (.mc-stage--comp: 24px) and the host app's global
+   border-box reset (Tailwind Preflight) does NOT cross the shadow boundary — so the
+   shadow defaults to content-box and width:100%+padding computes to 100%+48px, over-
+   flowing the card by 48px (off-centering the component). Scope border-box to the
+   SCAFFOLD only, exactly like the render border-boxes its padded containers (.mc-page)
+   and NOT components — so a content-box component still matches the MP4. */
+.mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
 .mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
@@ -5322,7 +5329,7 @@ ${css}`;
 };
 const issuesSummary = (error) => error.issues.slice(0, 12).map((i) => `- ${i.path.join(".") || "(root)"}: ${i.message}`).join("\n");
 const DECORATION_COMPONENTS = ["starburst", "slab", "stripe", "badge"];
-const STAR = "polygon(50% 4.5%, 61% 39.5%, 98% 39.5%, 68% 61.5%, 79% 95.5%, 50% 74.5%, 21% 95.5%, 32% 61.5%, 2% 39.5%, 39% 39.5%)";
+const STAR = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
 const BURST = "polygon(50% 0%, 60% 22%, 84% 12%, 78% 38%, 100% 50%, 78% 62%, 84% 88%, 60% 78%, 50% 100%, 40% 78%, 16% 88%, 22% 62%, 0% 50%, 22% 38%, 16% 12%, 40% 22%)";
 const TRIANGLE = "polygon(50% 2%, 98% 98%, 2% 98%)";
 const RHOMBUS = "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";

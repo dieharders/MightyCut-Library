@@ -49,7 +49,14 @@ export type MountPreviewOptions = {
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
 // color-scheme / font so the vanilla render never inherits the host app's theme.
 const previewCss = (frame: boolean): string => `
-:host { display: block; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+/* The preview scaffold is padded (.mc-stage--comp: 24px) and the host app's global
+   border-box reset (Tailwind Preflight) does NOT cross the shadow boundary — so the
+   shadow defaults to content-box and width:100%+padding computes to 100%+48px, over-
+   flowing the card by 48px (off-centering the component). Scope border-box to the
+   SCAFFOLD only, exactly like the render border-boxes its padded containers (.mc-page)
+   and NOT components — so a content-box component still matches the MP4. */
+.mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
 .mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
