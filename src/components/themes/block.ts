@@ -95,31 +95,31 @@ const displayBase = "font-family: var(--disp); text-transform: uppercase; line-h
 const typography: ThemeTokens["typography"] = [
   {
     token: "heading-xl",
-    spec: "Inter 900 · uppercase · −0.03em",
+    spec: "Inter 900 · uppercase · −0.03em — hero titles & the one biggest word on a frame",
     sample: "Maximal.",
     style: `${displayBase} font-weight: 900; letter-spacing: -0.03em; font-size: 80px;`,
   },
   {
     token: "heading-lg",
-    spec: "Inter 800 · uppercase · −0.02em",
+    spec: "Inter 800 · uppercase · −0.02em — section headlines & secondary titles",
     sample: "Bordered & Bold",
     style: `${displayBase} font-weight: 800; letter-spacing: -0.02em; font-size: 50px;`,
   },
   {
     token: "stat-number",
-    spec: "Inter 900 · line 1",
+    spec: "Inter 900 · line 1 — big numeric callouts: stats, counts, prices",
     sample: "240",
     style: "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px;",
   },
   {
     token: "body",
-    spec: "Inter 500 · sentence case · line 1.6",
+    spec: "Inter 500 · sentence case · line 1.6 — paragraphs & supporting copy",
     sample: "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
     style: "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px;",
   },
   {
     token: "label",
-    spec: "Space Grotesk 600 · uppercase · 0.08em",
+    spec: "Space Grotesk 600 · uppercase · 0.08em — eyebrows, tags & section kickers above a heading",
     sample: "Section Eyebrow",
     style:
       "display: inline-block; border: 3px solid var(--black); background: var(--white); box-shadow: 4px 4px 0 var(--black); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px;",
