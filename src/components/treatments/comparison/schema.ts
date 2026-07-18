@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ComparisonSchema = z.object({
-  headline: z.string().max(80).describe("The slide's title line (kind: comparison)"),
+  headline: z.string().max(80).describe("The slide's title line"),
   columns: z
     .tuple([
       z.string().max(36).describe('Header for the "them" column (the status quo)'),

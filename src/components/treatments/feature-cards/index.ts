@@ -5,7 +5,7 @@ import { treatment } from "../../runtime/treatment";
 import { featureCardsAnim } from "./anim";
 import { FeatureCardsSchema } from "./schema";
 
-/** Bordered feature cards with accent icon squares — a responsive grid of Card components (kind: cards). */
+/** Bordered feature cards with accent icon squares — a responsive grid of Card components. */
 export const FeatureCards = treatment({
   name: "feature-cards",
   childComponent: "card",

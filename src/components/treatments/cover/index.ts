@@ -8,7 +8,7 @@ import { CoverSchema } from "./schema";
 
 /** The opening title frame: an oversized neobrutalist headline on the cream
  *  ground, with an optional kicker pill and subtitle, flanked by a pink star and
- *  a blue offset rectangle (kind: title). A childless treatment. */
+ *  a blue offset rectangle. A childless treatment. */
 export const Cover = treatment({
   name: "cover",
   schema: CoverSchema,

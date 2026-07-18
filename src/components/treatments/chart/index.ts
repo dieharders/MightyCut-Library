@@ -6,7 +6,7 @@ import { chartAnim } from "./anim";
 import { ChartSchema } from "./schema";
 
 /** A vertical bar chart on a cream ground — bordered pastel columns that grow from
- *  a baseline while their values count up; the last column leads in yellow (kind: chart). */
+ *  a baseline while their values count up; the last column leads in yellow. */
 export const Chart = treatment({
   name: "chart",
   childComponent: "bar",

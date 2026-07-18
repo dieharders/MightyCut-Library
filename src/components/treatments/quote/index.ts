@@ -5,7 +5,7 @@ import { quoteAnim } from "./anim";
 import { QuoteSchema } from "./schema";
 
 /** A neobrutalist pull-quote: a centered bordered card on a pink ground, with an
- *  optional eyebrow pill and attribution line (kind: quote). No children. */
+ *  optional eyebrow pill and attribution line. No children. */
 export const Quote = treatment({
   name: "quote",
   schema: QuoteSchema,

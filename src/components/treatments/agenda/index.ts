@@ -6,7 +6,7 @@ import { agendaAnim } from "./anim";
 import { AgendaSchema } from "./schema";
 
 /** A sparse, ink-ruled numbered index — the Agenda skin over the steps data
- *  (sibling of Timeline). A headline over a column of AgendaItem rows (kind: steps). */
+ *  (sibling of Timeline). A headline over a column of AgendaItem rows. */
 export const Agenda = treatment({
   name: "agenda",
   childComponent: "agenda-item",

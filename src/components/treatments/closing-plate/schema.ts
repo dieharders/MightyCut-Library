@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ClosingPlateSchema = z.object({
-  headline: z.string().max(80).describe("The closing statement — a short, punchy sign-off (kind: outro)"),
+  headline: z.string().max(80).describe("The closing statement — a short, punchy sign-off"),
   cta: z
     .string()
     .max(120)

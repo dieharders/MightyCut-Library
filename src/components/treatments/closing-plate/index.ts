@@ -7,7 +7,7 @@ import { closingPlateAnim } from "./anim";
 import { ClosingPlateSchema } from "./schema";
 
 /** A full-bleed neobrutalist sign-off: one bold statement card on a pink ground,
- *  with an optional yellow CTA chip and a star popping off its corner (kind: outro). */
+ *  with an optional yellow CTA chip and a star popping off its corner. */
 export const ClosingPlate = treatment({
   name: "closing-plate",
   schema: ClosingPlateSchema,

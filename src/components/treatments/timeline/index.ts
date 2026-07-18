@@ -5,7 +5,7 @@ import { treatment } from "../../runtime/treatment";
 import { timelineAnim } from "./anim";
 import { TimelineSchema } from "./schema";
 
-/** Numbered steps linked left-to-right — a responsive row of Step cards (kind: steps). */
+/** Numbered steps linked left-to-right — a responsive row of Step cards. */
 export const Timeline = treatment({
   name: "timeline",
   childComponent: "step",

@@ -6,7 +6,7 @@ import { comparisonAnim } from "./anim";
 import { ComparisonSchema } from "./schema";
 
 /** A ledger of "them vs us" rows under two column headers, the winning column
- *  picked out in green — the block comparison frame (kind: comparison). */
+ *  picked out in green — the block comparison frame. */
 export const Comparison = treatment({
   name: "comparison",
   childComponent: "row",

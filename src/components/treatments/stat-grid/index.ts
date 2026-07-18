@@ -5,7 +5,7 @@ import { treatment } from "../../runtime/treatment";
 import { statGridAnim } from "./anim";
 import { StatGridSchema } from "./schema";
 
-/** Headline figures that count up — a responsive grid of Stat cards (kind: stats). */
+/** Headline figures that count up — a responsive grid of Stat cards. */
 export const StatGrid = treatment({
   name: "stat-grid",
   childComponent: "stat",

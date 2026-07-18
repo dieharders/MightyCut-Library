@@ -6,7 +6,7 @@ import { barRankingAnim } from "./anim";
 import { BarRankingSchema } from "./schema";
 
 /** A horizontal ranked chart — a stack of Rank rows whose pastel fills grow
- *  left-to-right; the top row leads in yellow (kind: chart). */
+ *  left-to-right; the top row leads in yellow. */
 export const BarRanking = treatment({
   name: "bar-ranking",
   childComponent: "rank",
