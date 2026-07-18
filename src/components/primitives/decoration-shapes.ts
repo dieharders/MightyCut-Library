@@ -8,22 +8,35 @@ import { z } from "zod";
 import { component } from "../runtime/component";
 
 // The four decoration component names (the showcase + blockTheme reference these).
-export const DECORATION_COMPONENTS = ["starburst", "slab", "stripe", "badge"] as const;
+export const DECORATION_COMPONENTS = [
+  "starburst",
+  "slab",
+  "stripe",
+  "badge",
+] as const;
 export type DecorationComponentName = (typeof DECORATION_COMPONENTS)[number];
 
 // clip-path polygons (percent coords). Box shapes use border/radius; pattern
 // shapes use a repeating-gradient fill.
-const STAR = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
+const STAR =
+  "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
 const BURST =
   "polygon(50% 0%, 60% 22%, 84% 12%, 78% 38%, 100% 50%, 78% 62%, 84% 88%, 60% 78%, 50% 100%, 40% 78%, 16% 88%, 22% 62%, 0% 50%, 22% 38%, 16% 12%, 40% 22%)";
 const TRIANGLE = "polygon(50% 2%, 98% 98%, 2% 98%)";
 const RHOMBUS = "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
 const HEXAGON = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
-const CROSS = "polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%)";
+const CROSS =
+  "polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%)";
 const SHIELD = "polygon(50% 0%, 100% 18%, 100% 62%, 50% 100%, 0% 62%, 0% 18%)";
 const TAG = "polygon(0% 0%, 78% 0%, 100% 50%, 78% 100%, 0% 100%)";
 
-type ShapeCfg = { clip?: string; radius?: string; box?: boolean; pattern?: "stripe" | "bars" | "grid"; h?: number };
+type ShapeCfg = {
+  clip?: string;
+  radius?: string;
+  box?: boolean;
+  pattern?: "stripe" | "bars" | "grid";
+  h?: number;
+};
 const SHAPES: Record<string, ShapeCfg> = {
   // starburst family — pointed & round bursts
   star: { clip: STAR },
@@ -136,20 +149,50 @@ const decoSvg = (p: DecoParams): string => {
 
 /** Build one decoration component: a shape family (its own `variant` enum) over
  *  the shared placement props + shape engine. */
-export const decorationComponent = (name: string, variants: readonly string[], example: DecoParams) =>
+export const decorationComponent = (
+  name: string,
+  variants: readonly string[],
+  example: DecoParams,
+) =>
   component({
     name,
     schema: z.object({
       variant: z
         .enum(variants as [string, ...string[]])
         .default(variants[0]!)
-        .describe(`Shape (this decoration's family: ${variants.join(", ")})`),
-      x: z.number().min(0).max(100).default(50).describe("Center X in page-space % (0 = left … 100 = right; edges bleed off-frame)"),
-      y: z.number().min(0).max(100).default(50).describe("Center Y in page-space % (0 = top … 100 = bottom)"),
-      size: z.number().positive().max(60).default(16).describe("Size in cqw (percent of page width)"),
-      rotate: z.number().min(-180).max(180).default(0).describe("Rotation in degrees (block tilt: ±2–12°)"),
-      layer: z.enum(["back", "front"]).default("back").describe("Behind the content (back) or over it (front)"),
-      accent: z.enum(["pink", "blue", "green", "yellow", "cream"]).default("pink").describe("Fill color token"),
+        .describe("Shape"),
+      x: z
+        .number()
+        .min(0)
+        .max(100)
+        .default(50)
+        .describe("X origin in page-space (0% = left … 100% = right)"),
+      y: z
+        .number()
+        .min(0)
+        .max(100)
+        .default(50)
+        .describe("Y origin in page-space (0% = top … 100% = bottom)"),
+      size: z
+        .number()
+        .positive()
+        .max(60)
+        .default(16)
+        .describe("Size in cqw (percent of page width)"),
+      rotate: z
+        .number()
+        .min(-180)
+        .max(180)
+        .default(0)
+        .describe("Rotation in degrees"),
+      layer: z
+        .enum(["back", "front"])
+        .default("back")
+        .describe("Behind content (back) or over top (front)"),
+      accent: z
+        .enum(["pink", "blue", "green", "yellow", "cream"])
+        .default("pink")
+        .describe("Fill color token"),
     }),
     template: DECO_TEMPLATE,
     css: DECO_CSS,
