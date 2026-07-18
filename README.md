@@ -20,8 +20,7 @@ If additions or edits are made to the library,
 To sync changes to the WebUI consumer, pull latest from the submodule:
 
 ```bash
-git -C packages/library pull        # (or: git submodule update --remote packages/library)
-pnpm install                        # pnpm COPIES the file: dep into its store, required
+git submodule update --remote packages/mightycut-library
 ```
 
 To sync changes to the media server consumer:
@@ -29,7 +28,6 @@ To sync changes to the media server consumer:
 ```bash
 # after a normal clone:
 git submodule update --init --recursive
-# git submodule update --remote packages/mightycut-library
 ```
 
 ## Layout
