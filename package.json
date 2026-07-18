@@ -38,9 +38,12 @@
     "./assets/*": "./assets/*"
   },
   "scripts": {
+    "gen:fonts": "node scripts/gen-inline-fonts.mjs",
+    "pretypecheck": "pnpm gen:fonts",
     "typecheck": "tsc --noEmit",
+    "pretest": "pnpm gen:fonts",
     "test": "bun test",
-    "prebuild:engine": "node scripts/gen-inline-fonts.mjs",
+    "prebuild:engine": "pnpm gen:fonts",
     "build:engine": "vite build && tsc -p tsconfig.types.json"
   },
   "dependencies": {

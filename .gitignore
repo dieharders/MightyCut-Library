@@ -1,6 +1,12 @@
 node_modules/
 *.log
 
-# dist/ is intentionally TRACKED: consumers (the WebUI) import the prebuilt engine
-# (dist/engine) + its types (dist/types) directly, with no build step. Rebuild with
-# `pnpm build:engine` and commit dist/ when the engine changes.
+# dist/ is generated build output (`pnpm build:engine` → dist/engine + dist/types).
+# It is NOT tracked — the consuming app (WebUI) rebuilds it in its own install/build
+# step (`pnpm prepare:engine`). Do not commit dist/.
+dist/
+
+# Prebuild output: `gen-inline-fonts.mjs` (prebuild:engine) inlines theme fonts into
+# this module before every engine build. Generated, deterministic — do not commit.
+# Only src/engine consumes it; the harness never imports the engine path.
+src/engine/block-fonts.generated.ts

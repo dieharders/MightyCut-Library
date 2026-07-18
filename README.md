@@ -1,26 +1,23 @@
 # @mightycut/library
 
-The shared **single source of truth** for MightyCut's component system — components,
-treatments, themes, FX descriptors, and the Zod contracts. Consumed by BOTH the render
-harness (`../MightyCut`) and the web UI (`../MightyCut-WebUI`), so the exact same
-component `build()` code drives final MP4 renders and interactive previews.
+The shared **single source of truth** for MightyCut's component system — components, treatments, themes, FX descriptors, and the Zod contracts. Consumed by BOTH the render harness (`../MightyCut`) and the web UI (`../MightyCut-WebUI`), so the exact same component `build()` code drives final MP4 renders and interactive previews.
 
 ## Quick Start
 
 If additions or edits are made to the library,
 
-1. Rebuild the engine:
-
-   ```bash
-   pnpm build:engine
-   ```
-
-2. Commit the new code in `/dist` and push to origin
+1. Commit the new code and push to origin
 
 To sync changes to the WebUI consumer, pull latest from the submodule:
 
 ```bash
 git submodule update --remote packages/mightycut-library
+```
+
+This is run automatically for you during the build/dev step to rebuild the engine:
+
+```bash
+pnpm build:engine
 ```
 
 To sync changes to the media server consumer:
@@ -47,21 +44,21 @@ assets/
 
 ## Consumers
 
-- **Harness (Bun):** resolves this package to TS source via a `tsconfig` `paths` alias
-  (`@mightycut/library/*` → `../MightyCut-Library/src/*`). Bun handles the trio's
-  `import … with { type: "text" }` natively; no build step.
-- **Web UI (Vite):** imports the prebuilt browser engine (`@mightycut/library/engine`).
-  `pnpm build:engine` (Vite) produces `dist/engine/` with the base runtime in one chunk
-  and each theme's registration code-split into its own `register-<theme>.js`, so the
-  UI lazy-loads one payload per theme (`loadTheme('block')`).
+- **Harness (Bun):** resolves this package to TS source via a `tsconfig` `paths` alias (`@mightycut/library/*` → `../MightyCut-Library/src/*`). Bun handles the trio's `import … with { type: "text" }` natively; no build step, code is used raw.
+
+- **Web UI (Vite):** imports the browser engine build (`@mightycut/library/engine`), which the consumer produces by running `pnpm build:engine` here during its own install/build step (`dist/` is not committed — see [Scripts](#scripts)). Vite produces `dist/engine/` with the base runtime in one chunk and each theme's registration code-split into its own `register-<theme>.js`, so the UI lazy-loads one payload per theme (`loadTheme('block')`); `tsc` emits matching types to `dist/types/`.
 
 ## Scripts
 
 ```
+pnpm gen:fonts      # inline theme fonts → src/engine/block-fonts.generated.ts
 pnpm typecheck      # tsc --noEmit
 pnpm test           # bun test (runtime + registry tripwires)
-pnpm build:engine   # vite build → dist/engine (per-theme lazy chunks)
+pnpm build:engine   # vite build → dist/engine (per-theme lazy chunks) + tsc → dist/types
 ```
 
-> Keep zod pinned to the exact version the harness uses (`4.0.0`) — a version skew makes
-> schemas typed by one side incompatible with the other.
+> `gen:fonts` runs automatically as a prestep before `typecheck`, `test`, and `build:engine`. **`dist/` and `src/engine/block-fonts.generated.ts` are generated, not committed.**
+
+> `src/` is the source of truth; the WebUI consumer rebuilds the engine (`pnpm build:engine`) in its own install/build step, so there's no `dist/` to commit here.
+
+> Keep zod pinned to the exact version the harness uses (`4.0.0`) — a version skew makes schemas typed by one side incompatible with the other.
