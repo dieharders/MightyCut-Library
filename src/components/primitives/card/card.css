@@ -22,13 +22,13 @@
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 1.5cqw;
+  font-size: 2cqw;
   line-height: 1.15;
 }
 .card-body {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.1cqw;
+  font-size: 1.5cqw;
   line-height: 1.5;
   color: #222;
   margin-top: 0.7cqw;

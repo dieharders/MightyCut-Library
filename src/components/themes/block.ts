@@ -51,7 +51,7 @@ const frameCss = `.block-frame {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.1cqw;
+  font-size: 1.5cqw;
   line-height: 1.2;
 }
 .block-frame h3 {
