@@ -1,0 +1,53 @@
+/* The frame ground + shared structure. `.block-frame` is the page wrapper the
+   emitter stamps the ground background onto; container-type:size makes 1cqw = 1%
+   of the frame width so the same cqw numbers render identically in the gallery
+   thumbnail and a full 1920x1080 scene. Inlined ONCE per scene by the treatment
+   builder (deduped by name); the per-treatment look lives in each treatment's
+   own trio CSS. */
+.block-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  font-family: var(--disp);
+  color: var(--black);
+}
+.block-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.block-frame .pill {
+  display: inline-block;
+  align-self: flex-start;
+  border: 0.25cqw solid var(--black);
+  background: var(--white);
+  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  padding: 0.5cqw 1.2cqw;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.5cqw;
+  line-height: 1.2;
+}
+.block-frame h3 {
+  font-family: var(--disp);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  margin: 0;
+}
+.block-frame .dg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  background-image: radial-gradient(circle, var(--black) 0.14cqw, transparent 0.14cqw);
+  background-size: 3cqw 3cqw;
+  z-index: 1;
+  pointer-events: none;
+}
