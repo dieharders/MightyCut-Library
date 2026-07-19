@@ -2,6 +2,11 @@
   display: flex;
   align-items: center;
   gap: 1.6cqw;
+  /* Span the row so the flex:1 track has a definite width to fill. Inside a
+     treatment's full-width column this matches the default stretch (no-op); shown
+     bare in the showcase it stops the track collapsing to a sliver, so a single
+     row reads as proportionally as it does inside bar-ranking. */
+  width: 100%;
 }
 .rank .bl {
   font-family: var(--mono);
