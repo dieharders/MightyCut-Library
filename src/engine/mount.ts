@@ -66,21 +66,31 @@ export type MountPreviewOptions = {
 // color-scheme / font so the vanilla render never inherits the host app's theme.
 const previewCss = (frame: boolean): string => `
 :host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
-/* The preview scaffold is padded (.mc-stage--comp: 24px) and the host app's global
-   border-box reset (Tailwind Preflight) does NOT cross the shadow boundary — so the
-   shadow defaults to content-box and width:100%+padding computes to 100%+48px, over-
-   flowing the card by 48px (off-centering the component). Scope border-box to the
-   SCAFFOLD only, exactly like the render border-boxes its padded containers (.mc-page)
-   and NOT components — so a content-box component still matches the MP4. */
+/* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
+   boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
+   (stage / inner / preview-root) — exactly like the render border-boxes its padded
+   containers (.mc-page) and NOT components — so a content-box component still matches the
+   MP4 while the padded scaffold sizes predictably. */
 .mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
 .mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-.mc-stage--comp { display: grid; box-sizing: border-box; place-items: center; padding: 24px; container-type: inline-size; }
-.mc-stage--comp .mc-stage-inner { width: 100%; container-type: size; position: relative; min-height: 180px; }
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }"}
+/* Component/decoration previews get a SQUARE stage (aspect-ratio 1/1) so any shape —
+   wide, tall, or a small page-space decoration — has a consistent, roomy area to fill.
+   The content is fit-scaled up to ~COMP_FILL of this box in JS (see scale() below),
+   since a component authored in cqw for the 1920px frame would otherwise render tiny. */
+.mc-stage--comp { position: relative; aspect-ratio: 1 / 1; container-type: inline-size; }
+.mc-stage--comp .mc-stage-inner { position: absolute; inset: 24px; container-type: size; }
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform-origin: center; }"}
 `;
+
+// Fit-scale tuning for the non-frame component/decoration preview. The natural cqw
+// size resolves against the small preview box (~7× smaller than the 1920px frame), so
+// we scale the content up to fill the square, clamped so a tiny element never zooms
+// absurdly. Frame previews (treatments / HUD) scale to the 1920px stage instead.
+const COMP_FILL = 0.9; // target fraction of the square the content should fill
+const COMP_MAX_SCALE = 2.6; // ceiling so a tiny primitive doesn't balloon
 
 /** Mount `instance`'s vanilla preview into `container`; returns a replay/destroy handle. */
 export const mountPreview = (
@@ -124,7 +134,25 @@ export const mountPreview = (
   const gsap = (window as unknown as { gsap?: GsapGlobal }).gsap;
   const MC = (window as unknown as { MC?: McGlobal }).MC;
   const scale = (): void => {
-    if (frame) inner.style.transform = `scale(${stage.clientWidth / 1920})`;
+    if (frame) {
+      inner.style.transform = `scale(${stage.clientWidth / 1920})`;
+      return;
+    }
+    // Non-frame: fit the natural-size component/decoration up to fill the square box.
+    // `root` is `.<compId>-root` (flex-centres its single child, the element itself).
+    const root = inner.firstElementChild as HTMLElement | null;
+    const content = (root?.firstElementChild ?? null) as HTMLElement | null;
+    if (!root || !content) return;
+    root.style.transform = "none"; // measure natural size (undo any prior scale)
+    const cr = content.getBoundingClientRect();
+    const boxW = inner.clientWidth;
+    const boxH = inner.clientHeight;
+    if (cr.width < 1 || cr.height < 1 || boxW < 1 || boxH < 1) return;
+    const fit = Math.min(
+      (boxW * COMP_FILL) / cr.width,
+      (boxH * COMP_FILL) / cr.height,
+    );
+    root.style.transform = `scale(${Math.max(1, Math.min(fit, COMP_MAX_SCALE))})`;
   };
   let tl: Timeline | null = null;
   const HOLD = 0.5; // preview beat between the last reveal and the page exit
@@ -173,16 +201,22 @@ export const mountPreview = (
     timeline.time(holdAt).pause(); // settle to the composed frame so content is visible at rest
   };
 
-  // Scale + settle after the shadow is attached + laid out (gsap needs real layout).
+  // Settle + scale after the shadow is attached + laid out (gsap needs real layout).
+  // Settle FIRST so any count-up text is at its final (widest) value before we measure
+  // the content to fit-scale it — otherwise a stat sized on "0" would over-scale.
   requestAnimationFrame(() => {
-    scale();
     settle();
+    scale();
   });
   const ro =
     typeof ResizeObserver !== "undefined"
       ? new ResizeObserver(() => scale())
       : null;
   ro?.observe(stage);
+  // Content width depends on webfont metrics — re-fit once fonts finish loading.
+  const fonts = (document as unknown as { fonts?: { ready?: Promise<unknown> } })
+    .fonts;
+  fonts?.ready?.then(() => scale()).catch(() => {});
 
   return {
     replay: () => tl?.restart(),
