@@ -8,7 +8,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.1cqw;
+  font-size: 1.6cqw;
   width: 16cqw;
   flex-shrink: 0;
 }
@@ -29,8 +29,8 @@
 .rank .bv {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 1.8cqw;
-  width: 5cqw;
+  font-size: 2.2cqw;
+  width: 6.5cqw;
   text-align: right;
   flex-shrink: 0;
 }

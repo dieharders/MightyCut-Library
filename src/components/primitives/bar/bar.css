@@ -9,7 +9,7 @@
 .bar .bv {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 1.6cqw;
+  font-size: 2.2cqw;
   margin-bottom: 0.6cqw;
 }
 .bar .bcol {
@@ -26,7 +26,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1cqw;
+  font-size: 1.6cqw;
   margin-top: 0.8cqw;
   text-align: center;
 }

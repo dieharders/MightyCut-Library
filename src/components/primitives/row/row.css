@@ -9,7 +9,7 @@
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 1.2cqw;
+  font-size: 1.7cqw;
   align-self: center;
 }
 .row .cell {
@@ -18,7 +18,7 @@
   padding: 0.9cqw 1.2cqw;
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.1cqw;
+  font-size: 1.55cqw;
   line-height: 1.35;
 }
 .row .cell.b {
