@@ -3,8 +3,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  flex: 1;
-  height: 100%;
+  /* Inside the Chart treatment the bar fills the plot: `.chart .bars .bar` sets flex:1 +
+     height:100% and drives the column height off --fill. Shown bare in the showcase there is
+     no plot, so the DEFAULT is content-sized — a self-contained box that fit-scales instead
+     of filling the whole preview (and so leaving nothing for the fit-scale to enlarge). */
+  flex: 0 0 auto;
+  height: auto;
 }
 .bar .bv {
   font-family: var(--disp);
@@ -15,7 +19,7 @@
 .bar .bcol {
   width: 100%;
   max-width: 9cqw;
-  height: var(--fill);
+  height: 30cqw; /* standalone default; the Chart plot overrides to var(--fill) */
   background: var(--col);
   border: 0.3cqw solid var(--black);
   box-shadow: 0.4cqw 0.4cqw 0 var(--black);

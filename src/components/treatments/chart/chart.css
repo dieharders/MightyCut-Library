@@ -17,6 +17,15 @@
   border-bottom: 0.3cqw solid var(--black);
   padding: 0 2cqw;
 }
+/* The Bar primitive is content-sized by default (so it stands alone in the showcase); in the
+   plot it fills the height, shares the row equally, and its column height is driven by --fill. */
+.chart .bars .bar {
+  flex: 1;
+  height: 100%;
+}
+.chart .bars .bar .bcol {
+  height: var(--fill);
+}
 .chart .caption {
   font-family: var(--disp);
   font-weight: 500;

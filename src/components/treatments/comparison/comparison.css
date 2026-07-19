@@ -22,6 +22,11 @@
 .comparison .rows {
   display: contents;
 }
+/* The Row primitive defaults to a self-contained inline row (so it stands alone in the
+   showcase); inside the ledger it must be display:contents so its cells flow into the grid. */
+.comparison .row {
+  display: contents;
+}
 .comparison .ch {
   font-family: var(--mono);
   font-weight: 700;

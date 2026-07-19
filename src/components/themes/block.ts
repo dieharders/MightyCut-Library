@@ -1,76 +1,15 @@
-// Block theme tokens — the palette/font `:root` block (replaces frame.css's
-// :root) plus the shared frame-base CSS (the `.block-frame` ground, the `.body`
-// content wrapper, the base `.pill`/`h3` type, and the CSS-only decorations).
-// The frame base is inlined ONCE per scene by the treatment builder; the per-
-// treatment look lives in each treatment's own trio CSS. Content fonts (Inter,
-// Space Grotesk) are self-hosted and staged from video-assets/themes/block/assets.
+// Block theme — the palette/font `:root` tokens (block-tokens.css, replaces
+// frame.css's :root) plus the shared frame-base CSS (block-frame.css: the
+// `.block-frame` ground, the `.body` content wrapper, the base `.pill`/`h3`
+// type, and the CSS-only decorations). Both live in sibling .css files imported
+// as text, matching the treatment trio convention. The frame base is inlined
+// ONCE per scene by the treatment builder; the per-treatment look lives in each
+// treatment's own trio CSS. Content fonts (Inter, Space Grotesk) are self-hosted
+// and staged from video-assets/themes/block/assets.
 import { DECORATION_COMPONENTS } from "../primitives/decoration-shapes";
 import type { ThemeTokens } from "../runtime/types";
-
-const tokensCss = `:root {
-  --black: #000000;
-  --white: #ffffff;
-  --offwhite: #fffdf5;
-  --pink: #fe90e8;
-  --blue: #c0f7fe;
-  --green: #99e885;
-  --yellow: #f7cb46;
-  --cream: #ffdc8b;
-  --disp: "Inter", sans-serif;
-  --mono: "Space Grotesk", sans-serif;
-}`;
-
-// The frame ground + shared structure. `.block-frame` is the page wrapper the
-// emitter stamps the ground background onto; container-type:size makes 1cqw = 1%
-// of the frame width so the same cqw numbers render identically in the gallery
-// thumbnail and a full 1920x1080 scene.
-const frameCss = `.block-frame {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  container-type: size;
-  font-family: var(--disp);
-  color: var(--black);
-}
-.block-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-.block-frame .pill {
-  display: inline-block;
-  align-self: flex-start;
-  border: 0.25cqw solid var(--black);
-  background: var(--white);
-  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
-  padding: 0.5cqw 1.2cqw;
-  font-family: var(--mono);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 1.5cqw;
-  line-height: 1.2;
-}
-.block-frame h3 {
-  font-family: var(--disp);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -0.03em;
-  line-height: 0.95;
-  margin: 0;
-}
-.block-frame .dg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.32;
-  background-image: radial-gradient(circle, var(--black) 0.14cqw, transparent 0.14cqw);
-  background-size: 3cqw 3cqw;
-  z-index: 1;
-  pointer-events: none;
-}`;
+import frameCss from "./block-frame.css" with { type: "text" };
+import tokensCss from "./block-tokens.css" with { type: "text" };
 
 // Showcase design data — the block styleguide extracted from
 // video-assets/themes/block/frame-showcase.html (verbatim hex/labels/type-scale/
