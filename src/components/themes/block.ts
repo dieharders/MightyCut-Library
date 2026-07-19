@@ -86,12 +86,13 @@ const palette: ThemeTokens["palette"] = [
   { name: "Cream", hex: "#FFDC8B", varName: "cream" },
   { name: "Off-White", hex: "#FFFDF5", note: "canvas", varName: "offwhite" },
   { name: "White", hex: "#FFFFFF", note: "cards", varName: "white" },
-  { name: "Black", hex: "#000000", note: "all borders", varName: "black" },
+  { name: "Black", hex: "#000000", note: "borders", varName: "black" },
 ];
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
 // is the self-contained inline CSS the showcase applies to each live sample.
-const displayBase = "font-family: var(--disp); text-transform: uppercase; line-height: 0.95;";
+const displayBase =
+  "font-family: var(--disp); text-transform: uppercase; line-height: 0.95;";
 const typography: ThemeTokens["typography"] = [
   {
     token: "heading-xl",
@@ -109,13 +110,16 @@ const typography: ThemeTokens["typography"] = [
     token: "stat-number",
     spec: "Inter 900 · line 1 — big numeric callouts: stats, counts, prices",
     sample: "240",
-    style: "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px;",
+    style:
+      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px;",
   },
   {
     token: "body",
     spec: "Inter 500 · sentence case · line 1.6 — paragraphs & supporting copy",
-    sample: "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
-    style: "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px;",
+    sample:
+      "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
+    style:
+      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px;",
   },
   {
     token: "label",
