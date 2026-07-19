@@ -83,11 +83,6 @@ const previewCss = (frame: boolean): string => `
 .mc-stage--comp { position: relative; aspect-ratio: 1 / 1; container-type: inline-size; }
 .mc-stage--comp .mc-stage-inner { position: absolute; inset: 24px; container-type: size; }
 ${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform-origin: center; }"}
-/* The ledger Row is display:contents so its cells flow into the Comparison treatment's
-   grid — shown bare it has no box, so it can't be measured (fit-scale) or laid out and its
-   cells cram together. Give it a self-contained inline row for the preview only. The extra
-   class outweighs the scoped .<id>-root .row rule (0,3,0 beats 0,2,0). */
-.mc-stage--comp .mc-stage-inner .row { display: inline-flex; align-items: center; gap: 1.4cqw; }
 `;
 
 // Fit-scale tuning for the non-frame component/decoration preview. The natural cqw

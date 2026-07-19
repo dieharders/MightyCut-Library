@@ -1,9 +1,13 @@
-/* A ledger row: a row label plus a "them"/"us" cell pair. The root is
-   display:contents so its three cells participate directly in the parent
-   .ledger grid (mirrors the legacy .rrow). The "us" cell (.cell.b) takes the
-   green accent + hard offset shadow. */
+/* A ledger row: a row label plus a "them"/"us" cell pair. Inside the Comparison treatment
+   the three cells participate directly in the parent .ledger grid, so the row is
+   display:contents there (restored by `.comparison .row`). Shown bare in the showcase there
+   is no grid, so the DEFAULT here is a self-contained inline row — a real box that lays out
+   and fit-scales instead of collapsing. The "us" cell (.cell.b) takes the green accent +
+   hard offset shadow. */
 .row {
-  display: contents;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.4cqw;
 }
 .row .rl {
   font-family: var(--disp);
