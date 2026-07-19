@@ -129,7 +129,10 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
   if (!s.clip) {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
-    if (s.box) vars["--d-border"] = "0.3cqw solid var(--black)";
+    // Border weight tracks the shape size (~3.5% of width) so box shapes carry the
+    // same ink weight as the polygon variants' 3.5/100 SVG stroke.
+    if (s.box)
+      vars["--d-border"] = `${(p.size * 0.035).toFixed(2)}cqw solid var(--black)`;
   }
   return vars;
 };
@@ -142,7 +145,7 @@ const decoSvg = (p: DecoParams): string => {
   return (
     `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">` +
     `<polygon points="${svgPoints(clip)}" vector-effect="non-scaling-stroke" ` +
-    `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: 3.5; stroke-linejoin: round"></polygon>` +
+    `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: 3.5; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
     `</svg>`
   );
 };
