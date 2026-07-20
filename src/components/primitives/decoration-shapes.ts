@@ -144,7 +144,9 @@ const decoSvg = (p: DecoParams): string => {
   if (!clip) return "";
   return (
     `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">` +
-    `<polygon points="${svgPoints(clip)}" vector-effect="non-scaling-stroke" ` +
+    // stroke-width 3.5 in the 0-100 viewBox = 3.5% of the shape = size×0.042rem, matching the
+    // box variants' border weight (no non-scaling-stroke, which pinned it to a thin constant).
+    `<polygon points="${svgPoints(clip)}" ` +
     `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: 3.5; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
     `</svg>`
   );
