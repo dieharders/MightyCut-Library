@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
-import { wrapSubComposition } from "../../pipeline/sub-composition";
 import { serializeAnims, offsetAnim, qualifyAnim, type AnimDescriptor } from "./anim";
 import { component } from "./component";
 import { scopeCss, collectCss } from "./css";
