@@ -1,23 +1,23 @@
 .bar-ranking > .body {
   justify-content: center;
-  padding: 12cqh 5cqw 20cqh;
+  padding: 8.1rem 6rem 13.5rem;
 }
 .bar-ranking h3 {
   font-weight: 800;
-  font-size: 3.2cqw;
+  font-size: 3.84rem;
   letter-spacing: -0.02em;
-  margin: 1.2cqw 0 2.4cqw;
+  margin: 1.44rem 0 2.88rem;
 }
 .bar-ranking .bars {
   display: flex;
   flex-direction: column;
-  gap: 1.8cqw;
+  gap: 2.16rem;
 }
 .bar-ranking .caption {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.8cqw;
+  font-size: 2.16rem;
   color: #222;
-  margin-top: 1.6cqw;
+  margin-top: 1.92rem;
   text-align: center;
 }

@@ -1,22 +1,22 @@
 .caption {
   display: inline-flex;
   align-items: center;
-  gap: 2cqw;
-  padding: 2.4cqw 4.4cqw;
+  gap: 2.4rem;
+  padding: 2.88rem 5.28rem;
   background: var(--white);
-  border: 0.5cqw solid var(--black);
-  box-shadow: 1cqw 1cqw 0 var(--black);
+  border: 0.6rem solid var(--black);
+  box-shadow: 1.2rem 1.2rem 0 var(--black);
 }
 .caption .cap-bar {
   align-self: stretch;
-  width: 1cqw;
+  width: 1.2rem;
   flex-shrink: 0;
   background: var(--capbar, var(--pink));
 }
 .caption .cap-text {
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 3cqw;
+  font-size: 3.6rem;
   line-height: 1.25;
   color: var(--black);
 }

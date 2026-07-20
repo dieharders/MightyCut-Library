@@ -56,7 +56,7 @@ const SHAPES: Record<string, ShapeCfg> = {
   // badge family — rounded / tag shapes
   shield: { clip: SHIELD },
   tag: { clip: TAG },
-  ticket: { box: true, radius: "2cqw", h: 0.6 },
+  ticket: { box: true, radius: "2.4rem", h: 0.6 },
   capsule: { box: true, radius: "999px", h: 0.5 },
 };
 
@@ -70,15 +70,15 @@ const svgPoints = (clip: string): string =>
 
 const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
   if (kind === "stripe") {
-    return `repeating-linear-gradient(45deg, var(--black), var(--black) 0.8cqw, ${color} 0.8cqw, ${color} 2.4cqw)`;
+    return `repeating-linear-gradient(45deg, var(--black), var(--black) 0.96rem, ${color} 0.96rem, ${color} 2.88rem)`;
   }
   if (kind === "bars") {
-    return `repeating-linear-gradient(90deg, var(--black), var(--black) 0.9cqw, ${color} 0.9cqw, ${color} 2.7cqw)`;
+    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.08rem, ${color} 1.08rem, ${color} 3.24rem)`;
   }
   // grid: black crosshatch lines over the color fill
   return (
-    `repeating-linear-gradient(0deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), ` +
-    `repeating-linear-gradient(90deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), ` +
+    `repeating-linear-gradient(0deg, var(--black) 0 0.48rem, transparent 0.48rem 3.12rem), ` +
+    `repeating-linear-gradient(90deg, var(--black) 0 0.48rem, transparent 0.48rem 3.12rem), ` +
     `linear-gradient(${color}, ${color})`
   );
 };
@@ -90,13 +90,13 @@ export const DECO_CSS = `.deco {
   position: absolute;
   left: var(--d-x, 50%);
   top: var(--d-y, 50%);
-  width: var(--d-w, 16cqw);
-  height: var(--d-h, 16cqw);
+  width: var(--d-w, 19.2rem);
+  height: var(--d-h, 19.2rem);
   transform: translate(-50%, -50%) rotate(var(--d-rot, 0deg));
   background: var(--d-bg, transparent);
   border: var(--d-border, none);
   border-radius: var(--d-radius, 0);
-  filter: drop-shadow(0.5cqw 0.5cqw 0 var(--black));
+  filter: drop-shadow(0.6rem 0.6rem 0 var(--black));
   z-index: var(--d-z, 1);
   pointer-events: none;
 }
@@ -119,8 +119,8 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
   const vars: Record<string, string> = {
     "--d-x": `${p.x}%`,
     "--d-y": `${p.y}%`,
-    "--d-w": `${p.size}cqw`,
-    "--d-h": `${(p.size * (s.h ?? 1)).toFixed(2)}cqw`,
+    "--d-w": `${+(p.size * 1.2).toFixed(2)}rem`,
+    "--d-h": `${(p.size * (s.h ?? 1) * 1.2).toFixed(2)}rem`,
     "--d-rot": `${p.rotate}deg`,
     "--d-z": p.layer === "front" ? "5" : "1",
   };
@@ -130,9 +130,9 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
     // Border weight tracks the shape size (~3.5% of width) so box shapes carry the
-    // same ink weight as the polygon variants' 3.5/100 SVG stroke.
+    // same ink weight as the polygon variants' 3.5/100 SVG stroke. (0.035 × 1.2 = 0.042rem/unit.)
     if (s.box)
-      vars["--d-border"] = `${(p.size * 0.035).toFixed(2)}cqw solid var(--black)`;
+      vars["--d-border"] = `${(p.size * 0.042).toFixed(2)}rem solid var(--black)`;
   }
   return vars;
 };
@@ -181,7 +181,7 @@ export const decorationComponent = (
         .positive()
         .max(60)
         .default(16)
-        .describe("Size in cqw (percent of page width)"),
+        .describe("Size as a percent of the 1920 design width (16 = 16%, emitted as rem)"),
       rotate: z
         .number()
         .min(-180)

@@ -71,7 +71,7 @@ export const asIconName = (name: string): IconName | null =>
  * Inline SVG markup for a named icon (unknown → sparkles fallback, like MC.icon).
  * `stroke` defaults to currentColor so the `.icon` component can drive color via
  * CSS `color`; width/height are OMITTED so CSS sizes the svg (the component sets
- * `.icon svg { width/height }` in cqw). Deterministic — no browser dependency.
+ * `.icon svg { width/height }` in rem). Deterministic — no browser dependency.
  */
 export const iconSvg = (name: string): string => {
   const body = ICON_PATHS[name as IconName] ?? ICON_PATHS.sparkles;

@@ -2,33 +2,33 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 12cqh 6cqw 20cqh;
+  padding: 8.1rem 7.2rem 13.5rem;
 }
 .closing-plate .cardf {
   position: relative;
-  border: 0.3cqw solid var(--black);
+  border: 0.36rem solid var(--black);
   background: var(--white);
-  box-shadow: 1.2cqw 1.2cqw 0 var(--black);
-  padding: 4cqw 6cqw;
+  box-shadow: 1.44rem 1.44rem 0 var(--black);
+  padding: 4.8rem 7.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .closing-plate h3 {
-  font-size: 5.5cqw;
+  font-size: 6.6rem;
   letter-spacing: -0.03em;
   line-height: 0.95;
   color: var(--black);
 }
 .closing-plate .cta {
-  margin-top: 2cqw;
-  border: 0.3cqw solid var(--black);
+  margin-top: 2.4rem;
+  border: 0.36rem solid var(--black);
   background: var(--yellow);
-  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
-  padding: 1cqw 2.4cqw;
+  box-shadow: 0.48rem 0.48rem 0 var(--black);
+  padding: 1.2rem 2.88rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.75cqw;
+  font-size: 2.1rem;
   color: var(--black);
   text-transform: uppercase;
 }

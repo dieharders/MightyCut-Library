@@ -27,7 +27,7 @@ export type ComponentDef<S extends z.ZodTypeAny> = {
   schema: S;
   /** Flat HTML; root carries `.${name}`; data-slot / data-anim annotations. */
   template: string;
-  /** CSS authored under `.${name}` (cqw/cqh units, flat rules). */
+  /** CSS authored under `.${name}` (rem units on the fixed 16px root, flat rules). */
   css: string;
   /** Example params — drives the showcase card + `defaults()` + tests. */
   example: z.input<S>;

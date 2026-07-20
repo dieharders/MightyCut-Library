@@ -5,6 +5,6 @@
 }
 .icon svg {
   display: block;
-  width: var(--isize, 10cqw);
-  height: var(--isize, 10cqw);
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
 }

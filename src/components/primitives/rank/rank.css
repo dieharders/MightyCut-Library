@@ -1,7 +1,7 @@
 .rank {
   display: flex;
   align-items: center;
-  gap: 1.6cqw;
+  gap: 1.92rem;
   /* Span the row so the flex:1 track has a definite width to fill. Inside a
      treatment's full-width column this matches the default stretch (no-op); shown
      bare in the showcase it stops the track collapsing to a sliver, so a single
@@ -13,16 +13,16 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.75cqw;
-  width: 16cqw;
+  font-size: 2.1rem;
+  width: 19.2rem;
   flex-shrink: 0;
 }
 .rank .track {
   flex: 1;
-  height: 3.2cqw;
+  height: 3.84rem;
   background: var(--white);
-  border: 0.3cqw solid var(--black);
-  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
+  border: 0.36rem solid var(--black);
+  box-shadow: 0.48rem 0.48rem 0 var(--black);
   overflow: hidden;
 }
 .rank .bcol {
@@ -34,8 +34,8 @@
 .rank .bv {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.75cqw;
-  width: 6.5cqw;
+  font-size: 3.3rem;
+  width: 7.8rem;
   text-align: right;
   flex-shrink: 0;
 }

@@ -1,7 +1,8 @@
 // CSS scoping + collection for the component runtime.
 //
 // Components author their CSS under a semantic root class (`.stat`, `.stat-grid`)
-// using cqw/cqh units. Because every sub-composition is imported into ONE shared
+// using rem on a fixed 16px root (so a size is the same in any container; 1.2rem = 1%
+// of the 1920 design width). Because every sub-composition is imported into ONE shared
 // DOM (importNode, not iframes), those semantic classes would cross-match between
 // scenes. `scopeCss` prefixes every rule with the scene's `.<compId>-root`
 // wrapper so each scene's CSS only styles its own subtree. `collectCss` gathers a
@@ -9,8 +10,8 @@
 // so a stat-grid with five stats inlines the `.stat` rules exactly once.
 //
 // Component CSS is intentionally FLAT — semantic selectors + declarations, no
-// nested at-rules. cqw/cqh give responsiveness without @container/@media, so the
-// simple tokenizer below is sufficient (a test guards this).
+// nested at-rules (rem needs no @container/@media), so the simple tokenizer below is
+// sufficient (a test guards this).
 
 /** Prefix every top-level rule's selector list with `.<root>-root `. */
 export const scopeCss = (css: string, root: string): string => {

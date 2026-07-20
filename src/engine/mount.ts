@@ -76,21 +76,19 @@ const previewCss = (frame: boolean): string => `
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-/* Component/decoration previews get a SQUARE stage (aspect-ratio 1/1) so any shape —
-   wide, tall, or a small page-space decoration — has a consistent, roomy area to fill.
-   The content is fit-scaled up to ~COMP_FILL of this box in JS (see scale() below),
-   since a component authored in cqw for the 1920px frame would otherwise render tiny. */
-.mc-stage--comp { position: relative; aspect-ratio: 1 / 1; container-type: inline-size; }
-.mc-stage--comp .mc-stage-inner { position: absolute; inset: 24px; container-type: size; }
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform-origin: center; }"}
+/* Component/decoration previews render in a FIXED design canvas (40rem wide — the room a
+   component gets in a scene) so rem-sized text wraps realistically; scale() then scales the
+   whole canvas uniformly to the preview box, exactly like the frame path scales its 1920px
+   scene. Because every preview shares the one 40rem canvas and one scale, a given rem size
+   is the SAME on-screen size in every card — consistent regardless of the component. The
+   canvas is 40×32rem (fits the tallest primitive, the 28.35rem chart bar); the stage carries
+   the matching aspect so the scaled canvas fills it with no clipping. */
+.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 40 / 32; }
+.mc-stage--comp .mc-stage-inner { position: absolute; top: 0; left: 0; width: 40rem; height: 32rem; transform-origin: top left; }
+/* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
+   into this centred flex; a single-box component has one child, so the gap is a no-op there. */
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.68rem; }"}
 `;
-
-// Fit-scale tuning for the non-frame component/decoration preview. The natural cqw
-// size resolves against the small preview box (~7× smaller than the 1920px frame), so
-// we scale the content up to fill the square, clamped so a tiny element never zooms
-// absurdly. Frame previews (treatments / HUD) scale to the 1920px stage instead.
-const COMP_FILL = 0.9; // target fraction of the square the content should fill
-const COMP_MAX_SCALE = 2.6; // ceiling so a tiny primitive doesn't balloon
 
 /** Mount `instance`'s vanilla preview into `container`; returns a replay/destroy handle. */
 export const mountPreview = (
@@ -134,25 +132,13 @@ export const mountPreview = (
   const gsap = (window as unknown as { gsap?: GsapGlobal }).gsap;
   const MC = (window as unknown as { MC?: McGlobal }).MC;
   const scale = (): void => {
-    if (frame) {
-      inner.style.transform = `scale(${stage.clientWidth / 1920})`;
-      return;
-    }
-    // Non-frame: fit the natural-size component/decoration up to fill the square box.
-    // `root` is `.<compId>-root` (flex-centres its single child, the element itself).
-    const root = inner.firstElementChild as HTMLElement | null;
-    const content = (root?.firstElementChild ?? null) as HTMLElement | null;
-    if (!root || !content) return;
-    root.style.transform = "none"; // measure natural size (undo any prior scale)
-    const cr = content.getBoundingClientRect();
-    const boxW = inner.clientWidth;
-    const boxH = inner.clientHeight;
-    if (cr.width < 1 || cr.height < 1 || boxW < 1 || boxH < 1) return;
-    const fit = Math.min(
-      (boxW * COMP_FILL) / cr.width,
-      (boxH * COMP_FILL) / cr.height,
-    );
-    root.style.transform = `scale(${Math.max(1, Math.min(fit, COMP_MAX_SCALE))})`;
+    // Both preview kinds scale a FIXED inner canvas to the stage width: the frame path
+    // scales its 1920px scene, the component path its 40rem design canvas. `offsetWidth`
+    // is the untransformed canvas width (1920px / 640px), so one uniform scale per preview
+    // means a given rem size reads at the same on-screen size across every preview.
+    const canvasW = inner.offsetWidth;
+    if (canvasW < 1 || stage.clientWidth < 1) return;
+    inner.style.transform = `scale(${stage.clientWidth / canvasW})`;
   };
   let tl: Timeline | null = null;
   const HOLD = 0.5; // preview beat between the last reveal and the page exit

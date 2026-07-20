@@ -8,70 +8,70 @@
 }
 .hud .hud-brand {
   position: absolute;
-  top: 3.81cqw;
-  left: 6.86cqw;
+  top: 4.572rem;
+  left: 8.232rem;
   display: flex;
   align-items: center;
-  gap: 1.33cqw;
+  gap: 1.596rem;
 }
 .hud .hud-brand-mark {
-  width: 2.48cqw;
-  height: 2.48cqw;
+  width: 2.976rem;
+  height: 2.976rem;
   flex-shrink: 0;
   background: var(--pink);
-  border: 0.29cqw solid var(--black);
-  box-shadow: 0.38cqw 0.38cqw 0 var(--black);
+  border: 0.348rem solid var(--black);
+  box-shadow: 0.456rem 0.456rem 0 var(--black);
 }
 .hud .hud-brand-name {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.29cqw;
-  letter-spacing: 0.05cqw;
+  font-size: 2.748rem;
+  letter-spacing: 0.06rem;
   text-transform: uppercase;
   color: var(--black);
 }
 .hud .hud-tagline {
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 1.43cqw;
+  font-size: 1.716rem;
   color: var(--black);
   opacity: 0.6;
 }
 .hud .hud-title {
   position: absolute;
-  top: 3.81cqw;
-  right: 6.86cqw;
-  padding: 0.76cqw 1.52cqw;
+  top: 4.572rem;
+  right: 8.232rem;
+  padding: 0.912rem 1.824rem;
   background: var(--white);
-  border: 0.29cqw solid var(--black);
-  box-shadow: 0.38cqw 0.38cqw 0 var(--black);
+  border: 0.348rem solid var(--black);
+  box-shadow: 0.456rem 0.456rem 0 var(--black);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.43cqw;
-  letter-spacing: 0.1cqw;
+  font-size: 1.716rem;
+  letter-spacing: 0.12rem;
   text-transform: uppercase;
   color: var(--black);
 }
 .hud .hud-counter {
   position: absolute;
-  bottom: 4.19cqw;
-  right: 6.86cqw;
+  bottom: 5.028rem;
+  right: 8.232rem;
 }
 .hud .hud-counter-item {
   white-space: nowrap;
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 1.9cqw;
+  font-size: 2.28rem;
   color: var(--black);
 }
 .hud .hud-track {
   position: absolute;
-  bottom: 3.05cqw;
-  left: 6.86cqw;
-  right: 6.86cqw;
-  height: 0.76cqw;
+  bottom: 3.66rem;
+  left: 8.232rem;
+  right: 8.232rem;
+  height: 0.912rem;
   background: var(--white);
-  border: 0.29cqw solid var(--black);
+  border: 0.348rem solid var(--black);
   overflow: hidden;
 }
 .hud .hud-fill {

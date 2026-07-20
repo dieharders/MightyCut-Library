@@ -5,26 +5,21 @@
    "us" column is picked out in green. Row cells live in row.css. */
 .comparison > .body {
   justify-content: center;
-  padding: 12cqh 5cqw 20cqh;
+  padding: 8.1rem 6rem 13.5rem;
 }
 .comparison h3 {
   font-weight: 800;
-  font-size: 3.2cqw;
+  font-size: 3.84rem;
   letter-spacing: -0.02em;
-  margin: 1.2cqw 0 2cqw;
+  margin: 1.44rem 0 2.4rem;
 }
 .comparison .ledger {
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr;
-  gap: 1cqw 1.4cqw;
+  gap: 1.2rem 1.68rem;
   align-content: center;
 }
 .comparison .rows {
-  display: contents;
-}
-/* The Row primitive defaults to a self-contained inline row (so it stands alone in the
-   showcase); inside the ledger it must be display:contents so its cells flow into the grid. */
-.comparison .row {
   display: contents;
 }
 .comparison .ch {
@@ -32,15 +27,15 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.5cqw;
-  padding: 0.6cqw 1cqw;
+  font-size: 1.8rem;
+  padding: 0.72rem 1.2rem;
 }
 .comparison .ch.a {
   background: var(--white);
-  border: 0.25cqw solid var(--black);
+  border: 0.3rem solid var(--black);
 }
 .comparison .ch.b {
   background: var(--green);
-  border: 0.25cqw solid var(--black);
-  box-shadow: 0.3cqw 0.3cqw 0 var(--black);
+  border: 0.3rem solid var(--black);
+  box-shadow: 0.36rem 0.36rem 0 var(--black);
 }
