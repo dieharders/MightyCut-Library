@@ -42,6 +42,10 @@ export type ThemeRules = { do: string[]; dont: string[] };
 export type ThemeTokens = {
   /** Theme value, e.g. "block". */
   name: string;
+  /** Human display name for the showcase header, e.g. "BlockFrame" (falls back to `name`). */
+  title?: string;
+  /** One-paragraph description of the theme's visual language, shown in the showcase header. */
+  description?: string;
   /** `:root { --pink: …; --disp: … }` — emitted to a project's assets/tokens.css. */
   css: string;
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,

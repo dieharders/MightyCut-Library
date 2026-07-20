@@ -89,6 +89,9 @@ const rules: ThemeTokens["rules"] = {
 
 export const blockTheme: ThemeTokens = {
   name: "block",
+  title: "BlockFrame",
+  description:
+    "A maximalist neobrutalist theme: black borders, hard offset shadows, square corners, tilted decorations, saturated pastel accents, shadows stacking comfortably dense. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   fonts: {
