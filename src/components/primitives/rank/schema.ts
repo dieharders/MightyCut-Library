@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const RankSchema = z.object({
-  value: z.number().describe("This row's value"),
+  value: z.number().min(0).describe("This row's value"),
   label: z
     .string()
     .max(48)

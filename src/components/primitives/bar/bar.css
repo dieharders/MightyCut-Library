@@ -2,36 +2,52 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  /* Inside the Chart treatment the bar fills the plot (`.chart .bars .bar` → flex:1 +
-     height:100%). Shown bare there is no plot, so the DEFAULT stands in for it at the plot's
-     own height — the chart's `.bars` is 28.35rem — with the column still --fill% of it, so the
-     column's height:width ratio matches the treatment exactly. flex:0 0 auto keeps it from
-     stretching to the full preview width. */
+  /* Standalone plot height (the chart's .bars is also 28.35rem); the chart overrides
+     `.chart .bars .bar` to flex:1 + height:100% so bars fill and share its plot. */
   flex: 0 0 auto;
-  height: 28.35rem;
+  height: 28.25rem;
+}
+/* The column track. The value label + column live here; the column height is --fill% of the
+   track BELOW the reserved top padding, so it maps LINEARLY to --fill (0–100%) — instead of
+   the value/category labels eating into the plot and clamping a full column to ~78%. The
+   value label floats just above the column; the category label (.bl) sits outside, below. */
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 4rem; /* headroom the floating value label occupies when the column is full */
+  box-sizing: border-box;
 }
 .bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 0.75rem;
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.64rem;
-  margin-bottom: 0.72rem;
+  font-size: 2.75rem;
 }
 .bar .bcol {
+  flex: 0 0 auto;
+  height: var(
+    --fill
+  ); /* % of the track below the padding — 0% empty, 100% full */
   width: 100%;
-  max-width: 10.8rem;
-  height: var(--fill); /* % of the bar height — the plot standalone, 100% in the chart */
+  max-width: 11rem;
   background: var(--col);
   border: 0.36rem solid var(--black);
-  box-shadow: 0.48rem 0.48rem 0 var(--black);
+  box-shadow: 0.5rem 0.5rem 0 var(--black);
   transform-origin: bottom;
 }
 .bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1rem;
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 1.92rem;
-  margin-top: 0.96rem;
+  letter-spacing: 0.075em;
+  font-size: 2rem;
   text-align: center;
 }

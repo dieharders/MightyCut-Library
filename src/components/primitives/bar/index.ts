@@ -14,7 +14,9 @@ export const Bar = component({
   example: { value: 42, label: "Q1", max: 100 },
   fill: (p) => ({ "bar-value": `0${p.unit ?? ""}`, "bar-label": p.label }),
   layout: (p) => ({
-    "--fill": `${Math.max(4, (p.value / p.max) * 100).toFixed(1)}%`,
+    // Fill = value/max, clamped to 0–100% (0 = empty, value ≥ max = full). No minimum floor,
+    // so small values register; no negative or over-100 overflow.
+    "--fill": `${Math.min(100, Math.max(0, (p.value / p.max) * 100)).toFixed(1)}%`,
     "--col": p.leader ? "var(--yellow)" : "var(--blue)",
   }),
   animIn: "fade",
