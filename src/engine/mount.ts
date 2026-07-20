@@ -76,19 +76,45 @@ const previewCss = (frame: boolean): string => `
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-/* Component/decoration previews render in a FIXED design canvas (40rem wide — the room a
-   component gets in a scene) so rem-sized text wraps realistically; scale() then scales the
-   whole canvas uniformly to the preview box, exactly like the frame path scales its 1920px
-   scene. Because every preview shares the one 40rem canvas and one scale, a given rem size
-   is the SAME on-screen size in every card — consistent regardless of the component. The
-   canvas is 40×32rem (fits the tallest primitive, the 28.35rem chart bar); the stage carries
-   the matching aspect so the scaled canvas fills it with no clipping. */
-.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 40 / 32; }
-.mc-stage--comp .mc-stage-inner { position: absolute; top: 0; left: 0; width: 40rem; height: 32rem; transform-origin: top left; }
+/* Component/decoration previews render at their natural rem size inside a wide canvas
+   (64rem — wider than any component, so text like the card body stays one line), then
+   scale() FITS each element to its own box: scaled down to fill ~85% when it's bigger than
+   the box, but never enlarged past natural size — so every component sits comfortably in its
+   frame (small ones near natural, big ones scaled to fit), the way they did before. The
+   canvas is centred in the (square) box; scale() transforms the preview-root around center. */
+.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
+.mc-stage--comp .mc-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
 /* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
    into this centred flex; a single-box component has one child, so the gap is a no-op there. */
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.68rem; }"}
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.68rem; transform-origin: center; }"}
 `;
+
+// Fraction of the preview box a fitted component fills (when it's larger than the box).
+const COMP_FILL = 0.85;
+
+/** Visual bounding rect of a preview's content, used to fit-scale it. Normally the root's
+ *  single child box; but a display:contents fragment (the ledger Row) has no box of its own
+ *  (reports 0×0), so fall back to the union of its descendant boxes. Returns null when empty. */
+const contentRect = (root: HTMLElement): DOMRect | null => {
+  const el = root.firstElementChild as HTMLElement | null;
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  if (r.width >= 1 && r.height >= 1) return r;
+  let left = Infinity,
+    top = Infinity,
+    right = -Infinity,
+    bottom = -Infinity;
+  el.querySelectorAll("*").forEach((d) => {
+    const dr = d.getBoundingClientRect();
+    if (dr.width < 1 || dr.height < 1) return;
+    left = Math.min(left, dr.left);
+    top = Math.min(top, dr.top);
+    right = Math.max(right, dr.right);
+    bottom = Math.max(bottom, dr.bottom);
+  });
+  if (right <= left || bottom <= top) return null;
+  return new DOMRect(left, top, right - left, bottom - top);
+};
 
 /** Mount `instance`'s vanilla preview into `container`; returns a replay/destroy handle. */
 export const mountPreview = (
@@ -132,13 +158,25 @@ export const mountPreview = (
   const gsap = (window as unknown as { gsap?: GsapGlobal }).gsap;
   const MC = (window as unknown as { MC?: McGlobal }).MC;
   const scale = (): void => {
-    // Both preview kinds scale a FIXED inner canvas to the stage width: the frame path
-    // scales its 1920px scene, the component path its 40rem design canvas. `offsetWidth`
-    // is the untransformed canvas width (1920px / 640px), so one uniform scale per preview
-    // means a given rem size reads at the same on-screen size across every preview.
-    const canvasW = inner.offsetWidth;
-    if (canvasW < 1 || stage.clientWidth < 1) return;
-    inner.style.transform = `scale(${stage.clientWidth / canvasW})`;
+    if (frame) {
+      // Frame: scale the 1920px scene to the stage width (unchanged).
+      inner.style.transform = `scale(${stage.clientWidth / 1920})`;
+      return;
+    }
+    // Component/decoration: measure the element at its natural rem size (it renders in the
+    // wide canvas, so text doesn't wrap), then fit it to the box — scale DOWN to fill ~85%
+    // when it's bigger than the box, but never UP past natural size (Math.min(1, …)), so each
+    // component sits comfortably in its frame. `.<compId>-root` centres its content, so the
+    // transform scales around center.
+    const root = inner.firstElementChild as HTMLElement | null;
+    if (!root) return;
+    root.style.transform = "none"; // measure natural size (undo any prior scale)
+    const cr = contentRect(root);
+    const boxW = stage.clientWidth;
+    const boxH = stage.clientHeight;
+    if (!cr || cr.width < 1 || cr.height < 1 || boxW < 1 || boxH < 1) return;
+    const k = Math.min(1, (boxW * COMP_FILL) / cr.width, (boxH * COMP_FILL) / cr.height);
+    root.style.transform = `scale(${k})`;
   };
   let tl: Timeline | null = null;
   const HOLD = 0.5; // preview beat between the last reveal and the page exit
