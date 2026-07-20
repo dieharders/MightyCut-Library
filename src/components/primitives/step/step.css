@@ -9,8 +9,12 @@
   content: "";
   position: absolute;
   top: 50%;
-  right: -2.64rem;
-  width: 2.64rem;
+  /* Span the grid gap (timeline .row gap = 2.64rem) PLUS both card borders (0.3rem each) so
+     the bar tucks under this card's right border and reaches under the next card's left
+     border — touching both edges. `right` is measured from the padding box, hence the +0.3rem
+     on each side; the overlapped ends hide under the black borders (seamless) / the next card. */
+  right: -3.24rem;
+  width: 3.24rem;
   height: 0.36rem;
   background: var(--black);
 }
