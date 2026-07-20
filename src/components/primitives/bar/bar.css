@@ -6,6 +6,11 @@
      `.chart .bars .bar` to flex:1 + height:100% so bars fill and share its plot. */
   flex: 0 0 auto;
   height: 28.25rem;
+  /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
+     value label's changing text width drives the bar width, and the width:100% column tracks
+     it and "wiggles". A wide value label just overflows this box (centred) without resizing
+     it. The chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+  width: 12rem;
 }
 /* The column track. The value label + column live here; the column height is --fill% of the
    track BELOW the reserved top padding, so it maps LINEARLY to --fill (0–100%) — instead of
