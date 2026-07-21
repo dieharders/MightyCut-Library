@@ -1,0 +1,104 @@
+/* MightyCut root chrome — the structural CSS the harness-generated ROOT composition
+ * (index.html) needs: the page reset, the backdrop layer, and the HUD / caption-rail
+ * clips. STRUCTURE ONLY — colour and look come from the theme (theme.css tokens plus
+ * the theme's own skin, e.g. block's .bf-hud* / .bf-cap*), which is linked AFTER this
+ * file and therefore wins on any shared property.
+ *
+ * Extracted from the legacy base.css so the go-forward (block) render path no longer
+ * depends on it. base.css still exists for the legacy generic generator (slideHtml)
+ * and its .mc-page/.mc-card/.mc-heading/... slide classes, but the root no longer
+ * links it.
+ *
+ * Safe area (must match the root markup): top 140px (HUD brand band),
+ * bottom 200px (captions + progress), left/right 80px.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------- backdrops --- */
+/* The deck-wide backdrop clip (#backdrop) + the per-scene background overrides. */
+
+.mc-bg {
+  position: absolute;
+  inset: 0;
+}
+.mc-bg--gradient {
+  background: var(--grad-page);
+}
+.mc-bg--solid {
+  background: var(--bg);
+}
+.mc-bg--grid {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.mc-bg--pattern {
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--grid) 0,
+    var(--grid) 2px,
+    transparent 2px,
+    transparent 18px
+  );
+}
+/* particles = gradient base + a <canvas> driven by MC.particleBg */
+.mc-bg--particles {
+  background: var(--grad-page);
+}
+.mc-bg canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* --------------------------------------------------------------- hud --- */
+/* The #hud clip. The theme's skin (.bf-hud) paints it; this is the container. */
+
+.mc-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- captions --- */
+/* One box per VO line inside the #caption-rail clip, toggled by the master timeline. */
+
+.mc-caption-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 78px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Structure only — the theme's skin (.bf-cap) supplies padding/border/background/
+ * shadow/radius. `visibility: hidden; opacity: 0` is REQUIRED: each caption's GSAP
+ * tween starts at its own VO line, so without this every box would flash visible at
+ * t=0 before its reveal. */
+.mc-caption {
+  position: absolute;
+  bottom: 0;
+  max-width: 1280px;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Legibility modifier the harness stamps on the caption text when caption.outline is
+ * on (frameCaptionBoxes) — no skin equivalent, so it lives here. */
+.mc-caption-text--outline {
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.95),
+    0 0 2px rgba(0, 0, 0, 1);
+}

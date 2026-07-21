@@ -12,7 +12,7 @@ import { rootContext } from "./runtime";
 import { renderScene } from "./runtime/emit";
 import { getComponent, getTreatment } from "./runtime/registry";
 import type { ComponentInstance, ThemeTokens, TreatmentInstance } from "./runtime/types";
-import { blockTheme } from "./themes/block";
+import { blockTheme } from "./themes/block/theme";
 
 export type ChildSpec = {
   name: string;

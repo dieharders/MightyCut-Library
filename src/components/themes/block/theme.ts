@@ -1,23 +1,34 @@
-// Block theme — the palette/font `:root` tokens (block-tokens.css, replaces
-// frame.css's :root) plus the shared frame-base CSS (block-frame.css: the
-// `.block-frame` ground, the `.body` content wrapper, the base `.pill`/`h3`
-// type, and the CSS-only decorations). Both live in sibling .css files imported
-// as text, matching the treatment trio convention. The frame base is inlined
-// ONCE per scene by the treatment builder; the per-treatment look lives in each
-// treatment's own trio CSS. Content fonts (Inter, Space Grotesk) are self-hosted
-// and staged from video-assets/themes/block/assets.
-import { DECORATION_COMPONENTS } from "../primitives/decoration-shapes";
-import type { ThemeTokens } from "../runtime/types";
-import frameCss from "./block-frame.css" with { type: "text" };
-import tokensCss from "./block-tokens.css" with { type: "text" };
+// Block theme — everything block OWNS lives in this folder, imported as text (the
+// same convention as the component trio CSS):
+//   frame.css   the shared frame base — the `.block-frame` ground, the `.body`
+//               content wrapper, the base `.eyebrow`/`h3` type, CSS-only decorations
+//   hud.css     block's SKIN for the shared `hud` component
+//   caption.css block's SKIN for the shared `caption` component
+// The `:root` palette/font tokens are NOT a file — they are DERIVED from `palette`
+// below, so each colour is written down exactly once (see `tokensCss`).
+// The frame base is inlined ONCE per scene by the treatment builder; the
+// per-treatment look lives in each treatment's own trio CSS. Per-component skins
+// are handed to the runtime via `skins` below: the component owns structure +
+// behavior (template/schema/anim), the theme owns how it looks — so another theme
+// styles the same standard class names from its own folder. Content fonts (Inter,
+// Space Grotesk) are self-hosted and staged from video-assets/themes/block/assets.
+import { DECORATION_COMPONENTS } from "../../primitives/decoration-shapes";
+import type { ThemeTokens } from "../../runtime/types";
+import frameCss from "./frame.css" with { type: "text" };
+// Per-component skins block OWNS (the components are structure+behavior only; block
+// styles their standard class names here, in themes/block/<name>.css).
+import hudCss from "./hud.css" with { type: "text" };
+import captionCss from "./caption.css" with { type: "text" };
 
 // Showcase design data — the block styleguide extracted from
 // video-assets/themes/block/frame-showcase.html (verbatim hex/labels/type-scale/
 // rules), so the interactive showcase renders each section GENERICALLY from theme
 // data. Other themes populate the same fields to standardize for free.
 
-// Palette — the 8 block swatches (frame-showcase.html PALETTE section).
-const palette: ThemeTokens["palette"] = [
+// Palette — the 8 block swatches (frame-showcase.html PALETTE section). This is the
+// SINGLE source of truth for block's colours: it drives the showcase Palette section
+// AND generates the `:root` custom properties below, so a hex is written down once.
+const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Pink", hex: "#FE90E8", varName: "pink" },
   { name: "Blue", hex: "#C0F7FE", varName: "blue" },
   { name: "Green", hex: "#99E885", varName: "green" },
@@ -27,6 +38,23 @@ const palette: ThemeTokens["palette"] = [
   { name: "White", hex: "#FFFFFF", note: "cards", varName: "white" },
   { name: "Black", hex: "#000000", note: "borders", varName: "black" },
 ];
+
+/** Font tokens — the only `:root` entries that aren't colours. */
+const fontTokens: Record<string, string> = {
+  disp: '"Inter", sans-serif',
+  mono: '"Space Grotesk", sans-serif',
+};
+
+/**
+ * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (replaces the old
+ * hand-maintained tokens.css, which duplicated every hex). The harness writes this to
+ * a project's assets/tokens.css; the browser engine rewrites `:root` → `:host` to
+ * scope it into a shadow root.
+ */
+const tokensCss = `:root {\n${[
+  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
+  ...Object.entries(fontTokens).map(([name, value]) => `  --${name}: ${value};`),
+].join("\n")}\n}\n`;
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
 // is the self-contained inline CSS the showcase applies to each live sample.
@@ -94,6 +122,11 @@ export const blockTheme: ThemeTokens = {
     "A maximalist neobrutalist theme: black borders, hard offset shadows, square corners, tilted decorations, saturated pastel accents, shadows stacking comfortably dense. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
+  // Block's skins for the shared structure+behavior components (hud, caption).
+  skins: {
+    hud: hudCss,
+    caption: captionCss,
+  },
   fonts: {
     // Block's content fonts (Inter, Space Grotesk) are a subset of the core chrome
     // set, so they come from the always-staged core fonts.css — block ships no

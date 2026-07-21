@@ -5,7 +5,7 @@
 // code-splits this into its own chunk, so the base engine ships without any
 // theme and the WebUI fetches one payload per theme.
 import "../components/registry"; // side-effect: registerComponent/registerTreatment for every element
-import { blockTheme } from "../components/themes/block";
+import { blockTheme } from "../components/themes/block/theme";
 import type { ThemeTokens } from "../components/runtime/types";
 import { CORE_FONTS_CSS } from "./block-fonts.generated";
 

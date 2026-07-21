@@ -20,7 +20,7 @@ import {
 } from "./runtime/registry";
 import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
-import { blockTheme } from "./themes/block";
+import { blockTheme } from "./themes/block/theme";
 
 const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
 

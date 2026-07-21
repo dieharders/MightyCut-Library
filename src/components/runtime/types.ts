@@ -51,6 +51,12 @@ export type ThemeTokens = {
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
+  /** Per-component skins, keyed by component name (e.g. `{ hud, caption }`). The
+   *  component owns the STRUCTURE (template) + BEHAVIOR (anim/schema) — the same
+   *  across every theme — while each theme styles those standard class names its
+   *  own way here. `buildNode` prefers a theme skin over the component's own `css`,
+   *  so future themes just add their skin file. Today only `block` supplies these. */
+  skins?: Record<string, string>;
   /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
   fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */

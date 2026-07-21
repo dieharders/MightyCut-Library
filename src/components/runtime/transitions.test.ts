@@ -9,7 +9,7 @@ import { scrubDeterminism } from "./determinism";
 import { renderScene } from "./emit";
 import { getComponent, getTreatment } from "./registry";
 import { rootContext } from "./index";
-import { blockTheme } from "../themes/block";
+import { blockTheme } from "../themes/block/theme";
 import { DEFAULT_ENTRANCE, elementIn, sceneEntranceJs, sceneExitJs } from "./transitions";
 
 describe("timing presets", () => {
