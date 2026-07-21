@@ -138,7 +138,13 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // preview, and the render, and never collapses onto a single narration line.
         const decorations = addedDecorations ?? (def.defaultDecorations ? def.defaultDecorations(p) : []);
         const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
-        const childBase = titleSlot + 1; // children follow the title
+        // Framing own-anims keyed to `leadIn` (an eyebrow pill, a backing card) take the title
+        // slot; the title itself (a `line-0` reveal) then falls to the NEXT beat, so it doesn't
+        // pop simultaneously with its own frame. Only childless treatments (quote/cover/closing)
+        // carry leadIn own-anims, so child-bearing treatments are unaffected (titleOffset 0).
+        const ownAnimsRaw = animOverride ?? (def.anim ? def.anim(p, children.length) : []);
+        const titleOffset = ownAnimsRaw.some((a) => a.time.at === "leadIn") ? 1 : 0;
+        const childBase = titleSlot + titleOffset + 1; // children follow the frame + title
 
         // Children — each child occupies ONE cascade slot; all of its anims ride that slot,
         // each keeping its own internal `plus` so the child owns its entrance + internal timing.
@@ -169,17 +175,19 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         if (def.layout) mergeStyle(root, styleProps(def.layout(children.length, p)));
         stripAnnotations(root);
 
-        // Own anims (headline, columns, a trailing caption, secondaries) → cascade slots by their
-        // declared time: line-0 / leadIn ride the TITLE slot; a line-n≥1 caption lands just after
-        // the last child; index-n secondaries follow the title. Each keeps its internal offset.
+        // Own anims → cascade slots by their declared time: a `leadIn` frame rides the title slot;
+        // the title (`line-0`) and its `index-n` secondaries fall AFTER that frame (titleOffset);
+        // a `line-n≥1` caption lands just after the last child. Each keeps its internal offset.
         const captionSlot = childBase + children.length;
-        const ownAnims = (animOverride ?? (def.anim ? def.anim(p, children.length) : [])).map((a) => {
+        const ownAnims = ownAnimsRaw.map((a) => {
           const slot =
-            a.time.at === "line" && a.time.n >= 1
-              ? captionSlot
-              : a.time.at === "index"
-                ? titleSlot + a.time.n
-                : titleSlot;
+            a.time.at === "leadIn"
+              ? titleSlot
+              : a.time.at === "line" && a.time.n >= 1
+                ? captionSlot
+                : a.time.at === "index"
+                  ? titleSlot + titleOffset + a.time.n
+                  : titleSlot + titleOffset;
           return toSlot(qualifyAnim(a, ctx.idPrefix), slot, delay);
         });
         return { node: root, css: collectCss(cssParts), anims: [...ownAnims, ...childAnims, ...decoAnims] };

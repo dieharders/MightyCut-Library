@@ -68,6 +68,24 @@ const Captioned = treatment({
   ],
 });
 
+// A childless treatment with a leadIn "frame" (eyebrow) + a line-0 title + an index secondary —
+// mirrors quote/cover, exercising the frame-leads-then-title slot ordering.
+const Framed = treatment({
+  name: "framed",
+  schema: z.object({ title: z.string() }),
+  template: `<div class="fr"><span data-slot="eyebrow" data-anim="eyebrow">e</span><h3 data-slot="title" data-anim="title">t</h3><p data-anim="sub">s</p></div>`,
+  css: `.fr { display: grid }`,
+  ground: "pink",
+  example: { title: "T" },
+  defaultChildren: () => [],
+  fill: (p) => ({ eyebrow: "e", title: p.title }),
+  anim: () => [
+    { kind: "fadeIn", target: "eyebrow", time: { at: "leadIn" } },
+    { kind: "fadeIn", target: "title", time: { at: "line", n: 0 } },
+    { kind: "fadeIn", target: "sub", time: { at: "index", n: 1 } },
+  ],
+});
+
 describe("scopeCss", () => {
   test("prefixes each selector with the scene root", () => {
     const out = scopeCss(`.stat { color: red }\n.a, .b { x: 1 }`, "s02-impact");
@@ -175,6 +193,17 @@ describe("treatment composition", () => {
     const caption = r.anims.find((a) => a.target === "s05-cap-caption")!;
     // 2 children at slots 1,2 → caption at slot 3 (childBase 1 + childCount 2)
     expect(caption.time).toEqual({ at: "slot", n: 3, plus: 0.2, d: 0.5 });
+  });
+
+  test("a leadIn frame (eyebrow) leads; the title + its index secondary fall to later slots", () => {
+    const r = Framed().build(ctx("s06-fr"));
+    const eyebrow = r.anims.find((a) => a.target === "s06-fr-eyebrow")!;
+    const title = r.anims.find((a) => a.target === "s06-fr-title")!;
+    const sub = r.anims.find((a) => a.target === "s06-fr-sub")!;
+    // eyebrow frame at slot 0; title bumped to slot 1; index secondary to slot 2 (no collision)
+    expect(eyebrow.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.5 });
+    expect(title.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.5 });
+    expect(sub.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
   });
 
   test("addChildren overrides defaults and >3 triggers dense layout", () => {
