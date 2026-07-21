@@ -18,8 +18,23 @@ export const ClosingPlate = treatment({
   defaultChildren: () => [],
   // A blue tilt-rect behind (upper-left) + a yellow star popping over the card corner.
   defaultDecorations: () => [
-    Slab({ variant: "rectangle", x: 16, y: 19, size: 13, rotate: -7, accent: "blue", layer: "back" }),
-    Starburst({ variant: "star", x: 68, y: 33, size: 9, accent: "yellow", layer: "front" }),
+    Slab({
+      variant: "rectangle",
+      x: 16,
+      y: 19,
+      size: 13,
+      rotate: -7,
+      accent: "blue",
+      layer: "back",
+    }),
+    Starburst({
+      variant: "star",
+      x: 70,
+      y: 20,
+      size: 13,
+      accent: "yellow",
+      layer: "front",
+    }),
   ],
   fill: (p) => ({ headline: p.headline, cta: p.cta ?? null }),
   anim: closingPlateAnim,
