@@ -15,7 +15,7 @@ import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
 import type { FrameGround } from "../../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/transitions";
-import { type AnimDescriptor, offsetAnim, qualifyAnim, serializeAnims } from "./anim";
+import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
 import { collectCss, scopeCss } from "./css";
 import { scrubDeterminism } from "./determinism";
 import { DEFAULT_ENTRANCE, sceneEntranceJs, sceneExitJs } from "./transitions";
@@ -62,10 +62,10 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   layout?: (childCount: number, p: z.infer<S>) => Record<string, string>;
   /** Own animations (e.g. the headline reveal). */
   anim?: (p: z.infer<S>, childCount: number) => AnimDescriptor[];
-  /** First child keys to this VO line (headline is line 0). Default 1. */
-  childLineBase?: number;
-  /** Per-child stagger fallback (seconds). Default 0.16. */
-  childStagger?: number;
+  /** Seconds between consecutive cascade slots (decorations → title → child → child …).
+   *  Default 0.5. The runtime tightens it by the slide's caption count; a UI knob may
+   *  override it later. Each element still performs its own entrance + internal timing. */
+  revealDelay?: number;
   /** Whole-scene page IN transition (catalog name). Unset ⇒ the legacy DEFAULT_ENTRANCE. */
   animIn?: TransitionName;
   /** Whole-scene page OUT transition (catalog name). Unset/`none` ⇒ no exit (hard cut). */
@@ -79,8 +79,7 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
 };
 
 export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): TreatmentFactory<S> {
-  const base = def.childLineBase ?? 1;
-  const stagger = def.childStagger ?? 0.16;
+  const delay = def.revealDelay ?? 0.5;
   let cachedJson: object | null = null;
   const jsonSchema = (): object => (cachedJson ??= z.toJSONSchema(def.schema, { io: "input" }) as object);
   // Explicit params validated exactly (fail-loud); no-arg falls back to the example.
@@ -131,6 +130,18 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const cssParts: { name: string; css: string }[] = [];
         if (ctx.theme.frameCss) cssParts.push({ name: `@frame:${ctx.theme.name}`, css: ctx.theme.frameCss });
         cssParts.push({ name: def.name, css: def.css });
+
+        // Ordered cascade slots: decorations first, then the title, then each child in turn.
+        // Decorations can be added to ANY treatment, so their count shifts the title/child slots.
+        // The per-slot delay is resolved at runtime (MC.applyAnims) from the slide's caption
+        // count — NOT from VO-line keying — so the cascade is identical in the showcase, the
+        // preview, and the render, and never collapses onto a single narration line.
+        const decorations = addedDecorations ?? (def.defaultDecorations ? def.defaultDecorations(p) : []);
+        const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
+        const childBase = titleSlot + 1; // children follow the title
+
+        // Children — each child occupies ONE cascade slot; all of its anims ride that slot,
+        // each keeping its own internal `plus` so the child owns its entrance + internal timing.
         const childAnims: AnimDescriptor[] = [];
         if (container) {
           container.children = [];
@@ -139,29 +150,38 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
             const bn = child.buildNode(childCtx);
             container.children.push(bn.node);
             cssParts.push({ name: child.name, css: bn.css });
-            for (const a of bn.anims) childAnims.push(offsetAnim(a, base + i, i * stagger));
+            for (const a of bn.anims) childAnims.push(toSlot(a, childBase + i, delay));
           });
         }
 
-        // Decorations: positioned shapes appended as siblings of .body on the page
-        // root; their own z-index (from `layer`) puts each behind or over the content.
-        // A caller's addDecorations() overrides the treatment's defaultDecorations.
-        const decorations = addedDecorations ?? (def.defaultDecorations ? def.defaultDecorations(p) : []);
+        // Decorations: positioned shapes appended as siblings of .body on the page root; their
+        // own z-index (from `layer`) puts each behind or over the content. Revealed FIRST
+        // (slots 0..N-1) so they stagger in before the title. addDecorations() overrides.
         const decoAnims: AnimDescriptor[] = [];
         decorations.forEach((deco, i) => {
           const decoCtx: BuildContext = { ...ctx, idPrefix: `${ctx.compId}__d${i}` };
           const bn = deco.buildNode(decoCtx);
           root.children.push(bn.node);
           cssParts.push({ name: deco.name, css: bn.css });
-          for (const a of bn.anims) decoAnims.push(offsetAnim(a, 0, i * 0.08));
+          for (const a of bn.anims) decoAnims.push(toSlot(a, i, delay));
         });
 
         if (def.layout) mergeStyle(root, styleProps(def.layout(children.length, p)));
         stripAnnotations(root);
 
-        const ownAnims = (animOverride ?? (def.anim ? def.anim(p, children.length) : [])).map((a) =>
-          qualifyAnim(a, ctx.idPrefix),
-        );
+        // Own anims (headline, columns, a trailing caption, secondaries) → cascade slots by their
+        // declared time: line-0 / leadIn ride the TITLE slot; a line-n≥1 caption lands just after
+        // the last child; index-n secondaries follow the title. Each keeps its internal offset.
+        const captionSlot = childBase + children.length;
+        const ownAnims = (animOverride ?? (def.anim ? def.anim(p, children.length) : [])).map((a) => {
+          const slot =
+            a.time.at === "line" && a.time.n >= 1
+              ? captionSlot
+              : a.time.at === "index"
+                ? titleSlot + a.time.n
+                : titleSlot;
+          return toSlot(qualifyAnim(a, ctx.idPrefix), slot, delay);
+        });
         return { node: root, css: collectCss(cssParts), anims: [...ownAnims, ...childAnims, ...decoAnims] };
       },
       build(ctx): BuildResult {

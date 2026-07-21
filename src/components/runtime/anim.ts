@@ -3,7 +3,7 @@
 // declares its motion as a list of AnimDescriptors (kind + target + time);
 // the emitter serializes them to ONE inline `MC.applyAnims(...)` call in the
 // slide's <script>, and the showcase drives the SAME descriptors through the
-// SAME `MC.applyAnims` interpreter (in video-assets/core/lib/mc.js) on hover.
+// SAME `MC.applyAnims` interpreter (the library's assets/fx/mc.js) on hover.
 // Because both sides run one interpreter, the showcase is WYSIWYG with render.
 //
 // Timing NEVER uses hardcoded seconds for content reveals: `line`/`index` key to
@@ -29,6 +29,14 @@ export const AnimTimeSchema = z
       .describe("Fire at the Nth narration offset (atIndex)"),
     z.object({ at: z.literal("leadIn"), plus: z.number().optional() }).describe("Fire at the scene lead-in"),
     z.object({ at: z.literal("seconds"), t: z.number() }).describe("Fire at a fixed second (entrance only)"),
+    z
+      .object({
+        at: z.literal("slot"),
+        n: z.number().int().min(0).describe("Ordered cascade slot (0 = first-revealed element)"),
+        plus: z.number().optional().describe("The element's own internal offset within its slot"),
+        d: z.number().optional().describe("Per-treatment default slot delay (s), before caption-count tightening"),
+      })
+      .describe("Fire at an ordered cascade slot; the runtime derives the per-slot delay from caption count"),
   ])
   .describe("When an animation fires — keyed to narration, not wall-clock");
 export type AnimTime = z.infer<typeof AnimTimeSchema>;
@@ -73,6 +81,17 @@ export const qualifyAnim = (a: AnimDescriptor, prefix: string): AnimDescriptor =
   target: `${prefix}-${a.target}`,
 });
 
+/** Re-anchor a reveal to an ordered cascade slot, preserving the element's own internal
+ *  offset (its declared `plus`) so a component keeps its own internal timing. `delay` is the
+ *  treatment's default slot delay; the runtime tightens it by the slide's caption count.
+ *  This is how a treatment schedules WHEN each element reveals while the element still owns
+ *  HOW it animates — replacing the old VO-line-keyed `offsetAnim` shift for children. */
+export const toSlot = (a: AnimDescriptor, slot: number, delay: number): AnimDescriptor => {
+  const t = a.time;
+  const plus = t.at === "line" || t.at === "index" || t.at === "leadIn" || t.at === "slot" ? (t.plus ?? 0) : 0;
+  return { ...a, time: { at: "slot", n: slot, plus, d: delay } };
+};
+
 // Break any "</script" the JSON might contain (e.g. a caption string), so the
 // inline <script> can't be terminated early. Mirrors sub-composition.ts:js().
 const CLOSE_SCRIPT = /<\//g;
@@ -82,5 +101,7 @@ const CLOSE_SCRIPT = /<\//g;
 export const serializeAnims = (anims: AnimDescriptor[]): string => {
   if (anims.length === 0) return "";
   const json = JSON.stringify(anims).replace(CLOSE_SCRIPT, "<\\/");
-  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, page: page });`;
+  // voCount = the slide's caption count (drives the runtime slot-delay); `voIds` is a var in
+  // the sub-composition <script> the preamble already defines, so no wrapper change is needed.
+  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, voCount: voIds.length, page: page });`;
 };
