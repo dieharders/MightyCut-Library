@@ -66,6 +66,10 @@
 }
 .hud .hud-track {
   position: absolute;
+  /* content-box so `height` is the fill area regardless of the host's box-sizing:
+     the deck renders content-box, but the showcase renders in a border-box context
+     (Tailwind Preflight), which would otherwise shrink the fill to height−2·border. */
+  box-sizing: content-box;
   bottom: 3.625rem;
   left: 8.25rem;
   right: 8.25rem;
