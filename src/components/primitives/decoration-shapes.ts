@@ -107,7 +107,12 @@ export const DECO_CSS = `.deco {
   background: var(--d-bg, transparent);
   border: var(--d-border, none);
   border-radius: var(--d-radius, 0);
-  filter: drop-shadow(var(--d-shadow, 0.6rem) var(--d-shadow, 0.6rem) 0 var(--black));
+  /* Rectangular shapes (box + pattern) get a crisp box-shadow — painted in the same
+     layer as the border, so it never seams against the background under fractional
+     preview scaling. Polygon shapes have no box-shadow and instead cast an alpha-
+     following filter drop-shadow (set inline) so the shadow hugs the SVG silhouette. */
+  box-shadow: var(--d-boxshadow, none);
+  filter: var(--d-filter, none);
   z-index: var(--d-z, 1);
   pointer-events: none;
 }
@@ -127,6 +132,8 @@ type DecoParams = {
 const decorationLayout = (p: DecoParams): Record<string, string> => {
   const s = SHAPES[p.variant] ?? SHAPES.square!;
   const color = `var(--${p.accent})`;
+  // Hard shadow offset scales with size so it stays proportional at every scale.
+  const off = remGrid(p.size * SHADOW_UNIT);
   const vars: Record<string, string> = {
     "--d-x": `${p.x}%`,
     "--d-y": `${p.y}%`,
@@ -134,11 +141,11 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     "--d-h": remGrid(p.size * (s.h ?? 1) * 1.2),
     "--d-rot": `${p.rotate}deg`,
     "--d-z": p.layer === "front" ? "5" : "1",
-    // Hard drop-shadow offset scales with size so it stays proportional at every scale.
-    "--d-shadow": remGrid(p.size * SHADOW_UNIT),
   };
   // Polygon shapes render as inline SVG (fill + stroke on the shape) — the div stays a
-  // bare, transparent container. Box + pattern shapes are pure CSS (bg / border / radius).
+  // bare, transparent container and casts an alpha-following filter drop-shadow.
+  // Box + pattern shapes are pure CSS rectangles (bg / border / radius) and take a crisp,
+  // same-layer box-shadow instead (no filter seam against the background under scaling).
   if (!s.clip) {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
@@ -148,6 +155,9 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     // shadow-only; polygons already have their SVG stroke.
     if (s.box || s.pattern)
       vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
+    vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--black)`;
+  } else {
+    vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--black))`;
   }
   return vars;
 };
