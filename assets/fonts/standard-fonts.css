@@ -1,0 +1,25 @@
+/* Standard (Cartesian) theme add-on font — the ONE family the standard frame needs
+ * beyond the core chrome set (fonts.css already provides Space Grotesk / Inter /
+ * JetBrains Mono / Archivo Black). Playfair Display is the standard serif for
+ * headlines/numerals (--st-serif in frame.css); Inter body/labels come from core.
+ * Self-hosted latin-subset variable woff2 (Google's gstatic build, no subsetting).
+ * Staged into a standard-deck project as assets/fonts/theme-fonts.css by the harness
+ * (stageThemeFonts) and inlined into the standalone preview; the woff2 sit same-dir
+ * so url()s are relative. font-display: block so the deterministic renderer never
+ * captures a fallback-font frame. */
+
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: block;
+  src: url("playfair.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  font-style: italic;
+  font-weight: 400 900;
+  font-display: block;
+  src: url("playfair-italic.woff2") format("woff2");
+}

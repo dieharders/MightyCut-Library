@@ -7,17 +7,18 @@
 import "../components/registry"; // side-effect: registerComponent/registerTreatment for every element
 import { blockTheme } from "../components/themes/block";
 import type { ThemeTokens } from "../components/runtime/types";
-import { BLOCK_FONTS_CSS } from "./block-fonts.generated";
+import { CORE_FONTS_CSS } from "./block-fonts.generated";
 
 let fontsInjected = false;
 
-/** Inject the block @font-face rules once (document-level so Shadow DOM inherits them). */
+/** Inject the core @font-face rules once (document-level so Shadow DOM inherits them).
+ *  The core chrome set is a superset of block's content fonts (Space Grotesk / Inter). */
 const injectBlockFonts = (): void => {
   if (fontsInjected || typeof document === "undefined") return;
   fontsInjected = true;
   const style = document.createElement("style");
-  style.dataset.mcFonts = "block";
-  style.textContent = BLOCK_FONTS_CSS;
+  style.dataset.mcFonts = "core";
+  style.textContent = CORE_FONTS_CSS;
   document.head.appendChild(style);
 };
 

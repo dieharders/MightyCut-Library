@@ -95,9 +95,11 @@ export const blockTheme: ThemeTokens = {
   css: tokensCss,
   frameCss,
   fonts: {
-    // Staged from video-assets/themes/block/assets/fonts by the scaffold.
-    css: "assets/fonts/theme-fonts.css",
-    files: ["inter.woff2", "space-grotesk.woff2", "theme-fonts.css"],
+    // Block's content fonts (Inter, Space Grotesk) are a subset of the core chrome
+    // set, so they come from the always-staged core fonts.css — block ships no
+    // add-on font of its own (only capsule/standard do). Staged by copyProjectAssets.
+    css: "assets/fonts.css",
+    files: ["inter.woff2", "space-grotesk.woff2"],
   },
   palette,
   typography,
