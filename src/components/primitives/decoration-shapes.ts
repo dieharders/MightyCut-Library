@@ -79,17 +79,30 @@ const svgPoints = (clip: string): string =>
     .map((pt) => pt.trim().replace(/\s+/g, ","))
     .join(" ");
 
+// Hard gradient stops alias badly on diagonal/rotated edges (every stripe edge lands on a
+// different sub-pixel offset → uneven widths). A ~0.55px feather on each stop replaces the
+// zero-width edge with a smooth 1px transition the rasterizer anti-aliases cleanly — crisp
+// at a glance, but no per-stripe shimmer under rotation or fractional scaling.
+const FEATHER = "0.55px";
+
+/** A two-tone repeating stripe with feathered stops: `c1` for [0, w1], `c2` to `period`. */
+const stripes = (angle: string, c1: string, w1: string, c2: string, period: string): string =>
+  `repeating-linear-gradient(${angle}, ` +
+  `${c1} 0, ${c1} calc(${w1} - ${FEATHER}), ` +
+  `${c2} calc(${w1} + ${FEATHER}), ${c2} calc(${period} - ${FEATHER}), ` +
+  `${c1} ${period})`;
+
 const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
   if (kind === "stripe") {
-    return `repeating-linear-gradient(45deg, var(--black), var(--black) 1rem, ${color} 1rem, ${color} 2.875rem)`;
+    return stripes("45deg", "var(--black)", "1rem", color, "2.875rem");
   }
   if (kind === "bars") {
-    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.125rem, ${color} 1.125rem, ${color} 3.25rem)`;
+    return stripes("90deg", "var(--black)", "1.125rem", color, "3.25rem");
   }
-  // grid: black crosshatch lines over the color fill
+  // grid: feathered black crosshatch lines over the color fill
   return (
-    `repeating-linear-gradient(0deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
-    `repeating-linear-gradient(90deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
+    `${stripes("0deg", "var(--black)", "0.5rem", "transparent", "3.125rem")}, ` +
+    `${stripes("90deg", "var(--black)", "0.5rem", "transparent", "3.125rem")}, ` +
     `linear-gradient(${color}, ${color})`
   );
 };
