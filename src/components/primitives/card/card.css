@@ -1,38 +1,37 @@
-/* Sizes are in rem on a fixed 16px root (1rem = 16px), so an element is the same
-   size regardless of the container it renders in. Design basis is the 1920-wide
-   frame, where 1% of the width (19.2px) equals 1.2rem. */
+/* Sizes are in rem, quantized to a 0.125rem grid, so an element is the same size
+   regardless of the container it renders in. See runtime/css.ts for the grid rule. */
 .card {
-  border: 0.36rem solid var(--black);
+  border: 0.375rem solid var(--black);
   background: var(--white);
-  box-shadow: 0.72rem 0.72rem 0 var(--black);
-  padding: 2.16rem;
+  box-shadow: 0.75rem 0.75rem 0 var(--black);
+  padding: 2.125rem;
   display: flex;
   flex-direction: column;
 }
 .card-icon {
-  width: 4.8rem;
-  height: 4.8rem;
-  border: 0.24rem solid var(--black);
+  width: 4.75rem;
+  height: 4.75rem;
+  border: 0.25rem solid var(--black);
   background: var(--ic, var(--pink));
   display: grid;
   place-items: center;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.16rem;
-  margin-bottom: 1.44rem;
+  font-size: 2.125rem;
+  margin-bottom: 1.5rem;
 }
 .card-title {
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 2.4rem;
+  font-size: 2.5rem;
   line-height: 1.15;
 }
 .card-body {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.8rem;
+  font-size: 1.75rem;
   line-height: 1.5;
   color: #222;
-  margin-top: 0.84rem;
+  margin-top: 0.875rem;
 }

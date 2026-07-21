@@ -10,20 +10,20 @@
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 2.04rem;
+  font-size: 2rem;
   align-self: center;
 }
 .row .cell {
-  border: 0.3rem solid var(--black);
+  border: 0.25rem solid var(--black);
   background: var(--white);
-  padding: 1.08rem 1.44rem;
+  padding: 1.125rem 1.5rem;
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.86rem;
+  font-size: 1.875rem;
   line-height: 1.35;
 }
 .row .cell.b {
   background: var(--green);
-  box-shadow: 0.36rem 0.36rem 0 var(--black);
+  box-shadow: 0.375rem 0.375rem 0 var(--black);
   font-weight: 700;
 }

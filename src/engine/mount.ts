@@ -74,6 +74,11 @@ const previewCss = (frame: boolean): string => `
 .mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
 .mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
+/* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
+   viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
+   resolves against document.documentElement even across a shadow boundary — so a global
+   html font-size rule here would leak into the WebUI's own rem layout. We rely on the
+   host's 16px root instead. Do NOT set document.documentElement.style.fontSize here. */
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
 /* Component/decoration previews render at their natural rem size inside a wide canvas
@@ -86,7 +91,7 @@ const previewCss = (frame: boolean): string => `
 .mc-stage--comp .mc-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
 /* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
    into this centred flex; a single-box component has one child, so the gap is a no-op there. */
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.68rem; transform-origin: center; }"}
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
 `;
 
 // Fraction of the preview box a fitted component fills (when it's larger than the box).

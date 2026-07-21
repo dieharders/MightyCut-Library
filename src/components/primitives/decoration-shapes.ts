@@ -6,6 +6,7 @@
 // via addDecorations().
 import { z } from "zod";
 import { component } from "../runtime/component";
+import { remGrid } from "../runtime/css";
 
 // The four decoration component names (the showcase + blockTheme reference these).
 export const DECORATION_COMPONENTS = [
@@ -70,15 +71,15 @@ const svgPoints = (clip: string): string =>
 
 const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
   if (kind === "stripe") {
-    return `repeating-linear-gradient(45deg, var(--black), var(--black) 0.96rem, ${color} 0.96rem, ${color} 2.88rem)`;
+    return `repeating-linear-gradient(45deg, var(--black), var(--black) 1rem, ${color} 1rem, ${color} 2.875rem)`;
   }
   if (kind === "bars") {
-    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.08rem, ${color} 1.08rem, ${color} 3.24rem)`;
+    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.125rem, ${color} 1.125rem, ${color} 3.25rem)`;
   }
   // grid: black crosshatch lines over the color fill
   return (
-    `repeating-linear-gradient(0deg, var(--black) 0 0.48rem, transparent 0.48rem 3.12rem), ` +
-    `repeating-linear-gradient(90deg, var(--black) 0 0.48rem, transparent 0.48rem 3.12rem), ` +
+    `repeating-linear-gradient(0deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
+    `repeating-linear-gradient(90deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
     `linear-gradient(${color}, ${color})`
   );
 };
@@ -119,8 +120,8 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
   const vars: Record<string, string> = {
     "--d-x": `${p.x}%`,
     "--d-y": `${p.y}%`,
-    "--d-w": `${+(p.size * 1.2).toFixed(2)}rem`,
-    "--d-h": `${(p.size * (s.h ?? 1) * 1.2).toFixed(2)}rem`,
+    "--d-w": remGrid(p.size * 1.2),
+    "--d-h": remGrid(p.size * (s.h ?? 1) * 1.2),
     "--d-rot": `${p.rotate}deg`,
     "--d-z": p.layer === "front" ? "5" : "1",
   };
@@ -130,9 +131,9 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
     // Border weight tracks the shape size (~3.5% of width) so box shapes carry the
-    // same ink weight as the polygon variants' 3.5/100 SVG stroke. (0.035 × 1.2 = 0.042rem/unit.)
-    if (s.box)
-      vars["--d-border"] = `${(p.size * 0.042).toFixed(2)}rem solid var(--black)`;
+    // same ink weight as the polygon variants' 3.5/100 SVG stroke (0.035 × 1.2 =
+    // 0.042rem/unit), quantized to the grid with a floor so a tiny size can't zero it out.
+    if (s.box) vars["--d-border"] = `${remGrid(p.size * 0.042)} solid var(--black)`;
   }
   return vars;
 };

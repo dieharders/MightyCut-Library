@@ -1,13 +1,13 @@
 .cta-c {
   display: inline-flex;
   align-items: center;
-  border: 0.66rem solid var(--black);
+  border: 0.625rem solid var(--black);
   background: var(--yellow);
-  box-shadow: 0.84rem 0.84rem 0 var(--black);
-  padding: 3rem 6.84rem;
+  box-shadow: 0.875rem 0.875rem 0 var(--black);
+  padding: 3rem 6.875rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 3.48rem;
+  font-size: 3.5rem;
   text-transform: uppercase;
   color: var(--black);
 }

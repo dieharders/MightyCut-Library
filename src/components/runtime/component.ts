@@ -27,7 +27,7 @@ export type ComponentDef<S extends z.ZodTypeAny> = {
   schema: S;
   /** Flat HTML; root carries `.${name}`; data-slot / data-anim annotations. */
   template: string;
-  /** CSS authored under `.${name}` (rem units on the fixed 16px root, flat rules).
+  /** CSS authored under `.${name}` (rem on the 0.125rem grid, flat rules — see css.ts).
    *  Optional: a theme may instead OWN this component's skin via `theme.skins[name]`,
    *  which `buildNode` prefers. Components whose look is theme-specific (hud, caption)
    *  omit this and let each theme style the standard class names from its own folder. */

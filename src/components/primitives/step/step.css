@@ -1,47 +1,48 @@
 .step {
   position: relative;
-  border: 0.3rem solid var(--black);
+  border: 0.25rem solid var(--black);
   background: var(--white);
-  box-shadow: 0.48rem 0.48rem 0 var(--black);
-  padding: 2.16rem;
+  box-shadow: 0.5rem 0.5rem 0 var(--black);
+  padding: 2.125rem;
 }
 .step:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 50%;
-  /* Span the grid gap (timeline .row gap = 2.64rem) PLUS both card borders (0.3rem each) so
+  /* Span the grid gap (timeline .row gap = 2.625rem) PLUS both card borders (0.25rem each) so
      the bar tucks under this card's right border and reaches under the next card's left
-     border — touching both edges. `right` is measured from the padding box, hence the +0.3rem
-     on each side; the overlapped ends hide under the black borders (seamless) / the next card. */
-  right: -3.24rem;
-  width: 3.24rem;
-  height: 0.36rem;
+     border — touching both edges. `right` is measured from the padding box, hence the +0.25rem
+     on each side; the overlapped ends hide under the black borders (seamless) / the next card.
+     Derived: 2.625 + 2×0.25 = 3.125rem — keep in sync with the timeline gap + .step border. */
+  right: -3.125rem;
+  width: 3.125rem;
+  height: 0.375rem;
   background: var(--black);
 }
 .step-num {
   display: inline-grid;
   place-items: center;
-  width: 3.6rem;
-  height: 3.6rem;
-  border: 0.3rem solid var(--black);
+  width: 3.625rem;
+  height: 3.625rem;
+  border: 0.25rem solid var(--black);
   background: var(--yellow);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 2.1rem;
-  margin-bottom: 1.2rem;
+  font-size: 2.125rem;
+  margin-bottom: 1.25rem;
 }
 .step-title {
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 2.4rem;
+  font-size: 2.5rem;
   line-height: 1.15;
 }
 .step-body {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.8rem;
+  font-size: 1.75rem;
   line-height: 1.5;
   color: #222;
-  margin-top: 0.72rem;
+  margin-top: 0.75rem;
 }

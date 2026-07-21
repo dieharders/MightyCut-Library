@@ -5,16 +5,16 @@
 .cover > .body {
   justify-content: center;
   align-items: flex-start;
-  padding: 8.1rem 7.2rem 13.5rem;
+  padding: 8.125rem 7.25rem 13.5rem;
 }
 .cover .eyebrow {
-  margin-bottom: 2.4rem;
+  margin-bottom: 2.5rem;
 }
 .cover h3 {
   font-size: 9rem;
   letter-spacing: -0.04em;
   line-height: 0.9;
-  max-width: 86.4rem;
+  max-width: 86.375rem;
   margin: 0;
 }
 .cover .sub {
@@ -23,6 +23,6 @@
   font-size: 3rem;
   line-height: 1.5;
   color: var(--black);
-  margin-top: 2.4rem;
+  margin-top: 2.5rem;
   max-width: 60rem;
 }

@@ -10,7 +10,14 @@
  * links it.
  *
  * Safe area (must match the root markup): top 140px (HUD brand band),
- * bottom 200px (captions + progress), left/right 80px.
+ * bottom 200px (captions + progress), left/right 80px. (The block treatments'
+ * own body inset is tighter — ~130px top / 216px bottom / 96px sides.)
+ *
+ * Units: layout and type measures are rem (they define the composition and rescale
+ * with the canvas via the render document's viewport-derived root font-size). Sub-pixel
+ * RASTER effects — the 1px hairline gradient stops and the caption text-shadow blur —
+ * stay px on purpose: they tune how the composition is drawn, not its geometry, and
+ * would double in weight if snapped up to the 0.125rem (2px) grid.
  */
 
 html,
@@ -37,16 +44,16 @@ body {
   background-image:
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 64px 64px;
+  background-size: 4rem 4rem;
 }
 .mc-bg--pattern {
   background-color: var(--bg);
   background-image: repeating-linear-gradient(
     -45deg,
     var(--grid) 0,
-    var(--grid) 2px,
-    transparent 2px,
-    transparent 18px
+    var(--grid) 0.125rem,
+    transparent 0.125rem,
+    transparent 1.125rem
   );
 }
 /* particles = gradient base + a <canvas> driven by MC.particleBg */
@@ -76,7 +83,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 78px;
+  bottom: 4.875rem;
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -89,7 +96,7 @@ body {
 .mc-caption {
   position: absolute;
   bottom: 0;
-  max-width: 1280px;
+  max-width: 80rem;
   visibility: hidden;
   opacity: 0;
 }

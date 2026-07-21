@@ -6,10 +6,10 @@
 .listnum-c .ln-chip {
   display: inline-grid;
   place-items: center;
-  width: 7.68rem;
-  height: 7.68rem;
+  width: 7.625rem;
+  height: 7.625rem;
   flex-shrink: 0;
-  border: 0.66rem solid var(--black);
+  border: 0.625rem solid var(--black);
   background: var(--yellow);
   font-family: var(--mono);
   font-weight: 700;
@@ -19,6 +19,6 @@
 .listnum-c .ln-text {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 3.24rem;
+  font-size: 3.25rem;
   color: var(--black);
 }

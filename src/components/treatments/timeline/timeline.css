@@ -1,15 +1,15 @@
 .timeline > .body {
   justify-content: center;
-  padding: 8.1rem 6rem 13.5rem;
+  padding: 8.125rem 6rem 13.5rem;
 }
 .timeline h3 {
   font-weight: 800;
-  font-size: 4.08rem;
+  font-size: 4.125rem;
   letter-spacing: -0.02em;
-  margin: 1.44rem 0 2.88rem;
+  margin: 1.5rem 0 2.875rem;
 }
 .timeline .row {
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 2.64rem;
+  gap: 2.625rem;
 }
