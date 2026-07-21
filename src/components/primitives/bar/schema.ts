@@ -7,7 +7,12 @@ export const BarSchema = z.object({
     .number()
     .positive()
     .describe("The chart's maximum value — sets the height"),
-  unit: z
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit prepended to the value, e.g. "$", "€"'),
+  unitSuffix: z
     .string()
     .max(12)
     .optional()

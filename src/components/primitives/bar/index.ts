@@ -12,7 +12,10 @@ export const Bar = component({
   template,
   css,
   example: { value: 42, label: "Q1", max: 100 },
-  fill: (p) => ({ "bar-value": `0${p.unit ?? ""}`, "bar-label": p.label }),
+  fill: (p) => ({
+    "bar-value": `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`,
+    "bar-label": p.label,
+  }),
   layout: (p) => ({
     // Fill = value/max, clamped to 0–100% (0 = empty, value ≥ max = full). No minimum floor,
     // so small values register; no negative or over-100 overflow.

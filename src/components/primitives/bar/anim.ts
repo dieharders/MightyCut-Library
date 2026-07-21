@@ -9,6 +9,6 @@ export const barAnim = (p: BarParams): AnimDescriptor[] => [
     kind: "countUp",
     target: "value",
     time: { at: "line", n: 0, plus: 0.1 },
-    opts: { to: p.value, suffix: p.unit ?? "" },
+    opts: { to: p.value, prefix: p.unitPrefix ?? "", suffix: p.unitSuffix ?? "" },
   },
 ];

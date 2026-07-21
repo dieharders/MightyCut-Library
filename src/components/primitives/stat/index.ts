@@ -11,7 +11,7 @@ export const Stat = component({
   template,
   css,
   example: { value: 240, label: "Requests / sec" },
-  fill: (p) => ({ number: `${p.prefix ?? ""}0${p.suffix ?? ""}`, label: p.label }),
+  fill: (p) => ({ number: `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`, label: p.label }),
   layout: (p) => ({ "--dot": `var(--${p.accent})` }),
   animIn: "rise",
   animInOpts: { dist: 26 },

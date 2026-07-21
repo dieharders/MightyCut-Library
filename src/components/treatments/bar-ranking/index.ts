@@ -27,7 +27,9 @@ export const BarRanking = treatment({
       { label: "Umbrella", value: 11 },
     ];
     const max = Math.max(...rows.map((r) => r.value));
-    return rows.map((r, i) => Rank({ value: r.value, label: r.label, max, unit: "%", leader: i === 0 }));
+    return rows.map((r, i) =>
+      Rank({ value: r.value, label: r.label, max, unitSuffix: "%", leader: i === 0 }),
+    );
   },
   anim: barRankingAnim,
 });

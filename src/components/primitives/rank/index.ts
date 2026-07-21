@@ -11,8 +11,11 @@ export const Rank = component({
   schema: RankSchema,
   template,
   css,
-  example: { value: 83, label: "Acme", max: 100, unit: "%" },
-  fill: (p) => ({ "bar-label": p.label, "bar-value": `0${p.unit ?? ""}` }),
+  example: { value: 83, label: "Acme", max: 100, unitSuffix: "%" },
+  fill: (p) => ({
+    "bar-label": p.label,
+    "bar-value": `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`,
+  }),
   layout: (p) => ({
     // Fill = value/max, clamped to 0–100% (value ≥ max = full track). No minimum floor,
     // so small values register; no negative or over-100 overflow.

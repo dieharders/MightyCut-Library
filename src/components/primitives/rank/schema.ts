@@ -7,7 +7,12 @@ export const RankSchema = z.object({
     .max(48)
     .describe("Short mono caption naming the ranked item"),
   max: z.number().positive().describe("Scale's maximum value"),
-  unit: z
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit prepended to the value, e.g. "$", "€"'),
+  unitSuffix: z
     .string()
     .max(12)
     .optional()
