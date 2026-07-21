@@ -143,8 +143,10 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
     // Fixed outline weight (does not scale with size) — matches the polygon variants'
-    // constant SVG stroke so box + polygon shapes carry the same ink weight everywhere.
-    if (s.box) vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
+    // constant SVG stroke so box, pattern, and polygon shapes all carry the same ink
+    // weight everywhere. Pattern shapes (stripe/bars/grid) get it too so they're not
+    // shadow-only; polygons already have their SVG stroke.
+    if (s.box || s.pattern) vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
   }
   return vars;
 };
