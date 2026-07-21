@@ -67,7 +67,7 @@ const SHAPES: Record<string, ShapeCfg> = {
   // badge family — rounded / tag shapes
   shield: { clip: SHIELD },
   tag: { clip: TAG },
-  ticket: { box: true, radius: "2.4rem", h: 0.6 },
+  ticket: { box: true, radius: "2.5rem", h: 0.6 },
   capsule: { box: true, radius: "999px", h: 0.5 },
 };
 
@@ -146,7 +146,8 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     // constant SVG stroke so box, pattern, and polygon shapes all carry the same ink
     // weight everywhere. Pattern shapes (stripe/bars/grid) get it too so they're not
     // shadow-only; polygons already have their SVG stroke.
-    if (s.box || s.pattern) vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
+    if (s.box || s.pattern)
+      vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
   }
   return vars;
 };
@@ -199,7 +200,9 @@ export const decorationComponent = (
         .positive()
         .max(60)
         .default(16)
-        .describe("Size as a percent of the 1920 design width (16 = 16%, emitted as rem)"),
+        .describe(
+          "Size as a percent of the 1920 design width (16 = 16%, emitted as rem)",
+        ),
       rotate: z
         .number()
         .min(-180)
