@@ -21,9 +21,9 @@ export const ClosingPlate = treatment({
     Slab({
       variant: "rectangle",
       x: 16,
-      y: 19,
-      size: 13,
-      rotate: -7,
+      y: 73,
+      size: 15,
+      rotate: -10,
       accent: "blue",
       layer: "back",
     }),
