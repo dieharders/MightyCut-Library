@@ -6,7 +6,12 @@ import type { AnimDescriptor } from "../../runtime/anim";
  *  narration offset. */
 export const quoteAnim = (): AnimDescriptor[] => [
   { kind: "fadeIn", target: "eyebrow", time: { at: "leadIn" } },
-  { kind: "scaleIn", target: "card", time: { at: "leadIn", plus: 0.2 }, opts: { from: 0.92 } },
+  {
+    kind: "scaleIn",
+    target: "card",
+    time: { at: "leadIn", plus: 0.5 },
+    opts: { from: 0.92 },
+  },
   { kind: "fadeIn", target: "quote-text", time: { at: "line", n: 0 } },
   { kind: "fadeIn", target: "attribution", time: { at: "index", n: 1 } },
 ];
