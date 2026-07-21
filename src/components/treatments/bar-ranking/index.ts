@@ -17,10 +17,9 @@ export const BarRanking = treatment({
   example: {
     headline: "Market share by vendor",
     caption: "Share of new installs, 2026",
-    unit: "%",
   },
   fill: (p) => ({ headline: p.headline, caption: p.caption }),
-  defaultChildren: (p) => {
+  defaultChildren: () => {
     const rows = [
       { label: "Acme", value: 38 },
       { label: "Globex", value: 27 },
@@ -28,7 +27,7 @@ export const BarRanking = treatment({
       { label: "Umbrella", value: 11 },
     ];
     const max = Math.max(...rows.map((r) => r.value));
-    return rows.map((r, i) => Rank({ value: r.value, label: r.label, max, unit: p.unit, leader: i === 0 }));
+    return rows.map((r, i) => Rank({ value: r.value, label: r.label, max, unit: "%", leader: i === 0 }));
   },
   anim: barRankingAnim,
 });

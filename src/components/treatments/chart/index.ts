@@ -15,7 +15,7 @@ export const Chart = treatment({
   css,
   ground: "cream",
   example: { headline: "Revenue by quarter", caption: "Indexed to Q1 = 100" },
-  defaultChildren: (p) => {
+  defaultChildren: () => {
     const series = [
       { value: 42, label: "Q1" },
       { value: 68, label: "Q2" },
@@ -24,7 +24,7 @@ export const Chart = treatment({
     ];
     const max = Math.max(...series.map((s) => s.value));
     return series.map((s, i) =>
-      Bar({ value: s.value, label: s.label, max, unit: p.unit, leader: i === series.length - 1 }),
+      Bar({ value: s.value, label: s.label, max, leader: i === series.length - 1 }),
     );
   },
   fill: (p) => ({ headline: p.headline, caption: p.caption }),
