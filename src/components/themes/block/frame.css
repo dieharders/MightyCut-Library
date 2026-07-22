@@ -43,12 +43,3 @@
   line-height: 0.95;
   margin: 0;
 }
-.block-frame .dg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.32;
-  background-image: radial-gradient(circle, var(--black) 0.125rem, transparent 0.125rem);
-  background-size: 3.625rem 3.625rem;
-  z-index: 1;
-  pointer-events: none;
-}

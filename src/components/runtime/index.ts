@@ -48,11 +48,12 @@ import type { BuildContext, BuildMode, ThemeTokens } from "./types";
 export const rootContext = (
   compId: string,
   theme: ThemeTokens,
-  opts?: { mode?: BuildMode; voIds?: string[] },
+  opts?: { mode?: BuildMode; voIds?: string[]; backdrop?: string },
 ): BuildContext => ({
   compId,
   idPrefix: compId,
   theme,
   mode: opts?.mode ?? "render",
+  backdrop: opts?.backdrop,
   voIds: opts?.voIds,
 });

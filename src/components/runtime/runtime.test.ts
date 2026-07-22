@@ -243,3 +243,34 @@ describe("ground override via wrapSubComposition parts", () => {
     expect(html).not.toContain("background: var(--pink)");
   });
 });
+
+describe("backdrop mask", () => {
+  const DOTS: ThemeTokens = { ...THEME, backdrop: "dots" };
+  const dotsCtx = (compId: string): BuildContext => ({ compId, idPrefix: compId, theme: DOTS, mode: "render" });
+
+  test("a theme WITHOUT a backdrop paints no mask (byte-stable)", () => {
+    const html = renderScene(StatGrid(), ctx("s"));
+    expect(html).not.toContain("mc-backdrop");
+    // the ground colour is unaffected
+    expect(html).toContain("background: var(--pink)");
+  });
+
+  test("the theme's canonical backdrop paints the mask overlay", () => {
+    const html = renderScene(StatGrid(), dotsCtx("s"));
+    expect(html).toContain("mc-backdrop mc-backdrop--dots");
+    expect(html).toContain("background-size: 3.625rem 3.625rem");
+    // mask overlays the ground; the ground colour is still stamped
+    expect(html).toContain("background: var(--pink)");
+    expect(() => scrubDeterminism(html)).not.toThrow();
+  });
+
+  test("a scene override to 'plain' removes the mask for that scene only", () => {
+    const html = renderScene(StatGrid(), dotsCtx("s"), { backdrop: "plain" });
+    expect(html).not.toContain("mc-backdrop");
+  });
+
+  test("a scene override selects a different mask design", () => {
+    const html = renderScene(StatGrid(), ctx("s"), { backdrop: "dots" });
+    expect(html).toContain("mc-backdrop--dots");
+  });
+});

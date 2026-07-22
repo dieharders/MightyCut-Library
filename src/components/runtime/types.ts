@@ -57,6 +57,10 @@ export type ThemeTokens = {
    *  own way here. `buildNode` prefers a theme skin over the component's own `css`,
    *  so future themes just add their skin file. Today only `block` supplies these. */
   skins?: Record<string, string>;
+  /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
+   *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
+   *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
+  backdrop?: string;
   /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
   fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
@@ -77,6 +81,9 @@ export type BuildContext = {
   idPrefix: string;
   theme: ThemeTokens;
   mode: BuildMode;
+  /** Per-scene backdrop MASK override (a BACKDROP_NAMES value). Falls back to
+   *  `theme.backdrop`, then `"plain"`. See primitives/backdrops.ts. */
+  backdrop?: string;
   /** Render: this slide's VO line ids in narration order (for lineId parity). */
   voIds?: string[];
 };

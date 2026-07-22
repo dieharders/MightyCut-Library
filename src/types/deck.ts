@@ -12,7 +12,7 @@
 import { z } from "zod";
 import { AnimDescriptorSchema } from "../components/runtime/anim";
 import type { ChildSpec } from "../components/compose";
-import { FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS, type FrameGround } from "./storyboard";
+import { BACKDROP_NAMES, FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS, type BackdropName, type FrameGround } from "./storyboard";
 import { TIMING_PRESETS, TRANSITION_NAMES, TransitionSpecSchema, type TransitionSpec } from "./transitions";
 
 /** A resolved child (or decoration) instance: a registered component name + its
@@ -45,6 +45,7 @@ export const DeckSceneSchema = z
     children: z.array(ChildSpecSchema),
     decorations: z.array(ChildSpecSchema).optional(),
     ground: z.enum(FRAME_GROUNDS).optional(),
+    backdrop: z.enum(BACKDROP_NAMES).optional(),
     anim: z.array(AnimDescriptorSchema).optional(),
     transition: TransitionSpecSchema.optional(),
     voIds: z.array(z.string()).optional(),
@@ -84,16 +85,17 @@ export type SceneEdit = {
   children: ChildSpec[];
   decorations?: ChildSpec[];
   ground?: FrameGround;
+  backdrop?: BackdropName;
   transition?: TransitionSpec;
   vo?: DeckVoLine[];
 };
 
 /**
  * Merge an editor edit over the originally-loaded scene: overwrite ONLY the fields
- * the editor owns (`params`/`children`/`decorations`/`ground`) and carry everything
- * else through untouched — `id`, `treatment`, `anim`, `voIds`, and any field not
- * surfaced in the editor. Empty decorations / unset ground mirror "absent", so a
- * scene that inherited treatment defaults stays identical on an unedited round-trip.
+ * the editor owns (`params`/`children`/`decorations`/`ground`/`backdrop`) and carry
+ * everything else through untouched — `id`, `treatment`, `anim`, `voIds`, and any field
+ * not surfaced in the editor. Empty decorations / unset ground / unset backdrop mirror
+ * "absent", so a scene that inherited treatment defaults stays identical on an unedited round-trip.
  */
 export const applySceneEdit = (original: DeckScene, edit: SceneEdit): DeckScene => {
   const next: DeckScene = { ...original, params: edit.params, children: edit.children };
@@ -101,6 +103,8 @@ export const applySceneEdit = (original: DeckScene, edit: SceneEdit): DeckScene 
   else delete next.decorations;
   if (edit.ground) next.ground = edit.ground;
   else delete next.ground;
+  if (edit.backdrop) next.backdrop = edit.backdrop;
+  else delete next.backdrop;
   if (edit.transition) next.transition = edit.transition;
   else delete next.transition;
   // `vo` is always present (from specToDeck) — the `{ ...original }` spread carries an

@@ -11,15 +11,20 @@ import type { AnimDescriptor, BuildContext, ComponentInstance, SubComposition, T
 export type SceneOverrides = {
   /** Storyboard ground override (else the treatment's canonical ground). */
   ground?: FrameGround;
+  /** Storyboard backdrop-mask override (else the theme's canonical backdrop). */
+  backdrop?: string;
 };
 
-/** Build a scene's SubComposition parts, applying an optional ground override. */
+/** Build a scene's SubComposition parts, applying optional ground / backdrop overrides. */
 export const buildScene = (
   treatment: TreatmentInstance,
   ctx: BuildContext,
   overrides?: SceneOverrides,
 ): SubComposition => {
-  const parts = treatment.buildScene(ctx);
+  // A backdrop override rides the ctx (treatment.buildNode resolves it); the ground
+  // override is a post-build pageStyle swap, since ground is stamped as inline style.
+  const sceneCtx = overrides?.backdrop ? { ...ctx, backdrop: overrides.backdrop } : ctx;
+  const parts = treatment.buildScene(sceneCtx);
   if (overrides?.ground) {
     // buildScene stamps `background: var(--<canonicalGround>)` last; replace it.
     parts.pageStyle = (parts.pageStyle ?? "").replace(

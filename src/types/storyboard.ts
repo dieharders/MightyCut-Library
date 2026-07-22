@@ -67,6 +67,18 @@ export const FRAME_GROUNDS = [
 ] as const;
 export type FrameGround = (typeof FRAME_GROUNDS)[number];
 
+/**
+ * The backdrop MASK designs — a full-bleed overlay painted on top of the ground
+ * COLOR (behind the content). Distinct from `ground`: ground is the base colour,
+ * backdrop is the pattern/texture over it. Theme-agnostic + shareable — a theme
+ * recolours the mask with its own tokens/skin. `plain` = no mask (byte-identical
+ * to a bare ground). A theme declares its canonical design (ThemeTokens.backdrop);
+ * a scene may override it here. Static today (block's dots); the design interface
+ * already carries anims so an animated mask (e.g. a constellation) drops in later.
+ */
+export const BACKDROP_NAMES = ["plain", "dots"] as const;
+export type BackdropName = (typeof BACKDROP_NAMES)[number];
+
 // Decorations (star / tilt-rect / stripe / dot-grid) are authored per-treatment in
 // the showcase and ship with the frame — there is no storyboard knob for them.
 
@@ -125,6 +137,7 @@ const SceneStoryboardSchema = z.object({
   options: z
     .object({
       ground: z.enum(FRAME_GROUNDS).optional(),
+      backdrop: z.enum(BACKDROP_NAMES).optional(),
       transition: TransitionSpecSchema.optional(),
     })
     .optional(),

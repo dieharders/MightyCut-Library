@@ -60,6 +60,9 @@ export type MountPreviewOptions = {
   /** Ground colour token override (deck scene ground) — swaps the treatment's canonical
    *  ground background the same way the renderer's buildScene does. */
   ground?: string;
+  /** Backdrop-mask override (deck scene backdrop) — selects the full-bleed mask design;
+   *  unset falls back to the theme's canonical backdrop (built into the node, like render). */
+  backdrop?: string;
 };
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
@@ -131,7 +134,7 @@ export const mountPreview = (
   bootstrapFx();
   const compId = opts.compId ?? "mc-preview";
   const frame = opts.frame ?? instance.kind === "treatment";
-  const ctx = rootContext(compId, theme, { mode: "showcase" });
+  const ctx = rootContext(compId, theme, { mode: "showcase", backdrop: opts.backdrop });
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;

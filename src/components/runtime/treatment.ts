@@ -13,6 +13,7 @@
 // scoped under the scene root, and all anims serialize to one MC.applyAnims call.
 import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
+import { buildBackdrop } from "../primitives/backdrops";
 import type { FrameGround } from "../../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/transitions";
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
@@ -172,6 +173,19 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
           for (const a of bn.anims) decoAnims.push(toSlot(a, i, delay));
         });
 
+        // Backdrop: the theme's canonical mask (scene override → theme default → "plain"),
+        // a full-bleed overlay unshifted to the FRONT of the page root so it paints first;
+        // its own z-index 0 layers it above the ground colour and below back-decorations.
+        // Its anims (empty for static masks) are absolute-timed — NOT run through toSlot.
+        const backdropName = ctx.backdrop ?? ctx.theme.backdrop ?? "plain";
+        const backdrop = buildBackdrop(backdropName, { ground: def.ground, theme: ctx.theme, ctx });
+        const backdropAnims: AnimDescriptor[] = [];
+        if (backdrop) {
+          root.children.unshift(backdrop.node);
+          cssParts.push({ name: `backdrop:${backdropName}`, css: backdrop.css });
+          for (const a of backdrop.anims) backdropAnims.push(a);
+        }
+
         if (def.layout) mergeStyle(root, styleProps(def.layout(children.length, p)));
         stripAnnotations(root);
 
@@ -190,7 +204,11 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
                   : titleSlot + titleOffset;
           return toSlot(qualifyAnim(a, ctx.idPrefix), slot, delay);
         });
-        return { node: root, css: collectCss(cssParts), anims: [...ownAnims, ...childAnims, ...decoAnims] };
+        return {
+          node: root,
+          css: collectCss(cssParts),
+          anims: [...backdropAnims, ...ownAnims, ...childAnims, ...decoAnims],
+        };
       },
       build(ctx): BuildResult {
         const bn = this.buildNode(ctx);
