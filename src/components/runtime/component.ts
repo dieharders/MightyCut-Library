@@ -56,6 +56,11 @@ export type ComponentDef<S extends z.ZodTypeAny> = {
   /** Full-frame composite (e.g. `hud`): the showcase renders it in a 1920×1080
    *  frame slot rather than the natural-size component slot. Purely presentational. */
   frame?: boolean;
+  /** Positioned page-space decoration flourish (starburst, node, …). Intrinsic, not
+   *  per-theme: a decoration is held out of the showcase Components grid under every
+   *  theme, so one theme's decorations never leak into another's grid. Set by the
+   *  decorationComponent / futureDecorationComponent helpers. */
+  decoration?: boolean;
 };
 
 export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): ComponentFactory<S> {
@@ -131,6 +136,7 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
     kind: "component" as const,
     schema: def.schema,
     frame: def.frame,
+    decoration: def.decoration,
     jsonSchema,
     defaults: () => def.schema.parse(def.example),
   });

@@ -12,6 +12,7 @@
 // vocabulary (so shared elements that reference --pink/--blue/… still resolve), future's
 // own --fx-* identity tokens, and the fonts. Content fonts (Space Grotesk / Inter /
 // JetBrains Mono) are all in the always-staged core set, so future ships no add-on font.
+import { FUTURE_DECORATION_COMPONENTS } from "../../primitives/future-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
@@ -260,8 +261,10 @@ export const futureTheme: ThemeTokens = {
   // Showcase/editor preview surface — the navy ground future's components are designed
   // against, so glass panels + light-on-dark text read (a light card would wash them out).
   previewBg: "#070d18",
-  // Future owns its look via the backdrop, not per-frame decorations — suppress block's
-  // default cover star / closing slab so they don't render off-theme or shift the cascade.
+  // The treatments' DEFAULT decorations are block's own (cover's pink star, closing's slab)
+  // — suppress them so those neobrutalist shapes never auto-render on a future frame or shift
+  // the reveal cascade. Future's own decorations (see `decorations` below) are opt-in per
+  // scene via addDecorations(); the always-on ground is the constellation backdrop.
   suppressDefaultDecorations: true,
   // Future's skins for every shared element it renders. The element trios carry no css;
   // these are the future look. Unskinned elements (block-only decorations) fall back to
@@ -310,6 +313,11 @@ export const futureTheme: ThemeTokens = {
   rules,
   // Future's own showcase sample copy (Atlas Relay demo) — see `examples` above.
   examples,
-  // Future has no neobrutalist decoration families — its ground IS the backdrop.
-  decorations: [],
+  // Future's OWN sci-fi decoration families (node · reticle · glyph · signal) — luminous
+  // strokes + glow, distinct from block's neobrutalist set. Themes don't share decorations:
+  // this roster lists only future's, and every decoration is held out of the Components grid
+  // globally (ComponentFactory.decoration), so block's shapes never appear under future.
+  // Opt-in per scene via addDecorations() / the editor's decoration picker (the constellation
+  // backdrop remains the always-on ground; see suppressDefaultDecorations above).
+  decorations: [...FUTURE_DECORATION_COMPONENTS],
 };

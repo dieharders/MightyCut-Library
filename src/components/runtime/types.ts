@@ -90,8 +90,12 @@ export type ThemeTokens = {
   typography?: TypeSpec[];
   /** The theme's authoring rules — drives the showcase Rules section. */
   rules?: ThemeRules;
-  /** The decoration component families this theme offers (starburst, slab, …) —
-   *  drives the showcase Decorations section + the treatment decoration editor. */
+  /** The decoration component families THIS theme offers (block: starburst/slab/…;
+   *  future: node/reticle/…) — its own roster, listed in the showcase Decorations
+   *  section and the treatment decoration editor. Themes do NOT share decorations:
+   *  each lists only its own here, and every decoration-flagged component (see
+   *  `ComponentFactory.decoration`) is held out of the Components grid globally, so
+   *  another theme's decorations never appear under this one. */
   decorations?: string[];
   /** When true, a treatment's `defaultDecorations` are suppressed (no auto-injected
    *  cover star / closing slab). A theme whose look owns the backdrop instead of
@@ -178,6 +182,12 @@ export type ComponentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((
   /** True for a full-frame composite (e.g. `hud`) — the showcase renders it in a
    *  1920×1080 frame slot instead of the natural-size component slot. */
   readonly frame?: boolean;
+  /** True for a positioned page-space decoration flourish (starburst, node, …). It's an
+   *  INTRINSIC property of the element, not a per-theme role: a decoration is never listed
+   *  in the showcase Components grid under ANY theme, so one theme's decorations never leak
+   *  into another's. Which decorations a theme actually OFFERS is `ThemeTokens.decorations`
+   *  (its own roster, surfaced in the Decorations section + the treatment decoration editor). */
+  readonly decoration?: boolean;
   jsonSchema(): object;
   defaults(): z.infer<S>;
 };

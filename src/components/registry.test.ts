@@ -195,6 +195,57 @@ describe("new library components", () => {
   });
 });
 
+// Future's OWN sci-fi decoration families — the luminous-stroke counterpart to block's
+// neobrutalist set. Distinct components, distinct shapes, distinct token vocabulary, so a
+// theme never renders another theme's decorations.
+describe("future decorations", () => {
+  const build = (name: string, params?: Record<string, unknown>) =>
+    getComponent(name)(params as never).build(ctx(`sc-${name}`));
+
+  test("future families render the selected shape (inline SVG) + placement + accent glow", () => {
+    const orbit = build("node", { variant: "orbit", x: 80, y: 20, size: 20, accent: "cyan" }).html;
+    expect(orbit).toContain("<svg"); // luminous shape as inline SVG
+    expect(orbit).toContain("<circle"); // orbit = ring + core + satellite
+    expect(orbit).toContain("--fd-x: 80%"); // x placement (var-driven)
+    expect(orbit).toContain("var(--fx-cyan)"); // future accent → stroke/fill
+    expect(orbit).toContain("drop-shadow("); // the glow filter (no hard offset)
+    expect(build("node", { variant: "core", layer: "front" }).html).toContain("--fd-z: 5"); // foreground z
+    expect(build("reticle", { variant: "brackets" }).html).toContain("<path"); // corner brackets
+    expect(build("glyph", { variant: "hexagon", accent: "violet" }).html).toContain("var(--fx-violet)");
+    expect(build("signal", { variant: "bars" }).html).toContain("<rect"); // equalizer bars
+  });
+
+  test("the 4 future families have DISJOINT variant lists (no shared shapes)", () => {
+    const families = ["node", "reticle", "glyph", "signal"];
+    const seen = new Map<string, string>();
+    for (const fam of families) {
+      const variants = ((getComponent(fam).jsonSchema() as { properties?: Record<string, { enum?: string[] }> }).properties?.variant?.enum) ?? [];
+      expect(variants.length).toBeGreaterThan(0);
+      for (const v of variants) {
+        expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
+        seen.set(v, fam);
+      }
+    }
+  });
+
+  test("future's decoration roster matches its own families (and only those)", () => {
+    // The theme rosters exactly the future families — no block shapes, so nothing another
+    // theme owns can appear under future.
+    expect([...(futureTheme.decorations ?? [])].sort()).toEqual(["glyph", "node", "reticle", "signal"]);
+  });
+
+  test("every decoration is intrinsically flagged; leaf components + the HUD are not", () => {
+    // The flag is what holds a decoration out of the showcase Components grid under ANY
+    // theme — block's and future's alike.
+    for (const d of ["starburst", "slab", "stripe", "badge", "node", "reticle", "glyph", "signal"]) {
+      expect(getComponent(d).decoration, `${d} must be flagged a decoration`).toBe(true);
+    }
+    for (const c of ["stat", "card", "pill", "cta", "icon", "hud"]) {
+      expect(getComponent(c).decoration, `${c} must NOT be a decoration`).toBeFalsy();
+    }
+  });
+});
+
 // The treatment → child component link that the CLI/agent/spec-map already used,
 // now formalized on the def (drives the showcase child editor).
 describe("treatment → childComponent link", () => {

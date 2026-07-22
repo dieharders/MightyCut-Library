@@ -188,6 +188,9 @@ export const decorationComponent = (
 ) =>
   component({
     name,
+    // Intrinsic: every family built through this helper is a decoration, so the showcase
+    // holds it out of the Components grid under any theme (see ComponentFactory.decoration).
+    decoration: true,
     schema: z.object({
       variant: z
         .enum(variants as [string, ...string[]])

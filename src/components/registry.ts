@@ -12,12 +12,16 @@ import { Badge } from "./primitives/badge";
 import { Caption } from "./primitives/caption";
 import { Card } from "./primitives/card";
 import { Cta } from "./primitives/cta";
+import { Glyph } from "./primitives/glyph";
 import { Hud } from "./primitives/hud";
 import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
+import { Node } from "./primitives/node";
 import { Pill } from "./primitives/pill";
 import { Rank } from "./primitives/rank";
+import { Reticle } from "./primitives/reticle";
 import { Row } from "./primitives/row";
+import { Signal } from "./primitives/signal";
 import { Slab } from "./primitives/slab";
 import { Starburst } from "./primitives/starburst";
 import { Stat } from "./primitives/stat";
@@ -36,7 +40,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, Node, Reticle, Glyph, Signal, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -50,12 +54,16 @@ export {
   Caption,
   Card,
   Cta,
+  Glyph,
   Hud,
   Icon,
   ListNumber,
+  Node,
   Pill,
   Rank,
+  Reticle,
   Row,
+  Signal,
   Slab,
   Starburst,
   Stat,
