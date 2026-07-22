@@ -26,6 +26,14 @@
   display: flex;
   flex-direction: column;
 }
-.agenda .alist > *:last-child {
-  border-bottom: 0.125rem solid var(--fx-steel);
+/* Glowing cyan bottom divider on the last row (matches the top dividers in agenda-item.css). */
+.agenda .alist > *:last-child::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  background: var(--fx-cyan);
+  box-shadow: 0 0 0.625rem rgba(var(--fx-cyan-rgb), 0.55);
 }

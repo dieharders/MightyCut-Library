@@ -2,11 +2,22 @@
    top rule (the treatment closes the list with a bottom rule). Ported from legacy
    .bf-agenda .arow (cqw × 1.2). */
 .agenda-item {
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 2.375rem;
   padding: 1.75rem 0;
-  border-top: 0.125rem solid var(--fx-steel);
+}
+/* Glowing cyan top divider (a pseudo-element so the glow can bleed — a border can't). */
+.agenda-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  background: var(--fx-cyan);
+  box-shadow: 0 0 0.625rem rgba(var(--fx-cyan-rgb), 0.55);
 }
 .agenda-item .num {
   font-family: var(--disp);
