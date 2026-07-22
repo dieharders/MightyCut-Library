@@ -82,9 +82,11 @@ const tokensCss = `:root {\n${[
 ].join("\n")}\n}\n`;
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
-// is the self-contained inline CSS the showcase applies to each live sample.
+// is the self-contained inline CSS the showcase applies to each live sample — it sets
+// its OWN color (var(--black)) so a sample reads correctly on any panel without relying
+// on an inherited/wrapper text color.
 const displayBase =
-  "font-family: var(--disp); text-transform: uppercase; line-height: 0.95;";
+  "font-family: var(--disp); text-transform: uppercase; line-height: 0.95; color: var(--black);";
 const typography: ThemeTokens["typography"] = [
   {
     token: "heading-xl",
@@ -103,7 +105,7 @@ const typography: ThemeTokens["typography"] = [
     spec: "Inter 900 · line 1 · big numeric callouts: stats, counts, prices",
     sample: "240",
     style:
-      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px;",
+      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--black);",
   },
   {
     token: "body",
@@ -111,14 +113,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
     style:
-      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px;",
+      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px; color: var(--black);",
   },
   {
     token: "label",
     spec: "Space Grotesk 600 · uppercase · eyebrows, tags & section kickers above a heading",
     sample: "Section Eyebrow",
     style:
-      "display: inline-block; border: 3px solid var(--black); background: var(--white); box-shadow: 4px 4px 0 var(--black); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px;",
+      "display: inline-block; border: 3px solid var(--black); background: var(--white); box-shadow: 4px 4px 0 var(--black); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: var(--black);",
   },
 ];
 
