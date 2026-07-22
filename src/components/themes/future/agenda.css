@@ -1,0 +1,31 @@
+/* 10 · Agenda — a hairline-ruled numbered index (agenda-item.css); the treatment closes the
+   list with a bottom rule. Headline opened by a cyan rule. Ported from legacy .bf-agenda. */
+.agenda > .body {
+  justify-content: center;
+  padding: 8.75rem 6rem 13.5rem;
+}
+.agenda h3 {
+  font-size: 4.375rem;
+  margin: 0 0 2.875rem;
+}
+.agenda h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--fx-cyan) 0%,
+    rgba(var(--fx-cyan-rgb), 0.45) 12%,
+    rgba(148, 176, 204, 0.14) 42%,
+    rgba(148, 176, 204, 0.05) 100%
+  );
+}
+.agenda .alist {
+  display: flex;
+  flex-direction: column;
+}
+.agenda .alist > *:last-child {
+  border-bottom: 0.125rem solid var(--fx-steel);
+}

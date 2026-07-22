@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./card.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { CardSchema } from "./schema";
 
@@ -8,7 +7,6 @@ export const Card = component({
   name: "card",
   schema: CardSchema,
   template,
-  css,
   example: { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I" },
   fill: (p) => ({ "card-icon": p.icon, "card-title": p.title, "card-body": p.body }),
   layout: (p) => ({ "--ic": `var(--${p.accent})` }),

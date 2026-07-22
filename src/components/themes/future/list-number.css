@@ -1,0 +1,26 @@
+/* Future numbered bullet: a cyan glass chip + near-white text. */
+.listnum-c {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+.listnum-c .ln-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  flex-shrink: 0;
+  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.4);
+  background: rgba(var(--fx-cyan-rgb), 0.1);
+  border-radius: 0.875rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 2.5rem;
+  color: var(--fx-cyan);
+}
+.listnum-c .ln-text {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 2.75rem;
+  color: var(--fx-ink);
+}

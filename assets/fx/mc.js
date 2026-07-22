@@ -391,6 +391,13 @@
         );
       } else if (a.kind === "from") {
         tl.from(el, o, when);
+      } else if (a.kind === "backdrop") {
+        // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
+        // DESIGN names via o.fn (this interpreter stays FX-agnostic), driven off the scene
+        // clock for the rest of the scene. Deterministic (seeded; no rAF/Date.now), so seeking
+        // any frame repaints identically. Unknown/missing fn → no-op (the if guard).
+        var fx = MC[o.fn];
+        if (fx) fx(el, o).addTo(tl, when, Math.max(0, (ctx.dur || 6) - when));
       }
     }
     return tl;
@@ -422,6 +429,8 @@
       },
       leadIn: 0.1,
       voCount: 0,
+      // Scene duration for animated backdrops on hover-replay (render passes the real dur).
+      dur: 6,
       page: root,
     };
   };

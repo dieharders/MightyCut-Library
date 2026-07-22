@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./timeline.css" with { type: "text" };
 import { Step } from "../../primitives/step";
 import { treatment } from "../../runtime/treatment";
 import { timelineAnim } from "./anim";
@@ -11,7 +10,6 @@ export const Timeline = treatment({
   childComponent: "step",
   schema: TimelineSchema,
   template,
-  css,
   ground: "offwhite",
   example: { headline: "Four Steps" },
   fill: (p) => ({ headline: p.headline }),

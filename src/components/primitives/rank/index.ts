@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./rank.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { rankAnim } from "./anim";
 import { RankSchema } from "./schema";
@@ -10,7 +9,6 @@ export const Rank = component({
   name: "rank",
   schema: RankSchema,
   template,
-  css,
   example: { value: 83, label: "Acme", max: 100, unitSuffix: "%" },
   fill: (p) => ({
     "bar-label": p.label,

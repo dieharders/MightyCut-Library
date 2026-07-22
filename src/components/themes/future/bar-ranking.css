@@ -1,0 +1,45 @@
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css); the leader (first row) glows cyan.
+   Headline opened by a cyan rule. Ported from legacy .bf-bar-ranking (cqw × 1.2). */
+.bar-ranking > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.bar-ranking h3 {
+  font-size: 4.125rem;
+  margin: 0 0 3.625rem;
+}
+.bar-ranking h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--fx-cyan) 0%,
+    rgba(var(--fx-cyan-rgb), 0.45) 12%,
+    rgba(148, 176, 204, 0.14) 42%,
+    rgba(148, 176, 204, 0.05) 100%
+  );
+}
+.bar-ranking .bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2.125rem;
+}
+.bar-ranking .bars > .rank:first-child .bcol {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--fx-cyan-rgb), 0.5) 0%,
+    var(--fx-cyan) 100%
+  );
+  box-shadow: 0 0 1.875rem rgba(var(--fx-cyan-rgb), 0.4);
+}
+.bar-ranking .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--fx-faint);
+  margin-top: 2.125rem;
+  text-align: center;
+}

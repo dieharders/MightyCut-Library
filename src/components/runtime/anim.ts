@@ -51,6 +51,7 @@ export const ANIM_KINDS = [
   "growBar",
   "scaleIn",
   "from",
+  "backdrop",
 ] as const;
 export type AnimKind = (typeof ANIM_KINDS)[number];
 
@@ -103,5 +104,6 @@ export const serializeAnims = (anims: AnimDescriptor[]): string => {
   const json = JSON.stringify(anims).replace(CLOSE_SCRIPT, "<\\/");
   // voCount = the slide's caption count (drives the runtime slot-delay); `voIds` is a var in
   // the sub-composition <script> the preamble already defines, so no wrapper change is needed.
-  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, voCount: voIds.length, page: page });`;
+  // `dur` (scene duration) is also a preamble var — an animated backdrop spans the scene.
+  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, voCount: voIds.length, dur: dur, page: page });`;
 };

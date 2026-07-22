@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./icon.css" with { type: "text" };
 import { iconSvg } from "../../icons";
 import { component } from "../../runtime/component";
 import { remGrid } from "../../runtime/css";
@@ -13,7 +12,6 @@ export const Icon = component({
   name: "icon",
   schema: IconSchema,
   template,
-  css,
   example: { name: "shield", accent: "black", size: 10 },
   rawFill: (p) => ({ svg: iconSvg(p.name) }),
   layout: (p) => ({ "--icol": `var(--${p.accent})`, "--isize": remGrid(p.size * 1.2) }),

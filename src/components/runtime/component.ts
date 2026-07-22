@@ -86,7 +86,10 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
       },
       buildNode(ctx: BuildContext): BuildNode {
         const p = parse(raw); // fail loud on bad params
-        const root = rootElement(def.template);
+        // A theme may override this element's structure (theme.templates[name]) — kept
+        // in lockstep with the CSS skin seam below; the override must preserve the shared
+        // marker vocabulary so fill/anim/layout still resolve. Else the element's template.
+        const root = rootElement(ctx.theme.templates?.[def.name] ?? def.template);
         if (def.fill) fillSlots(root, def.fill(p));
         if (def.rawFill) fillRaw(root, def.rawFill(p));
         pruneRemoved(root);

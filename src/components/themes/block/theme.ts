@@ -15,10 +15,35 @@
 import { DECORATION_COMPONENTS } from "../../primitives/decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
 import frameCss from "./frame.css" with { type: "text" };
-// Per-component skins block OWNS (the components are structure+behavior only; block
-// styles their standard class names here, in themes/block/<name>.css).
+// Per-element skins block OWNS. Every primitive + treatment is structure+behavior only
+// (template/schema/anim); block styles their standard class names here, in
+// themes/block/<name>.css. The runtime prefers theme.skins[name] over an element's own
+// css (which is now empty), so another theme restyles the same names from its own folder.
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
+// Component skins.
+import agendaItemCss from "./agenda-item.css" with { type: "text" };
+import barCss from "./bar.css" with { type: "text" };
+import cardCss from "./card.css" with { type: "text" };
+import ctaCss from "./cta.css" with { type: "text" };
+import iconCss from "./icon.css" with { type: "text" };
+import listNumberCss from "./list-number.css" with { type: "text" };
+import pillCss from "./pill.css" with { type: "text" };
+import rankCss from "./rank.css" with { type: "text" };
+import rowCss from "./row.css" with { type: "text" };
+import statCss from "./stat.css" with { type: "text" };
+import stepCss from "./step.css" with { type: "text" };
+// Treatment skins.
+import agendaCss from "./agenda.css" with { type: "text" };
+import barRankingCss from "./bar-ranking.css" with { type: "text" };
+import chartCss from "./chart.css" with { type: "text" };
+import closingPlateCss from "./closing-plate.css" with { type: "text" };
+import comparisonCss from "./comparison.css" with { type: "text" };
+import coverCss from "./cover.css" with { type: "text" };
+import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import quoteCss from "./quote.css" with { type: "text" };
+import statGridCss from "./stat-grid.css" with { type: "text" };
+import timelineCss from "./timeline.css" with { type: "text" };
 
 // Showcase design data — the block styleguide extracted from
 // video-assets/themes/block/frame-showcase.html (verbatim hex/labels/type-scale/
@@ -125,10 +150,34 @@ export const blockTheme: ThemeTokens = {
   // Block's canonical backdrop mask: the ink dot-grid painted over every ground.
   // A scene can override it (storyboard/deck `backdrop`); see primitives/backdrops.ts.
   backdrop: "dots",
-  // Block's skins for the shared structure+behavior components (hud, caption).
+  // Block's skins for the shared structure+behavior elements — every primitive +
+  // treatment block renders. The element trios carry no css; these are the block look.
   skins: {
     hud: hudCss,
     caption: captionCss,
+    // primitives
+    "agenda-item": agendaItemCss,
+    bar: barCss,
+    card: cardCss,
+    cta: ctaCss,
+    icon: iconCss,
+    "list-number": listNumberCss,
+    pill: pillCss,
+    rank: rankCss,
+    row: rowCss,
+    stat: statCss,
+    step: stepCss,
+    // treatments
+    agenda: agendaCss,
+    "bar-ranking": barRankingCss,
+    chart: chartCss,
+    "closing-plate": closingPlateCss,
+    comparison: comparisonCss,
+    cover: coverCss,
+    "feature-cards": featureCardsCss,
+    quote: quoteCss,
+    "stat-grid": statGridCss,
+    timeline: timelineCss,
   },
   fonts: {
     // Block's content fonts (Inter, Space Grotesk) are a subset of the core chrome

@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./feature-cards.css" with { type: "text" };
 import { Card } from "../../primitives/card";
 import { treatment } from "../../runtime/treatment";
 import { featureCardsAnim } from "./anim";
@@ -11,7 +10,6 @@ export const FeatureCards = treatment({
   childComponent: "card",
   schema: FeatureCardsSchema,
   template,
-  css,
   ground: "blue",
   example: { headline: "Built for the whole workflow" },
   fill: (p) => ({ headline: p.headline }),

@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./cover.css" with { type: "text" };
 import { Slab } from "../../primitives/slab";
 import { Starburst } from "../../primitives/starburst";
 import { treatment } from "../../runtime/treatment";
@@ -13,7 +12,6 @@ export const Cover = treatment({
   name: "cover",
   schema: CoverSchema,
   template,
-  css,
   ground: "cream",
   example: {
     headline: "Block, bordered, crooked.",

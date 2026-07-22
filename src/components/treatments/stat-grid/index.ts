@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./stat-grid.css" with { type: "text" };
 import { Stat } from "../../primitives/stat";
 import { treatment } from "../../runtime/treatment";
 import { statGridAnim } from "./anim";
@@ -11,7 +10,6 @@ export const StatGrid = treatment({
   childComponent: "stat",
   schema: StatGridSchema,
   template,
-  css,
   ground: "green",
   example: { headline: "Numbers that moved" },
   fill: (p) => ({ headline: p.headline }),

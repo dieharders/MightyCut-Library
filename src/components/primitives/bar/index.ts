@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./bar.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { barAnim } from "./anim";
 import { BarSchema } from "./schema";
@@ -10,7 +9,6 @@ export const Bar = component({
   name: "bar",
   schema: BarSchema,
   template,
-  css,
   example: { value: 42, label: "Q1", max: 100 },
   fill: (p) => ({
     "bar-value": `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`,

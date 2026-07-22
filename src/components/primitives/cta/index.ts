@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./cta.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { CtaSchema } from "./schema";
 
@@ -9,7 +8,6 @@ export const Cta = component({
   name: "cta",
   schema: CtaSchema,
   template,
-  css,
   example: { text: "Click Here", arrow: true },
   fill: (p) => ({ text: p.text, arrow: p.arrow ? " →" : null }),
   animIn: "scale",

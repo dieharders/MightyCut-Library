@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./list-number.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { ListNumberSchema } from "./schema";
 
@@ -9,7 +8,6 @@ export const ListNumber = component({
   name: "list-number",
   schema: ListNumberSchema,
   template,
-  css,
   example: { num: "01", text: "Numbered list bullet" },
   fill: (p) => ({ num: p.num, text: p.text }),
   animIn: "rise",

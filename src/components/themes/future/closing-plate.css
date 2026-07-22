@@ -1,0 +1,32 @@
+/* 4 · Closing Plate — a centered outro headline + a glowing cyan CTA pill (no card frame;
+   the ground carries it). Reuses the shared template. Ported from legacy .bf-closing-plate. */
+.closing-plate > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 9.625rem 13.5rem;
+}
+.closing-plate .cardf {
+  position: relative;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.closing-plate h3 {
+  font-size: 7.625rem;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+.closing-plate .cta {
+  margin-top: 3.625rem;
+  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.55);
+  background: rgba(var(--fx-cyan-rgb), 0.1);
+  box-shadow: 0 0 3.625rem rgba(var(--fx-cyan-rgb), 0.28);
+  border-radius: 9999px;
+  padding: 1.5rem 3.625rem;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.25rem;
+  color: var(--fx-cyan);
+}

@@ -1,0 +1,42 @@
+/* Feature-card = translucent glass panel with a cyan left bar (future look). Sizes rem
+   on the 0.125rem grid; ported from legacy .bf-feature-cards .c (cqw × 1.2). */
+.card {
+  border: 0.125rem solid var(--fx-line);
+  border-left: 0.25rem solid var(--fx-cyan);
+  background: var(--fx-glass), var(--fx-panel);
+  backdrop-filter: blur(2px);
+  border-radius: 1.25rem;
+  padding: 2.375rem 2.375rem 2.625rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1.5rem 3.625rem rgba(0, 0, 0, 0.35);
+}
+.card-icon {
+  width: 4.125rem;
+  height: 4.125rem;
+  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.4);
+  background: rgba(var(--fx-cyan-rgb), 0.1);
+  border-radius: 0.875rem;
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: var(--fx-cyan);
+  margin-bottom: 1.75rem;
+}
+.card-title {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1.15;
+  color: var(--fx-ink);
+}
+.card-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.55;
+  color: var(--fx-muted);
+  margin-top: 1rem;
+}

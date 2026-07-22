@@ -1,0 +1,31 @@
+/* 1 · Cover — centered title over the constellation ground. The eyebrow is dropped and a
+   short centered cyan rule sits under the headline (templates/cover.html). No decorations —
+   the backdrop is the flourish. Ported from legacy .bf-cover (cqw × 1.2). */
+.cover > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 12rem 13.5rem;
+}
+.cover h3 {
+  font-size: 8.375rem;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  max-width: 96rem;
+  margin: 0;
+}
+.cover .rule {
+  width: 14.375rem;
+  height: 0.25rem;
+  margin: 2.875rem auto 0;
+  background: var(--fx-rule);
+}
+.cover .sub {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 3rem;
+  line-height: 1.5;
+  color: var(--fx-muted);
+  margin-top: 2.875rem;
+  max-width: 67.25rem;
+}

@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./agenda.css" with { type: "text" };
 import { AgendaItem } from "../../primitives/agenda-item";
 import { treatment } from "../../runtime/treatment";
 import { agendaAnim } from "./anim";
@@ -12,7 +11,6 @@ export const Agenda = treatment({
   childComponent: "agenda-item",
   schema: AgendaSchema,
   template,
-  css,
   ground: "offwhite",
   example: { headline: "What we'll cover" },
   defaultChildren: () => [

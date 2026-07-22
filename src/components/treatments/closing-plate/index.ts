@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./closing-plate.css" with { type: "text" };
 import { Slab } from "../../primitives/slab";
 import { Starburst } from "../../primitives/starburst";
 import { treatment } from "../../runtime/treatment";
@@ -12,7 +11,6 @@ export const ClosingPlate = treatment({
   name: "closing-plate",
   schema: ClosingPlateSchema,
   template,
-  css,
   ground: "pink",
   example: { headline: "Stay loud.", cta: "Start building" },
   defaultChildren: () => [],

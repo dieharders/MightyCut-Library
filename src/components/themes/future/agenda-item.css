@@ -1,0 +1,34 @@
+/* Agenda index row: a cyan numeral, a near-white title, a mono detail, over a hairline
+   top rule (the treatment closes the list with a bottom rule). Ported from legacy
+   .bf-agenda .arow (cqw × 1.2). */
+.agenda-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2.375rem;
+  padding: 1.75rem 0;
+  border-top: 0.125rem solid var(--fx-steel);
+}
+.agenda-item .num {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 3.125rem;
+  color: var(--fx-cyan);
+  min-width: 6rem;
+}
+.agenda-item .t {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.625rem;
+  letter-spacing: -0.01em;
+  color: var(--fx-ink);
+}
+.agenda-item .d {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.25rem;
+  color: var(--fx-muted);
+  margin-left: auto;
+  align-self: center;
+}

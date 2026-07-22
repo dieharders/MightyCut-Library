@@ -23,6 +23,7 @@ import {
 import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
 import { blockTheme } from "./themes/block/theme";
+import { futureTheme } from "./themes/future/theme";
 
 const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
 
@@ -296,6 +297,79 @@ describe("backdrop registry (tripwire)", () => {
       expect(r.node.attrs.class).toContain(`mc-backdrop--${name}`);
       expect(r.css).toContain(".mc-backdrop");
       expect(Array.isArray(r.anims)).toBe(true);
+    }
+  });
+
+  test("constellation is animated (a backdrop anim); dots is static", () => {
+    const con = BACKDROPS.constellation.build(input);
+    expect(con.anims.length).toBe(1);
+    expect(con.anims[0].kind).toBe("backdrop");
+    expect(con.anims[0].opts?.fn).toBe("particleBg");
+    expect(BACKDROPS.dots.build(input).anims.length).toBe(0);
+  });
+});
+
+// FUTURE theme (tripwire) — the second live component theme. Proves the per-theme skin +
+// template-override seams and the animated constellation backdrop, mirroring the block
+// smoke coverage above but with futureTheme. The shared element trios are reused verbatim;
+// only tokens/skins/templates/backdrop change.
+describe("future theme (tripwire)", () => {
+  const fctx = (compId: string): BuildContext =>
+    rootContext(compId, futureTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
+
+  for (const factory of allTreatments()) {
+    test(`${factory.treatmentName}: future scene is well-formed + deterministic`, () => {
+      const compId = `f01-${factory.treatmentName}`;
+      const html = renderScene(factory(), fctx(compId));
+      expect(html).toContain(`data-composition-id="${compId}"`);
+      expect(html).toContain(`.${compId}-root .block-frame`);
+      // future forces its navy ground (frameCss) + carries the constellation backdrop
+      expect(html).toContain("var(--fx-navy)");
+      expect(html).toContain("mc-backdrop--constellation");
+      expect(html).not.toContain("data-slot");
+      expect(html).not.toContain("data-anim");
+      expect(html).not.toContain("data-children");
+      expect(() => scrubDeterminism(html)).not.toThrow();
+      // byte-identical across builds (the seeded backdrop is deterministic per compId)
+      expect(renderScene(factory(), fctx(compId))).toBe(html);
+    });
+  }
+
+  test("template override: cover drops the eyebrow chip + adds a cyan rule", () => {
+    const html = renderScene(getTreatment("cover")(), fctx("f01-cover"));
+    const ex = getTreatment("cover").defaults() as { headline: string; subtitle?: string };
+    expect(html).toContain('class="rule"'); // the real rule element from templates/cover.html
+    expect(html).not.toContain('class="eyebrow"'); // eyebrow chip dropped (block renders it)
+    expect(html).toContain(ex.headline); // shared markers preserved → headline still renders
+    if (ex.subtitle) expect(html).toContain(ex.subtitle);
+  });
+
+  test("template override: quote adds a quote mark; stat drops its dot", () => {
+    expect(renderScene(getTreatment("quote")(), fctx("f01-quote"))).toContain("qmark");
+    const statGrid = renderScene(getTreatment("stat-grid")(), fctx("f01-stat-grid"));
+    expect(statGrid).not.toContain("stat-dot"); // dropped in templates/stat.html
+    expect(statGrid).toContain("stat-number"); // shared markers preserved
+  });
+
+  test("treatment skin: stat-grid renders future's skin, not block's", () => {
+    const html = renderScene(getTreatment("stat-grid")(), fctx("f01-sg"));
+    expect(html).toContain("var(--fx-cyan)"); // future stat skin (cyan numerals)
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--black)"); // block's stat box-shadow gone
+  });
+
+  test("constellation backdrop emits a valid, compId-scoped animated descriptor", () => {
+    const built = getTreatment("cover")().build(fctx("f01-cover-a"));
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "future scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("particleBg");
+    expect(bd?.target).toBe("f01-cover-a-bg"); // canvas class is compId-scoped
+  });
+
+  test("core fonts cover future's content families (no add-on woff2 needed)", async () => {
+    const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
+    for (const fam of ["Space Grotesk", "Inter", "JetBrains Mono"]) {
+      expect(CORE_FONTS_CSS).toContain(fam);
     }
   });
 });

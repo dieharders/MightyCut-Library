@@ -64,9 +64,45 @@ const dots: BackdropDesign = {
   }),
 };
 
+/** constellation — an ANIMATED seeded particle network (a cyan node graph) painted on a
+ *  full-bleed canvas over the ground; future's canonical backdrop. The motion is driven off
+ *  the scene timeline by the `backdrop` anim-kind (MC.particleBg in mc.js) — deterministic
+ *  (seed = compId, no rAF/Date.now), so seeking any frame repaints identically. The canvas
+ *  carries a compId-scoped class because backdrop anims are NOT run through qualifyAnim and
+ *  the render's `q` is document-wide (sub-composition.ts) — the scoped class keeps each
+ *  scene's `q(".<compId>-bg")` resolving to its OWN canvas in the shared render DOM. */
+const constellation: BackdropDesign = {
+  name: "constellation",
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop).
+    const canvasClass = `${ctx.idPrefix}-bg`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+      ),
+      css: `${BACKDROP_BASE}
+.mc-backdrop--constellation canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}`,
+      anims: [
+        {
+          kind: "backdrop",
+          target: canvasClass,
+          time: { at: "seconds", t: 0 },
+          // colorRgb is future's cyan; seed = compId → deterministic per scene.
+          opts: { fn: "particleBg", seed: ctx.compId, colorRgb: "52,225,255", opacity: 0.8 },
+        },
+      ],
+    };
+  },
+};
+
 /** The mask designs, keyed by name. `plain` is intentionally absent — it means "no
  *  mask" and `buildBackdrop` returns null for it (byte-identical to a bare ground). */
-export const BACKDROPS: Record<string, BackdropDesign> = { dots };
+export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation };
 
 /**
  * Resolve a backdrop design to its built parts, or null when there is no mask to

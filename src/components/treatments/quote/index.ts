@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./quote.css" with { type: "text" };
 import { treatment } from "../../runtime/treatment";
 import { quoteAnim } from "./anim";
 import { QuoteSchema } from "./schema";
@@ -10,7 +9,6 @@ export const Quote = treatment({
   name: "quote",
   schema: QuoteSchema,
   template,
-  css,
   ground: "pink",
   example: {
     text: "Design is not just what it looks like. Design is how it works.",

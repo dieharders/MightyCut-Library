@@ -73,10 +73,10 @@ export type FrameGround = (typeof FRAME_GROUNDS)[number];
  * backdrop is the pattern/texture over it. Theme-agnostic + shareable — a theme
  * recolours the mask with its own tokens/skin. `plain` = no mask (byte-identical
  * to a bare ground). A theme declares its canonical design (ThemeTokens.backdrop);
- * a scene may override it here. Static today (block's dots); the design interface
- * already carries anims so an animated mask (e.g. a constellation) drops in later.
+ * a scene may override it here. `dots` is static (block); `constellation` is animated
+ * (future's cyan particle network, driven off the scene timeline via the backdrop anim-kind).
  */
-export const BACKDROP_NAMES = ["plain", "dots"] as const;
+export const BACKDROP_NAMES = ["plain", "dots", "constellation"] as const;
 export type BackdropName = (typeof BACKDROP_NAMES)[number];
 
 // Decorations (star / tilt-rect / stripe / dot-grid) are authored per-treatment in

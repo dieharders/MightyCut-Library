@@ -1,0 +1,11 @@
+/* Future icon: an inline-SVG glyph tinted by the accent (--icol), defaulting to cyan. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--icol, var(--fx-cyan));
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

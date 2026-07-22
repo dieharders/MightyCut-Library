@@ -1,0 +1,10 @@
+/* Future eyebrow/pill: plain mono cyan label, wide-tracked (no chip — future's law). */
+.pill-c {
+  display: inline-block;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 1.5rem;
+  color: var(--fx-cyan);
+}

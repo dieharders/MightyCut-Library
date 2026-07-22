@@ -51,12 +51,21 @@ export type ThemeTokens = {
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
-  /** Per-component skins, keyed by component name (e.g. `{ hud, caption }`). The
-   *  component owns the STRUCTURE (template) + BEHAVIOR (anim/schema) — the same
-   *  across every theme — while each theme styles those standard class names its
-   *  own way here. `buildNode` prefers a theme skin over the component's own `css`,
-   *  so future themes just add their skin file. Today only `block` supplies these. */
+  /** Per-element skins, keyed by component OR treatment name (e.g. `{ hud, caption,
+   *  stat, "stat-grid", … }`). The element owns the STRUCTURE (template) + BEHAVIOR
+   *  (anim/schema) — the same across every theme — while each theme styles those
+   *  standard class names its own way here. Both `component.buildNode` and
+   *  `treatment.buildNode` prefer a theme skin over the element's own `css`, so a
+   *  theme just adds its skin file. Elements carry no `css` of their own now; each
+   *  theme supplies every skin it renders (an unskinned element renders unstyled). */
   skins?: Record<string, string>;
+  /** Per-element HTML template overrides, keyed by component OR treatment name.
+   *  A theme may restyle structure it can't reach with CSS (drop the stat dot, drop
+   *  the cover eyebrow, add a quote mark). INVARIANT: an override MUST keep the shared
+   *  marker vocabulary (data-slot / data-anim / data-children / data-repeat ids) so the
+   *  element's shared schema/anim/fill/layout keep working — it may only re-wrap/rename/
+   *  add decorative nodes or DROP an optional slot (whose anim then no-ops). */
+  templates?: Record<string, string>;
   /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
    *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
    *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
@@ -72,6 +81,12 @@ export type ThemeTokens = {
   /** The decoration component families this theme offers (starburst, slab, …) —
    *  drives the showcase Decorations section + the treatment decoration editor. */
   decorations?: string[];
+  /** When true, a treatment's `defaultDecorations` are suppressed (no auto-injected
+   *  cover star / closing slab). A theme whose look owns the backdrop instead of
+   *  per-frame decorations (e.g. future's constellation) sets this so block's default
+   *  shapes don't render off-theme or shift the reveal cascade. A caller's explicit
+   *  `addDecorations()` is unaffected. */
+  suppressDefaultDecorations?: boolean;
 };
 
 export type BuildContext = {

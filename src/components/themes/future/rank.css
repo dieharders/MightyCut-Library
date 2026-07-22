@@ -1,0 +1,45 @@
+/* Bar-ranking row: a mono label, a glass track, a cyan fill (--fill%), a cyan value. The
+   leader glow is positional (bar-ranking.css). Ported from legacy .bf-bar-ranking .bar. */
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  width: 100%;
+}
+.rank .bl {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  color: var(--fx-muted);
+  width: 19.25rem;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 3.125rem;
+  background: var(--fx-panel);
+  border: 0.125rem solid var(--fx-steel);
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: linear-gradient(
+    90deg,
+    rgba(var(--fx-cyan-rgb), 0.35) 0%,
+    rgba(var(--fx-cyan-rgb), 0.75) 100%
+  );
+  transform-origin: left center;
+}
+.rank .bv {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.125rem;
+  color: var(--fx-cyan);
+  width: 6rem;
+  text-align: right;
+  flex-shrink: 0;
+}
