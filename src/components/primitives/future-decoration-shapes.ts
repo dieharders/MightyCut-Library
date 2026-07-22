@@ -217,9 +217,12 @@ export const futureDecorationComponent = (
         .enum(["back", "front"])
         .default("back")
         .describe("Behind content (back) or over top (front)"),
+      // Default comes from the family's own `example` so each family carries a
+      // DISTINCT signature tint (node cyan · reticle amber · glyph violet · signal
+      // green) — an unparameterised deck/showcase render never repeats a colour.
       accent: z
         .enum(FX_ACCENTS)
-        .default("cyan")
+        .default(example.accent)
         .describe("Glow / stroke colour token (future's --fx-* accents)"),
     }),
     template: FX_DECO_TEMPLATE,

@@ -1,8 +1,8 @@
 import { futureDecorationComponent } from "../future-decoration-shapes";
 
 /** Future decoration family — hollow geometric emblems (hexagon, diamond, double
- *  chevron, triangle). Positioned page-space flourish; add via a treatment's
- *  addDecorations(). Future-only (references --fx-* tokens). */
+ *  chevron, triangle). Defaults to violet. Positioned page-space flourish; add via a
+ *  treatment's addDecorations(). Future-only (references --fx-* tokens). */
 export const Glyph = futureDecorationComponent(
   "glyph",
   ["hexagon", "diamond", "chevron", "triangle"],
