@@ -4,6 +4,12 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  border: 0.125rem solid var(--fx-line);
+  background: var(--fx-glass), var(--fx-panel);
+  backdrop-filter: blur(2px);
+  border-radius: 1.25rem;
+  padding: 2.25rem;
+  box-shadow: 0 1.5rem 3.625rem rgba(0, 0, 0, 0.35);
 }
 .stat-number {
   font-family: var(--disp);
