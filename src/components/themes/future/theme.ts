@@ -50,9 +50,19 @@ import quoteTemplate from "./templates/quote.html" with { type: "text" };
 const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Navy", hex: "#070D18", note: "backdrop ground", varName: "fx-navy" },
   { name: "Abyss", hex: "#04080F", note: "vignette edge", varName: "fx-abyss" },
-  { name: "Panel", hex: "#0E1F33", note: "glass fill", varName: "fx-panel-solid" },
+  {
+    name: "Panel",
+    hex: "#0E1F33",
+    note: "glass fill",
+    varName: "fx-panel-solid",
+  },
   { name: "Cyan", hex: "#34E1FF", note: "primary accent", varName: "fx-cyan" },
-  { name: "Violet", hex: "#8C9EFF", note: "rule gradient", varName: "fx-violet" },
+  {
+    name: "Violet",
+    hex: "#8C9EFF",
+    note: "rule gradient",
+    varName: "fx-violet",
+  },
   { name: "Amber", hex: "#FFB454", note: "quiet accent", varName: "fx-amber" },
   { name: "Green", hex: "#56E39F", note: "positive", varName: "fx-green" },
   { name: "Ink", hex: "#EAF3FB", note: "text", varName: "fx-ink" },
@@ -103,31 +113,37 @@ const typography: ThemeTokens["typography"] = [
     token: "display",
     spec: "Space Grotesk 700 · sentence case · −0.03em · hero titles",
     sample: "Command Center.",
-    style: "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--fx-ink);",
+    style:
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--fx-ink);",
   },
   {
     token: "h2",
     spec: "Space Grotesk 700 · slide headlines",
     sample: "Built for the Edge",
-    style: "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--fx-ink);",
+    style:
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--fx-ink);",
   },
   {
     token: "stat-number",
     spec: "Space Grotesk 700 · cyan · big numeric callouts",
     sample: "99.7%",
-    style: "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--fx-cyan);",
+    style:
+      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--fx-cyan);",
   },
   {
     token: "body",
     spec: "Inter 400 · line 1.55 · muted — paragraphs & supporting copy",
-    sample: "Inter carries every paragraph in cool muted blue — readable, recessive, never competing with the cyan statement above it.",
-    style: "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--fx-muted);",
+    sample:
+      "Inter carries every paragraph in cool muted blue — readable, recessive, never competing with the cyan statement above it.",
+    style:
+      "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--fx-muted);",
   },
   {
     token: "label",
     spec: "JetBrains Mono 500 · uppercase · wide track · cyan — eyebrows, counters, HUD",
     sample: "Section · Eyebrow",
-    style: "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--fx-cyan);",
+    style:
+      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--fx-cyan);",
   },
   // NOTE: the quote glyph is deliberately NOT a type role — it belongs solely to the quote
   // treatment (templates/quote.html's .qmark + quote.css). Keep this list to the general roles
@@ -156,7 +172,7 @@ export const futureTheme: ThemeTokens = {
   name: "future",
   title: "FutureFrame",
   description:
-    "A dark sci-fi command-center theme: a navy ground carrying a cyan constellation backdrop, near-white Space Grotesk headlines opened by a cyan rule, translucent glass panels with thin cyan hairlines, a glowing diamond brand mark, and a corner-bracket HUD. Cyan leads; violet, amber, and green stay quiet. Frame unit: 1920×1080, 16:9.",
+    "A dark sci-fi command-center theme. Constellation backdrop, near-white headlines, translucent glass panels. Cyan leads; violet, amber, and green stays quiet. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Future's canonical backdrop: the animated cyan constellation (a per-scene seeded

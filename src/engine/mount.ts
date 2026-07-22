@@ -68,7 +68,7 @@ export type MountPreviewOptions = {
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
 // color-scheme / font so the vanilla render never inherits the host app's theme.
-const previewCss = (frame: boolean): string => `
+const previewCss = (frame: boolean, surface: string): string => `
 :host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
 /* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
    boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
@@ -76,7 +76,10 @@ const previewCss = (frame: boolean): string => `
    containers (.mc-page) and NOT components — so a content-box component still matches the
    MP4 while the padded scaffold sizes predictably. */
 .mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
-.mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
+/* The stage surface is theme-driven (theme.previewBg): a dark theme paints a dark ground so
+   its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
+   is the surface the user actually sees (it fills the preview box, above the host card). */
+.mc-stage { width: 100%; overflow: hidden; background: ${surface}; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 /* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
    viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
@@ -156,8 +159,9 @@ export const mountPreview = (
     container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
   const style = document.createElement("style");
-  // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS.
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame)}\n${css}`;
+  // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
+  // (the stage surface uses the theme's previewBg, else a light default).
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa")}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
