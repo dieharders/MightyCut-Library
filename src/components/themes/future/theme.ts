@@ -162,6 +162,9 @@ export const futureTheme: ThemeTokens = {
   // Future's canonical backdrop: the animated cyan constellation (a per-scene seeded
   // particle network) painted over the navy ground. See primitives/backdrops.ts.
   backdrop: "constellation",
+  // Showcase/editor preview surface — the navy ground future's components are designed
+  // against, so glass panels + light-on-dark text read (a light card would wash them out).
+  previewBg: "#070d18",
   // Future owns its look via the backdrop, not per-frame decorations — suppress block's
   // default cover star / closing slab so they don't render off-theme or shift the cascade.
   suppressDefaultDecorations: true,

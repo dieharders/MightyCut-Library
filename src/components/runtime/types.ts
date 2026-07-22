@@ -70,6 +70,12 @@ export type ThemeTokens = {
    *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
    *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
   backdrop?: string;
+  /** Surface colour the showcase/editor paints BEHIND a natural-size element preview
+   *  (a component shown outside a full frame). A dark theme sets a dark surface so its
+   *  glass / light-on-dark elements read (block's neobrutalist tiles want a light one).
+   *  Unset ⇒ a neutral light default. A CONCRETE CSS colour — it's applied in the host
+   *  light DOM (not the preview Shadow DOM), so a `var(--token)` would not resolve. */
+  previewBg?: string;
   /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
   fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
