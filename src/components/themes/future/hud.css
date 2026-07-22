@@ -83,13 +83,13 @@
   right: 9.625rem;
   height: 0.25rem;
   background: rgba(148, 176, 204, 0.18);
-  overflow: hidden;
+  /* No overflow:hidden — it would clip the fill's cyan glow (below). */
 }
 .hud .hud-fill {
   position: absolute;
   inset: 0;
   background: var(--fx-cyan);
-  box-shadow: 0 0 1.125rem var(--fx-cyan);
+  box-shadow: 0 0 1.125rem rgba(var(--fx-cyan-rgb), 0.7);
   transform-origin: left center;
   transform: scaleX(var(--pfill, 0));
 }
