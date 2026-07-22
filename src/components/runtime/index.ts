@@ -42,18 +42,20 @@ export type {
   TypeSpec,
 } from "./types";
 
+import type { FrameGround } from "../../types/storyboard";
 import type { BuildContext, BuildMode, ThemeTokens } from "./types";
 
 /** Convenience: a root build context (a top-level instance, idPrefix == compId). */
 export const rootContext = (
   compId: string,
   theme: ThemeTokens,
-  opts?: { mode?: BuildMode; voIds?: string[]; backdrop?: string },
+  opts?: { mode?: BuildMode; voIds?: string[]; backdrop?: string; ground?: FrameGround },
 ): BuildContext => ({
   compId,
   idPrefix: compId,
   theme,
   mode: opts?.mode ?? "render",
   backdrop: opts?.backdrop,
+  ground: opts?.ground,
   voIds: opts?.voIds,
 });

@@ -19,6 +19,7 @@ import type {
   ThemeTokens,
   TreatmentInstance,
 } from "../components/runtime/types";
+import type { FrameGround } from "../types/storyboard";
 import { TIMING_SECONDS } from "../types/transitions";
 import { bootstrapFx } from "./fx";
 
@@ -134,7 +135,13 @@ export const mountPreview = (
   bootstrapFx();
   const compId = opts.compId ?? "mc-preview";
   const frame = opts.frame ?? instance.kind === "treatment";
-  const ctx = rootContext(compId, theme, { mode: "showcase", backdrop: opts.backdrop });
+  // opts.ground is a loosely-typed FrameGround from the WebUI deck; it rides the ctx so
+  // the backdrop mask resolves against it, and still drives the visible-bg swap below.
+  const ctx = rootContext(compId, theme, {
+    mode: "showcase",
+    backdrop: opts.backdrop,
+    ground: opts.ground as FrameGround | undefined,
+  });
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;

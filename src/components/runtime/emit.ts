@@ -21,9 +21,17 @@ export const buildScene = (
   ctx: BuildContext,
   overrides?: SceneOverrides,
 ): SubComposition => {
-  // A backdrop override rides the ctx (treatment.buildNode resolves it); the ground
-  // override is a post-build pageStyle swap, since ground is stamped as inline style.
-  const sceneCtx = overrides?.backdrop ? { ...ctx, backdrop: overrides.backdrop } : ctx;
+  // The backdrop + ground overrides ride the ctx so treatment.buildNode resolves them
+  // (the mask's input needs the RESOLVED ground). The ground ALSO gets a post-build
+  // pageStyle swap below, since the visible background is stamped as inline style.
+  const sceneCtx: BuildContext =
+    overrides?.backdrop || overrides?.ground
+      ? {
+          ...ctx,
+          ...(overrides.backdrop ? { backdrop: overrides.backdrop } : {}),
+          ...(overrides.ground ? { ground: overrides.ground } : {}),
+        }
+      : ctx;
   const parts = treatment.buildScene(sceneCtx);
   if (overrides?.ground) {
     // buildScene stamps `background: var(--<canonicalGround>)` last; replace it.

@@ -84,6 +84,11 @@ export type BuildContext = {
   /** Per-scene backdrop MASK override (a BACKDROP_NAMES value). Falls back to
    *  `theme.backdrop`, then `"plain"`. See primitives/backdrops.ts. */
   backdrop?: string;
+  /** Per-scene ground override (a FrameGround). Falls back to the treatment's
+   *  canonical `def.ground`. Rides the ctx purely so the backdrop mask's input
+   *  carries the RESOLVED ground (a ground-tinted design recolours correctly); the
+   *  visible page background is swapped separately (emit.ts/mount.ts pageStyle). */
+  ground?: FrameGround;
   /** Render: this slide's VO line ids in narration order (for lineId parity). */
   voIds?: string[];
 };

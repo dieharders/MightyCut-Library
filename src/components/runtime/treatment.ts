@@ -177,8 +177,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // a full-bleed overlay unshifted to the FRONT of the page root so it paints first;
         // its own z-index 0 layers it above the ground colour and below back-decorations.
         // Its anims (empty for static masks) are absolute-timed — NOT run through toSlot.
+        // Resolve the effective ground (scene override → treatment canonical) so a
+        // ground-tinted mask recolours against what the scene actually paints.
         const backdropName = ctx.backdrop ?? ctx.theme.backdrop ?? "plain";
-        const backdrop = buildBackdrop(backdropName, { ground: def.ground, theme: ctx.theme, ctx });
+        const backdrop = buildBackdrop(backdropName, { ground: ctx.ground ?? def.ground, theme: ctx.theme, ctx });
         const backdropAnims: AnimDescriptor[] = [];
         if (backdrop) {
           root.children.unshift(backdrop.node);
