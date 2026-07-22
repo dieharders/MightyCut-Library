@@ -1,8 +1,10 @@
-/* Future icon: an inline-SVG glyph tinted by the accent (--icol), defaulting to cyan. */
+/* Future icon: an inline-SVG glyph in cyan. NOTE: --icol (the accent) defaults to
+   var(--black) — near-black navy in future — which vanishes on the dark ground, so future
+   pins the icon to cyan rather than following the accent. */
 .icon {
   display: inline-grid;
   place-items: center;
-  color: var(--icol, var(--fx-cyan));
+  color: var(--fx-cyan);
 }
 .icon svg {
   display: block;
