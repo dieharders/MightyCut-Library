@@ -129,12 +129,9 @@ const typography: ThemeTokens["typography"] = [
     sample: "Section · Eyebrow",
     style: "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--fx-cyan);",
   },
-  {
-    token: "quote-mark",
-    spec: "Space Grotesk 700 · cyan · 60% opacity",
-    sample: "“",
-    style: "font-family: var(--disp); font-weight: 700; font-size: 64px; line-height: 0.5; color: var(--fx-cyan); opacity: 0.6;",
-  },
+  // NOTE: the quote glyph is deliberately NOT a type role — it belongs solely to the quote
+  // treatment (templates/quote.html's .qmark + quote.css). Keep this list to the general roles
+  // (mirrors block's typography) so the showcase Typography section stays treatment-agnostic.
 ];
 
 // Frame Rules — Do / Don't bullets (frame-showcase.html PRINCIPLES section).
