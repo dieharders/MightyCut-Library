@@ -1,6 +1,13 @@
-/* Future eyebrow/pill: plain mono cyan label, wide-tracked (no chip — future's law). */
+/* Future eyebrow/pill: a glass chip — translucent navy plating with a cyan hairline, fully
+   rounded (curved) border, a soft cyan glow, and a wide-tracked cyan mono label. */
 .pill-c {
   display: inline-block;
+  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.4);
+  background: var(--fx-glass), var(--fx-panel);
+  backdrop-filter: blur(2px);
+  border-radius: 9999px;
+  box-shadow: 0 0 1.25rem rgba(var(--fx-cyan-rgb), 0.18);
+  padding: 0.75rem 1.75rem;
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;

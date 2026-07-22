@@ -40,6 +40,7 @@
   );
   border-top: 0.25rem solid var(--fx-cyan);
   border-radius: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 0 1.875rem rgba(var(--fx-cyan-rgb), 0.3);
   transform-origin: bottom;
 }
 .bar .bl {

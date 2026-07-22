@@ -22,7 +22,8 @@
   background: var(--fx-panel);
   border: 0.125rem solid var(--fx-steel);
   border-radius: 0.625rem;
-  overflow: hidden;
+  /* No overflow:hidden — the fill rounds itself (below), so its cyan glow can bleed out
+     of the track instead of being clipped away. */
 }
 .rank .bcol {
   height: 100%;
@@ -32,6 +33,8 @@
     rgba(var(--fx-cyan-rgb), 0.35) 0%,
     rgba(var(--fx-cyan-rgb), 0.75) 100%
   );
+  border-radius: 0.5rem;
+  box-shadow: 0 0 1.5rem rgba(var(--fx-cyan-rgb), 0.3);
   transform-origin: left center;
 }
 .rank .bv {
