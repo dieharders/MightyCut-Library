@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./hud.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { hudAnim } from "./anim";
 import { HudSchema } from "./schema";
@@ -9,12 +8,15 @@ import { HudSchema } from "./schema";
  *  `frame` composite: the showcase renders it in a 1920×1080 frame slot. In the
  *  real render the harness still owns the root #hud chrome (legacy frameHud); this
  *  is the library/showcase piece. Gating uses the data-slot seam: omit a part's key
- *  to keep it, set it null to remove its whole subtree (pruneRemoved). */
+ *  to keep it, set it null to remove its whole subtree (pruneRemoved).
+ *
+ *  Structure (this template) + behavior (schema/anim) are shared across every theme;
+ *  the SKIN is theme-owned (`theme.skins.hud` — e.g. themes/block-hud.css), styling
+ *  the standard `.hud`/`.hud-*` class names below. So a new theme just adds its skin. */
 export const Hud = component({
   name: "hud",
   schema: HudSchema,
   template,
-  css,
   frame: true,
   example: {
     brand: true,

@@ -337,9 +337,19 @@
    */
   MC.applyAnims = function (tl, anims, ctx) {
     if (!anims || !anims.length) return tl;
+    // Ordered-cascade slot delay: the treatment schedules elements into slots (decorations,
+    // title, children …); the gap between slots tightens as the slide narrates more, so every
+    // element is up well before the VO finishes reading and nothing flashes at the end. A no-VO
+    // scene (voCount 0, incl. the showcase) uses the full per-treatment default `d`.
+    var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.5;
+    for (var si = 0; si < anims.length; si++) {
+      if (anims[si].time && anims[si].time.at === "slot" && anims[si].time.d != null) { slotDefault = anims[si].time.d; break; }
+    }
+    var slotDelay = Math.max(MIN_SLOT_DELAY, slotDefault - PER_CAPTION * (ctx.voCount || 0));
     var timeOf = function (t) {
       if (!t) return ctx.leadIn;
       var plus = t.plus || 0;
+      if (t.at === "slot") return ctx.leadIn + (t.n || 0) * slotDelay + plus;
       if (t.at === "line") {
         var n = t.n || 0;
         return ctx.at(ctx.lineId(n), ctx.leadIn + 0.1 + n * 0.16 + plus);
@@ -411,6 +421,7 @@
         return "";
       },
       leadIn: 0.1,
+      voCount: 0,
       page: root,
     };
   };

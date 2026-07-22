@@ -1,0 +1,561 @@
+/* MightyCut base stylesheet — structural classes shared by every theme.
+ *
+ * Color/style come exclusively from CSS custom properties defined in the
+ * project's generated theme.css (see harness src/pipeline/theme-css.ts).
+ * This file defines layout, type scale, and component skeletons only.
+ *
+ * Safe area (chrome zones, must match the root HUD/caption markup):
+ *   top 140px (themed HUD brand band) bottom 200px (captions + progress)
+ *   left/right 80px  →  usable canvas 1760 × 740 inside .mc-page.
+ * (top matches the frame treatments' ~13cqh content inset so generic-path slides
+ *  clear the HUD brand just like treatment slides do.)
+ */
+
+:root {
+  /* Type scale (px at 1080p) — constant across themes. */
+  --fs-hero: 104px;
+  --fs-title: 72px;
+  --fs-h1: 56px;
+  --fs-h2: 40px;
+  --fs-h3: 30px;
+  --fs-body: 26px;
+  --fs-small: 20px;
+  --fs-label: 16px;
+
+  --safe-top: 140px;
+  --safe-right: 80px;
+  --safe-bottom: 200px;
+  --safe-left: 80px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------- page --- */
+
+/* Slide content container: pads by the safe area, fills the scene. */
+.mc-page {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  display: flex;
+  flex-direction: column;
+  /* Center the header+content group in the safe canvas (like the frame treatments'
+     `justify-content: center`) so the title hugs its content instead of pinning to
+     the top edge / HUD. Paired with .mc-content no longer flex-growing below. */
+  justify-content: center;
+  font-family: var(--font-body);
+  color: var(--text);
+}
+
+.mc-page--center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Content region below a header. Sizes to its content (not flex-grow) so the
+   header+content group can be centered together by .mc-page — otherwise it would
+   fill the page and strand the header at the top. */
+.mc-content {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------------------------------------- typography --- */
+
+.mc-kicker {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.mc-heading {
+  margin: 0;
+  text-transform: var(--heading-transform, none);
+  color: var(--text);
+}
+.mc-heading--hero {
+  font-family: var(--heading-font, var(--font-heading));
+  font-size: var(--fs-hero);
+  font-weight: var(--heading-weight, 700);
+  letter-spacing: -2px;
+  line-height: 1.04;
+}
+.mc-heading--title {
+  font-family: var(--heading-font, var(--font-heading));
+  font-size: var(--fs-title);
+  font-weight: var(--heading-weight, 700);
+  letter-spacing: -1.5px;
+  line-height: 1.06;
+}
+.mc-heading--h1 {
+  font-family: var(--heading-font, var(--font-heading));
+  font-size: var(--fs-h1);
+  font-weight: var(--heading-weight, 700);
+  letter-spacing: -1px;
+  line-height: 1.08;
+}
+.mc-heading--h2 {
+  font-family: var(--heading-font, var(--font-heading));
+  font-size: var(--fs-h2);
+  font-weight: var(--heading-weight, 600);
+  letter-spacing: -0.5px;
+  line-height: 1.12;
+}
+.mc-heading--h3 {
+  font-family: var(--heading-font, var(--font-body));
+  font-size: var(--fs-h3);
+  font-weight: var(--heading-weight, 600);
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.mc-muted {
+  color: var(--text-muted);
+}
+.mc-mono {
+  font-family: var(--font-mono);
+}
+
+/* Slide header block (kicker + title), used by most slide kinds. */
+.mc-header {
+  margin-bottom: 44px;
+}
+.mc-header .mc-kicker {
+  margin-bottom: 14px;
+}
+
+/* Accent rule under titles (TitleSlide / headers). */
+.mc-rule {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--grad-accent-bar);
+}
+
+/* ------------------------------------------------------------ surfaces --- */
+
+.mc-card {
+  position: relative;
+  border: var(--card-border, none);
+  border-radius: var(--card-radius, 22px);
+  box-shadow: var(--card-shadow, none);
+  background: var(--card-bg, var(--grad-panel));
+  overflow: hidden;
+}
+
+/* Left accent bar on non-centered cards; height token 0 hides it. */
+.mc-card--accent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--accent-bar-h, 3px);
+  background: var(--grad-accent-bar);
+}
+
+/* Inset accent bar — padded top/bottom (the old technical card). */
+.mc-card--accent-inset::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+/* Glass surface — gradient panel + subtle blur (technical). */
+.mc-card--glass {
+  background: var(--grad-panel);
+  backdrop-filter: blur(2px);
+}
+
+/* Hard surface — flat fill with an offset shadow; brutalist (stylized). The
+   border/shadow/radius come from the theme tokens; render the shadow uncropped. */
+.mc-card--hard {
+  overflow: visible;
+  box-shadow: var(--card-shadow, 8px 8px 0 var(--text));
+}
+
+/* Themed icon badge above a card title. One size; the variant sets the skin. */
+.mc-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+}
+.mc-icon-box--tint {
+  border: 1px solid rgba(var(--accent-rgb), 0.27);
+  background: rgba(var(--accent-rgb), 0.06);
+  border-radius: var(--icon-box-radius, var(--radius-md));
+}
+.mc-icon-box--gradient {
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  background: rgba(var(--accent-rgb), 0.1);
+  border-radius: var(--icon-box-radius, var(--radius-md));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+.mc-icon-box--solid {
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--text);
+  background: var(--accent);
+  border-radius: var(--icon-box-radius, 0);
+}
+
+/* Composed-slide stage: fixed-size absolute positioning context for slots. */
+.mc-stage {
+  position: relative;
+  width: 100%;
+}
+/* A statically-dimensioned slot region (left/top/width/height set inline, px). */
+.mc-slot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.mc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: rgba(var(--accent-rgb), 0.08);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+/* Bullet row (BulletSlide). */
+.mc-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 26px 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.02);
+}
+.mc-bullet .mc-bullet-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--accent);
+}
+.mc-bullet .mc-bullet-text {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.mc-bullet .mc-bullet-detail {
+  font-size: 22px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------------------- backdrops --- */
+
+.mc-bg {
+  position: absolute;
+  inset: 0;
+}
+.mc-bg--gradient {
+  background: var(--grad-page);
+}
+.mc-bg--solid {
+  background: var(--bg);
+}
+.mc-bg--grid {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.mc-bg--pattern {
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--grid) 0,
+    var(--grid) 2px,
+    transparent 2px,
+    transparent 18px
+  );
+}
+/* particles = gradient base + a <canvas class="mc-bg-particles"> driven by MC.particleBg */
+.mc-bg--particles {
+  background: var(--grad-page);
+}
+.mc-bg canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------- chrome --- */
+/* HUD + captions live in the root composition (harness-generated). */
+
+.mc-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+
+.mc-hud-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+}
+.mc-hud-corner::before,
+.mc-hud-corner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: var(--accent);
+  opacity: 0.7;
+}
+.mc-hud-corner::before {
+  width: 26px;
+  height: 2px;
+}
+.mc-hud-corner::after {
+  width: 2px;
+  height: 26px;
+}
+.mc-hud-corner--tl {
+  top: 40px;
+  left: 40px;
+}
+.mc-hud-corner--tr {
+  top: 40px;
+  right: 40px;
+  transform: scale(-1, 1);
+}
+.mc-hud-corner--bl {
+  bottom: 40px;
+  left: 40px;
+  transform: scale(1, -1);
+}
+.mc-hud-corner--br {
+  bottom: 40px;
+  right: 40px;
+  transform: scale(-1, -1);
+}
+
+/* HUD frame variants (StructureProfile.hudFrame): bars (standard) + blocks (stylized).
+   Bars are full-bleed top/bottom edge rules — the brand/right/footer text sits at
+   ~44px from each edge, so flush edges (0px) never strike through it. */
+.mc-hud-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+.mc-hud-bar--top {
+  top: 0;
+}
+.mc-hud-bar--bottom {
+  bottom: 0;
+}
+.mc-hud-block {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+}
+.mc-hud-block--tl {
+  top: 40px;
+  left: 40px;
+}
+.mc-hud-block--tr {
+  top: 40px;
+  right: 40px;
+}
+.mc-hud-block--bl {
+  bottom: 40px;
+  left: 40px;
+}
+.mc-hud-block--br {
+  bottom: 40px;
+  right: 40px;
+}
+
+.mc-hud-brand {
+  position: absolute;
+  top: 44px;
+  left: 80px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mc-hud-brand-mark {
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.mc-hud-brand-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.mc-hud-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.mc-hud-label--faint {
+  color: var(--text-faint);
+}
+.mc-hud-right {
+  position: absolute;
+  top: 44px;
+  right: 80px;
+  text-align: right;
+}
+.mc-hud-right .mc-hud-label:first-child {
+  color: var(--accent);
+}
+.mc-hud-footer {
+  position: absolute;
+  bottom: 52px;
+  left: 80px;
+  font-size: 13px;
+}
+.mc-hud-counter {
+  position: absolute;
+  bottom: 52px;
+  right: 80px;
+  font-size: 13px;
+}
+.mc-hud-counter .mc-hud-counter-item {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  white-space: nowrap;
+}
+
+.mc-hud-track {
+  position: absolute;
+  bottom: 40px;
+  left: 80px;
+  right: 80px;
+  height: 2px;
+  background: var(--hairline);
+}
+.mc-hud-progress {
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Captions: one box per VO line, toggled by the master timeline. */
+.mc-caption-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 78px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.mc-caption {
+  position: absolute;
+  bottom: 0;
+  max-width: 1280px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: rgba(var(--abyss-rgb), 0.72);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  visibility: hidden;
+  opacity: 0;
+}
+.mc-caption--solid {
+  background: rgba(var(--abyss-rgb), 0.96);
+}
+.mc-caption--none {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+.mc-caption-bar {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 4px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.mc-caption-text {
+  font-family: var(--font-body);
+  font-size: 30px;
+  line-height: 1.28;
+  color: var(--text);
+  font-weight: 500;
+  text-align: center;
+  /* Safety net: the deterministic VO splitter keeps captions ≤2 lines; if one slips
+     through, clamp instead of overflowing the box. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.mc-caption-text--outline {
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.95),
+    0 0 2px rgba(0, 0, 0, 1);
+}
+
+/* ------------------------------------------------------------- scenes --- */
+
+/* Scene containers in the root composition. Non-anchor scenes start hidden;
+ * the master timeline toggles autoAlpha at scene boundaries. */
+.mc-scene {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}

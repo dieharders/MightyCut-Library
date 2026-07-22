@@ -58,8 +58,10 @@ export {
 export {
   FRAME_GROUNDS,
   FRAME_TREATMENTS,
+  BACKDROP_NAMES,
   type FrameGround,
   type FrameTreatment,
+  type BackdropName,
 } from "../types/storyboard";
 export { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 

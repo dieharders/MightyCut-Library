@@ -27,8 +27,11 @@ export type ComponentDef<S extends z.ZodTypeAny> = {
   schema: S;
   /** Flat HTML; root carries `.${name}`; data-slot / data-anim annotations. */
   template: string;
-  /** CSS authored under `.${name}` (cqw/cqh units, flat rules). */
-  css: string;
+  /** CSS authored under `.${name}` (rem on the 0.125rem grid, flat rules — see css.ts).
+   *  Optional: a theme may instead OWN this component's skin via `theme.skins[name]`,
+   *  which `buildNode` prefers. Components whose look is theme-specific (hud, caption)
+   *  omit this and let each theme style the standard class names from its own folder. */
+  css?: string;
   /** Example params — drives the showcase card + `defaults()` + tests. */
   example: z.input<S>;
   /** Map validated params → slot text (null/"" drops the optional slot). */
@@ -107,7 +110,10 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
             : null;
         const local = entrance ? [entrance, ...internals] : internals;
         const anims = local.map((a) => qualifyAnim(a, ctx.idPrefix));
-        return { node: root, css: def.css, anims };
+        // The skin is theme-owned when the active theme supplies one for this
+        // component name (theme.skins[name]); else the component's own css; else none.
+        const css = ctx.theme.skins?.[def.name] ?? def.css ?? "";
+        return { node: root, css, anims };
       },
       build(ctx): BuildResult {
         const bn = this.buildNode(ctx);

@@ -45,8 +45,8 @@ const icon = z.string().optional()
 const StatSchema = z.object({
   value: z.number(),
   label: z.string().min(1).max(40),
-  prefix: z.string().max(4).optional(),
-  suffix: z.string().max(10).optional().describe("e.g. \"%\", \"x\", \"hrs\""),
+  unitPrefix: z.string().max(6).optional().describe("Leading unit, e.g. \"$\""),
+  unitSuffix: z.string().max(10).optional().describe("Trailing unit, e.g. \"%\", \"x\", \"hrs\""),
   decimals: z.number().int().min(0).max(2).optional(),
 });
 
@@ -66,7 +66,8 @@ export const CardContentSchema = z.object({
 
 export const ChartContentSchema = z.object({
   type: z.enum(["bar", "line"]).describe("bar for category comparison, line for trends"),
-  unit: z.string().max(12).optional(),
+  unitPrefix: z.string().max(6).optional().describe("Leading unit on each value, e.g. \"$\""),
+  unitSuffix: z.string().max(12).optional().describe("Trailing unit on each value, e.g. \"%\", \"k\""),
   series: z
     .array(z.object({ label: z.string().min(1).max(28), value: z.number() }))
     .min(2)

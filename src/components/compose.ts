@@ -12,7 +12,7 @@ import { rootContext } from "./runtime";
 import { renderScene } from "./runtime/emit";
 import { getComponent, getTreatment } from "./runtime/registry";
 import type { ComponentInstance, ThemeTokens, TreatmentInstance } from "./runtime/types";
-import { blockTheme } from "./themes/block";
+import { blockTheme } from "./themes/block/theme";
 
 export type ChildSpec = {
   name: string;
@@ -40,6 +40,8 @@ export type ComposeOpts = {
   voIds?: string[];
   /** Storyboard ground override (else the treatment's canonical ground). */
   ground?: FrameGround;
+  /** Storyboard backdrop-mask override (else the theme's canonical backdrop). */
+  backdrop?: string;
 };
 
 /** Validate `data` against `schema`, throwing a formatted Zod-issue summary on failure. */
@@ -85,10 +87,12 @@ export const composeTreatment = (spec: SceneSpec): TreatmentInstance => {
 /** Build a full scene sub-composition HTML from params (fail-loud). */
 export const composeScene = (spec: SceneSpec, compId: string, opts: ComposeOpts = {}): string => {
   const inst = composeTreatment(spec);
+  const overrides =
+    opts.ground || opts.backdrop ? { ground: opts.ground, backdrop: opts.backdrop } : undefined;
   return renderScene(
     inst,
     rootContext(compId, opts.theme ?? blockTheme, { voIds: opts.voIds }),
-    opts.ground ? { ground: opts.ground } : undefined,
+    overrides,
   );
 };
 

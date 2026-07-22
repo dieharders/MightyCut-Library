@@ -5,6 +5,8 @@
 // treatments) produces a well-formed, deterministic sub-composition.
 import { describe, expect, test } from "bun:test";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
+import { BACKDROP_NAMES } from "../types/storyboard";
+import { BACKDROPS, buildBackdrop } from "./primitives/backdrops";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -20,7 +22,7 @@ import {
 } from "./runtime/registry";
 import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
-import { blockTheme } from "./themes/block";
+import { blockTheme } from "./themes/block/theme";
 
 const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
 
@@ -86,6 +88,8 @@ describe("treatment build-smoke", () => {
       expect(html).toContain(`window.__timelines["${compId}"]`);
       expect(html).toContain(`.${compId}-root .block-frame`);
       expect(html).toContain(`background: var(--${inst.ground})`);
+      // block's canonical backdrop mask paints over every scene's ground
+      expect(html).toContain("mc-backdrop--dots");
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");
@@ -261,5 +265,37 @@ describe("rank fill reveal (scaleX, not width)", () => {
     const b = getComponent("rank")().build(ctx("sc-rank"));
     expect(a.html).toBe(b.html);
     expect(JSON.stringify(a.anims)).toBe(JSON.stringify(b.anims));
+  });
+});
+
+// The backdrop-mask registry: every non-"plain" BACKDROP_NAMES entry must resolve
+// to a design, "plain" must resolve to no mask, and each design must build.
+describe("backdrop registry (tripwire)", () => {
+  const input = { ground: "cream" as const, theme: blockTheme, ctx: ctx("s01-bd") };
+
+  test("every BACKDROP_NAMES value (except plain) has a registered design", () => {
+    for (const name of BACKDROP_NAMES) {
+      if (name === "plain") continue;
+      expect(BACKDROPS[name], `no design registered for backdrop '${name}'`).toBeDefined();
+    }
+    // no orphan designs (registry ⊆ the enum)
+    for (const key of Object.keys(BACKDROPS)) {
+      expect((BACKDROP_NAMES as readonly string[]).includes(key), `design '${key}' missing from BACKDROP_NAMES`).toBe(true);
+    }
+  });
+
+  test("'plain' (and an unknown name) resolve to no mask", () => {
+    expect(buildBackdrop("plain", input)).toBeNull();
+    expect(buildBackdrop("nope", input)).toBeNull();
+  });
+
+  test("each design builds a full-bleed overlay node + css", () => {
+    for (const [name, design] of Object.entries(BACKDROPS)) {
+      const r = design.build(input);
+      expect(r.node.tag, `design '${name}' must build an element`).toBe("div");
+      expect(r.node.attrs.class).toContain(`mc-backdrop--${name}`);
+      expect(r.css).toContain(".mc-backdrop");
+      expect(Array.isArray(r.anims)).toBe(true);
+    }
   });
 });

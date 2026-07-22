@@ -5,12 +5,16 @@ export const ACCENTS = ["pink", "blue", "green", "yellow"] as const;
 export const StatSchema = z.object({
   value: z.number().describe("The figure to count up to"),
   label: z.string().max(48).describe("Short caption under the number"),
-  prefix: z.string().max(6).optional().describe('Leading unit, e.g. "$"'),
-  suffix: z
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit prepended to the value, e.g. "$", "€"'),
+  unitSuffix: z
     .string()
     .max(10)
     .optional()
-    .describe('Trailing unit, e.g. "%", "x", "hrs"'),
+    .describe('Trailing unit appended to the value, e.g. "%", "x", "hrs"'),
   decimals: z
     .number()
     .int()

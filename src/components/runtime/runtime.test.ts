@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
-import { wrapSubComposition } from "../../pipeline/sub-composition";
-import { serializeAnims, offsetAnim, qualifyAnim, type AnimDescriptor } from "./anim";
+import { serializeAnims, offsetAnim, qualifyAnim, toSlot, type AnimDescriptor } from "./anim";
 import { component } from "./component";
 import { scopeCss, collectCss } from "./css";
 import { scrubDeterminism } from "./determinism";
@@ -45,6 +44,48 @@ const StatGrid = treatment({
   anim: () => [{ kind: "riseIn", target: "headline", time: { at: "line", n: 0, plus: 0.1 }, opts: { dist: 32 } }],
 });
 
+// A decoration (background accent) + a treatment with a trailing caption, for slot-order tests.
+const Deco = component({
+  name: "deco",
+  schema: z.object({}),
+  template: `<div class="deco" data-anim="shape">x</div>`,
+  css: `.deco { position: absolute }`,
+  example: {},
+  anim: () => [{ kind: "fadeIn", target: "shape", time: { at: "leadIn" } }],
+});
+
+const Captioned = treatment({
+  name: "captioned",
+  schema: GridSchema,
+  template: `<div class="cg"><h3 data-slot="headline" data-anim="headline">H</h3><div class="row" data-children></div><p data-anim="caption">c</p></div>`,
+  css: `.cg { container-type: size }`,
+  ground: "pink",
+  example: { headline: "H" },
+  defaultChildren: () => [Stat({ value: 1, label: "a" }), Stat({ value: 2, label: "b" })],
+  anim: (_p, n) => [
+    { kind: "riseIn", target: "headline", time: { at: "line", n: 0 } },
+    { kind: "riseIn", target: "caption", time: { at: "line", n, plus: 0.2 } },
+  ],
+});
+
+// A childless treatment with a leadIn "frame" (eyebrow) + a line-0 title + an index secondary —
+// mirrors quote/cover, exercising the frame-leads-then-title slot ordering.
+const Framed = treatment({
+  name: "framed",
+  schema: z.object({ title: z.string() }),
+  template: `<div class="fr"><span data-slot="eyebrow" data-anim="eyebrow">e</span><h3 data-slot="title" data-anim="title">t</h3><p data-anim="sub">s</p></div>`,
+  css: `.fr { display: grid }`,
+  ground: "pink",
+  example: { title: "T" },
+  defaultChildren: () => [],
+  fill: (p) => ({ eyebrow: "e", title: p.title }),
+  anim: () => [
+    { kind: "fadeIn", target: "eyebrow", time: { at: "leadIn" } },
+    { kind: "fadeIn", target: "title", time: { at: "line", n: 0 } },
+    { kind: "fadeIn", target: "sub", time: { at: "index", n: 1 } },
+  ],
+});
+
 describe("scopeCss", () => {
   test("prefixes each selector with the scene root", () => {
     const out = scopeCss(`.stat { color: red }\n.a, .b { x: 1 }`, "s02-impact");
@@ -81,6 +122,12 @@ describe("anim helpers", () => {
     const a: AnimDescriptor = { kind: "fadeIn", target: "item", time: { at: "leadIn" } };
     expect(qualifyAnim(a, "s02__c1").target).toBe("s02__c1-item");
   });
+  test("toSlot re-anchors to a cascade slot, preserving the element's internal plus", () => {
+    const a: AnimDescriptor = { kind: "countUp", target: "number", time: { at: "line", n: 0, plus: 0.1 } };
+    const s = toSlot(a, 3, 0.5);
+    expect(s.time).toEqual({ at: "slot", n: 3, plus: 0.1, d: 0.5 });
+    expect(s.kind).toBe("countUp"); // element keeps its own transition + kind
+  });
   test("serializeAnims emits one MC.applyAnims call and escapes </", () => {
     const js = serializeAnims([{ kind: "fadeIn", target: "s01-x", time: { at: "leadIn" }, opts: { suffix: "</script>" } }]);
     expect(js).toContain("MC.applyAnims(tl,");
@@ -111,7 +158,7 @@ describe("component build", () => {
 });
 
 describe("treatment composition", () => {
-  test("default children compose, child anims offset + uniquely scoped, css deduped", () => {
+  test("default children compose into ordered cascade slots (title → child 0 → child 1), css deduped", () => {
     const r = StatGrid().build(ctx("s03-metrics"));
     // two default stats -> two uniquely-scoped children
     expect(r.html).toContain("s03-metrics__c0-item");
@@ -119,13 +166,44 @@ describe("treatment composition", () => {
     expect(r.html).toContain('--cols: 2');
     // .stat css inlined exactly once even though two stats
     expect((r.css.match(/\/\* stat \*\//g) ?? []).length).toBe(1);
-    // child c1 keyed to a later line than c0 (base 1 + index)
+    // no decorations → headline is the title slot (0); children cascade at slots 1 and 2
+    const headline = r.anims.find((a) => a.target === "s03-metrics-headline")!;
     const c0 = r.anims.find((a) => a.target === "s03-metrics__c0-item")!;
     const c1 = r.anims.find((a) => a.target === "s03-metrics__c1-item")!;
-    expect((c0.time as { n: number }).n).toBe(1);
-    expect((c1.time as { n: number }).n).toBe(2);
-    // headline anim present + scoped
-    expect(r.anims.some((a) => a.target === "s03-metrics-headline")).toBe(true);
+    expect(headline.time).toEqual({ at: "slot", n: 0, plus: 0.1, d: 0.5 });
+    expect(c0.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.5 });
+    expect(c1.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
+    // the child's own internal reveal (countUp) rides the SAME slot, keeping its own +0.1
+    const c0num = r.anims.find((a) => a.target === "s03-metrics__c0-number")!;
+    expect(c0num.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.5 });
+  });
+
+  test("decorations reveal first (slot 0), pushing the title and children back a slot", () => {
+    const r = StatGrid().addDecorations(Deco()).build(ctx("s04-deco"));
+    const deco = r.anims.find((a) => a.target === "s04-deco__d0-shape")!;
+    const headline = r.anims.find((a) => a.target === "s04-deco-headline")!;
+    const c0 = r.anims.find((a) => a.target === "s04-deco__c0-item")!;
+    expect(deco.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.5 });
+    expect(headline.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.5 });
+    expect(c0.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
+  });
+
+  test("a trailing caption (line n≥1) lands just after the last child", () => {
+    const r = Captioned().build(ctx("s05-cap"));
+    const caption = r.anims.find((a) => a.target === "s05-cap-caption")!;
+    // 2 children at slots 1,2 → caption at slot 3 (childBase 1 + childCount 2)
+    expect(caption.time).toEqual({ at: "slot", n: 3, plus: 0.2, d: 0.5 });
+  });
+
+  test("a leadIn frame (eyebrow) leads; the title + its index secondary fall to later slots", () => {
+    const r = Framed().build(ctx("s06-fr"));
+    const eyebrow = r.anims.find((a) => a.target === "s06-fr-eyebrow")!;
+    const title = r.anims.find((a) => a.target === "s06-fr-title")!;
+    const sub = r.anims.find((a) => a.target === "s06-fr-sub")!;
+    // eyebrow frame at slot 0; title bumped to slot 1; index secondary to slot 2 (no collision)
+    expect(eyebrow.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.5 });
+    expect(title.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.5 });
+    expect(sub.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
   });
 
   test("addChildren overrides defaults and >3 triggers dense layout", () => {
@@ -163,5 +241,36 @@ describe("ground override via wrapSubComposition parts", () => {
     const html = renderScene(StatGrid(), ctx("s"), { ground: "blue" });
     expect(html).toContain("background: var(--blue)");
     expect(html).not.toContain("background: var(--pink)");
+  });
+});
+
+describe("backdrop mask", () => {
+  const DOTS: ThemeTokens = { ...THEME, backdrop: "dots" };
+  const dotsCtx = (compId: string): BuildContext => ({ compId, idPrefix: compId, theme: DOTS, mode: "render" });
+
+  test("a theme WITHOUT a backdrop paints no mask (byte-stable)", () => {
+    const html = renderScene(StatGrid(), ctx("s"));
+    expect(html).not.toContain("mc-backdrop");
+    // the ground colour is unaffected
+    expect(html).toContain("background: var(--pink)");
+  });
+
+  test("the theme's canonical backdrop paints the mask overlay", () => {
+    const html = renderScene(StatGrid(), dotsCtx("s"));
+    expect(html).toContain("mc-backdrop mc-backdrop--dots");
+    expect(html).toContain("background-size: 3.625rem 3.625rem");
+    // mask overlays the ground; the ground colour is still stamped
+    expect(html).toContain("background: var(--pink)");
+    expect(() => scrubDeterminism(html)).not.toThrow();
+  });
+
+  test("a scene override to 'plain' removes the mask for that scene only", () => {
+    const html = renderScene(StatGrid(), dotsCtx("s"), { backdrop: "plain" });
+    expect(html).not.toContain("mc-backdrop");
+  });
+
+  test("a scene override selects a different mask design", () => {
+    const html = renderScene(StatGrid(), ctx("s"), { backdrop: "dots" });
+    expect(html).toContain("mc-backdrop--dots");
   });
 });

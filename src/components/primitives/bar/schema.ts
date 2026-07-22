@@ -1,13 +1,18 @@
 import { z } from "zod";
 
 export const BarSchema = z.object({
-  value: z.number().describe("The column's numeric value (counts up from 0)"),
+  value: z.number().min(0).describe("The column's numeric value (counts up from 0)"),
   label: z.string().max(28).describe("Short caption under the column"),
   max: z
     .number()
     .positive()
     .describe("The chart's maximum value — sets the height"),
-  unit: z
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit prepended to the value, e.g. "$", "€"'),
+  unitSuffix: z
     .string()
     .max(12)
     .optional()

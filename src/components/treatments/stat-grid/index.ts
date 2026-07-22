@@ -16,9 +16,9 @@ export const StatGrid = treatment({
   example: { headline: "Numbers that moved" },
   fill: (p) => ({ headline: p.headline }),
   defaultChildren: () => [
-    Stat({ value: 92, label: "Detection rate", suffix: "%", accent: "pink" }),
-    Stat({ value: 3, label: "Faster triage", suffix: "x", accent: "blue" }),
-    Stat({ value: 40, label: "Cost reduction", suffix: "%", accent: "yellow" }),
+    Stat({ value: 92, label: "Detection rate", unitSuffix: "%", accent: "pink" }),
+    Stat({ value: 3, label: "Faster triage", unitSuffix: "x", accent: "blue" }),
+    Stat({ value: 40, label: "Cost reduction", unitSuffix: "%", accent: "yellow" }),
   ],
   layout: (n) => ({ "--cols": String(Math.min(n, 4)), ...(n > 3 ? { "--dense": "1" } : {}) }),
   anim: statGridAnim,

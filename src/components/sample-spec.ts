@@ -12,15 +12,15 @@ export const sampleSpec = (): VideoSpec =>
     slides: [
       { id: "intro", kind: "title", title: "Block, componentized.", subtitle: "A neobrutalist component system.", kicker: "OVERVIEW", background: "solid" },
       { id: "pillars", kind: "cards", header: { title: "Platform Pillars" }, cards: [{ title: "Compose", text: "Typed, reusable components." }, { title: "Render", text: "Deterministic vanilla HTML." }, { title: "Ship", text: "Preview now, render on demand." }] },
-      { id: "nums", kind: "stats", header: { title: "Measured Impact" }, stats: [{ value: 92, label: "Detection rate", suffix: "%" }, { value: 3, label: "Faster triage", suffix: "x" }, { value: 40, label: "Cost reduction", suffix: "%" }] },
+      { id: "nums", kind: "stats", header: { title: "Measured Impact" }, stats: [{ value: 92, label: "Detection rate", unitSuffix: "%" }, { value: 3, label: "Faster triage", unitSuffix: "x" }, { value: 40, label: "Cost reduction", unitSuffix: "%" }] },
       { id: "how", kind: "steps", header: { title: "How It Works" }, steps: [{ title: "Scope", text: "Define the target." }, { title: "Emulate", text: "Run the campaign." }, { title: "Report", text: "Board-ready output." }] },
       { id: "vs", kind: "comparison", header: { title: "Why We Win" }, columns: ["Legacy", "Ours"], rows: [{ label: "Speed", a: "Weeks", b: "Hours" }, { label: "Cost", a: "High", b: "Low" }] },
-      { id: "growth", kind: "chart", header: { title: "Coverage Growth" }, chart: { type: "bar", unit: "%", series: [{ label: "Q1", value: 40 }, { label: "Q2", value: 65 }, { label: "Q3", value: 82 }], caption: "MITRE ATT&CK coverage" } },
+      { id: "growth", kind: "chart", header: { title: "Coverage Growth" }, chart: { type: "bar", unitSuffix: "%", series: [{ label: "Q1", value: 40 }, { label: "Q2", value: 65 }, { label: "Q3", value: 82 }], caption: "MITRE ATT&CK coverage" } },
       { id: "quote", kind: "statement", text: "The best defense is a tested one.", attribution: "CISO, Fortune 100" },
       // share + plan reuse the chart/steps data but are ROUTED (via the storyboard
       // override below) to the bar-ranking + agenda siblings, so the fixture exercises
       // all 10 treatments — including bar-ranking (the empty-fill regression) + agenda.
-      { id: "share", kind: "chart", header: { title: "Market Share by Vendor" }, chart: { type: "bar", unit: "%", series: [{ label: "Acme", value: 38 }, { label: "Globex", value: 27 }, { label: "Initech", value: 19 }, { label: "Umbrella", value: 11 }], caption: "Share of new installs, 2026" } },
+      { id: "share", kind: "chart", header: { title: "Market Share by Vendor" }, chart: { type: "bar", unitSuffix: "%", series: [{ label: "Acme", value: 38 }, { label: "Globex", value: 27 }, { label: "Initech", value: 19 }, { label: "Umbrella", value: 11 }], caption: "Share of new installs, 2026" } },
       { id: "plan", kind: "steps", header: { title: "What We'll Cover" }, steps: [{ title: "The problem", text: "Why now" }, { title: "Our approach", text: "How it works" }, { title: "The results", text: "Proof" }, { title: "What's next", text: "Roadmap" }] },
       { id: "close", kind: "outro", title: "Run your first campaign.", cta: "Book a demo" },
     ],

@@ -6,7 +6,7 @@ import "./components/registry"; // side-effect: populate the runtime registry
 
 export * from "./components/compose";
 export * from "./components/runtime";
-export { blockTheme } from "./components/themes/block";
+export { blockTheme } from "./components/themes/block/theme";
 export {
   allComponents,
   allTreatments,

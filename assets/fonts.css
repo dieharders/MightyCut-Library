@@ -1,0 +1,35 @@
+/* Self-hosted variable fonts (latin subset). font-display: block so the
+ * deterministic renderer never captures a fallback-font frame. Each project
+ * gets these copied into assets/ — paths are relative to this file. */
+
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: block;
+  src: url("fonts/space-grotesk.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url("fonts/inter.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: block;
+  src: url("fonts/jetbrains-mono.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo Black";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("fonts/archivo-black.woff2") format("woff2");
+}

@@ -1,0 +1,24 @@
+/* Capsule theme add-on font — the ONE family the capsule frame needs beyond the
+ * core chrome set (fonts.css already provides Space Grotesk / Inter / JetBrains
+ * Mono / Archivo Black). Bodoni Moda is the capsule serif (--cap-serif in
+ * frame.css). Self-hosted latin-subset variable woff2 (Google's gstatic build,
+ * no subsetting). Staged into a capsule-deck project as assets/fonts/theme-fonts.css
+ * by the harness (stageThemeFonts) and inlined into the standalone preview; the
+ * woff2 sit same-dir so url()s are relative. font-display: block so the
+ * deterministic renderer never captures a fallback-font frame. */
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: block;
+  src: url("bodoni-moda.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: italic;
+  font-weight: 400 900;
+  font-display: block;
+  src: url("bodoni-moda-italic.woff2") format("woff2");
+}

@@ -8,6 +8,6 @@ export const statAnim = (p: StatParams): AnimDescriptor[] => [
     kind: "countUp",
     target: "number",
     time: { at: "line", n: 0, plus: 0.1 },
-    opts: { to: p.value, decimals: p.decimals, prefix: p.prefix ?? "", suffix: p.suffix ?? "" },
+    opts: { to: p.value, decimals: p.decimals, prefix: p.unitPrefix ?? "", suffix: p.unitSuffix ?? "" },
   },
 ];

@@ -12,6 +12,6 @@ export const IconSchema = z.object({
     .positive()
     .max(40)
     .default(10)
-    .describe("Icon size in cqw (percent of frame width)"),
+    .describe("Icon size as a percent of the 1920 design width (10 = 10%, emitted as rem)"),
 });
 export type IconParams = z.infer<typeof IconSchema>;

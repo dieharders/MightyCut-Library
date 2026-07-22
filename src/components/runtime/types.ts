@@ -42,11 +42,25 @@ export type ThemeRules = { do: string[]; dont: string[] };
 export type ThemeTokens = {
   /** Theme value, e.g. "block". */
   name: string;
+  /** Human display name for the showcase header, e.g. "BlockFrame" (falls back to `name`). */
+  title?: string;
+  /** One-paragraph description of the theme's visual language, shown in the showcase header. */
+  description?: string;
   /** `:root { --pink: …; --disp: … }` — emitted to a project's assets/tokens.css. */
   css: string;
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
+  /** Per-component skins, keyed by component name (e.g. `{ hud, caption }`). The
+   *  component owns the STRUCTURE (template) + BEHAVIOR (anim/schema) — the same
+   *  across every theme — while each theme styles those standard class names its
+   *  own way here. `buildNode` prefers a theme skin over the component's own `css`,
+   *  so future themes just add their skin file. Today only `block` supplies these. */
+  skins?: Record<string, string>;
+  /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
+   *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
+   *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
+  backdrop?: string;
   /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
   fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
@@ -67,6 +81,14 @@ export type BuildContext = {
   idPrefix: string;
   theme: ThemeTokens;
   mode: BuildMode;
+  /** Per-scene backdrop MASK override (a BACKDROP_NAMES value). Falls back to
+   *  `theme.backdrop`, then `"plain"`. See primitives/backdrops.ts. */
+  backdrop?: string;
+  /** Per-scene ground override (a FrameGround). Falls back to the treatment's
+   *  canonical `def.ground`. Rides the ctx purely so the backdrop mask's input
+   *  carries the RESOLVED ground (a ground-tinted design recolours correctly); the
+   *  visible page background is swapped separately (emit.ts/mount.ts pageStyle). */
+  ground?: FrameGround;
   /** Render: this slide's VO line ids in narration order (for lineId parity). */
   voIds?: string[];
 };

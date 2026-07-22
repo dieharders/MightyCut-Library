@@ -1,9 +1,10 @@
 /* The frame ground + shared structure. `.block-frame` is the page wrapper the
-   emitter stamps the ground background onto; container-type:size makes 1cqw = 1%
-   of the frame width so the same cqw numbers render identically in the gallery
-   thumbnail and a full 1920x1080 scene. Inlined ONCE per scene by the treatment
-   builder (deduped by name); the per-treatment look lives in each treatment's
-   own trio CSS. */
+   emitter stamps the ground background onto; it's the scene's containment root.
+   Component sizes are authored in rem on a 0.125rem grid, so the same numbers hold
+   the same PROPORTIONS in the gallery thumbnail and a full 1920x1080 scene (they're
+   pixel-identical only at the 1920 design size — see runtime/css.ts). Inlined
+   ONCE per scene by the treatment builder (deduped by name); the per-treatment look
+   lives in each treatment's own trio CSS. */
 .block-frame {
   position: absolute;
   inset: 0;
@@ -20,18 +21,18 @@
   display: flex;
   flex-direction: column;
 }
-.block-frame .pill {
+.block-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
-  border: 0.25cqw solid var(--black);
+  border: 0.25rem solid var(--black);
   background: var(--white);
-  box-shadow: 0.4cqw 0.4cqw 0 var(--black);
-  padding: 0.5cqw 1.2cqw;
+  box-shadow: 0.5rem 0.5rem 0 var(--black);
+  padding: 0.625rem 1.5rem;
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.5cqw;
+  font-size: 1.75rem;
   line-height: 1.2;
 }
 .block-frame h3 {
@@ -41,13 +42,4 @@
   letter-spacing: -0.03em;
   line-height: 0.95;
   margin: 0;
-}
-.block-frame .dg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.32;
-  background-image: radial-gradient(circle, var(--black) 0.14cqw, transparent 0.14cqw);
-  background-size: 3cqw 3cqw;
-  z-index: 1;
-  pointer-events: none;
 }

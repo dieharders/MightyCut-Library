@@ -7,10 +7,5 @@ export const BarRankingSchema = z.object({
     .max(140)
     .optional()
     .describe("Optional footnote under the bars (source or scale note)"),
-  unit: z
-    .string()
-    .max(12)
-    .optional()
-    .describe('Trailing unit shared by every row, e.g. "%", "k", "ms"'),
 });
 export type BarRankingParams = z.infer<typeof BarRankingSchema>;

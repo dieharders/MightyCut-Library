@@ -19,6 +19,7 @@ import type {
   ThemeTokens,
   TreatmentInstance,
 } from "../components/runtime/types";
+import type { FrameGround } from "../types/storyboard";
 import { TIMING_SECONDS } from "../types/transitions";
 import { bootstrapFx } from "./fx";
 
@@ -60,6 +61,9 @@ export type MountPreviewOptions = {
   /** Ground colour token override (deck scene ground) — swaps the treatment's canonical
    *  ground background the same way the renderer's buildScene does. */
   ground?: string;
+  /** Backdrop-mask override (deck scene backdrop) — selects the full-bleed mask design;
+   *  unset falls back to the theme's canonical backdrop (built into the node, like render). */
+  backdrop?: string;
 };
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
@@ -74,23 +78,52 @@ const previewCss = (frame: boolean): string => `
 .mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
 .mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
+/* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
+   viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
+   resolves against document.documentElement even across a shadow boundary — so a global
+   html font-size rule here would leak into the WebUI's own rem layout. We rely on the
+   host's 16px root instead. Do NOT set document.documentElement.style.fontSize here. */
 .mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
 .mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
-/* Component/decoration previews get a SQUARE stage (aspect-ratio 1/1) so any shape —
-   wide, tall, or a small page-space decoration — has a consistent, roomy area to fill.
-   The content is fit-scaled up to ~COMP_FILL of this box in JS (see scale() below),
-   since a component authored in cqw for the 1920px frame would otherwise render tiny. */
-.mc-stage--comp { position: relative; aspect-ratio: 1 / 1; container-type: inline-size; }
-.mc-stage--comp .mc-stage-inner { position: absolute; inset: 24px; container-type: size; }
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform-origin: center; }"}
+/* Component/decoration previews render at their natural rem size inside a wide canvas
+   (64rem — wider than any component, so text like the card body stays one line), then
+   scale() FITS each element to its own box: scaled down to fill ~85% when it's bigger than
+   the box, but never enlarged past natural size — so every component sits comfortably in its
+   frame (small ones near natural, big ones scaled to fit), the way they did before. The
+   canvas is centred in the (square) box; scale() transforms the preview-root around center. */
+.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
+.mc-stage--comp .mc-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
+/* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
+   into this centred flex; a single-box component has one child, so the gap is a no-op there. */
+${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
 `;
 
-// Fit-scale tuning for the non-frame component/decoration preview. The natural cqw
-// size resolves against the small preview box (~7× smaller than the 1920px frame), so
-// we scale the content up to fill the square, clamped so a tiny element never zooms
-// absurdly. Frame previews (treatments / HUD) scale to the 1920px stage instead.
-const COMP_FILL = 0.9; // target fraction of the square the content should fill
-const COMP_MAX_SCALE = 2.6; // ceiling so a tiny primitive doesn't balloon
+// Fraction of the preview box a fitted component fills (when it's larger than the box).
+const COMP_FILL = 0.85;
+
+/** Visual bounding rect of a preview's content, used to fit-scale it. Normally the root's
+ *  single child box; but a display:contents fragment (the ledger Row) has no box of its own
+ *  (reports 0×0), so fall back to the union of its descendant boxes. Returns null when empty. */
+const contentRect = (root: HTMLElement): DOMRect | null => {
+  const el = root.firstElementChild as HTMLElement | null;
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  if (r.width >= 1 && r.height >= 1) return r;
+  let left = Infinity,
+    top = Infinity,
+    right = -Infinity,
+    bottom = -Infinity;
+  el.querySelectorAll("*").forEach((d) => {
+    const dr = d.getBoundingClientRect();
+    if (dr.width < 1 || dr.height < 1) return;
+    left = Math.min(left, dr.left);
+    top = Math.min(top, dr.top);
+    right = Math.max(right, dr.right);
+    bottom = Math.max(bottom, dr.bottom);
+  });
+  if (right <= left || bottom <= top) return null;
+  return new DOMRect(left, top, right - left, bottom - top);
+};
 
 /** Mount `instance`'s vanilla preview into `container`; returns a replay/destroy handle. */
 export const mountPreview = (
@@ -102,7 +135,13 @@ export const mountPreview = (
   bootstrapFx();
   const compId = opts.compId ?? "mc-preview";
   const frame = opts.frame ?? instance.kind === "treatment";
-  const ctx = rootContext(compId, theme, { mode: "showcase" });
+  // opts.ground is a loosely-typed FrameGround from the WebUI deck; it rides the ctx so
+  // the backdrop mask resolves against it, and still drives the visible-bg swap below.
+  const ctx = rootContext(compId, theme, {
+    mode: "showcase",
+    backdrop: opts.backdrop,
+    ground: opts.ground as FrameGround | undefined,
+  });
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
@@ -135,24 +174,24 @@ export const mountPreview = (
   const MC = (window as unknown as { MC?: McGlobal }).MC;
   const scale = (): void => {
     if (frame) {
+      // Frame: scale the 1920px scene to the stage width (unchanged).
       inner.style.transform = `scale(${stage.clientWidth / 1920})`;
       return;
     }
-    // Non-frame: fit the natural-size component/decoration up to fill the square box.
-    // `root` is `.<compId>-root` (flex-centres its single child, the element itself).
+    // Component/decoration: measure the element at its natural rem size (it renders in the
+    // wide canvas, so text doesn't wrap), then fit it to the box — scale DOWN to fill ~85%
+    // when it's bigger than the box, but never UP past natural size (Math.min(1, …)), so each
+    // component sits comfortably in its frame. `.<compId>-root` centres its content, so the
+    // transform scales around center.
     const root = inner.firstElementChild as HTMLElement | null;
-    const content = (root?.firstElementChild ?? null) as HTMLElement | null;
-    if (!root || !content) return;
+    if (!root) return;
     root.style.transform = "none"; // measure natural size (undo any prior scale)
-    const cr = content.getBoundingClientRect();
-    const boxW = inner.clientWidth;
-    const boxH = inner.clientHeight;
-    if (cr.width < 1 || cr.height < 1 || boxW < 1 || boxH < 1) return;
-    const fit = Math.min(
-      (boxW * COMP_FILL) / cr.width,
-      (boxH * COMP_FILL) / cr.height,
-    );
-    root.style.transform = `scale(${Math.max(1, Math.min(fit, COMP_MAX_SCALE))})`;
+    const cr = contentRect(root);
+    const boxW = stage.clientWidth;
+    const boxH = stage.clientHeight;
+    if (!cr || cr.width < 1 || cr.height < 1 || boxW < 1 || boxH < 1) return;
+    const k = Math.min(1, (boxW * COMP_FILL) / cr.width, (boxH * COMP_FILL) / cr.height);
+    root.style.transform = `scale(${k})`;
   };
   let tl: Timeline | null = null;
   const HOLD = 0.5; // preview beat between the last reveal and the page exit

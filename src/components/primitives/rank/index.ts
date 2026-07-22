@@ -11,10 +11,15 @@ export const Rank = component({
   schema: RankSchema,
   template,
   css,
-  example: { value: 83, label: "Acme", max: 100, unit: "%" },
-  fill: (p) => ({ "bar-label": p.label, "bar-value": `0${p.unit ?? ""}` }),
+  example: { value: 83, label: "Acme", max: 100, unitSuffix: "%" },
+  fill: (p) => ({
+    "bar-label": p.label,
+    "bar-value": `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`,
+  }),
   layout: (p) => ({
-    "--fill": `${Math.max(4, (p.value / p.max) * 100).toFixed(1)}%`,
+    // Fill = value/max, clamped to 0–100% (value ≥ max = full track). No minimum floor,
+    // so small values register; no negative or over-100 overflow.
+    "--fill": `${Math.min(100, Math.max(0, (p.value / p.max) * 100)).toFixed(1)}%`,
     "--col": p.leader ? "var(--yellow)" : "var(--blue)",
   }),
   animIn: "fade",

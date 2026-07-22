@@ -6,6 +6,17 @@
 // via addDecorations().
 import { z } from "zod";
 import { component } from "../runtime/component";
+import { remGrid } from "../runtime/css";
+
+// Ink weights for decorations. Two independent knobs:
+//   EDGE_REM   — the outline weight (box border + polygon SVG stroke). FIXED: it does
+//                NOT scale with `size`, so a large slab/shield keeps the same crisp edge
+//                as a small one. Was `size × 0.042rem`; pinned to the default-size look.
+//   SHADOW_UNIT — the hard drop-shadow OFFSET, as a fraction of `size`. This one SCALES
+//                with size so the shadow never drifts too far from a small shape nor reads
+//                too thin when enlarged (~0.6rem at the default size 16).
+const EDGE_REM = 0.625;
+const SHADOW_UNIT = 0.0375;
 
 // The four decoration component names (the showcase + blockTheme reference these).
 export const DECORATION_COMPONENTS = [
@@ -56,7 +67,7 @@ const SHAPES: Record<string, ShapeCfg> = {
   // badge family — rounded / tag shapes
   shield: { clip: SHIELD },
   tag: { clip: TAG },
-  ticket: { box: true, radius: "2cqw", h: 0.6 },
+  ticket: { box: true, radius: "2.5rem", h: 0.6 },
   capsule: { box: true, radius: "999px", h: 0.5 },
 };
 
@@ -70,15 +81,15 @@ const svgPoints = (clip: string): string =>
 
 const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
   if (kind === "stripe") {
-    return `repeating-linear-gradient(45deg, var(--black), var(--black) 0.8cqw, ${color} 0.8cqw, ${color} 2.4cqw)`;
+    return `repeating-linear-gradient(45deg, var(--black), var(--black) 1rem, ${color} 1rem, ${color} 2.875rem)`;
   }
   if (kind === "bars") {
-    return `repeating-linear-gradient(90deg, var(--black), var(--black) 0.9cqw, ${color} 0.9cqw, ${color} 2.7cqw)`;
+    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.125rem, ${color} 1.125rem, ${color} 3.25rem)`;
   }
   // grid: black crosshatch lines over the color fill
   return (
-    `repeating-linear-gradient(0deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), ` +
-    `repeating-linear-gradient(90deg, var(--black) 0 0.4cqw, transparent 0.4cqw 2.6cqw), ` +
+    `repeating-linear-gradient(0deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
+    `repeating-linear-gradient(90deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
     `linear-gradient(${color}, ${color})`
   );
 };
@@ -90,13 +101,18 @@ export const DECO_CSS = `.deco {
   position: absolute;
   left: var(--d-x, 50%);
   top: var(--d-y, 50%);
-  width: var(--d-w, 16cqw);
-  height: var(--d-h, 16cqw);
+  width: var(--d-w, 19.2rem);
+  height: var(--d-h, 19.2rem);
   transform: translate(-50%, -50%) rotate(var(--d-rot, 0deg));
   background: var(--d-bg, transparent);
   border: var(--d-border, none);
   border-radius: var(--d-radius, 0);
-  filter: drop-shadow(0.5cqw 0.5cqw 0 var(--black));
+  /* Rectangular shapes (box + pattern) get a crisp box-shadow — painted in the same
+     layer as the border, so it never seams against the background under fractional
+     preview scaling. Polygon shapes have no box-shadow and instead cast an alpha-
+     following filter drop-shadow (set inline) so the shadow hugs the SVG silhouette. */
+  box-shadow: var(--d-boxshadow, none);
+  filter: var(--d-filter, none);
   z-index: var(--d-z, 1);
   pointer-events: none;
 }
@@ -116,23 +132,32 @@ type DecoParams = {
 const decorationLayout = (p: DecoParams): Record<string, string> => {
   const s = SHAPES[p.variant] ?? SHAPES.square!;
   const color = `var(--${p.accent})`;
+  // Hard shadow offset scales with size so it stays proportional at every scale.
+  const off = remGrid(p.size * SHADOW_UNIT);
   const vars: Record<string, string> = {
     "--d-x": `${p.x}%`,
     "--d-y": `${p.y}%`,
-    "--d-w": `${p.size}cqw`,
-    "--d-h": `${(p.size * (s.h ?? 1)).toFixed(2)}cqw`,
+    "--d-w": remGrid(p.size * 1.2),
+    "--d-h": remGrid(p.size * (s.h ?? 1) * 1.2),
     "--d-rot": `${p.rotate}deg`,
     "--d-z": p.layer === "front" ? "5" : "1",
   };
   // Polygon shapes render as inline SVG (fill + stroke on the shape) — the div stays a
-  // bare, transparent container. Box + pattern shapes are pure CSS (bg / border / radius).
+  // bare, transparent container and casts an alpha-following filter drop-shadow.
+  // Box + pattern shapes are pure CSS rectangles (bg / border / radius) and take a crisp,
+  // same-layer box-shadow instead (no filter seam against the background under scaling).
   if (!s.clip) {
     vars["--d-bg"] = s.pattern ? patternBg(s.pattern, color) : color;
     if (s.radius) vars["--d-radius"] = s.radius;
-    // Border weight tracks the shape size (~3.5% of width) so box shapes carry the
-    // same ink weight as the polygon variants' 3.5/100 SVG stroke.
-    if (s.box)
-      vars["--d-border"] = `${(p.size * 0.035).toFixed(2)}cqw solid var(--black)`;
+    // Fixed outline weight (does not scale with size) — matches the polygon variants'
+    // constant SVG stroke so box, pattern, and polygon shapes all carry the same ink
+    // weight everywhere. Pattern shapes (stripe/bars/grid) get it too so they're not
+    // shadow-only; polygons already have their SVG stroke.
+    if (s.box || s.pattern)
+      vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
+    vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--black)`;
+  } else {
+    vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--black))`;
   }
   return vars;
 };
@@ -142,10 +167,14 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
 const decoSvg = (p: DecoParams): string => {
   const clip = SHAPES[p.variant]?.clip;
   if (!clip) return "";
+  // Clip shapes are square (h defaults to 1), so the 0-100 viewBox scales uniformly to
+  // the element (size×1.2 rem). Pick a stroke-width in viewBox units that renders at the
+  // constant EDGE_REM regardless of size: rendered = strokeWidth × (size×1.2 / 100) = EDGE_REM.
+  const strokeWidth = ((EDGE_REM * 100) / (p.size * 1.2)).toFixed(3);
   return (
     `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">` +
-    `<polygon points="${svgPoints(clip)}" vector-effect="non-scaling-stroke" ` +
-    `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: 3.5; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
+    `<polygon points="${svgPoints(clip)}" ` +
+    `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: ${strokeWidth}; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
     `</svg>`
   );
 };
@@ -181,7 +210,9 @@ export const decorationComponent = (
         .positive()
         .max(60)
         .default(16)
-        .describe("Size in cqw (percent of page width)"),
+        .describe(
+          "Size as a percent of the 1920 design width (16 = 16%, emitted as rem)",
+        ),
       rotate: z
         .number()
         .min(-180)

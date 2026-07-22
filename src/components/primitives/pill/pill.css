@@ -1,14 +1,14 @@
 .pill-c {
   display: inline-block;
-  border: 0.55cqw solid var(--black);
+  border: 0.625rem solid var(--black);
   background: var(--pillbg, var(--white));
-  box-shadow: 0.7cqw 0.7cqw 0 var(--black);
-  padding: 1.1cqw 2.9cqw;
+  box-shadow: 0.875rem 0.875rem 0 var(--black);
+  padding: 1.375rem 3.5rem;
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 2.4cqw;
+  font-size: 2.875rem;
   line-height: 1.2;
   color: var(--black);
 }

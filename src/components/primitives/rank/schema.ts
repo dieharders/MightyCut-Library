@@ -1,13 +1,18 @@
 import { z } from "zod";
 
 export const RankSchema = z.object({
-  value: z.number().describe("This row's value"),
+  value: z.number().min(0).describe("This row's value"),
   label: z
     .string()
     .max(48)
     .describe("Short mono caption naming the ranked item"),
   max: z.number().positive().describe("Scale's maximum value"),
-  unit: z
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit prepended to the value, e.g. "$", "€"'),
+  unitSuffix: z
     .string()
     .max(12)
     .optional()
