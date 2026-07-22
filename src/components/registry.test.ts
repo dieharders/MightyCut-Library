@@ -372,4 +372,22 @@ describe("future theme (tripwire)", () => {
       expect(CORE_FONTS_CSS).toContain(fam);
     }
   });
+
+  // Every theme's examples (showcase sample copy) must compose: its params + child rows are
+  // validated against each element's schema at build, so a bad field fails HERE, not as a
+  // broken card in the live showcase. Covers block + future symmetrically.
+  test("every theme's examples compose (params + children valid against schemas)", () => {
+    for (const theme of [blockTheme, futureTheme]) {
+      for (const [tname, ex] of Object.entries(theme.examples ?? {})) {
+        const factory = getTreatment(tname);
+        let inst = factory((ex.params ?? {}) as never);
+        if (ex.children?.length) {
+          const childName = factory.childComponent!;
+          inst = inst.addChildren(...ex.children.map((p) => getComponent(childName)(p as never)));
+        }
+        const exCtx = rootContext(`ex-${theme.name}-${tname}`, theme, { voIds: ["l1", "l2", "l3"] });
+        expect(() => renderScene(inst, exCtx), `${theme.name} example '${tname}' failed to compose`).not.toThrow();
+      }
+    }
+  });
 });

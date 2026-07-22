@@ -76,6 +76,12 @@ export type ThemeTokens = {
    *  Unset ⇒ a neutral light default. A CONCRETE CSS colour — it's applied in the host
    *  light DOM (not the preview Shadow DOM), so a `var(--token)` would not resolve. */
   previewBg?: string;
+  /** Per-element SHOWCASE sample overrides, keyed by component/treatment name. Lets a theme
+   *  show its OWN on-theme copy instead of the shared (block-flavored) def example. `params`
+   *  seed the element's own slots; `children` (treatments) seed the child rows as an array of
+   *  child PARAMS (the treatment's `childComponent`). SHOWCASE-ONLY — the render/deck path
+   *  always uses real spec content + `defaultChildren`, never these. Unset ⇒ the def example. */
+  examples?: Record<string, { params?: Record<string, unknown>; children?: Record<string, unknown>[] }>;
   /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
   fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */

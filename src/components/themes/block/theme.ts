@@ -142,6 +142,89 @@ const rules: ThemeTokens["rules"] = {
   ],
 };
 
+// Showcase sample copy — block OWNS its examples here (symmetric with futureTheme.examples),
+// so a theme's showcase content lives in its own file. These mirror the shared def
+// example/defaultChildren (which stay as the render/defaults baseline); `params` seed the
+// treatment's own slots, `children` seed the child rows (params of its childComponent).
+const examples: NonNullable<ThemeTokens["examples"]> = {
+  cover: {
+    params: {
+      headline: "Block, bordered, crooked.",
+      subtitle: "A maximalist neobrutalist frame system.",
+      eyebrow: "MightyCut",
+    },
+  },
+  quote: {
+    params: {
+      text: "Design is not just what it looks like. Design is how it works.",
+      attribution: "Steve Jobs",
+      eyebrow: "In their words",
+    },
+  },
+  "closing-plate": { params: { headline: "Stay loud.", cta: "Start building" } },
+  "feature-cards": {
+    params: { headline: "Built for the whole workflow" },
+    children: [
+      { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I", accent: "pink" },
+      { title: "On-brand by default", body: "Themed frames, captions, and motion — no timeline surgery.", icon: "II", accent: "blue" },
+      { title: "Render on demand", body: "Publish the preview now; render the final MP4 whenever you like.", icon: "III", accent: "green" },
+    ],
+  },
+  "stat-grid": {
+    params: { headline: "Numbers that moved" },
+    children: [
+      { value: 92, label: "Detection rate", unitSuffix: "%", accent: "pink" },
+      { value: 3, label: "Faster triage", unitSuffix: "x", accent: "blue" },
+      { value: 40, label: "Cost reduction", unitSuffix: "%", accent: "yellow" },
+    ],
+  },
+  timeline: {
+    params: { headline: "Four Steps" },
+    children: [
+      { num: "01", title: "Survey", body: "Map the field automatically." },
+      { num: "02", title: "Sync", body: "Nodes self-organize." },
+      { num: "03", title: "Run", body: "Live coverage in minutes." },
+      { num: "04", title: "Scale", body: "Add nodes on demand." },
+    ],
+  },
+  comparison: {
+    params: { headline: "Why We Win", columns: ["Status Quo", "Our Approach"] },
+    children: [
+      { label: "Speed", a: "Hours", b: "Minutes" },
+      { label: "Cost", a: "$$$", b: "$" },
+      { label: "Risk", a: "High", b: "Managed" },
+      { label: "Setup", a: "Weeks", b: "Same day" },
+    ],
+  },
+  chart: {
+    params: { headline: "Revenue by quarter", caption: "Net new revenue" },
+    children: [
+      { value: 42, label: "Q1", max: 96, unitPrefix: "$", unitSuffix: "M" },
+      { value: 68, label: "Q2", max: 96, unitPrefix: "$", unitSuffix: "M" },
+      { value: 79, label: "Q3", max: 96, unitPrefix: "$", unitSuffix: "M" },
+      { value: 96, label: "Q4", max: 96, unitPrefix: "$", unitSuffix: "M", leader: true },
+    ],
+  },
+  "bar-ranking": {
+    params: { headline: "Market share by vendor", caption: "Share of new installs, 2026" },
+    children: [
+      { value: 38, label: "Acme", max: 38, unitSuffix: "%", leader: true },
+      { value: 27, label: "Globex", max: 38, unitSuffix: "%" },
+      { value: 19, label: "Initech", max: 38, unitSuffix: "%" },
+      { value: 11, label: "Umbrella", max: 38, unitSuffix: "%" },
+    ],
+  },
+  agenda: {
+    params: { headline: "What we'll cover" },
+    children: [
+      { num: "01", title: "The problem", detail: "Why now" },
+      { num: "02", title: "Our approach", detail: "How it works" },
+      { num: "03", title: "The results", detail: "Proof" },
+      { num: "04", title: "What's next", detail: "Roadmap" },
+    ],
+  },
+};
+
 export const blockTheme: ThemeTokens = {
   name: "block",
   title: "BlockFrame",
@@ -191,6 +274,8 @@ export const blockTheme: ThemeTokens = {
   palette,
   typography,
   rules,
+  // Block's own showcase sample copy — see `examples` above.
+  examples,
   // The decoration component families block offers (starburst · slab · stripe · badge).
   decorations: [...DECORATION_COMPONENTS],
 };
