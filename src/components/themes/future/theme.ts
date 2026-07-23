@@ -155,6 +155,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Future Systems",
       subtitle: "Self-healing edge communications for contested environments.",
+      eyebrow: "Atlas Dynamics",
     },
   },
   quote: {
@@ -201,10 +202,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   chart: {
     params: { headline: "Packet Loss, Falling Fast", caption: "Median packet loss under active jamming." },
     children: [
-      { value: 18, label: "Q1", max: 20 },
-      { value: 11, label: "Q2", max: 20 },
-      { value: 6, label: "Q3", max: 20 },
-      { value: 2, label: "Q4", max: 20, leader: true },
+      { value: 18, label: "Q1", max: 20, unitSuffix: "%" },
+      { value: 11, label: "Q2", max: 20, unitSuffix: "%" },
+      { value: 6, label: "Q3", max: 20, unitSuffix: "%" },
+      { value: 2, label: "Q4", max: 20, unitSuffix: "%", leader: true },
     ],
   },
   "bar-ranking": {

@@ -660,3 +660,49 @@ describe("theme template overrides preserve the shared slots (tripwire)", () => 
     expect(missing, `${theme_.name}/${name} drops slot(s): ${missing.join(", ")}`).toEqual([]);
   });
 });
+
+// ------------------------------------------------------- showcase example parity ---
+// Each live theme supplies its OWN showcase sample copy. When one theme seeds a param
+// and another doesn't, that theme's showcase card renders the field empty — it reads as
+// a broken control rather than a deliberate choice, which is how future shipped a cover
+// and a quote with no eyebrow. Parity is the default; genuine differences go in the
+// allowlist below WITH a reason, so the omission is a decision rather than an oversight.
+describe("showcase example parity across live themes (tripwire)", () => {
+  const THEMES = [blockTheme, futureTheme];
+
+  /** `${treatment}.${param}` (or `${treatment}.children.${param}`) → why it's absent. */
+  const INTENTIONAL: Record<string, string> = {
+    // future's chart plots packet-loss percentages; block's plots revenue in dollars.
+    // A currency prefix would be wrong on it, so only block seeds one.
+    "chart.children.unitPrefix": "future's chart is a percentage, not a currency",
+    // block's stats are whole numbers (92, 3, 40); future's leads with 99.7, so only
+    // future needs a decimal place.
+    "stat-grid.children.decimals": "block's stat examples are integers",
+  };
+
+  const paramsOf = (t: (typeof THEMES)[number], name: string) =>
+    Object.keys(t.examples?.[name]?.params ?? {});
+  const childKeysOf = (t: (typeof THEMES)[number], name: string) =>
+    Object.keys((t.examples?.[name]?.children ?? [])[0] ?? {});
+
+  test.each(TREATMENT_NAMES.map((n) => [n]))("%s seeds the same example params under every theme", (name) => {
+    const union = [...new Set(THEMES.flatMap((t) => paramsOf(t, name)))];
+    for (const t of THEMES) {
+      const missing = union
+        .filter((p) => !paramsOf(t, name).includes(p))
+        .filter((p) => !(`${name}.${p}` in INTENTIONAL));
+      expect(missing, `${t.name}'s '${name}' example omits: ${missing.join(", ")}`).toEqual([]);
+    }
+  });
+
+  test.each(TREATMENT_NAMES.map((n) => [n]))("%s seeds the same example CHILD fields under every theme", (name) => {
+    const union = [...new Set(THEMES.flatMap((t) => childKeysOf(t, name)))];
+    for (const t of THEMES) {
+      if (childKeysOf(t, name).length === 0) continue; // childless treatment under this theme
+      const missing = union
+        .filter((k) => !childKeysOf(t, name).includes(k))
+        .filter((k) => !(`${name}.children.${k}` in INTENTIONAL));
+      expect(missing, `${t.name}'s '${name}' child omits: ${missing.join(", ")}`).toEqual([]);
+    }
+  });
+});
