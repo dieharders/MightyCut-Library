@@ -72,11 +72,16 @@ export type ThemeTokens = {
    *  theme supplies every skin it renders (an unskinned element renders unstyled). */
   skins?: Record<string, string>;
   /** Per-element HTML template overrides, keyed by component OR treatment name.
-   *  A theme may restyle structure it can't reach with CSS (drop the stat dot, drop
-   *  the cover eyebrow, add a quote mark). INVARIANT: an override MUST keep the shared
-   *  marker vocabulary (data-slot / data-anim / data-children / data-repeat ids) so the
-   *  element's shared schema/anim/fill/layout keep working — it may only re-wrap/rename/
-   *  add decorative nodes or DROP an optional slot (whose anim then no-ops). */
+   *  A theme may restyle structure it can't reach with CSS (re-order the attribution,
+   *  add a quote mark). INVARIANT: an override MUST keep the shared marker vocabulary
+   *  (data-slot / data-anim / data-children / data-repeat ids) so the element's shared
+   *  schema/anim/fill/layout keep working — it may only re-wrap, rename or ADD nodes.
+   *
+   *  It may NOT drop a data-slot. The schema field survives a dropped slot, so the editor
+   *  still renders a control for it that silently does nothing — future's cover AND quote
+   *  both dropped `eyebrow`, and typing one had no effect. A slot a theme doesn't want
+   *  should be styled away; it already self-removes when the slide leaves it empty.
+   *  Enforced by a tripwire in registry.test.ts. */
   templates?: Record<string, string>;
   /** The ground this theme falls back to when a scene sets none, OVERRIDING the
    *  treatment's canonical `ground`. A monochrome theme (future: every frame on navy)

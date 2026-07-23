@@ -17,6 +17,7 @@ import {
   allComponents,
   allTreatments,
   componentNames,
+  hasTreatment,
   getComponent,
   getTreatment,
   treatmentNames,
@@ -624,5 +625,38 @@ describe("ground resolution (tripwire)", () => {
     const noEyebrow = renderScene(getTreatment("cover")({ headline: "H", subtitle: "S" } as never), fctx("g-e2"));
     expect(noEyebrow).not.toContain('<div class="eyebrow"');
     expect(withEyebrow).toContain("eyebrow");
+  });
+});
+
+// --------------------------------------------------- theme template overrides ---
+// A theme template override may re-wrap, rename or ADD nodes, but must never DROP a
+// data-slot: the schema field survives, so the editor keeps rendering a control that
+// does nothing. Future shipped exactly that twice — cover and quote both dropped
+// `eyebrow`, and typing one silently had no effect.
+describe("theme template overrides preserve the shared slots (tripwire)", () => {
+  const slots = (html: string): string[] =>
+    [...html.matchAll(/data-slot="([a-z-]+)"/g)].map((m) => m[1]!).sort();
+
+  const OVERRIDES = [blockTheme, futureTheme].flatMap((theme) =>
+    Object.keys(theme.templates ?? {}).map((name) => ({ theme: theme.name, name, theme_: theme })),
+  );
+
+  test("there is at least one override to check", () => {
+    expect(OVERRIDES.length).toBeGreaterThan(0);
+  });
+
+  // The shared template is the element's own trio file on disk — the registry factory
+  // doesn't expose it, and reading the file is what the override is a copy OF.
+  const sharedTemplate = async (name: string): Promise<string> => {
+    const dir = hasTreatment(name) ? "treatments" : "primitives";
+    return Bun.file(`${import.meta.dir}/${dir}/${name}/template.html`).text();
+  };
+
+  test.each(OVERRIDES)("$theme/$name keeps every shared data-slot", async ({ name, theme_ }) => {
+    const sharedSlots = slots(await sharedTemplate(name));
+    expect(sharedSlots.length, `no shared slots found for '${name}'`).toBeGreaterThan(0);
+    const override = slots(theme_.templates![name]!);
+    const missing = sharedSlots.filter((sl) => !override.includes(sl));
+    expect(missing, `${theme_.name}/${name} drops slot(s): ${missing.join(", ")}`).toEqual([]);
   });
 });
