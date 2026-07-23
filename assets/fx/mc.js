@@ -116,17 +116,29 @@
 
   /* ------------------------------------------------------ tween helpers --- */
 
+  // A whole-element reveal that got fanned across SEVERAL boxes (applyAnims'
+  // display:contents retarget) carries `opts.stagger` — the gsap stagger config —
+  // so the boxes cascade instead of firing in lockstep. Single-box reveals never
+  // set it, and the key is omitted entirely then (byte/behaviour preserving).
+  var withStagger = function (vars, o) {
+    if (o && o.stagger) vars.stagger = o.stagger;
+    return vars;
+  };
+
   // Entrance: fade + rise from below (the old riseIn spring).
   MC.riseIn = function (tl, target, at, opts) {
     var o = opts || {};
     tl.from(
       target,
-      {
-        y: o.dist != null ? o.dist : 26,
-        opacity: 0,
-        duration: o.dur != null ? o.dur : 0.65,
-        ease: o.ease || "power3.out",
-      },
+      withStagger(
+        {
+          y: o.dist != null ? o.dist : 26,
+          opacity: 0,
+          duration: o.dur != null ? o.dur : 0.65,
+          ease: o.ease || "power3.out",
+        },
+        o,
+      ),
       at || 0,
     );
     return tl;
@@ -137,7 +149,10 @@
     var o = opts || {};
     tl.from(
       target,
-      { opacity: 0, duration: o.dur != null ? o.dur : 0.55, ease: o.ease || "power2.out" },
+      withStagger(
+        { opacity: 0, duration: o.dur != null ? o.dur : 0.55, ease: o.ease || "power2.out" },
+        o,
+      ),
       at || 0,
     );
     return tl;
@@ -379,15 +394,30 @@
       // explicitly chosen transition appeared to be ignored. Resolved at runtime, not
       // baked into the descriptor, because whether a component is display:contents is
       // the active THEME's choice.
+      // When that retarget fans ONE reveal onto SEVERAL boxes, it must cascade, not fire
+      // them in lockstep: the element's own default reveal for a box-less root is a
+      // `staggerIn` over exactly those children (the ledger Row's cells enter left→right),
+      // and the build-time one-reveal-per-box dedupe DROPS it in favour of a picked
+      // transition — so without a stagger here, assigning any transition (even the same
+      // one) flattened the cascade. Theme-agnostic: it keys off the resolved boxes, not
+      // off which component/theme made the root display:contents. `each` is overridable
+      // per descriptor; 0.08 matches the box-less components' default staggerIn.
       var box = el;
+      var fan = null; // gsap stagger config when one reveal drives many boxes
       try {
         if (typeof getComputedStyle === "function" && getComputedStyle(el).display === "contents") {
           var kids = ctx.qa(sel + " > *");
-          if (kids && kids.length) box = kids;
+          if (kids && kids.length) {
+            box = kids;
+            if (kids.length > 1) fan = { each: o.each != null ? o.each : 0.08, from: "start" };
+          }
         }
       } catch (_e) {
         /* no computed style (non-DOM host) — fall back to the element itself */
       }
+      // Reveal opts with the fan-out stagger folded in (a COPY — never mutate the
+      // descriptor's own opts, which the showcase replays over and over).
+      var ro = fan ? Object.assign({}, o, { stagger: fan }) : o;
       // Defence in depth: never let a SECOND whole-box reveal land on a box that already
       // has one. Every reveal kind compiles to `tl.from()`, and two of them on the same
       // element fight over immediateRender — the later tween samples the earlier one's
@@ -407,8 +437,8 @@
         if (owned) continue; // an earlier reveal already owns these boxes
         for (var bj = 0; bj < list.length; bj++) revealed.push(list[bj]);
       }
-      if (a.kind === "riseIn") MC.riseIn(tl, box, when, o);
-      else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, o);
+      if (a.kind === "riseIn") MC.riseIn(tl, box, when, ro);
+      else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, ro);
       else if (a.kind === "staggerIn") MC.staggerIn(tl, boxes, when, o);
       else if (a.kind === "rule") MC.rule(tl, el, when, o);
       else if (a.kind === "float") MC.float(tl, el, when, o);
@@ -422,16 +452,20 @@
       } else if (a.kind === "scaleIn") {
         tl.from(
           box,
-          {
-            scale: o.from != null ? o.from : 0.9,
-            opacity: 0,
-            duration: o.dur != null ? o.dur : 0.6,
-            ease: o.ease || "back.out(1.5)",
-          },
+          withStagger(
+            {
+              scale: o.from != null ? o.from : 0.9,
+              opacity: 0,
+              duration: o.dur != null ? o.dur : 0.6,
+              ease: o.ease || "back.out(1.5)",
+            },
+            ro,
+          ),
           when,
         );
       } else if (a.kind === "from") {
-        tl.from(box, o, when);
+        // `from` opts are raw gsap vars; `ro` is those plus the fan-out stagger.
+        tl.from(box, ro, when);
       } else if (a.kind === "backdrop") {
         // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
         // DESIGN names via o.fn (this interpreter stays FX-agnostic), driven off the scene
