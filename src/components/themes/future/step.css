@@ -15,15 +15,33 @@
   padding: 2.25rem;
   box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);
 }
+/* Connector: a rule that spans the full grid gap (edge to edge) plus a chevron head
+   landing on the next card's border — the gap width is published by .timeline .row. */
 .step:not(:last-child)::after {
-  content: "→";
+  content: "";
   position: absolute;
   top: 50%;
-  right: -2.125rem;
+  right: calc(-1 * var(--step-gap, 2.875rem));
+  width: var(--step-gap, 2.875rem);
+  height: 0.125rem;
   transform: translateY(-50%);
-  font-family: var(--body);
-  font-size: 1.875rem;
-  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 18%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 55%, transparent) 55%,
+    color-mix(in srgb, var(--primary) 30%, transparent) 100%
+  );
+}
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--step-gap, 2.875rem));
+  width: 0.625rem;
+  height: 0.625rem;
+  transform: translateY(-50%) rotate(45deg);
+  border-top: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+  border-right: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
 }
 .step-num {
   display: inline-grid;

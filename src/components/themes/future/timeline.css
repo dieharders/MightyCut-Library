@@ -23,7 +23,8 @@
   );
 }
 .timeline .row {
+  --step-gap: 2.875rem;
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 2.875rem;
+  gap: var(--step-gap);
 }
