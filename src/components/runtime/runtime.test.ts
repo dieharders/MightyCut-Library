@@ -274,3 +274,31 @@ describe("backdrop mask", () => {
     expect(html).toContain("mc-backdrop--dots");
   });
 });
+
+// The scene-ground override is applied by a regex swap of the treatment's canonical
+// `background: var(--<role>)`. There are TWO copies of that regex — the render-side one
+// in runtime/emit.ts and the browser-preview one in engine/mount.ts. Both must admit
+// DIGITS and HYPHENS, because every palette role after the first two has them
+// (accent-1, muted-2, …). A `[a-z]+`-only class matches nothing and drops the override
+// silently — no error, the picker just appears to do nothing.
+describe("ground override accepts every palette role (both regex copies)", () => {
+  const ROLES = [
+    "primary", "secondary", "accent-1", "accent-2", "accent-3",
+    "muted-1", "muted-2", "muted-3", "light", "dark",
+  ];
+
+  test.each(ROLES.map((r) => [r]))("renderScene applies ground '%s'", (role) => {
+    const html = renderScene(StatGrid(), ctx("s"), { ground: role as never });
+    expect(html).toContain(`background: var(--${role})`);
+  });
+
+  test("engine/mount.ts uses the same role-safe class as runtime/emit.ts", async () => {
+    // The role-safe character class, asserted as a plain substring — escaping the full
+    // regex literal here is what makes this kind of tripwire silently vacuous.
+    const SAFE = "[a-z0-9-]+";
+    const emitSrc = await Bun.file(`${import.meta.dir}/emit.ts`).text();
+    const mountSrc = await Bun.file(`${import.meta.dir}/../../engine/mount.ts`).text();
+    expect(emitSrc, "runtime/emit.ts ground regex is not role-safe").toContain(SAFE);
+    expect(mountSrc, "engine/mount.ts ground regex is not role-safe").toContain(SAFE);
+  });
+});

@@ -148,9 +148,14 @@ export const mountPreview = (
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
+  // NB the character class MUST admit digits + hyphens — the palette roles are
+  // `accent-1` / `muted-2` / …, and a `[a-z]+`-only class silently fails to match, so the
+  // override is dropped with no error and the ground picker looks broken. This is the
+  // SECOND copy of this swap (runtime/emit.ts has the render-side one); a tripwire in
+  // runtime.test.ts asserts both stay role-safe.
   const html = opts.ground
     ? built.html.replace(
-        /background:\s*var\(--[a-z]+\)/,
+        /background:\s*var\(--[a-z0-9-]+\)/,
         `background: var(--${opts.ground})`,
       )
     : built.html;
