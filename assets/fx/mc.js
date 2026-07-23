@@ -366,8 +366,26 @@
       if (!el) continue; // optional/removed slot — gsap.from(null) would throw
       var when = timeOf(a.time);
       var o = a.opts || {};
-      if (a.kind === "riseIn") MC.riseIn(tl, el, when, o);
-      else if (a.kind === "fadeIn") MC.fadeIn(tl, el, when, o);
+      // An element with `display: contents` generates NO box, so a transform/opacity
+      // tween on it runs but paints nothing. The ledger Row is display:contents (its
+      // cells flow into the parent .ledger grid), so ANY whole-element entrance on a
+      // Row — pop/rise/fade from the editor's transition picker — was a silent no-op.
+      // Retarget to the children, which DO generate boxes. `staggerIn` already targets
+      // children, which is why the Row's DEFAULT reveal always worked and only an
+      // explicitly chosen transition appeared to be ignored. Resolved at runtime, not
+      // baked into the descriptor, because whether a component is display:contents is
+      // the active THEME's choice.
+      var box = el;
+      try {
+        if (typeof getComputedStyle === "function" && getComputedStyle(el).display === "contents") {
+          var kids = ctx.qa(sel + " > *");
+          if (kids && kids.length) box = kids;
+        }
+      } catch (e) {
+        /* no computed style (non-DOM host) — fall back to the element itself */
+      }
+      if (a.kind === "riseIn") MC.riseIn(tl, box, when, o);
+      else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, o);
       else if (a.kind === "staggerIn") MC.staggerIn(tl, ctx.qa(sel + " > *"), when, o);
       else if (a.kind === "rule") MC.rule(tl, el, when, o);
       else if (a.kind === "float") MC.float(tl, el, when, o);
@@ -380,7 +398,7 @@
         tl.from(el, gb, when);
       } else if (a.kind === "scaleIn") {
         tl.from(
-          el,
+          box,
           {
             scale: o.from != null ? o.from : 0.9,
             opacity: 0,
@@ -390,7 +408,7 @@
           when,
         );
       } else if (a.kind === "from") {
-        tl.from(el, o, when);
+        tl.from(box, o, when);
       } else if (a.kind === "backdrop") {
         // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
         // DESIGN names via o.fn (this interpreter stays FX-agnostic), driven off the scene

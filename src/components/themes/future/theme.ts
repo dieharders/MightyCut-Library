@@ -161,6 +161,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       text: "Communications should heal faster than the adversary can break them.",
       attribution: "Atlas Dynamics",
+      eyebrow: "From the Field",
     },
   },
   "closing-plate": { params: { headline: "Award via Tradewinds today.", cta: "Get Started" } },

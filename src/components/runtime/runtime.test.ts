@@ -302,3 +302,38 @@ describe("ground override accepts every palette role (both regex copies)", () =>
     expect(mountSrc, "engine/mount.ts ground regex is not role-safe").toContain(SAFE);
   });
 });
+
+// A component whose root is `display: contents` (the ledger Row, so its cells flow into
+// the parent grid) generates NO box, so a transform/opacity tween on it paints nothing.
+// applyAnims must retarget those to the element's children. Without it, every
+// whole-element entrance the editor offers (pop / rise / fade) is a silent no-op on a
+// Row, while its DEFAULT staggerIn keeps working — which is why the transition picker
+// looked like it was being ignored. mc.js is browser JS with no DOM in this runner, so
+// assert on the source; the behaviour itself was verified in the pinned headless shell.
+describe("applyAnims retargets box-less (display:contents) elements", () => {
+  const mcSrc = async () => Bun.file(`${import.meta.dir}/../../../assets/fx/mc.js`).text();
+
+  test("it detects display:contents and falls back to the children", async () => {
+    const src = await mcSrc();
+    expect(src, "the display:contents guard is gone").toContain('display === "contents"');
+    // …and the fallback must actually be the children, not the element again
+    expect(src).toMatch(/kids\s*=\s*ctx\.qa\(sel \+ " > \*"\)/);
+  });
+
+  test.each(["riseIn", "fadeIn", "scaleIn", "from"])(
+    "the whole-element kind '%s' tweens the resolved box, not the raw element",
+    async (kind) => {
+      const src = await mcSrc();
+      // isolate this kind's dispatch arm and assert it hands GSAP `box`
+      const arm = src.slice(src.indexOf(`a.kind === "${kind}"`));
+      const nextArm = arm.indexOf("a.kind ===", 12);
+      const body = nextArm > 0 ? arm.slice(0, nextArm) : arm.slice(0, 400);
+      expect(body, `${kind} still targets the raw element`).toContain("box");
+    },
+  );
+
+  // staggerIn already targeted children — that asymmetry is the whole bug, keep it.
+  test("staggerIn still targets children directly", async () => {
+    expect(await mcSrc()).toContain('MC.staggerIn(tl, ctx.qa(sel + " > *")');
+  });
+});
