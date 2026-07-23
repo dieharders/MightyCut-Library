@@ -26,6 +26,12 @@ import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
 import { blockTheme } from "./themes/block/theme";
 import { futureTheme } from "./themes/future/theme";
+// The live-theme barrel — every theme-generic sweep iterates THIS, not a hand-written
+// [blockTheme, futureTheme] literal, so a newly converted theme (added to ALL_THEMES +
+// engine THEMES) inherits every parity tripwire below automatically. The pin test
+// (below) fails loudly if ALL_THEMES and the engine's loadable set ever disagree.
+import { ALL_THEMES } from "./themes/all";
+import { THEMES as ENGINE_THEMES } from "../engine/load-theme";
 
 const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
 
@@ -41,6 +47,13 @@ describe("registry vocabulary (tripwire)", () => {
   });
   test("every component name resolves", () => {
     for (const c of COMPONENT_NAMES) expect(getComponent(c).componentName).toBe(c);
+  });
+  // The generic sweeps are only as complete as ALL_THEMES: a theme the engine can load
+  // but that is missing from ALL_THEMES would silently escape every parity tripwire.
+  // Pin the two together (mirrors boxless-reveal.test.ts) so a converted-but-unlisted
+  // theme fails HERE rather than shipping unchecked.
+  test("ALL_THEMES covers exactly the engine-loadable THEMES", () => {
+    expect([...ALL_THEMES.map((t) => t.name)].sort()).toEqual([...ENGINE_THEMES].sort());
   });
 });
 
@@ -388,11 +401,17 @@ describe("future theme (tripwire)", () => {
     });
   }
 
-  test("template override: cover drops the eyebrow chip + adds a cyan rule", () => {
-    const html = renderScene(getTreatment("cover")(), fctx("f01-cover"));
-    const ex = getTreatment("cover").defaults() as { headline: string; subtitle?: string };
-    expect(html).toContain('class="rule"'); // the real rule element from templates/cover.html
-    expect(html).not.toContain('class="eyebrow"'); // eyebrow chip dropped (block renders it)
+  test("template override: cover adds an ANIMATED cyan rule + preserves the eyebrow slot", () => {
+    const built = getTreatment("cover")().build(fctx("f01-cover"));
+    const html = built.html;
+    const ex = getTreatment("cover").defaults() as { headline: string; subtitle?: string; eyebrow?: string };
+    // future's cover template adds a `.rule` underline (block's shared template has none) and
+    // it now animates in via the shared coverAnim's `rule` descriptor — the element carries its
+    // scoped anim class AND a `rule` descriptor targets it (was painted statically at t=0 before).
+    expect(html).toContain('class="rule f01-cover-rule"');
+    expect(built.anims.some((a) => a.kind === "rule" && a.target === "f01-cover-rule")).toBe(true);
+    // the eyebrow slot is PRESERVED (future used to drop it entirely) — it renders when set.
+    if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
     expect(html).toContain(ex.headline); // shared markers preserved → headline still renders
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
   });
@@ -430,7 +449,7 @@ describe("future theme (tripwire)", () => {
   // validated against each element's schema at build, so a bad field fails HERE, not as a
   // broken card in the live showcase. Covers block + future symmetrically.
   test("every theme's examples compose (params + children valid against schemas)", () => {
-    for (const theme of [blockTheme, futureTheme]) {
+    for (const theme of ALL_THEMES) {
       for (const [tname, ex] of Object.entries(theme.examples ?? {})) {
         const factory = getTreatment(tname);
         let inst = factory((ex.params ?? {}) as never);
@@ -451,17 +470,14 @@ describe("future theme (tripwire)", () => {
 // tripwires that keep a new theme (or a hand edit) from reintroducing a private colour
 // vocabulary — the exact drift this migration removed.
 describe("palette roles (tripwire)", () => {
-  const THEMES = [
-    { theme: blockTheme, uniques: 8 },
-    { theme: futureTheme, uniques: 9 },
-  ];
-
-  test.each(THEMES)("$theme.name fills all 10 roles exactly once, in canonical order", ({ theme }) => {
+  // Iterate every live theme (not a hand-written [block, future] pair) so a newly
+  // converted theme is held to the palette contract for free.
+  test.each(ALL_THEMES)("$name fills all 10 roles exactly once, in canonical order", (theme) => {
     const roles = (theme.palette ?? []).map((p) => p.varName);
     expect(roles).toEqual([...PALETTE_VARS]);
   });
 
-  test.each(THEMES)("$theme.name emits a :root custom property per role", ({ theme }) => {
+  test.each(ALL_THEMES)("$name emits a :root custom property per role", (theme) => {
     for (const sw of theme.palette ?? []) {
       expect(theme.css, `--${sw.varName} missing from ${theme.name}'s :root`).toContain(
         `--${sw.varName}: ${sw.hex.toLowerCase()};`,
@@ -471,11 +487,14 @@ describe("palette roles (tripwire)", () => {
 
   // The de-dupe the showcase + every palette-colour param control render from: a colour
   // filling several roles is listed ONCE, keyed to its FIRST role (block's Oat → muted-2,
-  // never muted-3). Guards the "don't show duplicate colour options" requirement.
-  test.each(THEMES)("$theme.name de-dupes to its unique colours, first role wins", ({ theme, uniques }) => {
+  // never muted-3). The expected count is DERIVED from the palette's distinct hexes — not a
+  // hardcoded per-theme literal (block 8 / future 9) a new theme would have to be added to —
+  // so this asserts the de-dupe agrees with the palette, generically.
+  test.each(ALL_THEMES)("$name de-dupes to its unique colours, first role wins", (theme) => {
+    const distinctHexes = new Set((theme.palette ?? []).map((p) => p.hex.toLowerCase())).size;
     const unique = uniquePaletteEntries(theme.palette ?? []);
-    expect(unique.length).toBe(uniques);
-    expect(new Set(unique.map((p) => p.hex.toLowerCase())).size).toBe(uniques);
+    expect(unique.length).toBe(distinctHexes);
+    expect(new Set(unique.map((p) => p.hex.toLowerCase())).size).toBe(distinctHexes);
     // each kept entry is the FIRST role holding that hex, in canonical order
     for (const sw of unique) {
       const first = (theme.palette ?? []).find((p) => p.hex.toLowerCase() === sw.hex.toLowerCase())!;
@@ -484,7 +503,7 @@ describe("palette roles (tripwire)", () => {
   });
 
   // No skin may reintroduce a raw colour. Roles + color-mix() derivations only.
-  test.each(THEMES)("$theme.name's skins carry no hex/rgb literal", ({ theme }) => {
+  test.each(ALL_THEMES)("$name's skins carry no hex/rgb literal", (theme) => {
     for (const [name, css] of Object.entries(theme.skins ?? {})) {
       expect(css, `${theme.name}/${name} has a colour literal`).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(/);
     }
@@ -527,7 +546,7 @@ describe("accent plumbing (tripwire)", () => {
     ["rank", "--col"],
   ];
 
-  for (const theme of [blockTheme, futureTheme]) {
+  for (const theme of ALL_THEMES) {
     test.each(ACCENT_PROPS)(`${theme.name}'s %s skin consumes %s`, (name, prop) => {
       const css = theme.skins?.[name];
       expect(css, `${theme.name} has no skin for '${name}'`).toBeTruthy();
@@ -536,6 +555,29 @@ describe("accent plumbing (tripwire)", () => {
       );
     });
   }
+
+  // Completeness: ACCENT_PROPS is the hand-maintained component→prop map the sweep above
+  // depends on, so a NEW component that takes a palette-role colour param but is absent
+  // from the table would escape the "skin consumes the prop" check entirely. Derive the
+  // accent-bearing component set from the schemas (any non-decoration whose schema has an
+  // enum field valued entirely in PALETTE_VARS — the same test the WebUI's isPaletteEnum
+  // uses) and assert every one is covered. Decorations tint via their own engine, not a
+  // skin, so they're exempt.
+  test("every accent-bearing component is in the ACCENT_PROPS map", () => {
+    const covered = new Set(ACCENT_PROPS.map(([name]) => name));
+    const roles = new Set<string>(PALETTE_VARS);
+    const accentBearing = allComponents()
+      .filter((f) => !f.decoration)
+      .filter((f) => {
+        const props = (f.jsonSchema() as { properties?: Record<string, { enum?: string[] }> }).properties ?? {};
+        return Object.values(props).some(
+          (p) => Array.isArray(p.enum) && p.enum.length > 0 && p.enum.every((v) => roles.has(v)),
+        );
+      })
+      .map((f) => f.componentName);
+    const missing = accentBearing.filter((n) => !covered.has(n));
+    expect(missing, `accent-bearing components missing from ACCENT_PROPS: ${missing.join(", ")}`).toEqual([]);
+  });
 
   // An accent param carries NO shared default, so an unset accent falls through to the
   // theme's own fallback rather than pinning every theme to block's choice.
@@ -558,8 +600,8 @@ describe("accent plumbing (tripwire)", () => {
     );
   });
 
-  // The chosen role must survive into the rendered scene under EITHER theme.
-  test.each([blockTheme, futureTheme])("$name honours a per-instance accent end-to-end", (theme) => {
+  // The chosen role must survive into the rendered scene under EVERY live theme.
+  test.each(ALL_THEMES)("$name honours a per-instance accent end-to-end", (theme) => {
     const inst = getTreatment("feature-cards")().addChildren(
       getComponent("card")({ title: "T", icon: "I", accent: "accent-3" }),
     );
@@ -632,11 +674,22 @@ describe("ground resolution (tripwire)", () => {
 // data-slot: the schema field survives, so the editor keeps rendering a control that
 // does nothing. Future shipped exactly that twice — cover and quote both dropped
 // `eyebrow`, and typing one silently had no effect.
-describe("theme template overrides preserve the shared slots (tripwire)", () => {
-  const slots = (html: string): string[] =>
-    [...html.matchAll(/data-slot="([a-z-]+)"/g)].map((m) => m[1]!).sort();
+describe("theme template overrides preserve the shared markers (tripwire)", () => {
+  // data-slot ids are STRICT-preserve (id-keyed): a dropped data-slot leaves the editor
+  // rendering a dead control (future shipped this twice — cover + quote dropped `eyebrow`).
+  // data-children is a VALUELESS marker (`<div data-children>`), so it's presence-preserve:
+  // an override of a child-bearing treatment must keep the container (else treatment.ts
+  // throws on child injection). data-anim is deliberately NOT blanket-checked: an override
+  // may legitimately drop a data-anim that NO descriptor targets (future's stat drops `dot`,
+  // which nothing animates). The correct data-anim invariant is anim-target RESOLUTION —
+  // every emitted descriptor resolves to a stamped element — asserted in theme-parity.test.ts.
+  const slotIds = (html: string): string[] =>
+    [...html.matchAll(/data-slot="([a-z0-9-]+)"/g)].map((m) => m[1]!).sort();
+  const hasChildrenContainer = (html: string): boolean => /\sdata-children(\s|>|=)/.test(html);
 
-  const OVERRIDES = [blockTheme, futureTheme].flatMap((theme) =>
+  // Iterate EVERY live theme's overrides (not a [block, future] literal), so a newly
+  // converted theme's overrides are held to the same marker-preservation contract.
+  const OVERRIDES = ALL_THEMES.flatMap((theme) =>
     Object.keys(theme.templates ?? {}).map((name) => ({ theme: theme.name, name, theme_: theme })),
   );
 
@@ -651,12 +704,17 @@ describe("theme template overrides preserve the shared slots (tripwire)", () => 
     return Bun.file(`${import.meta.dir}/${dir}/${name}/template.html`).text();
   };
 
-  test.each(OVERRIDES)("$theme/$name keeps every shared data-slot", async ({ name, theme_ }) => {
-    const sharedSlots = slots(await sharedTemplate(name));
-    expect(sharedSlots.length, `no shared slots found for '${name}'`).toBeGreaterThan(0);
-    const override = slots(theme_.templates![name]!);
-    const missing = sharedSlots.filter((sl) => !override.includes(sl));
+  test.each(OVERRIDES)("$theme/$name keeps every shared data-slot + the data-children container", async ({ name, theme_ }) => {
+    const shared = await sharedTemplate(name);
+    const override = theme_.templates![name]!;
+    const sharedSlots = slotIds(shared);
+    expect(sharedSlots.length, `no shared data-slot found for '${name}' — the check is vacuous`).toBeGreaterThan(0);
+    const missing = sharedSlots.filter((sl) => !slotIds(override).includes(sl));
     expect(missing, `${theme_.name}/${name} drops slot(s): ${missing.join(", ")}`).toEqual([]);
+    // If the shared template is child-bearing, the override must keep its container.
+    if (hasChildrenContainer(shared)) {
+      expect(hasChildrenContainer(override), `${theme_.name}/${name} drops the data-children container`).toBe(true);
+    }
   });
 });
 
@@ -667,7 +725,7 @@ describe("theme template overrides preserve the shared slots (tripwire)", () => 
 // and a quote with no eyebrow. Parity is the default; genuine differences go in the
 // allowlist below WITH a reason, so the omission is a decision rather than an oversight.
 describe("showcase example parity across live themes (tripwire)", () => {
-  const THEMES = [blockTheme, futureTheme];
+  const THEMES = ALL_THEMES;
 
   /** `${treatment}.${param}` (or `${treatment}.children.${param}`) → why it's absent. */
   const INTENTIONAL: Record<string, string> = {
