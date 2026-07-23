@@ -1,4 +1,5 @@
-/* 9 · Bar Ranking — ranked horizontal rows (rank.css); the leader (first row) glows cyan.
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css); the leader row (the `leader` param,
+   NOT its position) takes the complementary amber + a wider glow — see rank.css.
    Headline opened by a cyan rule. Ported from legacy .bf-bar-ranking (cqw × 1.2). */
 .bar-ranking > .body {
   justify-content: center;
@@ -27,14 +28,10 @@
   flex-direction: column;
   gap: 2.125rem;
 }
-.bar-ranking .bars > .rank:first-child .bcol {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--primary) 50%, transparent) 0%,
-    var(--primary) 100%
-  );
-  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 40%, transparent);
-}
+/* NOTE: the leader's fill + glow are NOT styled here. They used to be pinned to
+   :first-child in hard-coded cyan, which ignored the `leader` param entirely (checking
+   the box changed nothing) and mis-emphasised any deck whose winner wasn't first. rank.css
+   now derives both from --col / --lead, exactly as block does. */
 .bar-ranking .caption {
   font-family: var(--body);
   font-weight: 400;

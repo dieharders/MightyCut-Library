@@ -2,12 +2,13 @@
    the shared template; the chart treatment overrides flex/height to share the plot and
    glows the last column). Ported from legacy .bf-chart .bar (cqw × 1.2).
    The shared bar/rank set --col from `leader`, resolving it through --lead-col/--base-col
-   so a THEME decides what winning looks like. Future's rule is "reserve the cyan glow for
-   the winner", so the leader takes full cyan and the rest a muted cyan-steel — rather than
-   the shared accent-1/secondary roles (green/amber here), which would fight the theme. */
+   so a THEME decides what winning looks like. Future runs cyan (--primary) as the NORMAL
+   column and hands the leader the complementary amber (--secondary) — amber sits opposite
+   cyan on the wheel, so the winner reads instantly instead of being a slightly brighter
+   shade of its neighbours. */
 .bar {
-  --lead-col: var(--primary);
-  --base-col: color-mix(in srgb, var(--primary) 45%, var(--muted-1));
+  --lead-col: var(--secondary);
+  --base-col: var(--primary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +47,9 @@
   );
   border-top: 0.25rem solid var(--col, var(--primary));
   border-radius: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--col, var(--primary)) 30%, transparent);
+  /* Leader emphasis scales off --lead (0|1) — the `leader` param, not :last-child. */
+  box-shadow: 0 0 calc(1.875rem + var(--lead, 0) * 2.375rem)
+    color-mix(in srgb, var(--col, var(--primary)) calc((30 + var(--lead, 0) * 20) * 1%), transparent);
   transform-origin: bottom;
 }
 .bar .bl {

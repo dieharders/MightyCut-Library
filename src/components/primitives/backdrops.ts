@@ -57,7 +57,9 @@ const dots: BackdropDesign = {
     css: `${BACKDROP_BASE}
 .mc-backdrop--dots {
   opacity: 0.32;
-  background-image: radial-gradient(circle, var(--dark) 0.125rem, transparent 0.125rem);
+  /* --dot-ink lets a theme repaint the grid: block's ink dots vanish on a dark ground
+     (future's --dark abyss on navy is invisible), so future re-points it to cyan. */
+  background-image: radial-gradient(circle, var(--dot-ink, var(--dark)) 0.125rem, transparent 0.125rem);
   background-size: 3.625rem 3.625rem;
 }`,
     anims: [],

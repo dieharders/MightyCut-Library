@@ -23,6 +23,9 @@ export const Rank = component({
     // knowing (future reserves its cyan for the winner and quiets the rest).
     // Unset ⇒ the shared accent roles, i.e. block renders exactly as before.
     "--col": p.leader ? "var(--lead-col, var(--accent-1))" : "var(--base-col, var(--secondary))",
+    // Leadership as a 0/1 number so a skin can scale emphasis arithmetically
+    // (calc() on a glow spread) — the flag, never the row's DOM position.
+    "--lead": p.leader ? "1" : "0",
   }),
   animIn: "fade",
   anim: rankAnim,

@@ -1,5 +1,6 @@
-/* 8 · Chart — cyan gradient bars sharing a plot (bar.css); the last bar takes the bright
-   glow. Headline opened by a cyan rule. Ported from legacy .bf-chart (cqw × 1.2). */
+/* 8 · Chart — cyan gradient columns sharing a plot (bar.css); the column flagged
+   `leader` (NOT the last one) takes the complementary amber + a wider glow — see bar.css.
+   Headline opened by a cyan rule. Ported from legacy .bf-chart (cqw × 1.2). */
 .chart > .body {
   justify-content: center;
   padding: 8.125rem 6rem 13.5rem;
@@ -35,14 +36,8 @@
   flex: 1;
   height: 100%;
 }
-.chart .bars .bar:last-child .bcol {
-  background: linear-gradient(
-    180deg,
-    var(--primary) 0%,
-    color-mix(in srgb, var(--primary) 20%, transparent) 100%
-  );
-  box-shadow: 0 0 2.375rem color-mix(in srgb, var(--primary) 40%, transparent);
-}
+/* NOTE: the leader column is NOT styled here — see the same note in bar-ranking.css.
+   bar.css derives its fill + glow from --col / --lead (the `leader` param). */
 .chart .caption {
   font-family: var(--body);
   font-weight: 400;

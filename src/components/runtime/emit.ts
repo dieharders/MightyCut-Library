@@ -6,6 +6,7 @@ import { serialize } from "../../pipeline/mini-dom";
 import { wrapSubComposition } from "../../pipeline/sub-composition";
 import type { FrameGround } from "../../types/storyboard";
 import { scopeCss } from "./css";
+import { groundFor } from "./treatment";
 import type { AnimDescriptor, BuildContext, ComponentInstance, SubComposition, TreatmentInstance } from "./types";
 
 export type SceneOverrides = {
@@ -65,7 +66,7 @@ export const buildPreview = (inst: ComponentInstance | TreatmentInstance, ctx: B
   const bn = inst.buildNode(ctx);
   if (inst.kind === "treatment") {
     const own = (bn.node.attrs.style ?? "").trim().replace(/;\s*$/, "");
-    const ground = `background: var(--${(inst as TreatmentInstance).ground})`;
+    const ground = `background: var(--${groundFor(ctx, (inst as TreatmentInstance).ground)})`;
     bn.node.attrs.style = own ? `${own}; ${ground}` : ground;
   }
   return {

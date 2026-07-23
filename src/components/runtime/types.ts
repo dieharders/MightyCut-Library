@@ -78,6 +78,13 @@ export type ThemeTokens = {
    *  element's shared schema/anim/fill/layout keep working — it may only re-wrap/rename/
    *  add decorative nodes or DROP an optional slot (whose anim then no-ops). */
   templates?: Record<string, string>;
+  /** The ground this theme falls back to when a scene sets none, OVERRIDING the
+   *  treatment's canonical `ground`. A monochrome theme (future: every frame on navy)
+   *  sets it so the shared, block-flavoured per-treatment grounds don't leak through —
+   *  the job future's `background: … !important` used to do, except an explicit scene
+   *  ground still WINS here, which `!important` made impossible.
+   *  Resolution order: scene override → theme.groundDefault → treatment canonical. */
+  groundDefault?: PaletteVar;
   /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
    *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
    *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */

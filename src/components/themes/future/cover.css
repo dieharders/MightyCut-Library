@@ -1,12 +1,23 @@
-/* 1 · Cover — centered title over the constellation ground. The eyebrow is dropped and a
-   short centered cyan→violet rule (--primary → --accent-2) sits under the headline
-   (templates/cover.html). No decorations —
-   the backdrop is the flourish. Ported from legacy .bf-cover (cqw × 1.2). */
+/* 1 · Cover — centered title over the constellation ground, with a short centered
+   cyan→violet rule (--primary → --accent-2) under the headline (templates/cover.html).
+   The eyebrow renders as future's `label` type role (mono, uppercase, wide-tracked, cyan)
+   and self-removes when the slide sets none — future's template used to DROP the slot
+   entirely, so typing an eyebrow silently did nothing. No decorations — the backdrop is
+   the flourish. Ported from legacy .bf-cover (cqw × 1.2). */
 .cover > .body {
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 8.125rem 12rem 13.5rem;
+}
+.cover .eyebrow {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 2.5rem;
 }
 .cover h3 {
   font-size: 8.375rem;

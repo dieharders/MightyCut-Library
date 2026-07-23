@@ -567,3 +567,62 @@ describe("accent plumbing (tripwire)", () => {
     expect(html).toContain("--ic: var(--accent-3)");
   });
 });
+
+// ------------------------------------------------------------ ground resolution ---
+// A scene's ground resolves: explicit override → theme.groundDefault → treatment
+// canonical. The middle step lets a monochrome theme (future) pin every frame without
+// an `!important`, which used to make an explicit background impossible to apply.
+describe("ground resolution (tripwire)", () => {
+  const fctx = (id: string) => rootContext(id, futureTheme, { voIds: ["l1", "l2"] });
+  const bctx = (id: string) => rootContext(id, blockTheme, { voIds: ["l1", "l2"] });
+
+  test("future pins every treatment to its groundDefault when no scene ground is set", () => {
+    expect(futureTheme.groundDefault).toBe("muted-2");
+    for (const name of TREATMENT_NAMES) {
+      const html = renderScene(getTreatment(name)(), fctx(`g-${name}`));
+      expect(html, `${name} did not land on future's ground default`).toContain(
+        "background: var(--muted-2)",
+      );
+    }
+  });
+
+  test("an EXPLICIT scene ground beats the theme default (the bug !important caused)", () => {
+    const html = renderScene(getTreatment("cover")(), fctx("g-x"), { ground: "accent-3" });
+    expect(html).toContain("background: var(--accent-3)");
+    expect(html).not.toContain("background: var(--muted-2)");
+  });
+
+  test("future's frame.css no longer force-pins the ground", () => {
+    // Strip comments first — the file EXPLAINS the removed !important in prose.
+    const decls = (futureTheme.frameCss ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(decls).not.toMatch(/background:[^;]*!important/);
+  });
+
+  test("block (no groundDefault) still uses each treatment's canonical ground", () => {
+    expect(blockTheme.groundDefault).toBeUndefined();
+    expect(renderScene(getTreatment("cover")(), bctx("g-b"))).toContain("background: var(--muted-1)");
+    expect(renderScene(getTreatment("quote")(), bctx("g-q"))).toContain("background: var(--primary)");
+  });
+
+  // The dot grid is ink-on-light by default; a dark theme must be able to repaint it.
+  test("the dots mask is theme-recolourable via --dot-ink", () => {
+    expect(BACKDROPS.dots.build({ ground: "muted-2", theme: futureTheme, ctx: fctx("d") }).css).toContain(
+      "var(--dot-ink",
+    );
+    expect(futureTheme.frameCss ?? "").toContain("--dot-ink");
+  });
+
+  // future's cover template dropped the eyebrow slot entirely, so typing one did nothing.
+  test("future's cover renders an eyebrow when the slide sets one", () => {
+    const withEyebrow = renderScene(
+      getTreatment("cover")({ headline: "H", subtitle: "S", eyebrow: "Hello there" } as never),
+      fctx("g-e"),
+    );
+    expect(withEyebrow).toContain("Hello there");
+    // …and the ELEMENT still self-removes when unset (the word "eyebrow" survives in the
+    // CSS rule + anim target either way, so assert on the markup, not the whole document).
+    const noEyebrow = renderScene(getTreatment("cover")({ headline: "H", subtitle: "S" } as never), fctx("g-e2"));
+    expect(noEyebrow).not.toContain('<div class="eyebrow"');
+    expect(withEyebrow).toContain("eyebrow");
+  });
+});

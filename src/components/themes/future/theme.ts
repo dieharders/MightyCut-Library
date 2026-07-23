@@ -7,7 +7,7 @@
 //   <element>.css    future's SKIN for each shared primitive/treatment (structure +
 //                    behavior are shared; future styles the standard class names here)
 //   templates/*.html per-theme structure overrides where CSS can't reach (stat drops
-//                    the dot; cover drops the eyebrow + adds a rule; quote adds a mark)
+//                    the dot; cover adds a rule under the headline; quote adds a mark)
 // The `:root` tokens are DERIVED from the 10-role `palette` below (see `tokensCss`),
 // the same shape block uses — future no longer carries a parallel --fx-* identity
 // layer. Content fonts (Space Grotesk / Inter / JetBrains Mono) are all in the
@@ -232,6 +232,11 @@ export const futureTheme: ThemeTokens = {
     "A dark sci-fi command-center theme. Constellation backdrop, near-white headlines, translucent glass panels. Cyan leads; violet, amber, and green stays quiet. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
+  // Every future frame sits on navy: this REPLACES the shared per-treatment grounds
+  // (which are block-flavoured — cream/pink/blue) without pinning them, so a scene that
+  // explicitly picks a background still gets it. Formerly a `!important` in frame.css,
+  // which made an explicit ground impossible to apply.
+  groundDefault: "muted-2",
   // Future's canonical backdrop: the animated cyan constellation (a per-scene seeded
   // particle network) painted over the navy ground. See primitives/backdrops.ts.
   backdrop: "constellation",

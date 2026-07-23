@@ -83,6 +83,11 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   entrance?: string;
 };
 
+/** The ground a scene actually paints: an explicit scene override wins, else the THEME's
+ *  default (a monochrome theme pins every frame), else the treatment's canonical ground. */
+export const groundFor = (ctx: BuildContext, canonical: FrameGround): FrameGround =>
+  ctx.ground ?? (ctx.theme.groundDefault as FrameGround | undefined) ?? canonical;
+
 export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): TreatmentFactory<S> {
   const delay = def.revealDelay ?? 0.5;
   let cachedJson: object | null = null;
@@ -199,7 +204,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // Resolve the effective ground (scene override → treatment canonical) so a
         // ground-tinted mask recolours against what the scene actually paints.
         const backdropName = ctx.backdrop ?? ctx.theme.backdrop ?? "plain";
-        const backdrop = buildBackdrop(backdropName, { ground: ctx.ground ?? def.ground, theme: ctx.theme, ctx });
+        const backdrop = buildBackdrop(backdropName, { ground: groundFor(ctx, def.ground), theme: ctx.theme, ctx });
         const backdropAnims: AnimDescriptor[] = [];
         if (backdrop) {
           root.children.unshift(backdrop.node);
@@ -250,7 +255,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const root = bn.node;
         const pageClasses = root.attrs.class ?? def.name;
         const ownStyle = (root.attrs.style ?? "").trim().replace(/;\s*$/, "");
-        const ground = `background: var(--${def.ground})`;
+        const ground = `background: var(--${groundFor(ctx, def.ground)})`;
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
         // Whole-page transition: an assigned animIn/animOut wins over the legacy
