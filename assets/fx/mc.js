@@ -385,7 +385,7 @@
           var kids = ctx.qa(sel + " > *");
           if (kids && kids.length) box = kids;
         }
-      } catch (e) {
+      } catch (_e) {
         /* no computed style (non-DOM host) — fall back to the element itself */
       }
       // Defence in depth: never let a SECOND whole-box reveal land on a box that already
