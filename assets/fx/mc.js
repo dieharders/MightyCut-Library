@@ -359,6 +359,10 @@
       if (t.at === "seconds") return t.t || 0;
       return ctx.leadIn;
     };
+    // The from-style whole-box reveals (see the one-reveal-per-box guard below) and the
+    // boxes already claimed by one in THIS call.
+    var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
+    var revealed = [];
     for (var i = 0; i < anims.length; i++) {
       var a = anims[i];
       var sel = "." + a.target;
@@ -384,9 +388,28 @@
       } catch (e) {
         /* no computed style (non-DOM host) — fall back to the element itself */
       }
+      // Defence in depth: never let a SECOND whole-box reveal land on a box that already
+      // has one. Every reveal kind compiles to `tl.from()`, and two of them on the same
+      // element fight over immediateRender — the later tween samples the earlier one's
+      // from-state (opacity 0) as its END value, so the box reveals and then vanishes for
+      // good. runtime/component.ts dedupes this at build time; this guard covers the lists
+      // it can't reach — hand-authored descriptors and scenes BAKED + hand-locked before
+      // that fix. Only the whole-box OPACITY reveals are guarded — rule/float/countUp are
+      // to/fromTo tweens, and growBar is a `from` but on a sub-part's scale alone (never
+      // opacity), so all of them legitimately stack on top of a reveal.
+      var boxes = a.kind === "staggerIn" ? ctx.qa(sel + " > *") : box;
+      if (REVEAL_KINDS[a.kind] && boxes) {
+        var list = boxes.nodeType == null && boxes.length != null ? boxes : [boxes];
+        var owned = false;
+        for (var bi = 0; bi < list.length; bi++) {
+          if (revealed.indexOf(list[bi]) !== -1) { owned = true; break; }
+        }
+        if (owned) continue; // an earlier reveal already owns these boxes
+        for (var bj = 0; bj < list.length; bj++) revealed.push(list[bj]);
+      }
       if (a.kind === "riseIn") MC.riseIn(tl, box, when, o);
       else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, o);
-      else if (a.kind === "staggerIn") MC.staggerIn(tl, ctx.qa(sel + " > *"), when, o);
+      else if (a.kind === "staggerIn") MC.staggerIn(tl, boxes, when, o);
       else if (a.kind === "rule") MC.rule(tl, el, when, o);
       else if (a.kind === "float") MC.float(tl, el, when, o);
       else if (a.kind === "countUp") MC.countUp(tl, el, when, o);

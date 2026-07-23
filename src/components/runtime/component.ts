@@ -125,7 +125,16 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
                 useDefault ? def.animInOpts : undefined,
               )
             : null;
-        const local = entrance ? [entrance, ...internals] : internals;
+        // ONE reveal per box. An internal reveal aimed at the SAME target as the
+        // whole-element entrance is NOT additive: both compile to a `tl.from()` on the
+        // same element, and GSAP's immediateRender makes the second tween sample the
+        // first's from-state (opacity 0) as its END value — so the element reveals and
+        // then vanishes for good (the ledger Row + any picked transition: the entrance
+        // and rowAnim's staggerIn both drive `item`). The chosen entrance wins; internal
+        // reveals on SUB-parts (stat's number, bar's col/value) are untouched.
+        const local = entrance
+          ? [entrance, ...internals.filter((a) => a.target !== entrance.target)]
+          : internals;
         const anims = local.map((a) => qualifyAnim(a, ctx.idPrefix));
         // The skin is theme-owned when the active theme supplies one for this
         // component name (theme.skins[name]); else the component's own css; else none.

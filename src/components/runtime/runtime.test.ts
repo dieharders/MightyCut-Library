@@ -333,7 +333,31 @@ describe("applyAnims retargets box-less (display:contents) elements", () => {
   );
 
   // staggerIn already targeted children — that asymmetry is the whole bug, keep it.
+  // It now reads them through `boxes` (hoisted so the one-reveal-per-box guard below
+  // can compare resolved elements), but the resolution must stay the children.
   test("staggerIn still targets children directly", async () => {
-    expect(await mcSrc()).toContain('MC.staggerIn(tl, ctx.qa(sel + " > *")');
+    const src = await mcSrc();
+    expect(src).toMatch(/boxes\s*=\s*a\.kind === "staggerIn" \? ctx\.qa\(sel \+ " > \*"\)/);
+    expect(src).toContain("MC.staggerIn(tl, boxes,");
+  });
+
+  // Two from-style reveals on one box make GSAP's immediateRender read the first's
+  // from-state (opacity 0) as the second's END value — the box reveals, then vanishes
+  // for good. Build-time dedupe (component.ts) is the real fix; this guard catches the
+  // descriptor lists it can't reach (hand-authored, or baked + hand-locked scenes).
+  test("a second whole-box reveal on an already-revealed box is skipped", async () => {
+    const src = await mcSrc();
+    expect(src, "the reveal-kind set is gone").toMatch(
+      /REVEAL_KINDS\s*=\s*\{[^}]*riseIn[^}]*fadeIn[^}]*scaleIn[^}]*staggerIn[^}]*from[^}]*\}/,
+    );
+    expect(src, "the guard no longer skips a clashing reveal").toMatch(
+      /if \(owned\) continue;/,
+    );
+    // `to`-tween kinds must NOT be guarded — they legitimately stack on a reveal.
+    const set = src.slice(src.indexOf("REVEAL_KINDS ="));
+    const decl = set.slice(0, set.indexOf("}"));
+    for (const kind of ["rule", "float", "countUp", "growBar", "backdrop"]) {
+      expect(decl, `${kind} must not be treated as a whole-box reveal`).not.toContain(kind);
+    }
   });
 });

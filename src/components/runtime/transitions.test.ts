@@ -109,6 +109,42 @@ describe("primitive entrance byte-identity (post-refactor)", () => {
   });
 });
 
+// A picked transition and an internal reveal aimed at the SAME target both compile to
+// `tl.from()` on one element; GSAP's immediateRender then makes the second sample the
+// first's from-state (opacity 0) as its END value, so the element reveals and vanishes
+// for good. The entrance must WIN — one reveal per box.
+describe("entrance vs. internal reveal on the same target", () => {
+  const withIn = (name: string, animIn: "pop" | "rise" | "fade") =>
+    getComponent(name)()
+      .withTransition({ animIn })
+      .build(rootContext(`sc-${name}`, blockTheme)).anims;
+
+  test("row: a picked entrance replaces the same-target staggerIn", () => {
+    // rowAnim's staggerIn targets `item` — exactly what elementIn drives.
+    for (const t of ["pop", "rise", "fade"] as const) {
+      const anims = withIn("row", t);
+      expect(anims).toHaveLength(1);
+      expect(anims[0].target).toBe("sc-row-item");
+      expect(anims.filter((a) => a.target === "sc-row-item")).toHaveLength(1);
+    }
+  });
+
+  test("row: pop is the back-eased scaleIn, not a dropped no-op", () => {
+    expect(withIn("row", "pop")[0]).toEqual({
+      kind: "scaleIn",
+      target: "sc-row-item",
+      time: { at: "line", n: 0 },
+      opts: { from: 0.8, ease: "back.out(2)" },
+    });
+  });
+
+  test("internal reveals on SUB-parts survive the entrance", () => {
+    // bar's growBar/countUp target col/value — different boxes, so they still stack.
+    expect(withIn("bar", "pop").map((a) => a.kind)).toEqual(["scaleIn", "growBar", "countUp"]);
+    expect(withIn("stat", "pop").map((a) => a.kind)).toEqual(["scaleIn", "countUp"]);
+  });
+});
+
 describe("treatment scene transition (render)", () => {
   test("default treatment ⇒ legacy entrance, no exit", () => {
     const html = renderScene(getTreatment("stat-grid")(), rootContext("s01-def", blockTheme, { voIds: ["l1", "l2"] }));
