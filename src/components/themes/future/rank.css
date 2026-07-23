@@ -1,6 +1,12 @@
 /* Bar-ranking row: a mono label, a glass track, a cyan fill (--fill%), a cyan value. The
-   leader glow is positional (bar-ranking.css). Ported from legacy .bf-bar-ranking .bar. */
+   leader glow is positional (bar-ranking.css). Ported from legacy .bf-bar-ranking .bar.
+   The shared bar/rank set --col from `leader`, resolving it through --lead-col/--base-col
+   so a THEME decides what winning looks like. Future's rule is "reserve the cyan glow for
+   the winner", so the leader takes full cyan and the rest a muted cyan-steel — rather than
+   the shared accent-1/secondary roles (green/amber here), which would fight the theme. */
 .rank {
+  --lead-col: var(--primary);
+  --base-col: color-mix(in srgb, var(--primary) 45%, var(--muted-1));
   display: flex;
   align-items: center;
   gap: 1.875rem;
@@ -30,11 +36,11 @@
   width: var(--fill, 4%);
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--primary) 35%, transparent) 0%,
-    color-mix(in srgb, var(--primary) 75%, transparent) 100%
+    color-mix(in srgb, var(--col, var(--primary)) 35%, transparent) 0%,
+    color-mix(in srgb, var(--col, var(--primary)) 75%, transparent) 100%
   );
   border-radius: 0.5rem;
-  box-shadow: 0 0 1.5rem color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 0 1.5rem color-mix(in srgb, var(--col, var(--primary)) 30%, transparent);
   transform-origin: left center;
 }
 .rank .bv {

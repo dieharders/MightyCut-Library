@@ -1,6 +1,8 @@
 /* Future caption skin: a dark translucent glass pill with a glowing cyan left bar and
    near-white Inter text. Scaled to match the showcase caption card; the harness owns the
-   root rail placement + master-timeline autoAlpha hook in the render. */
+   root rail placement + master-timeline autoAlpha hook in the render.
+   The bar follows the instance's accent (--capbar); unset ⇒ future's cyan. The pill's own
+   hairline/ground stay theme chrome, so only the accent moves — as in block. */
 .caption {
   display: inline-flex;
   align-items: center;
@@ -13,11 +15,12 @@
   backdrop-filter: blur(6px);
 }
 .caption .cap-bar {
+  --bar: var(--capbar, var(--primary));
   align-self: stretch;
   width: 0.5rem;
   flex-shrink: 0;
-  background: var(--primary);
-  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--primary) 70%, transparent);
+  background: var(--bar);
+  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--bar) 70%, transparent);
   border-radius: 0.25rem;
 }
 .caption .cap-text {

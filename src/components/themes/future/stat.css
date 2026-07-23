@@ -1,5 +1,6 @@
-/* Stat = a bare figure + label (no dot — dropped in templates/stat.html). Cyan numeral,
-   muted label. Ported from legacy .bf-stat-grid .sc (cqw × 1.2). */
+/* Stat = a bare figure + label (no dot — dropped in templates/stat.html). Because there
+   is no dot to tint, the NUMERAL carries the instance's accent (--dot, the prop the shared
+   stat emits); unset ⇒ cyan. The glass panel stays theme chrome. */
 .stat {
   position: relative;
   display: flex;
@@ -23,7 +24,7 @@
   font-size: 6.5rem;
   line-height: 1;
   letter-spacing: -0.02em;
-  color: var(--primary);
+  color: var(--dot, var(--primary));
 }
 .stat-label {
   font-family: var(--body);

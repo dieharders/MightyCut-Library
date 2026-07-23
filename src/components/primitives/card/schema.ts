@@ -16,7 +16,7 @@ export const CardSchema = z.object({
     .describe("Glyph in accent square — Roman numeral, text or emoji"),
   accent: z
     .enum(PALETTE_VARS)
-    .default("primary")
-    .describe("Palette role filling the square icon's background"),
+    .optional()
+    .describe("Palette role filling the square icon (unset ⇒ the theme's default)"),
 });
 export type CardParams = z.infer<typeof CardSchema>;

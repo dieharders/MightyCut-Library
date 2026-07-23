@@ -1,8 +1,12 @@
 /* Future eyebrow/pill: a glass chip — translucent navy plating with a cyan hairline, fully
-   rounded (curved) border, a soft cyan glow, and a wide-tracked cyan mono label. */
+   rounded (curved) border, a soft cyan glow, and a wide-tracked cyan mono label.
+   The accent (--pillbg) tints the HAIRLINE, GLOW and LABEL rather than the fill: future's
+   pill is glass, and flooding its background would destroy the plating. Same param, the
+   theme decides how it reads (block fills the background with it). */
 .pill-c {
+  --chip: var(--pillbg, var(--primary));
   display: inline-block;
-  border: 0.125rem solid color-mix(in srgb, var(--primary) 40%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--chip) 40%, transparent);
   background:
     linear-gradient(
       180deg,
@@ -12,12 +16,12 @@
     color-mix(in srgb, var(--muted-3) 55%, transparent);
   backdrop-filter: blur(2px);
   border-radius: 9999px;
-  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--primary) 18%, transparent);
+  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--chip) 18%, transparent);
   padding: 0.75rem 1.75rem;
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 1.5rem;
-  color: var(--primary);
+  color: var(--chip);
 }

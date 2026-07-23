@@ -7,7 +7,7 @@ export const PillSchema = z.object({
   text: z.string().max(40).describe("Label text"),
   variant: z
     .enum(PALETTE_VARS)
-    .default("light")
-    .describe("Palette role for the pill's background"),
+    .optional()
+    .describe("Palette role for the pill's background (unset ⇒ the theme's default)"),
 });
 export type PillParams = z.infer<typeof PillSchema>;

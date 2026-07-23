@@ -9,7 +9,8 @@ export const Card = component({
   template,
   example: { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I" },
   fill: (p) => ({ "card-icon": p.icon, "card-title": p.title, "card-body": p.body }),
-  layout: (p) => ({ "--ic": `var(--${p.accent})` }),
+  // Emitted only when set — see caption/index.ts.
+  layout: (p): Record<string, string> => (p.accent ? { "--ic": `var(--${p.accent})` } : {}),
   animIn: "rise",
   animInOpts: { dist: 26 },
 });

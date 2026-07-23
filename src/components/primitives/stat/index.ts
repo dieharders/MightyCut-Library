@@ -10,7 +10,8 @@ export const Stat = component({
   template,
   example: { value: 240, label: "Requests / sec" },
   fill: (p) => ({ number: `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`, label: p.label }),
-  layout: (p) => ({ "--dot": `var(--${p.accent})` }),
+  // Emitted only when set — see caption/index.ts.
+  layout: (p): Record<string, string> => (p.accent ? { "--dot": `var(--${p.accent})` } : {}),
   animIn: "rise",
   animInOpts: { dist: 26 },
   anim: statAnim,

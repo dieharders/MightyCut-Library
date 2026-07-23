@@ -13,9 +13,12 @@ export const Caption = component({
   name: "caption",
   schema: CaptionSchema,
   template,
-  example: { text: "Captions render in the theme's own pill.", accentBar: "primary" },
+  // No accentBar pinned: the showcase card shows each THEME's own default bar colour.
+  example: { text: "Captions render in the theme's own pill." },
   fill: (p) => ({ text: p.text }),
-  layout: (p) => ({ "--capbar": `var(--${p.accentBar})` }),
+  // Emitted only when set — an unset accent lets the theme skin's
+  // `var(--capbar, var(--<role>))` fallback choose, so each theme owns its default.
+  layout: (p): Record<string, string> => (p.accentBar ? { "--capbar": `var(--${p.accentBar})` } : {}),
   animIn: "rise",
   animInOpts: { dist: 20 },
 });

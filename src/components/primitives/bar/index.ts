@@ -18,7 +18,11 @@ export const Bar = component({
     // Fill = value/max, clamped to 0–100% (0 = empty, value ≥ max = full). No minimum floor,
     // so small values register; no negative or over-100 overflow.
     "--fill": `${Math.min(100, Math.max(0, (p.value / p.max) * 100)).toFixed(1)}%`,
-    "--col": p.leader ? "var(--accent-1)" : "var(--secondary)",
+    // The leader/base COLOURS resolve through --lead-col/--base-col so a theme can
+    // re-point what "leader" looks like from its own skin without the component
+    // knowing (future reserves its cyan for the winner and quiets the rest).
+    // Unset ⇒ the shared accent roles, i.e. block renders exactly as before.
+    "--col": p.leader ? "var(--lead-col, var(--accent-1))" : "var(--base-col, var(--secondary))",
   }),
   animIn: "fade",
   anim: barAnim,

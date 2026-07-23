@@ -509,3 +509,61 @@ describe("palette roles (tripwire)", () => {
     expect(html).toContain("var(--primary)");
   });
 });
+
+// ------------------------------------------------------------- accent plumbing ---
+// The per-instance accent contract: a component emits a custom property carrying the
+// author's chosen palette role, and EVERY theme's skin must consume it — otherwise the
+// colour picker silently does nothing under that theme (which is exactly how future
+// shipped: it hard-coded cyan and ignored all seven props).
+describe("accent plumbing (tripwire)", () => {
+  // component -> the custom property its layout() emits
+  const ACCENT_PROPS: [string, string][] = [
+    ["caption", "--capbar"],
+    ["card", "--ic"],
+    ["icon", "--icol"],
+    ["pill", "--pillbg"],
+    ["stat", "--dot"],
+    ["bar", "--col"],
+    ["rank", "--col"],
+  ];
+
+  for (const theme of [blockTheme, futureTheme]) {
+    test.each(ACCENT_PROPS)(`${theme.name}'s %s skin consumes %s`, (name, prop) => {
+      const css = theme.skins?.[name];
+      expect(css, `${theme.name} has no skin for '${name}'`).toBeTruthy();
+      expect(css!, `${theme.name}/${name}.css ignores ${prop} — its colour param is dead`).toContain(
+        `var(${prop}`,
+      );
+    });
+  }
+
+  // An accent param carries NO shared default, so an unset accent falls through to the
+  // theme's own fallback rather than pinning every theme to block's choice.
+  test.each([
+    ["caption", "accentBar"],
+    ["card", "accent"],
+    ["icon", "accent"],
+    ["pill", "variant"],
+    ["stat", "accent"],
+  ])("%s.%s has no shared default (theme owns the default)", (name, field) => {
+    const js = getComponent(name).jsonSchema() as { properties?: Record<string, { default?: unknown }> };
+    expect(js.properties?.[field]?.default, `${name}.${field} pins a default across themes`).toBeUndefined();
+  });
+
+  // …and the prop is therefore absent from the markup when unset, present when chosen.
+  test("the accent prop is emitted only when an author picks one", () => {
+    expect(getComponent("icon")({ name: "shield" }).build(ctx("s")).html).not.toContain("--icol");
+    expect(getComponent("icon")({ name: "shield", accent: "secondary" }).build(ctx("s")).html).toContain(
+      "--icol: var(--secondary)",
+    );
+  });
+
+  // The chosen role must survive into the rendered scene under EITHER theme.
+  test.each([blockTheme, futureTheme])("$name honours a per-instance accent end-to-end", (theme) => {
+    const inst = getTreatment("feature-cards")().addChildren(
+      getComponent("card")({ title: "T", icon: "I", accent: "accent-3" }),
+    );
+    const html = renderScene(inst, rootContext("s01", theme, { voIds: ["l1"] }));
+    expect(html).toContain("--ic: var(--accent-3)");
+  });
+});

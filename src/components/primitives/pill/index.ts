@@ -8,9 +8,11 @@ export const Pill = component({
   name: "pill",
   schema: PillSchema,
   template,
-  example: { text: "Label Pill", variant: "primary" },
+  // No variant pinned — see caption/index.ts.
+  example: { text: "Label Pill" },
   fill: (p) => ({ text: p.text }),
-  layout: (p) => ({ "--pillbg": `var(--${p.variant})` }),
+  // Emitted only when set — see caption/index.ts.
+  layout: (p): Record<string, string> => (p.variant ? { "--pillbg": `var(--${p.variant})` } : {}),
   animIn: "rise",
   animInOpts: { dist: 18 },
 });

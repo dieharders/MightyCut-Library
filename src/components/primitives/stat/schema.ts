@@ -27,7 +27,7 @@ export const StatSchema = z.object({
     .describe("Decimal places shown while counting"),
   accent: z
     .enum(PALETTE_VARS)
-    .default("primary")
-    .describe("Palette role for the corner dot"),
+    .optional()
+    .describe("Palette role for the corner dot (unset ⇒ the theme's default)"),
 });
 export type StatParams = z.infer<typeof StatSchema>;

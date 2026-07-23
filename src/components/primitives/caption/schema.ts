@@ -6,7 +6,7 @@ export const CaptionSchema = z.object({
   text: z.string().max(160).describe("Caption / VO-transcript line rendered in the pill"),
   accentBar: z
     .enum(PALETTE_VARS)
-    .default("primary")
-    .describe("Palette role for the left accent bar"),
+    .optional()
+    .describe("Palette role for the left accent bar (unset ⇒ the theme's default)"),
 });
 export type CaptionParams = z.infer<typeof CaptionSchema>;

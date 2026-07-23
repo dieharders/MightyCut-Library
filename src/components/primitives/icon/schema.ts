@@ -7,8 +7,8 @@ export const IconSchema = z.object({
   name: z.enum(ICON_NAMES).default("shield").describe("Icon alias"),
   accent: z
     .enum(PALETTE_VARS)
-    .default("dark")
-    .describe("Palette role for the stroke colour"),
+    .optional()
+    .describe("Palette role for the stroke colour (unset ⇒ the theme's default)"),
   size: z
     .number()
     .positive()

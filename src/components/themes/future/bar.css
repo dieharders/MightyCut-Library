@@ -1,7 +1,13 @@
 /* Chart bar: a cyan gradient column in a .btrack whose height is --fill% (structure from
    the shared template; the chart treatment overrides flex/height to share the plot and
-   glows the last column). Ported from legacy .bf-chart .bar (cqw × 1.2). */
+   glows the last column). Ported from legacy .bf-chart .bar (cqw × 1.2).
+   The shared bar/rank set --col from `leader`, resolving it through --lead-col/--base-col
+   so a THEME decides what winning looks like. Future's rule is "reserve the cyan glow for
+   the winner", so the leader takes full cyan and the rest a muted cyan-steel — rather than
+   the shared accent-1/secondary roles (green/amber here), which would fight the theme. */
 .bar {
+  --lead-col: var(--primary);
+  --base-col: color-mix(in srgb, var(--primary) 45%, var(--muted-1));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,12 +41,12 @@
   max-width: 8.375rem;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--primary) 70%, transparent) 0%,
-    color-mix(in srgb, var(--primary) 12%, transparent) 100%
+    color-mix(in srgb, var(--col, var(--primary)) 70%, transparent) 0%,
+    color-mix(in srgb, var(--col, var(--primary)) 12%, transparent) 100%
   );
-  border-top: 0.25rem solid var(--primary);
+  border-top: 0.25rem solid var(--col, var(--primary));
   border-radius: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--col, var(--primary)) 30%, transparent);
   transform-origin: bottom;
 }
 .bar .bl {
