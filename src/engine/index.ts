@@ -54,8 +54,6 @@ export type {
 export {
   PALETTE_VARS,
   ACCENT_CYCLE,
-  LEGACY_PALETTE_ALIASES,
-  normalizePaletteVar,
   uniquePaletteEntries,
   type PaletteVar,
 } from "../types/palette";

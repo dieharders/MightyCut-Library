@@ -10,7 +10,7 @@
 // only produced for frame themes (isFrameTheme — any theme with a
 // FRAME_THEME_TOKENS entry; block is the reference).
 import { z } from "zod";
-import { PALETTE_VARS, PALETTE_VARS_WITH_LEGACY, normalizePaletteVar, type PaletteVar } from "./palette";
+import { PALETTE_VARS, type PaletteVar } from "./palette";
 import { TransitionSpecSchema } from "./transitions";
 
 const id = z.string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
@@ -63,14 +63,6 @@ export type FrameTreatment = (typeof FRAME_TREATMENTS)[number];
  */
 export const FRAME_GROUNDS = PALETTE_VARS;
 export type FrameGround = PaletteVar;
-
-/** Read-path ground schema: accepts a role OR any legacy colour name a stored
- *  storyboard/deck may still carry, and folds it to a role. Saved decks predate
- *  the palette-role migration, so this normalize is permanent — see
- *  types/palette.ts. Write paths use `z.enum(FRAME_GROUNDS)`. */
-export const GroundSchema = z
-  .enum(PALETTE_VARS_WITH_LEGACY)
-  .transform(normalizePaletteVar);
 
 /**
  * The backdrop MASK designs — a full-bleed overlay painted on top of the ground
@@ -141,7 +133,7 @@ const SceneStoryboardSchema = z.object({
   treatment: z.enum(FRAME_TREATMENTS),
   options: z
     .object({
-      ground: GroundSchema.optional(),
+      ground: z.enum(FRAME_GROUNDS).optional(),
       backdrop: z.enum(BACKDROP_NAMES).optional(),
       transition: TransitionSpecSchema.optional(),
     })

@@ -5,7 +5,7 @@
 // treatments) produces a well-formed, deterministic sub-composition.
 import { describe, expect, test } from "bun:test";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
-import { PALETTE_VARS, normalizePaletteVar, uniquePaletteEntries } from "../types/palette";
+import { PALETTE_VARS, uniquePaletteEntries } from "../types/palette";
 import { BACKDROP_NAMES } from "../types/storyboard";
 import { BACKDROPS, buildBackdrop } from "./primitives/backdrops";
 import { iconSvg } from "./icons";
@@ -284,7 +284,7 @@ describe("treatment decorations", () => {
   });
   test("addDecorations overrides defaults + honors coords/layer (any family)", () => {
     const inst = getTreatment("stat-grid")().addDecorations(
-      getComponent("starburst")({ variant: "triangle", x: 12, y: 88, layer: "front", accent: "green" }),
+      getComponent("starburst")({ variant: "triangle", x: 12, y: 88, layer: "front", accent: "accent-2" }),
       getComponent("badge")({ variant: "shield", x: 90, y: 10, accent: "accent-1" }),
     );
     const html = inst.build(ctx("s01-stat-grid")).html;
@@ -493,21 +493,20 @@ describe("palette roles (tripwire)", () => {
     );
   });
 
-  // Legacy decks persist the colour names that were current when they were saved, so the
-  // read path must keep accepting them forever (types/palette.ts).
-  test("legacy colour names still normalize to their role", () => {
-    expect(normalizePaletteVar("pink")).toBe("primary");
-    expect(normalizePaletteVar("offwhite")).toBe("muted-2");
-    expect(normalizePaletteVar("fx-cyan")).toBe("primary");
-    expect(normalizePaletteVar("fx-panel-solid")).toBe("muted-3");
-    expect(normalizePaletteVar("accent-1")).toBe("accent-1"); // a role passes through
-  });
+  // Roles are the ONLY colour vocabulary — the old names were removed, not aliased,
+  // so a retired name must FAIL validation rather than be silently folded to a role.
+  test.each(["pink", "offwhite", "fx-cyan", "fx-panel-solid"])(
+    "the retired colour name '%s' is rejected, not quietly folded to a role",
+    (retired) => {
+      expect(() =>
+        getComponent("stat")({ value: 1, label: "a", accent: retired } as never).build(ctx("s")),
+      ).toThrow();
+    },
+  );
 
-  // A component composed from a pre-migration deck (accent: "pink") must still build.
-  test("a legacy accent value still composes", () => {
-    expect(() => getComponent("stat")({ value: 1, label: "a", accent: "pink" } as never).build(ctx("s"))).not.toThrow();
-    const html = getComponent("stat")({ value: 1, label: "a", accent: "pink" } as never).build(ctx("s")).html;
-    expect(html).toContain("var(--primary)");
+  test("a role is still accepted", () => {
+    const html = getComponent("stat")({ value: 1, label: "a", accent: "accent-3" }).build(ctx("s")).html;
+    expect(html).toContain("var(--accent-3)");
   });
 });
 

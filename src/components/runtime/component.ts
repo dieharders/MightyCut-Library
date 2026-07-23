@@ -6,7 +6,6 @@
 // markers, applies layout, and returns { html, css, anims }. The SAME function
 // renders the slide at build time and the card in the interactive showcase.
 import { z } from "zod";
-import { foldLegacyPaletteParams } from "../../types/palette";
 import { serialize } from "../../pipeline/mini-dom";
 import { TIMING_SECONDS, type ComponentTransition, type TimingPreset, type TransitionName } from "../../types/transitions";
 import { type AnimDescriptor, qualifyAnim } from "./anim";
@@ -70,16 +69,8 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
   // Explicit params are validated EXACTLY (fail-loud on a missing required field);
   // only a no-arg call falls back to the example. This keeps a tool/agent build
   // from silently inheriting example content for an omitted field.
-  const parse = (raw?: Partial<z.input<S>>): z.infer<S> => {
-    const input = raw === undefined ? def.example : raw;
-    // Fast path: valid params are used verbatim. Only on failure do we retry with
-    // legacy colour names folded to palette roles, so a deck saved before the
-    // palette-role migration (accent: "pink" / "fx-cyan") still composes while a
-    // valid non-colour enum can never be rewritten. See types/palette.ts.
-    const first = def.schema.safeParse(input);
-    if (first.success) return first.data;
-    return def.schema.parse(foldLegacyPaletteParams(input));
-  };
+  const parse = (raw?: Partial<z.input<S>>): z.infer<S> =>
+    def.schema.parse(raw === undefined ? def.example : raw);
 
   const factory = ((raw?: Partial<z.input<S>>): ComponentInstance => {
     let animOverride: AnimDescriptor[] | null = null;
