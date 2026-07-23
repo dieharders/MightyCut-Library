@@ -19,6 +19,3 @@
 .stat-grid .row > *:nth-child(even) {
   transform: rotate(2deg);
 }
-.stat-grid[style*="--dense"] .stat-number {
-  font-size: 4.125rem;
-}

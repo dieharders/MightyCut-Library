@@ -21,7 +21,9 @@
 .stat-number {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 6.5rem;
+  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
+     row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
+  font-size: calc(6.5rem * var(--dense-scale, 1));
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--dot, var(--primary));

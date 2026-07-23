@@ -28,9 +28,3 @@
   gap: 3.625rem;
   padding: 0 1.25rem;
 }
-/* 4+ stats (stat-grid/index.ts emits --dense) shrink the figures so a 4-column row
-   doesn't crowd/overflow — parity with block/stat-grid.css's --dense rule (block
-   shrinks 5.5rem→4.125rem; future's 6.5rem base shrinks by the same ~0.75 ratio). */
-.stat-grid[style*="--dense"] .stat-number {
-  font-size: 4.875rem;
-}
