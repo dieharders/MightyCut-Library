@@ -106,8 +106,6 @@ export type ThemeTokens = {
    *  child PARAMS (the treatment's `childComponent`). SHOWCASE-ONLY — the render/deck path
    *  always uses real spec content + `defaultChildren`, never these. Unset ⇒ the def example. */
   examples?: Record<string, { params?: Record<string, unknown>; children?: Record<string, unknown>[] }>;
-  /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
-  fonts?: { css: string; files: string[] };
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
   palette?: PaletteSwatch[];
   /** The theme's type scale — drives the showcase Typography section. */

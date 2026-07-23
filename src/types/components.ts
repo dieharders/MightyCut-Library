@@ -31,7 +31,7 @@ export const COMPONENT_NAMES = [
   "slab", // square · rectangle · rhombus · hexagon · cross
   "stripe", // stripe · bars · grid
   "badge", // shield · tag · ticket · capsule
-  // future's sci-fi set (luminous strokes + glow, --fx-* accents):
+  // future's sci-fi set (luminous strokes + glow, shared palette-role accents):
   "node", // ring · core · orbit · pulse
   "reticle", // brackets · crosshair · gauge · frame
   "glyph", // hexagon · diamond · chevron · triangle

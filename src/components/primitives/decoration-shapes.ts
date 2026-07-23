@@ -227,9 +227,14 @@ export const decorationComponent = (
         .enum(["back", "front"])
         .default("back")
         .describe("Behind content (back) or over top (front)"),
+      // Default comes from the family's own `example` so each family carries a DISTINCT
+      // signature tint — starburst --primary · slab --secondary · stripe --accent-2 ·
+      // badge --accent-1 — so a deck/showcase render that omits accent (e.g. a ChildSpec
+      // or Slab({variant}) with no accent) never collapses every family onto one hue.
+      // Mirrors future-decoration-shapes.ts's per-family default (was a fixed "primary").
       accent: z
         .enum(PALETTE_VARS)
-        .default("primary")
+        .default(example.accent)
         .describe("Fill colour — a palette role of the active theme"),
     }),
     template: DECO_TEMPLATE,

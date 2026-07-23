@@ -33,3 +33,16 @@
   color: var(--light);
   margin: 0;
 }
+/* Base eyebrow — future's `label` type role (mono, uppercase, wide-tracked, cyan). The
+   shared fallback so ANY eyebrow-bearing treatment reads on-theme even without its own
+   eyebrow skin (block/frame.css provides the analogous chip base). Per-treatment skins
+   (cover/quote) layer only positional margins over this; it self-removes when the slide
+   sets no eyebrow (pruneRemoved). */
+.block-frame .eyebrow {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2rem;
+  color: var(--primary);
+}

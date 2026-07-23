@@ -269,13 +269,11 @@ export const blockTheme: ThemeTokens = {
     "stat-grid": statGridCss,
     timeline: timelineCss,
   },
-  fonts: {
-    // Block's content fonts (Inter, Space Grotesk) are a subset of the core chrome
-    // set, so they come from the always-staged core fonts.css — block ships no
-    // add-on font of its own (only capsule/standard do). Staged by copyProjectAssets.
-    css: "assets/fonts.css",
-    files: ["inter.woff2", "space-grotesk.woff2"],
-  },
+  // Block's content fonts (Inter, Space Grotesk) are a subset of the always-staged core
+  // chrome set (core-fonts.ts), staged by copyProjectAssets — block ships no add-on font of
+  // its own. (No `fonts` field: it was dead metadata no staging path ever read — staging is
+  // theme-name-keyed on disk. The font-coverage tripwire in theme-parity.test.ts checks the
+  // families in `css` against the core set instead.)
   palette,
   typography,
   rules,

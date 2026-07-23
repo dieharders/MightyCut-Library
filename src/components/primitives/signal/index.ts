@@ -2,7 +2,7 @@ import { futureDecorationComponent } from "../future-decoration-shapes";
 
 /** Future decoration family — data / transmission motifs (waveform, equalizer bars,
  *  broadcast beam). Defaults to green. Positioned page-space flourish; add via a
- *  treatment's addDecorations(). Future-only (references --fx-* tokens). */
+ *  treatment's addDecorations(). Future-only by roster; paints with the shared 10 palette roles. */
 export const Signal = futureDecorationComponent(
   "signal",
   ["waveform", "bars", "beam"],

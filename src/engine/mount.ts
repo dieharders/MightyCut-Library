@@ -68,8 +68,13 @@ export type MountPreviewOptions = {
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
 // color-scheme / font so the vanilla render never inherits the host app's theme.
-const previewCss = (frame: boolean, surface: string): string => `
-:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--dark, #000); }
+// `fg`/`scheme` are theme-derived (see the call site): the safety-net text colour must
+// match the theme's surface — a light default (`var(--dark)`) reads on block's light
+// preview but is near-invisible on future's dark one, so a dark theme flips to
+// `var(--light)`. Every element skin sets its own colour; this only backstops one that
+// forgets, so it must not be a fixed light-background assumption.
+const previewCss = (frame: boolean, surface: string, fg: string, scheme: string): string => `
+:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: ${scheme}; font-family: var(--disp, "Inter", system-ui, sans-serif); color: ${fg}; }
 /* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
    boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
    (stage / inner / preview-root) — exactly like the render border-boxes its padded
@@ -165,8 +170,13 @@ export const mountPreview = (
   shadow.replaceChildren();
   const style = document.createElement("style");
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
-  // (the stage surface uses the theme's previewBg, else a light default).
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa")}\n${css}`;
+  // (the stage surface uses the theme's previewBg, else a light default). A theme that
+  // declares a previewBg is dark by contract (see ThemeTokens.previewBg), so flip the
+  // safety-net foreground + color-scheme to match; else the block-shaped light default.
+  const dark = !!theme.previewBg;
+  const fg = dark ? "var(--light, #fff)" : "var(--dark, #000)";
+  const scheme = dark ? "dark" : "light";
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme)}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");

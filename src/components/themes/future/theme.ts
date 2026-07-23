@@ -287,12 +287,10 @@ export const futureTheme: ThemeTokens = {
     cover: coverTemplate,
     quote: quoteTemplate,
   },
-  fonts: {
-    // All three content fonts are a subset of the always-staged core chrome set, so
-    // future ships no add-on font of its own (unlike capsule/standard).
-    css: "assets/fonts.css",
-    files: ["space-grotesk.woff2", "inter.woff2", "jetbrains-mono.woff2"],
-  },
+  // Future's three content fonts (Space Grotesk / Inter / JetBrains Mono) are all in the
+  // always-staged core chrome set, so future ships no add-on font of its own. (No `fonts`
+  // field — it was dead metadata; see the note on blockTheme. The font-coverage tripwire in
+  // theme-parity.test.ts checks the families named in `css` against the core set.)
   palette,
   typography,
   rules,
