@@ -10,7 +10,7 @@ export const Timeline = treatment({
   childComponent: "step",
   schema: TimelineSchema,
   template,
-  ground: "offwhite",
+  ground: "muted-2",
   example: { headline: "Four Steps" },
   fill: (p) => ({ headline: p.headline }),
   defaultChildren: () => [

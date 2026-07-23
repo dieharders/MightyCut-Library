@@ -9,16 +9,16 @@
   width: 7.625rem;
   height: 7.625rem;
   flex-shrink: 0;
-  border: 0.625rem solid var(--black);
-  background: var(--yellow);
+  border: 0.625rem solid var(--dark);
+  background: var(--accent-1);
   font-family: var(--mono);
   font-weight: 700;
   font-size: 3rem;
-  color: var(--black);
+  color: var(--dark);
 }
 .listnum-c .ln-text {
   font-family: var(--disp);
   font-weight: 500;
   font-size: 3.25rem;
-  color: var(--black);
+  color: var(--dark);
 }

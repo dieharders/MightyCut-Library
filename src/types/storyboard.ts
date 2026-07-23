@@ -10,6 +10,7 @@
 // only produced for frame themes (isFrameTheme — any theme with a
 // FRAME_THEME_TOKENS entry; block is the reference).
 import { z } from "zod";
+import { PALETTE_VARS, PALETTE_VARS_WITH_LEGACY, normalizePaletteVar, type PaletteVar } from "./palette";
 import { TransitionSpecSchema } from "./transitions";
 
 const id = z.string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
@@ -51,21 +52,25 @@ export const FRAME_TREATMENTS = [
 export type FrameTreatment = (typeof FRAME_TREATMENTS)[number];
 
 /**
- * The five candy pastels (+ structural offwhite/white/black) that cycle as
- * full-bleed grounds across frames. FRAME.md: the cycle is the rhythm. The
- * builder applies the ground as an inline background on the frame so a single
- * shared frame.css restyles every scene.
+ * The grounds that cycle as full-bleed backgrounds across frames. FRAME.md: the
+ * cycle is the rhythm. The builder applies the ground as an inline background on
+ * the frame so a single shared frame.css restyles every scene.
+ *
+ * A ground is ANY palette colour of the active theme, so this is exactly the 10
+ * palette roles (see types/palette.ts) — the same address space accent params
+ * use. It is deliberately NOT a per-theme list: a treatment names a role, and
+ * whichever theme renders it supplies the colour.
  */
-export const FRAME_GROUNDS = [
-  "offwhite",
-  "cream",
-  "blue",
-  "pink",
-  "green",
-  "yellow",
-  "black",
-] as const;
-export type FrameGround = (typeof FRAME_GROUNDS)[number];
+export const FRAME_GROUNDS = PALETTE_VARS;
+export type FrameGround = PaletteVar;
+
+/** Read-path ground schema: accepts a role OR any legacy colour name a stored
+ *  storyboard/deck may still carry, and folds it to a role. Saved decks predate
+ *  the palette-role migration, so this normalize is permanent — see
+ *  types/palette.ts. Write paths use `z.enum(FRAME_GROUNDS)`. */
+export const GroundSchema = z
+  .enum(PALETTE_VARS_WITH_LEGACY)
+  .transform(normalizePaletteVar);
 
 /**
  * The backdrop MASK designs — a full-bleed overlay painted on top of the ground
@@ -136,7 +141,7 @@ const SceneStoryboardSchema = z.object({
   treatment: z.enum(FRAME_TREATMENTS),
   options: z
     .object({
-      ground: z.enum(FRAME_GROUNDS).optional(),
+      ground: GroundSchema.optional(),
       backdrop: z.enum(BACKDROP_NAMES).optional(),
       transition: TransitionSpecSchema.optional(),
     })

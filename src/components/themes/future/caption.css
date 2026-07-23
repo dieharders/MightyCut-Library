@@ -6,9 +6,9 @@
   align-items: center;
   gap: 2.5rem;
   padding: 2rem 3.5rem;
-  background: rgba(7, 13, 24, 0.82);
-  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.28);
-  box-shadow: 0 1rem 3.75rem rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, var(--muted-2) 82%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 28%, transparent);
+  box-shadow: 0 1rem 3.75rem color-mix(in srgb, var(--dark) 50%, transparent);
   border-radius: 1.25rem;
   backdrop-filter: blur(6px);
 }
@@ -16,8 +16,8 @@
   align-self: stretch;
   width: 0.5rem;
   flex-shrink: 0;
-  background: var(--fx-cyan);
-  box-shadow: 0 0 1.25rem rgba(var(--fx-cyan-rgb), 0.7);
+  background: var(--primary);
+  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--primary) 70%, transparent);
   border-radius: 0.25rem;
 }
 .caption .cap-text {
@@ -25,6 +25,6 @@
   font-weight: 500;
   font-size: 3.625rem;
   line-height: 1.25;
-  color: var(--fx-ink);
+  color: var(--light);
   text-align: center;
 }

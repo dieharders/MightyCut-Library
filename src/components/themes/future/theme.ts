@@ -8,10 +8,10 @@
 //                    behavior are shared; future styles the standard class names here)
 //   templates/*.html per-theme structure overrides where CSS can't reach (stat drops
 //                    the dot; cover drops the eyebrow + adds a rule; quote adds a mark)
-// The `:root` tokens fold three groups (see `tokensCss`): the block-name ground/accent
-// vocabulary (so shared elements that reference --pink/--blue/… still resolve), future's
-// own --fx-* identity tokens, and the fonts. Content fonts (Space Grotesk / Inter /
-// JetBrains Mono) are all in the always-staged core set, so future ships no add-on font.
+// The `:root` tokens are DERIVED from the 10-role `palette` below (see `tokensCss`),
+// the same shape block uses — future no longer carries a parallel --fx-* identity
+// layer. Content fonts (Space Grotesk / Inter / JetBrains Mono) are all in the
+// always-staged core set, so future ships no add-on font.
 import { FUTURE_DECORATION_COMPONENTS } from "../../primitives/future-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
 import frameCss from "./frame.css" with { type: "text" };
@@ -45,67 +45,44 @@ import statTemplate from "./templates/stat.html" with { type: "text" };
 import coverTemplate from "./templates/cover.html" with { type: "text" };
 import quoteTemplate from "./templates/quote.html" with { type: "text" };
 
-// Palette — the future swatches (frame-showcase.html PALETTE section). Display data for
-// the showcase; the `:root` tokens are authored below (not derived) because future carries
-// identity tokens beyond the swatches.
+// Palette — future's colour for each of the 10 shared palette roles (types/palette.ts).
+// The SINGLE source of truth for future's colours: it drives the showcase Palette
+// section AND generates the `:root` custom properties below. Amber fills both
+// --secondary and --accent-3, so the UI de-dupes on hex to future's 9 unique colours.
+// Every shade future used to carry as a separate --fx-* token (panel, line, steel,
+// faint, glass, rule) is now DERIVED from these ten with color-mix() in the skins —
+// there is no parallel identity layer anymore.
 const palette: NonNullable<ThemeTokens["palette"]> = [
-  { name: "Navy", hex: "#070D18", note: "backdrop ground", varName: "fx-navy" },
-  { name: "Abyss", hex: "#04080F", note: "vignette edge", varName: "fx-abyss" },
-  {
-    name: "Panel",
-    hex: "#0E1F33",
-    note: "glass fill",
-    varName: "fx-panel-solid",
-  },
-  { name: "Cyan", hex: "#34E1FF", note: "primary accent", varName: "fx-cyan" },
-  {
-    name: "Violet",
-    hex: "#8C9EFF",
-    note: "rule gradient",
-    varName: "fx-violet",
-  },
-  { name: "Amber", hex: "#FFB454", note: "quiet accent", varName: "fx-amber" },
-  { name: "Green", hex: "#56E39F", note: "positive", varName: "fx-green" },
-  { name: "Ink", hex: "#EAF3FB", note: "text", varName: "fx-ink" },
-  { name: "Muted", hex: "#94B0CC", note: "body text", varName: "fx-muted" },
+  { name: "Cyan", hex: "#34E1FF", note: "primary accent", varName: "primary" },
+  { name: "Amber", hex: "#FFB454", note: "quiet accent", varName: "secondary" },
+  { name: "Green", hex: "#56E39F", note: "positive", varName: "accent-1" },
+  { name: "Violet", hex: "#8C9EFF", note: "rule gradient", varName: "accent-2" },
+  { name: "Amber", hex: "#FFB454", note: "quiet accent", varName: "accent-3" },
+  { name: "Frost", hex: "#94B0CC", note: "body text", varName: "muted-1" },
+  { name: "Navy", hex: "#070D18", note: "backdrop ground", varName: "muted-2" },
+  { name: "Glass", hex: "#0E1F33", note: "panel fill", varName: "muted-3" },
+  { name: "Ghost", hex: "#EAF3FB", note: "text", varName: "light" },
+  { name: "Abyss", hex: "#04080F", note: "vignette edge", varName: "dark" },
 ];
 
-// The `:root` block. Authored (not derived) — three groups: block-name ground/accent
-// aliases (so shared elements resolve), future identity tokens, fonts.
-const tokensCss = `:root {
-  /* Shared ground/accent vocabulary → future palette (grounds resolve to navy; the
-     accents double as the cyan/violet/green/amber cycle shared elements reference). */
-  --offwhite: #070d18;
-  --cream: #070d18;
-  --black: #04080f;
-  --white: #eaf3fb;
-  --pink: #34e1ff;
-  --blue: #8c9eff;
-  --green: #56e39f;
-  --yellow: #ffb454;
-  /* Future identity tokens (from frame-showcase.html / frame.css). */
-  --fx-navy: #070d18;
-  --fx-abyss: #04080f;
-  --fx-panel: rgba(14, 31, 51, 0.55);
-  --fx-panel-solid: #0e1f33;
-  --fx-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.16) 100%);
-  --fx-cyan: #34e1ff;
-  --fx-cyan-rgb: 52, 225, 255;
-  --fx-violet: #8c9eff;
-  --fx-amber: #ffb454;
-  --fx-green: #56e39f;
-  --fx-ink: #eaf3fb;
-  --fx-muted: #94b0cc;
-  --fx-faint: #5c7b8a;
-  --fx-line: rgba(52, 225, 255, 0.16);
-  --fx-steel: rgba(148, 176, 204, 0.16);
-  --fx-rule: linear-gradient(90deg, #34e1ff 0%, #8c9eff 100%);
-  /* Fonts — all in the core set (no add-on woff2). */
-  --disp: "Space Grotesk", sans-serif;
-  --body: "Inter", sans-serif;
-  --mono: "JetBrains Mono", monospace;
-}
-`;
+/** Font tokens — the only `:root` entries that aren't colours. */
+const fontTokens: Record<string, string> = {
+  disp: '"Space Grotesk", sans-serif',
+  body: '"Inter", sans-serif',
+  mono: '"JetBrains Mono", monospace',
+};
+
+/**
+ * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (matching block),
+ * so each hex is written down exactly once. Future no longer authors an identity
+ * layer beside the roles — the shades it used to name (`--fx-panel`, `--fx-line`,
+ * `--fx-steel`, `--fx-faint`, `--fx-glass`, `--fx-rule`) are derived per-use with
+ * color-mix() in the skins.
+ */
+const tokensCss = `:root {\n${[
+  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
+  ...Object.entries(fontTokens).map(([name, value]) => `  --${name}: ${value};`),
+].join("\n")}\n}\n`;
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase applies to each live sample.
@@ -115,21 +92,21 @@ const typography: ThemeTokens["typography"] = [
     spec: "Space Grotesk 700 · sentence case · −0.03em · hero titles",
     sample: "Command Center.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--fx-ink);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--light);",
   },
   {
     token: "h2",
     spec: "Space Grotesk 700 · slide headlines",
     sample: "Built for the Edge",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--fx-ink);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--light);",
   },
   {
     token: "stat-number",
     spec: "Space Grotesk 700 · cyan · big numeric callouts",
     sample: "99.7%",
     style:
-      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--fx-cyan);",
+      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--primary);",
   },
   {
     token: "body",
@@ -137,14 +114,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Inter carries every paragraph in cool muted blue — readable, recessive, never competing with the cyan statement above it.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--fx-muted);",
+      "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-1);",
   },
   {
     token: "label",
     spec: "JetBrains Mono 500 · uppercase · wide track · cyan — eyebrows, counters, HUD",
     sample: "Section · Eyebrow",
     style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--fx-cyan);",
+      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--primary);",
   },
   // NOTE: the quote glyph is deliberately NOT a type role — it belongs solely to the quote
   // treatment (templates/quote.html's .qmark + quote.css). Keep this list to the general roles
@@ -190,17 +167,17 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   "feature-cards": {
     params: { headline: "Built for the Edge" },
     children: [
-      { title: "Edge Mesh", body: "Every node routes for every other — no single point of failure.", icon: "I", accent: "pink" },
-      { title: "Auto-Failover", body: "Links re-form around jamming in under two seconds.", icon: "II", accent: "blue" },
-      { title: "Zero Trust", body: "Mutual TLS between every pair of nodes; keys rotate hourly.", icon: "III", accent: "green" },
+      { title: "Edge Mesh", body: "Every node routes for every other — no single point of failure.", icon: "I", accent: "primary" },
+      { title: "Auto-Failover", body: "Links re-form around jamming in under two seconds.", icon: "II", accent: "secondary" },
+      { title: "Zero Trust", body: "Mutual TLS between every pair of nodes; keys rotate hourly.", icon: "III", accent: "accent-2" },
     ],
   },
   "stat-grid": {
     params: { headline: "Impact That Compounds" },
     children: [
-      { value: 99.7, label: "Mesh uptime in EW conditions", unitSuffix: "%", decimals: 1, accent: "pink" },
-      { value: 12, label: "Minutes to full mesh", unitSuffix: " min", accent: "blue" },
-      { value: 60, label: "Lower cost than legacy SATCOM", unitSuffix: "%", accent: "yellow" },
+      { value: 99.7, label: "Mesh uptime in EW conditions", unitSuffix: "%", decimals: 1, accent: "primary" },
+      { value: 12, label: "Minutes to full mesh", unitSuffix: " min", accent: "secondary" },
+      { value: 60, label: "Lower cost than legacy SATCOM", unitSuffix: "%", accent: "accent-1" },
     ],
   },
   timeline: {
@@ -260,7 +237,8 @@ export const futureTheme: ThemeTokens = {
   backdrop: "constellation",
   // Showcase/editor preview surface — the navy ground future's components are designed
   // against, so glass panels + light-on-dark text read (a light card would wash them out).
-  previewBg: "#070d18",
+  // Read off the palette (--muted-2) rather than repeated as a literal.
+  previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
   // The treatments' DEFAULT decorations are block's own (cover's pink star, closing's slab)
   // — suppress them so those neobrutalist shapes never auto-render on a future frame or shift
   // the reveal cascade. Future's own decorations (see `decorations` below) are opt-in per

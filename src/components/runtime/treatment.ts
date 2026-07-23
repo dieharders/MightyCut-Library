@@ -12,6 +12,7 @@
 // the ground background), its inner markup becomes bodyHtml, all collected CSS is
 // scoped under the scene root, and all anims serialize to one MC.applyAnims call.
 import { z } from "zod";
+import { foldLegacyPaletteParams } from "../../types/palette";
 import { serialize } from "../../pipeline/mini-dom";
 import { buildBackdrop } from "../primitives/backdrops";
 import type { FrameGround } from "../../types/storyboard";
@@ -87,8 +88,14 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
   let cachedJson: object | null = null;
   const jsonSchema = (): object => (cachedJson ??= z.toJSONSchema(def.schema, { io: "input" }) as object);
   // Explicit params validated exactly (fail-loud); no-arg falls back to the example.
-  const parse = (raw?: Partial<z.input<S>>): z.infer<S> =>
-    def.schema.parse(raw === undefined ? def.example : raw);
+  const parse = (raw?: Partial<z.input<S>>): z.infer<S> => {
+    // See component.ts — legacy palette names are folded only as a repair after
+    // validation has already failed, never on the happy path.
+    const input = raw === undefined ? def.example : raw;
+    const first = def.schema.safeParse(input);
+    if (first.success) return first.data;
+    return def.schema.parse(foldLegacyPaletteParams(input));
+  };
 
   const factory = ((raw?: Partial<z.input<S>>): TreatmentInstance => {
     let added: ComponentInstance[] | null = null;

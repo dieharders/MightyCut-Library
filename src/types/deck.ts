@@ -12,7 +12,7 @@
 import { z } from "zod";
 import { AnimDescriptorSchema } from "../components/runtime/anim";
 import type { ChildSpec } from "../components/compose";
-import { BACKDROP_NAMES, FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS, type BackdropName, type FrameGround } from "./storyboard";
+import { BACKDROP_NAMES, FRAME_THEME_NAMES, FRAME_TREATMENTS, GroundSchema, type BackdropName, type FrameGround } from "./storyboard";
 import { TIMING_PRESETS, TRANSITION_NAMES, TransitionSpecSchema, type TransitionSpec } from "./transitions";
 
 /** A resolved child (or decoration) instance: a registered component name + its
@@ -44,7 +44,7 @@ export const DeckSceneSchema = z
     params: z.record(z.string(), z.unknown()),
     children: z.array(ChildSpecSchema),
     decorations: z.array(ChildSpecSchema).optional(),
-    ground: z.enum(FRAME_GROUNDS).optional(),
+    ground: GroundSchema.optional(),
     backdrop: z.enum(BACKDROP_NAMES).optional(),
     anim: z.array(AnimDescriptorSchema).optional(),
     transition: TransitionSpecSchema.optional(),

@@ -11,7 +11,7 @@ export const Comparison = treatment({
   childComponent: "row",
   schema: ComparisonSchema,
   template,
-  ground: "yellow",
+  ground: "accent-1",
   example: { headline: "Why We Win", columns: ["Status Quo", "Our Approach"] },
   fill: (p) => ({ headline: p.headline, "col-a": p.columns[0], "col-b": p.columns[1] }),
   defaultChildren: () => [

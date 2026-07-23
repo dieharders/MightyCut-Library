@@ -1,6 +1,7 @@
 import { z } from "zod";
-
-export const ACCENTS = ["pink", "blue", "green", "yellow"] as const;
+// Shared palette roles — see stat/schema.ts. `ACCENTS` used to be duplicated in both
+// files; PALETTE_VARS is now the single export.
+import { PALETTE_VARS } from "../../../types/palette";
 
 export const CardSchema = z.object({
   title: z.string().max(120).describe("The card's headline"),
@@ -14,8 +15,8 @@ export const CardSchema = z.object({
     .max(6)
     .describe("Glyph in accent square — Roman numeral, text or emoji"),
   accent: z
-    .enum(ACCENTS)
-    .default("pink")
-    .describe("Background accent color for square icon"),
+    .enum(PALETTE_VARS)
+    .default("primary")
+    .describe("Palette role filling the square icon's background"),
 });
 export type CardParams = z.infer<typeof CardSchema>;

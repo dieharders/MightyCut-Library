@@ -50,18 +50,23 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // rules), so the interactive showcase renders each section GENERICALLY from theme
 // data. Other themes populate the same fields to standardize for free.
 
-// Palette — the 8 block swatches (frame-showcase.html PALETTE section). This is the
-// SINGLE source of truth for block's colours: it drives the showcase Palette section
-// AND generates the `:root` custom properties below, so a hex is written down once.
+// Palette — block's colour for each of the 10 shared palette roles (types/palette.ts).
+// This is the SINGLE source of truth for block's colours: it drives the showcase
+// Palette section AND generates the `:root` custom properties below, so a hex is
+// written down once. `name` is the human/agent-facing label; a colour may fill
+// several roles (oat is both --muted-2 and --muted-3, green both accents), and the
+// UI de-dupes on hex so the showcase lists block's 8 unique colours, not 10 rows.
 const palette: NonNullable<ThemeTokens["palette"]> = [
-  { name: "Pink", hex: "#FE90E8", varName: "pink" },
-  { name: "Blue", hex: "#C0F7FE", varName: "blue" },
-  { name: "Green", hex: "#99E885", varName: "green" },
-  { name: "Yellow", hex: "#F7CB46", note: "CTA", varName: "yellow" },
-  { name: "Cream", hex: "#FFDC8B", varName: "cream" },
-  { name: "Off-White", hex: "#FFFDF5", note: "canvas", varName: "offwhite" },
-  { name: "White", hex: "#FFFFFF", note: "cards", varName: "white" },
-  { name: "Black", hex: "#000000", note: "borders", varName: "black" },
+  { name: "Pink", hex: "#FE90E8", varName: "primary" },
+  { name: "Blue", hex: "#C0F7FE", varName: "secondary" },
+  { name: "Yellow", hex: "#F7CB46", note: "CTA", varName: "accent-1" },
+  { name: "Green", hex: "#99E885", varName: "accent-2" },
+  { name: "Green", hex: "#99E885", varName: "accent-3" },
+  { name: "Cream", hex: "#FFDC8B", varName: "muted-1" },
+  { name: "Oat", hex: "#FFFDF5", note: "canvas", varName: "muted-2" },
+  { name: "Oat", hex: "#FFFDF5", note: "canvas", varName: "muted-3" },
+  { name: "White", hex: "#FFFFFF", note: "cards", varName: "light" },
+  { name: "Black", hex: "#000000", note: "borders", varName: "dark" },
 ];
 
 /** Font tokens — the only `:root` entries that aren't colours. */
@@ -83,10 +88,10 @@ const tokensCss = `:root {\n${[
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
 // is the self-contained inline CSS the showcase applies to each live sample — it sets
-// its OWN color (var(--black)) so a sample reads correctly on any panel without relying
+// its OWN color (var(--dark)) so a sample reads correctly on any panel without relying
 // on an inherited/wrapper text color.
 const displayBase =
-  "font-family: var(--disp); text-transform: uppercase; line-height: 0.95; color: var(--black);";
+  "font-family: var(--disp); text-transform: uppercase; line-height: 0.95; color: var(--dark);";
 const typography: ThemeTokens["typography"] = [
   {
     token: "heading-xl",
@@ -105,7 +110,7 @@ const typography: ThemeTokens["typography"] = [
     spec: "Inter 900 · line 1 · big numeric callouts: stats, counts, prices",
     sample: "240",
     style:
-      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--black);",
+      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--dark);",
   },
   {
     token: "body",
@@ -113,14 +118,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
     style:
-      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px; color: var(--black);",
+      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px; color: var(--dark);",
   },
   {
     token: "label",
     spec: "Space Grotesk 600 · uppercase · eyebrows, tags & section kickers above a heading",
     sample: "Section Eyebrow",
     style:
-      "display: inline-block; border: 3px solid var(--black); background: var(--white); box-shadow: 4px 4px 0 var(--black); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: var(--black);",
+      "display: inline-block; border: 3px solid var(--dark); background: var(--light); box-shadow: 4px 4px 0 var(--dark); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: var(--dark);",
   },
 ];
 
@@ -165,17 +170,17 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   "feature-cards": {
     params: { headline: "Built for the whole workflow" },
     children: [
-      { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I", accent: "pink" },
-      { title: "On-brand by default", body: "Themed frames, captions, and motion — no timeline surgery.", icon: "II", accent: "blue" },
-      { title: "Render on demand", body: "Publish the preview now; render the final MP4 whenever you like.", icon: "III", accent: "green" },
+      { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I", accent: "primary" },
+      { title: "On-brand by default", body: "Themed frames, captions, and motion — no timeline surgery.", icon: "II", accent: "secondary" },
+      { title: "Render on demand", body: "Publish the preview now; render the final MP4 whenever you like.", icon: "III", accent: "accent-2" },
     ],
   },
   "stat-grid": {
     params: { headline: "Numbers that moved" },
     children: [
-      { value: 92, label: "Detection rate", unitSuffix: "%", accent: "pink" },
-      { value: 3, label: "Faster triage", unitSuffix: "x", accent: "blue" },
-      { value: 40, label: "Cost reduction", unitSuffix: "%", accent: "yellow" },
+      { value: 92, label: "Detection rate", unitSuffix: "%", accent: "primary" },
+      { value: 3, label: "Faster triage", unitSuffix: "x", accent: "secondary" },
+      { value: 40, label: "Cost reduction", unitSuffix: "%", accent: "accent-1" },
     ],
   },
   timeline: {

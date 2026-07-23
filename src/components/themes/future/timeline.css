@@ -16,10 +16,10 @@
   margin-top: 1.875rem;
   background: linear-gradient(
     90deg,
-    var(--fx-cyan) 0%,
-    rgba(var(--fx-cyan-rgb), 0.45) 12%,
-    rgba(148, 176, 204, 0.14) 42%,
-    rgba(148, 176, 204, 0.05) 100%
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
 .timeline .row {

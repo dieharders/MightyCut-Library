@@ -2,15 +2,15 @@
 .cta-c {
   display: inline-flex;
   align-items: center;
-  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.55);
-  background: rgba(var(--fx-cyan-rgb), 0.1);
-  box-shadow: 0 0 3rem rgba(var(--fx-cyan-rgb), 0.28);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: 0 0 3rem color-mix(in srgb, var(--primary) 28%, transparent);
   border-radius: 9999px;
   padding: 2rem 5rem;
   font-family: var(--disp);
   font-weight: 700;
   font-size: 3rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
 }
 .cta-c .cta-arrow {
   white-space: pre;

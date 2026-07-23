@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { component } from "../runtime/component";
 import { remGrid } from "../runtime/css";
+import { PALETTE_VARS, type PaletteVar } from "../../types/palette";
 
 // Ink weights for decorations. Two independent knobs:
 //   EDGE_REM   — the outline weight (box border + polygon SVG stroke). FIXED: it does
@@ -81,15 +82,15 @@ const svgPoints = (clip: string): string =>
 
 const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
   if (kind === "stripe") {
-    return `repeating-linear-gradient(45deg, var(--black), var(--black) 1rem, ${color} 1rem, ${color} 2.875rem)`;
+    return `repeating-linear-gradient(45deg, var(--dark), var(--dark) 1rem, ${color} 1rem, ${color} 2.875rem)`;
   }
   if (kind === "bars") {
-    return `repeating-linear-gradient(90deg, var(--black), var(--black) 1.125rem, ${color} 1.125rem, ${color} 3.25rem)`;
+    return `repeating-linear-gradient(90deg, var(--dark), var(--dark) 1.125rem, ${color} 1.125rem, ${color} 3.25rem)`;
   }
-  // grid: black crosshatch lines over the color fill
+  // grid: dark-ink crosshatch lines over the color fill
   return (
-    `repeating-linear-gradient(0deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
-    `repeating-linear-gradient(90deg, var(--black) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
+    `repeating-linear-gradient(0deg, var(--dark) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
+    `repeating-linear-gradient(90deg, var(--dark) 0 0.5rem, transparent 0.5rem 3.125rem), ` +
     `linear-gradient(${color}, ${color})`
   );
 };
@@ -126,7 +127,7 @@ type DecoParams = {
   size: number;
   rotate: number;
   layer: "back" | "front";
-  accent: "pink" | "blue" | "green" | "yellow" | "cream";
+  accent: PaletteVar;
 };
 
 const decorationLayout = (p: DecoParams): Record<string, string> => {
@@ -154,10 +155,10 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     // weight everywhere. Pattern shapes (stripe/bars/grid) get it too so they're not
     // shadow-only; polygons already have their SVG stroke.
     if (s.box || s.pattern)
-      vars["--d-border"] = `${EDGE_REM}rem solid var(--black)`;
-    vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--black)`;
+      vars["--d-border"] = `${EDGE_REM}rem solid var(--dark)`;
+    vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--dark)`;
   } else {
-    vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--black))`;
+    vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--dark))`;
   }
   return vars;
 };
@@ -174,7 +175,7 @@ const decoSvg = (p: DecoParams): string => {
   return (
     `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">` +
     `<polygon points="${svgPoints(clip)}" ` +
-    `style="fill: var(--${p.accent}); stroke: var(--black); stroke-width: ${strokeWidth}; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
+    `style="fill: var(--${p.accent}); stroke: var(--dark); stroke-width: ${strokeWidth}; stroke-linejoin: miter; stroke-miterlimit: 6"></polygon>` +
     `</svg>`
   );
 };
@@ -227,9 +228,9 @@ export const decorationComponent = (
         .default("back")
         .describe("Behind content (back) or over top (front)"),
       accent: z
-        .enum(["pink", "blue", "green", "yellow", "cream"])
-        .default("pink")
-        .describe("Fill color token"),
+        .enum(PALETTE_VARS)
+        .default("primary")
+        .describe("Fill colour — a palette role of the active theme"),
     }),
     template: DECO_TEMPLATE,
     css: DECO_CSS,

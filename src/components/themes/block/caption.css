@@ -3,20 +3,20 @@
   align-items: center;
   gap: 2.5rem;
   padding: 2.875rem 5.25rem;
-  background: var(--white);
-  border: 0.625rem solid var(--black);
-  box-shadow: 1.25rem 1.25rem 0 var(--black);
+  background: var(--light);
+  border: 0.625rem solid var(--dark);
+  box-shadow: 1.25rem 1.25rem 0 var(--dark);
 }
 .caption .cap-bar {
   align-self: stretch;
   width: 1.25rem;
   flex-shrink: 0;
-  background: var(--capbar, var(--pink));
+  background: var(--capbar, var(--primary));
 }
 .caption .cap-text {
   font-family: var(--mono);
   font-weight: 600;
   font-size: 3.625rem;
   line-height: 1.25;
-  color: var(--black);
+  color: var(--dark);
 }

@@ -8,7 +8,7 @@ export const Pill = component({
   name: "pill",
   schema: PillSchema,
   template,
-  example: { text: "Label Pill", variant: "pink" },
+  example: { text: "Label Pill", variant: "primary" },
   fill: (p) => ({ text: p.text }),
   layout: (p) => ({ "--pillbg": `var(--${p.variant})` }),
   animIn: "rise",

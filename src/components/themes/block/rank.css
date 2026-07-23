@@ -20,15 +20,15 @@
 .rank .track {
   flex: 1;
   height: 3.875rem;
-  background: var(--white);
-  border: 0.375rem solid var(--black);
-  box-shadow: 0.5rem 0.5rem 0 var(--black);
+  background: var(--light);
+  border: 0.375rem solid var(--dark);
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
   overflow: hidden;
 }
 .rank .bcol {
   height: 100%;
   width: var(--fill, 4%);
-  background: var(--col, var(--blue));
+  background: var(--col, var(--secondary));
   transform-origin: left center;
 }
 .rank .bv {

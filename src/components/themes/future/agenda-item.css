@@ -16,14 +16,14 @@
   left: 0;
   right: 0;
   height: 0.125rem;
-  background: var(--fx-cyan);
-  box-shadow: 0 0 0.625rem rgba(var(--fx-cyan-rgb), 0.55);
+  background: var(--primary);
+  box-shadow: 0 0 0.625rem color-mix(in srgb, var(--primary) 55%, transparent);
 }
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 700;
   font-size: 3.125rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
   min-width: 6rem;
 }
 .agenda-item .t {
@@ -31,7 +31,7 @@
   font-weight: 700;
   font-size: 2.625rem;
   letter-spacing: -0.01em;
-  color: var(--fx-ink);
+  color: var(--light);
 }
 .agenda-item .d {
   font-family: var(--mono);
@@ -39,7 +39,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 1.25rem;
-  color: var(--fx-muted);
+  color: var(--muted-1);
   margin-left: auto;
   align-self: center;
 }

@@ -6,5 +6,5 @@ import { futureDecorationComponent } from "../future-decoration-shapes";
 export const Reticle = futureDecorationComponent(
   "reticle",
   ["brackets", "crosshair", "gauge", "frame"],
-  { variant: "brackets", x: 50, y: 50, size: 26, rotate: 0, layer: "back", accent: "amber" },
+  { variant: "brackets", x: 50, y: 50, size: 26, rotate: 0, layer: "back", accent: "secondary" },
 );

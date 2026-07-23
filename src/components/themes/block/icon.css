@@ -1,7 +1,7 @@
 .icon {
   display: inline-grid;
   place-items: center;
-  color: var(--icol, var(--black));
+  color: var(--icol, var(--dark));
 }
 .icon svg {
   display: block;

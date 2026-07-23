@@ -1,5 +1,6 @@
 /* 1 · Cover — centered title over the constellation ground. The eyebrow is dropped and a
-   short centered cyan rule sits under the headline (templates/cover.html). No decorations —
+   short centered cyan→violet rule (--primary → --accent-2) sits under the headline
+   (templates/cover.html). No decorations —
    the backdrop is the flourish. Ported from legacy .bf-cover (cqw × 1.2). */
 .cover > .body {
   justify-content: center;
@@ -18,14 +19,14 @@
   width: 14.375rem;
   height: 0.25rem;
   margin: 2.875rem auto 0;
-  background: var(--fx-rule);
+  background: linear-gradient(90deg, var(--primary), var(--accent-2));
 }
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
   font-size: 3rem;
   line-height: 1.5;
-  color: var(--fx-muted);
+  color: var(--muted-1);
   margin-top: 2.875rem;
   max-width: 67.25rem;
 }

@@ -7,14 +7,16 @@
 // list (so no two future decorations render the same shape), sharing this one
 // var-driven element + a square-viewBox SVG shape set. A treatment carries any mix
 // of them via addDecorations(); a scene positions them in page-space with x/y/size/
-// rotate/layer, and tints them with a future accent (cyan/violet/amber/green/ink).
+// rotate/layer, and tints them with one of the 10 shared palette roles (--primary …).
 //
-// These are FUTURE-ONLY: they reference future's --fx-* tokens directly, so block
-// (whose :root has no --fx-*) never rosters them. The `decoration: true` flag holds
-// every family out of the showcase Components grid; futureTheme.decorations lists them.
+// These are FUTURE-ONLY by ROSTER, not by token: they paint with the shared palette
+// roles every theme defines, so nothing in the markup is future-specific — but
+// `decoration: true` holds every family out of the showcase Components grid, and only
+// futureTheme.decorations lists them (themes never share decorations).
 import { z } from "zod";
 import { component } from "../runtime/component";
 import { remGrid } from "../runtime/css";
+import { PALETTE_VARS, type PaletteVar } from "../../types/palette";
 
 // Stroke weight for every luminous line/outline, in rem. FIXED (does not scale with
 // `size`): a large reticle keeps the same delicate hairline as a small node. Rendered
@@ -35,10 +37,10 @@ export const FUTURE_DECORATION_COMPONENTS = [
 export type FutureDecorationComponentName =
   (typeof FUTURE_DECORATION_COMPONENTS)[number];
 
-// Future accent tokens — cyan leads; violet/amber/green stay quiet; ink is the near-white.
-const FX_ACCENTS = ["cyan", "violet", "amber", "green", "ink"] as const;
-type FxAccent = (typeof FX_ACCENTS)[number];
-const accentVar = (a: string): string => `var(--fx-${a})`;
+// Tint tokens — the shared palette roles (types/palette.ts). Under future --primary is
+// the leading cyan; --secondary/--accent-1/--accent-2 are the quiet amber/green/violet;
+// --light is the near-white. Any role is legal; the theme decides the hex.
+const accentVar = (a: string): string => `var(--${a})`;
 
 // Every shape is authored in a square 0..100 viewBox and drawn with a shared stroke
 // attribute set (accent stroke, no fill, round joins) so the families read as one
@@ -116,7 +118,7 @@ type DecoParams = {
   size: number;
   rotate: number;
   layer: "back" | "front";
-  accent: FxAccent;
+  accent: PaletteVar;
 };
 
 /** The shared, var-driven future decoration element (one `.fx-deco`, styled entirely by
@@ -218,12 +220,13 @@ export const futureDecorationComponent = (
         .default("back")
         .describe("Behind content (back) or over top (front)"),
       // Default comes from the family's own `example` so each family carries a
-      // DISTINCT signature tint (node cyan · reticle amber · glyph violet · signal
-      // green) — an unparameterised deck/showcase render never repeats a colour.
+      // DISTINCT signature tint — node --primary (cyan) · reticle --secondary (amber) ·
+      // glyph --accent-2 (violet) · signal --accent-1 (green) — so an unparameterised
+      // deck/showcase render never repeats a colour.
       accent: z
-        .enum(FX_ACCENTS)
+        .enum(PALETTE_VARS)
         .default(example.accent)
-        .describe("Glow / stroke colour token (future's --fx-* accents)"),
+        .describe("Glow / stroke colour — a palette role (--primary … --dark)"),
     }),
     template: FX_DECO_TEMPLATE,
     css: FX_DECO_CSS,

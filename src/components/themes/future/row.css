@@ -1,5 +1,5 @@
 /* Comparison ledger row: display:contents so its cells flow into the parent .ledger grid.
-   Glass cells; the "us" cell (.cell.b) picks up the cyan glow. Ported from legacy
+   Glass cells; the "us" cell (.cell.b) picks up the cyan --primary glow. Ported from legacy
    .bf-comparison .rl / .cell / .cell.b (cqw × 1.2). */
 .row {
   display: contents;
@@ -8,24 +8,24 @@
   font-family: var(--disp);
   font-weight: 700;
   font-size: 1.5rem;
-  color: var(--fx-ink);
+  color: var(--light);
   align-self: center;
 }
 .row .cell {
-  border: 0.125rem solid var(--fx-steel);
-  background: var(--fx-panel);
+  border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
+  background: color-mix(in srgb, var(--muted-3) 55%, transparent);
   border-radius: 0.875rem;
   padding: 1.25rem 1.5rem;
   font-family: var(--body);
   font-weight: 400;
   font-size: 1.375rem;
   line-height: 1.35;
-  color: var(--fx-muted);
+  color: var(--muted-1);
 }
 .row .cell.b {
-  border-color: rgba(var(--fx-cyan-rgb), 0.55);
-  background: rgba(var(--fx-cyan-rgb), 0.08);
-  box-shadow: 0 0 1.875rem rgba(var(--fx-cyan-rgb), 0.22);
-  color: var(--fx-ink);
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--light);
   font-weight: 600;
 }

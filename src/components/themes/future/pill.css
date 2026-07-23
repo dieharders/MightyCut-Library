@@ -2,16 +2,22 @@
    rounded (curved) border, a soft cyan glow, and a wide-tracked cyan mono label. */
 .pill-c {
   display: inline-block;
-  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.4);
-  background: var(--fx-glass), var(--fx-panel);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 40%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--light) 6%, transparent),
+      color-mix(in srgb, var(--dark) 16%, transparent)
+    ),
+    color-mix(in srgb, var(--muted-3) 55%, transparent);
   backdrop-filter: blur(2px);
   border-radius: 9999px;
-  box-shadow: 0 0 1.25rem rgba(var(--fx-cyan-rgb), 0.18);
+  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--primary) 18%, transparent);
   padding: 0.75rem 1.75rem;
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 1.5rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
 }

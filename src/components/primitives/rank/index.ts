@@ -4,7 +4,7 @@ import { rankAnim } from "./anim";
 import { RankSchema } from "./schema";
 
 /** A neobrutalist ranked row: a mono label, a bordered white track whose pastel fill
- *  grows out from the left, and a count-up value. The leader takes the yellow accent. */
+ *  grows out from the left, and a count-up value. The leader takes --accent-1, the rest --secondary. */
 export const Rank = component({
   name: "rank",
   schema: RankSchema,
@@ -18,7 +18,7 @@ export const Rank = component({
     // Fill = value/max, clamped to 0–100% (value ≥ max = full track). No minimum floor,
     // so small values register; no negative or over-100 overflow.
     "--fill": `${Math.min(100, Math.max(0, (p.value / p.max) * 100)).toFixed(1)}%`,
-    "--col": p.leader ? "var(--yellow)" : "var(--blue)",
+    "--col": p.leader ? "var(--accent-1)" : "var(--secondary)",
   }),
   animIn: "fade",
   anim: rankAnim,

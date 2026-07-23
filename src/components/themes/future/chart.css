@@ -16,10 +16,10 @@
   margin-top: 1.875rem;
   background: linear-gradient(
     90deg,
-    var(--fx-cyan) 0%,
-    rgba(var(--fx-cyan-rgb), 0.45) 12%,
-    rgba(148, 176, 204, 0.14) 42%,
-    rgba(148, 176, 204, 0.05) 100%
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
 .chart .bars {
@@ -28,7 +28,7 @@
   justify-content: space-around;
   gap: 2.875rem;
   height: 27rem;
-  border-bottom: 0.125rem solid var(--fx-steel);
+  border-bottom: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
   padding: 0 2.375rem;
 }
 .chart .bars .bar {
@@ -38,16 +38,16 @@
 .chart .bars .bar:last-child .bcol {
   background: linear-gradient(
     180deg,
-    var(--fx-cyan) 0%,
-    rgba(var(--fx-cyan-rgb), 0.2) 100%
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 20%, transparent) 100%
   );
-  box-shadow: 0 0 2.375rem rgba(var(--fx-cyan-rgb), 0.4);
+  box-shadow: 0 0 2.375rem color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .chart .caption {
   font-family: var(--body);
   font-weight: 400;
   font-size: 1.5rem;
-  color: var(--fx-faint);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
   margin-top: 2.125rem;
   text-align: center;
 }

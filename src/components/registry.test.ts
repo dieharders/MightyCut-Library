@@ -5,6 +5,7 @@
 // treatments) produces a well-formed, deterministic sub-composition.
 import { describe, expect, test } from "bun:test";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
+import { PALETTE_VARS, normalizePaletteVar, uniquePaletteEntries } from "../types/palette";
 import { BACKDROP_NAMES } from "../types/storyboard";
 import { BACKDROPS, buildBackdrop } from "./primitives/backdrops";
 import { iconSvg } from "./icons";
@@ -125,10 +126,10 @@ describe("new library components", () => {
     expect(r.html).toContain("cap-bar");
   });
   test("pill renders label + variant background token", () => {
-    const r = build("pill", { text: "Eyebrow", variant: "green" });
+    const r = build("pill", { text: "Eyebrow", variant: "accent-2" });
     expect(r.html).toContain("Eyebrow");
     expect(r.css.length).toBeGreaterThan(0);
-    expect(r.html).toContain("var(--green)"); // layout-set --pillbg
+    expect(r.html).toContain("var(--accent-2)"); // layout-set --pillbg
   });
   test("cta renders label + arrow; arrow self-removes when off", () => {
     expect(build("cta").html).toContain("→");
@@ -143,10 +144,10 @@ describe("new library components", () => {
     expect(r.html).toContain("Seventh item");
   });
   test("decoration families render the selected shape + placement (var-driven)", () => {
-    const star = build("starburst", { variant: "star", x: 80, y: 20, size: 12, accent: "yellow" }).html;
+    const star = build("starburst", { variant: "star", x: 80, y: 20, size: 12, accent: "accent-1" }).html;
     expect(star).toContain("<polygon"); // star shape as inline SVG
     expect(star).toContain("--d-x: 80%"); // x placement
-    expect(star).toContain("var(--yellow)"); // accent → SVG fill
+    expect(star).toContain("var(--accent-1)"); // accent → SVG fill
     expect(build("starburst", { variant: "circle" }).html).toContain("--d-radius: 50%"); // box shape
     expect(build("slab", { variant: "square", layer: "front" }).html).toContain("--d-z: 5"); // foreground z-index
     expect(build("slab", { variant: "rhombus" }).html).toContain("<polygon");
@@ -203,15 +204,15 @@ describe("future decorations", () => {
     getComponent(name)(params as never).build(ctx(`sc-${name}`));
 
   test("future families render the selected shape (inline SVG) + placement + accent glow", () => {
-    const orbit = build("node", { variant: "orbit", x: 80, y: 20, size: 20, accent: "cyan" }).html;
+    const orbit = build("node", { variant: "orbit", x: 80, y: 20, size: 20, accent: "primary" }).html;
     expect(orbit).toContain("<svg"); // luminous shape as inline SVG
     expect(orbit).toContain("<circle"); // orbit = ring + core + satellite
     expect(orbit).toContain("--fd-x: 80%"); // x placement (var-driven)
-    expect(orbit).toContain("var(--fx-cyan)"); // future accent → stroke/fill
+    expect(orbit).toContain("var(--primary)"); // future accent → stroke/fill
     expect(orbit).toContain("drop-shadow("); // the glow filter (no hard offset)
     expect(build("node", { variant: "core", layer: "front" }).html).toContain("--fd-z: 5"); // foreground z
     expect(build("reticle", { variant: "brackets" }).html).toContain("<path"); // corner brackets
-    expect(build("glyph", { variant: "hexagon", accent: "violet" }).html).toContain("var(--fx-violet)");
+    expect(build("glyph", { variant: "hexagon", accent: "accent-2" }).html).toContain("var(--accent-2)");
     expect(build("signal", { variant: "bars" }).html).toContain("<rect"); // equalizer bars
   });
 
@@ -283,13 +284,13 @@ describe("treatment decorations", () => {
   test("addDecorations overrides defaults + honors coords/layer (any family)", () => {
     const inst = getTreatment("stat-grid")().addDecorations(
       getComponent("starburst")({ variant: "triangle", x: 12, y: 88, layer: "front", accent: "green" }),
-      getComponent("badge")({ variant: "shield", x: 90, y: 10, accent: "yellow" }),
+      getComponent("badge")({ variant: "shield", x: 90, y: 10, accent: "accent-1" }),
     );
     const html = inst.build(ctx("s01-stat-grid")).html;
     expect(html).toContain("--d-x: 12%"); // starburst placement honored
     expect(html).toContain("<polygon"); // triangle + shield as inline SVG
     expect(html).toContain("--d-z: 5"); // foreground layer
-    expect(html).toContain("var(--green)"); // accent
+    expect(html).toContain("var(--accent-2)"); // accent
     expect(html).toContain("__d0-item"); // two decorations appended
     expect(html).toContain("__d1-item");
   });
@@ -323,7 +324,7 @@ describe("rank fill reveal (scaleX, not width)", () => {
 // The backdrop-mask registry: every non-"plain" BACKDROP_NAMES entry must resolve
 // to a design, "plain" must resolve to no mask, and each design must build.
 describe("backdrop registry (tripwire)", () => {
-  const input = { ground: "cream" as const, theme: blockTheme, ctx: ctx("s01-bd") };
+  const input = { ground: "muted-1" as const, theme: blockTheme, ctx: ctx("s01-bd") };
 
   test("every BACKDROP_NAMES value (except plain) has a registered design", () => {
     for (const name of BACKDROP_NAMES) {
@@ -374,8 +375,8 @@ describe("future theme (tripwire)", () => {
       const html = renderScene(factory(), fctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
       expect(html).toContain(`.${compId}-root .block-frame`);
-      // future forces its navy ground (frameCss) + carries the constellation backdrop
-      expect(html).toContain("var(--fx-navy)");
+      // future forces its navy ground (--muted-2, frameCss) + carries the constellation backdrop
+      expect(html).toContain("var(--muted-2)");
       expect(html).toContain("mc-backdrop--constellation");
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
@@ -404,8 +405,8 @@ describe("future theme (tripwire)", () => {
 
   test("treatment skin: stat-grid renders future's skin, not block's", () => {
     const html = renderScene(getTreatment("stat-grid")(), fctx("f01-sg"));
-    expect(html).toContain("var(--fx-cyan)"); // future stat skin (cyan numerals)
-    expect(html).not.toContain("0.5rem 0.5rem 0 var(--black)"); // block's stat box-shadow gone
+    expect(html).toContain("var(--primary)"); // future stat skin (cyan numerals)
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat box-shadow gone
   });
 
   test("constellation backdrop emits a valid, compId-scoped animated descriptor", () => {
@@ -440,5 +441,71 @@ describe("future theme (tripwire)", () => {
         expect(() => renderScene(inst, exCtx), `${theme.name} example '${tname}' failed to compose`).not.toThrow();
       }
     }
+  });
+});
+
+// ---------------------------------------------------------------- palette roles ---
+// The palette contract: every theme fills exactly the 10 shared roles, once each, in
+// canonical order, and defines a matching `:root` custom property. These are the
+// tripwires that keep a new theme (or a hand edit) from reintroducing a private colour
+// vocabulary — the exact drift this migration removed.
+describe("palette roles (tripwire)", () => {
+  const THEMES = [
+    { theme: blockTheme, uniques: 8 },
+    { theme: futureTheme, uniques: 9 },
+  ];
+
+  test.each(THEMES)("$theme.name fills all 10 roles exactly once, in canonical order", ({ theme }) => {
+    const roles = (theme.palette ?? []).map((p) => p.varName);
+    expect(roles).toEqual([...PALETTE_VARS]);
+  });
+
+  test.each(THEMES)("$theme.name emits a :root custom property per role", ({ theme }) => {
+    for (const sw of theme.palette ?? []) {
+      expect(theme.css, `--${sw.varName} missing from ${theme.name}'s :root`).toContain(
+        `--${sw.varName}: ${sw.hex.toLowerCase()};`,
+      );
+    }
+  });
+
+  // The de-dupe the showcase + every palette-colour param control render from: a colour
+  // filling several roles is listed ONCE, keyed to its FIRST role (block's Oat → muted-2,
+  // never muted-3). Guards the "don't show duplicate colour options" requirement.
+  test.each(THEMES)("$theme.name de-dupes to its unique colours, first role wins", ({ theme, uniques }) => {
+    const unique = uniquePaletteEntries(theme.palette ?? []);
+    expect(unique.length).toBe(uniques);
+    expect(new Set(unique.map((p) => p.hex.toLowerCase())).size).toBe(uniques);
+    // each kept entry is the FIRST role holding that hex, in canonical order
+    for (const sw of unique) {
+      const first = (theme.palette ?? []).find((p) => p.hex.toLowerCase() === sw.hex.toLowerCase())!;
+      expect(sw.varName).toBe(first.varName);
+    }
+  });
+
+  // No skin may reintroduce a raw colour. Roles + color-mix() derivations only.
+  test.each(THEMES)("$theme.name's skins carry no hex/rgb literal", ({ theme }) => {
+    for (const [name, css] of Object.entries(theme.skins ?? {})) {
+      expect(css, `${theme.name}/${name} has a colour literal`).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(/);
+    }
+    expect(theme.frameCss ?? "", `${theme.name}'s frameCss has a colour literal`).not.toMatch(
+      /#[0-9a-fA-F]{3,8}\b|rgba?\(/,
+    );
+  });
+
+  // Legacy decks persist the colour names that were current when they were saved, so the
+  // read path must keep accepting them forever (types/palette.ts).
+  test("legacy colour names still normalize to their role", () => {
+    expect(normalizePaletteVar("pink")).toBe("primary");
+    expect(normalizePaletteVar("offwhite")).toBe("muted-2");
+    expect(normalizePaletteVar("fx-cyan")).toBe("primary");
+    expect(normalizePaletteVar("fx-panel-solid")).toBe("muted-3");
+    expect(normalizePaletteVar("accent-1")).toBe("accent-1"); // a role passes through
+  });
+
+  // A component composed from a pre-migration deck (accent: "pink") must still build.
+  test("a legacy accent value still composes", () => {
+    expect(() => getComponent("stat")({ value: 1, label: "a", accent: "pink" } as never).build(ctx("s"))).not.toThrow();
+    const html = getComponent("stat")({ value: 1, label: "a", accent: "pink" } as never).build(ctx("s")).html;
+    expect(html).toContain("var(--primary)");
   });
 });

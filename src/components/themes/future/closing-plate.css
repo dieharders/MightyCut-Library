@@ -20,13 +20,13 @@
 }
 .closing-plate .cta {
   margin-top: 3.625rem;
-  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.55);
-  background: rgba(var(--fx-cyan-rgb), 0.1);
-  box-shadow: 0 0 3.625rem rgba(var(--fx-cyan-rgb), 0.28);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: 0 0 3.625rem color-mix(in srgb, var(--primary) 28%, transparent);
   border-radius: 9999px;
   padding: 1.5rem 3.625rem;
   font-family: var(--disp);
   font-weight: 700;
   font-size: 2.25rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
 }

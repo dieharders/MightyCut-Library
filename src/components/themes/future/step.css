@@ -2,12 +2,18 @@
    the gap to the next step. Ported from legacy .bf-timeline .step (cqw × 1.2). */
 .step {
   position: relative;
-  border: 0.125rem solid var(--fx-line);
-  background: var(--fx-glass), var(--fx-panel);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 16%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--light) 6%, transparent),
+      color-mix(in srgb, var(--dark) 16%, transparent)
+    ),
+    color-mix(in srgb, var(--muted-3) 55%, transparent);
   backdrop-filter: blur(2px);
   border-radius: 1.25rem;
   padding: 2.25rem;
-  box-shadow: 0 1.5rem 3.625rem rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);
 }
 .step:not(:last-child)::after {
   content: "→";
@@ -17,20 +23,20 @@
   transform: translateY(-50%);
   font-family: var(--body);
   font-size: 1.875rem;
-  color: var(--fx-faint);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
 }
 .step-num {
   display: inline-grid;
   place-items: center;
   width: 3.625rem;
   height: 3.625rem;
-  border: 0.125rem solid rgba(var(--fx-cyan-rgb), 0.4);
-  background: rgba(var(--fx-cyan-rgb), 0.1);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 40%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   border-radius: 0.875rem;
   font-family: var(--mono);
   font-weight: 600;
   font-size: 1.5rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
   margin-bottom: 1.5rem;
 }
 .step-title {
@@ -38,13 +44,13 @@
   font-weight: 700;
   font-size: 1.75rem;
   line-height: 1.15;
-  color: var(--fx-ink);
+  color: var(--light);
 }
 .step-body {
   font-family: var(--body);
   font-weight: 400;
   font-size: 1.25rem;
   line-height: 1.5;
-  color: var(--fx-muted);
+  color: var(--muted-1);
   margin-top: 0.875rem;
 }

@@ -1,9 +1,9 @@
 /* Sizes are in rem, quantized to a 0.125rem grid, so an element is the same size
    regardless of the container it renders in. See runtime/css.ts for the grid rule. */
 .card {
-  border: 0.375rem solid var(--black);
-  background: var(--white);
-  box-shadow: 0.75rem 0.75rem 0 var(--black);
+  border: 0.375rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.125rem;
   display: flex;
   flex-direction: column;
@@ -11,8 +11,8 @@
 .card-icon {
   width: 4.75rem;
   height: 4.75rem;
-  border: 0.25rem solid var(--black);
-  background: var(--ic, var(--pink));
+  border: 0.25rem solid var(--dark);
+  background: var(--ic, var(--primary));
   display: grid;
   place-items: center;
   font-family: var(--disp);
@@ -32,6 +32,6 @@
   font-weight: 500;
   font-size: 1.75rem;
   line-height: 1.5;
-  color: #222;
+  color: color-mix(in srgb, var(--dark) 87%, transparent);
   margin-top: 0.875rem;
 }

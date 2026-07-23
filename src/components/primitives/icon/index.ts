@@ -12,7 +12,7 @@ export const Icon = component({
   name: "icon",
   schema: IconSchema,
   template,
-  example: { name: "shield", accent: "black", size: 10 },
+  example: { name: "shield", accent: "dark", size: 10 },
   rawFill: (p) => ({ svg: iconSvg(p.name) }),
   layout: (p) => ({ "--icol": `var(--${p.accent})`, "--isize": remGrid(p.size * 1.2) }),
   animIn: "scale",

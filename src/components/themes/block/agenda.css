@@ -13,5 +13,5 @@
   flex-direction: column;
 }
 .agenda .alist > *:last-child {
-  border-bottom: 0.375rem solid var(--black);
+  border-bottom: 0.375rem solid var(--dark);
 }

@@ -2,7 +2,7 @@
    its three cells participate directly in the parent .ledger grid (mirrors the legacy .rrow).
    Shown bare in the showcase (no grid) the cells flow straight into the preview's centred
    flex, which supplies the inter-cell gap — so no standalone box is needed here. The "us"
-   cell (.cell.b) takes the green accent + hard offset shadow. */
+   cell (.cell.b) takes the green --accent-2 role + hard offset shadow. */
 .row {
   display: contents;
 }
@@ -14,8 +14,8 @@
   align-self: center;
 }
 .row .cell {
-  border: 0.25rem solid var(--black);
-  background: var(--white);
+  border: 0.25rem solid var(--dark);
+  background: var(--light);
   padding: 1.125rem 1.5rem;
   font-family: var(--disp);
   font-weight: 500;
@@ -23,7 +23,7 @@
   line-height: 1.35;
 }
 .row .cell.b {
-  background: var(--green);
-  box-shadow: 0.375rem 0.375rem 0 var(--black);
+  background: var(--accent-2);
+  box-shadow: 0.375rem 0.375rem 0 var(--dark);
   font-weight: 700;
 }

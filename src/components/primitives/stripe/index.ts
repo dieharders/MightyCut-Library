@@ -5,5 +5,5 @@ import { decorationComponent } from "../decoration-shapes";
 export const Stripe = decorationComponent(
   "stripe",
   ["stripe", "bars", "grid"],
-  { variant: "stripe", x: 50, y: 50, size: 30, rotate: 0, layer: "back", accent: "green" },
+  { variant: "stripe", x: 50, y: 50, size: 30, rotate: 0, layer: "back", accent: "accent-2" },
 );

@@ -26,7 +26,7 @@
   font-family: var(--disp);
   font-weight: 700;
   font-size: 1.875rem;
-  color: var(--fx-cyan);
+  color: var(--primary);
 }
 .bar .bcol {
   flex: 0 0 auto;
@@ -35,12 +35,12 @@
   max-width: 8.375rem;
   background: linear-gradient(
     180deg,
-    rgba(var(--fx-cyan-rgb), 0.7) 0%,
-    rgba(var(--fx-cyan-rgb), 0.12) 100%
+    color-mix(in srgb, var(--primary) 70%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 12%, transparent) 100%
   );
-  border-top: 0.25rem solid var(--fx-cyan);
+  border-top: 0.25rem solid var(--primary);
   border-radius: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 0 1.875rem rgba(var(--fx-cyan-rgb), 0.3);
+  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 30%, transparent);
   transform-origin: bottom;
 }
 .bar .bl {
@@ -51,6 +51,6 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 1.25rem;
-  color: var(--fx-muted);
+  color: var(--muted-1);
   text-align: center;
 }

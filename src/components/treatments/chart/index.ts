@@ -11,7 +11,7 @@ export const Chart = treatment({
   childComponent: "bar",
   schema: ChartSchema,
   template,
-  ground: "cream",
+  ground: "muted-1",
   example: { headline: "Revenue by quarter", caption: "Net new revenue" },
   defaultChildren: () => {
     const series = [

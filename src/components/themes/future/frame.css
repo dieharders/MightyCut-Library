@@ -1,5 +1,5 @@
 /* Future's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
-   ground onto; future FORCES the ground navy (!important) so it beats the emitter's inline
+   ground onto; future FORCES the ground to the navy role --muted-2 (!important) so it beats the emitter's inline
    `background: var(--<ground>)` — the component-path equivalent of legacy future's
    transparent-over-root-canvas hack (here the per-scene constellation backdrop paints over
    the navy instead of a single deck canvas). Sizes are rem on a 0.125rem grid (see
@@ -8,10 +8,10 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: var(--fx-navy) !important;
+  background: var(--muted-2) !important;
   container-type: size;
   font-family: var(--body);
-  color: var(--fx-ink);
+  color: var(--light);
 }
 .block-frame > .body {
   position: absolute;
@@ -27,6 +27,6 @@
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.02;
-  color: var(--fx-ink);
+  color: var(--light);
   margin: 0;
 }

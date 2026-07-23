@@ -9,7 +9,7 @@ export const Quote = treatment({
   name: "quote",
   schema: QuoteSchema,
   template,
-  ground: "pink",
+  ground: "primary",
   example: {
     text: "Design is not just what it looks like. Design is how it works.",
     attribution: "Steve Jobs",

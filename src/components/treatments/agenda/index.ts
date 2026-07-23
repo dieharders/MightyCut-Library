@@ -11,7 +11,7 @@ export const Agenda = treatment({
   childComponent: "agenda-item",
   schema: AgendaSchema,
   template,
-  ground: "offwhite",
+  ground: "muted-2",
   example: { headline: "What we'll cover" },
   defaultChildren: () => [
     AgendaItem({ num: "01", title: "The problem", detail: "Why now" }),

@@ -7,5 +7,5 @@ import { futureDecorationComponent } from "../future-decoration-shapes";
 export const Node = futureDecorationComponent(
   "node",
   ["ring", "core", "orbit", "pulse"],
-  { variant: "orbit", x: 50, y: 50, size: 22, rotate: 0, layer: "back", accent: "cyan" },
+  { variant: "orbit", x: 50, y: 50, size: 22, rotate: 0, layer: "back", accent: "primary" },
 );

@@ -6,5 +6,5 @@ import { futureDecorationComponent } from "../future-decoration-shapes";
 export const Glyph = futureDecorationComponent(
   "glyph",
   ["hexagon", "diamond", "chevron", "triangle"],
-  { variant: "hexagon", x: 50, y: 50, size: 22, rotate: 0, layer: "back", accent: "violet" },
+  { variant: "hexagon", x: 50, y: 50, size: 22, rotate: 0, layer: "back", accent: "accent-2" },
 );

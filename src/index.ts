@@ -20,6 +20,11 @@ export {
   treatmentNames,
 } from "./components/runtime/registry";
 
+// The palette-role contract (the 10 shared colour vars every theme defines) —
+// exported flat, not namespaced: the enums, the schemas and both consumers all
+// address colours through it.
+export * from "./types/palette";
+
 // Zod contracts (the params / spec / deck vocabulary).
 export * as spec from "./types/spec";
 export * as storyboard from "./types/storyboard";

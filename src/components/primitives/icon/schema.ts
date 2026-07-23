@@ -1,12 +1,14 @@
 import { z } from "zod";
 import { ICON_NAMES } from "../../icons";
+// Shared palette roles — see stat/schema.ts.
+import { PALETTE_VARS } from "../../../types/palette";
 
 export const IconSchema = z.object({
   name: z.enum(ICON_NAMES).default("shield").describe("Icon alias"),
   accent: z
-    .enum(["pink", "blue", "green", "yellow", "black"])
-    .default("black")
-    .describe("Stroke color token"),
+    .enum(PALETTE_VARS)
+    .default("dark")
+    .describe("Palette role for the stroke colour"),
   size: z
     .number()
     .positive()

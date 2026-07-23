@@ -8,7 +8,7 @@ import { renderScene } from "./emit";
 import { treatment } from "./treatment";
 import type { BuildContext, ThemeTokens } from "./types";
 
-const THEME: ThemeTokens = { name: "test", css: ":root{--pink:#f0a;--offwhite:#fff}" };
+const THEME: ThemeTokens = { name: "test", css: ":root{--primary:#f0a;--muted-2:#fff}" };
 const ctx = (compId: string): BuildContext => ({ compId, idPrefix: compId, theme: THEME, mode: "render" });
 
 // --- an inline stat-like component + a grid treatment (no trio files needed) ---
@@ -37,7 +37,7 @@ const StatGrid = treatment({
   schema: GridSchema,
   template: `<div class="stat-grid"><h3 class="hd" data-slot="headline" data-anim="headline">Headline</h3><div class="row" data-children></div></div>`,
   css: `.stat-grid { container-type: size }\n.row { display: grid; grid-template-columns: repeat(var(--cols,3),1fr) }`,
-  ground: "pink",
+  ground: "primary",
   example: { headline: "Numbers that matter" },
   defaultChildren: () => [Stat({ value: 10, label: "A" }), Stat({ value: 20, label: "B" })],
   layout: (n) => ({ "--cols": String(Math.min(n, 4)), ...(n > 3 ? { "--dense": "1" } : {}) }),
@@ -59,7 +59,7 @@ const Captioned = treatment({
   schema: GridSchema,
   template: `<div class="cg"><h3 data-slot="headline" data-anim="headline">H</h3><div class="row" data-children></div><p data-anim="caption">c</p></div>`,
   css: `.cg { container-type: size }`,
-  ground: "pink",
+  ground: "primary",
   example: { headline: "H" },
   defaultChildren: () => [Stat({ value: 1, label: "a" }), Stat({ value: 2, label: "b" })],
   anim: (_p, n) => [
@@ -75,7 +75,7 @@ const Framed = treatment({
   schema: z.object({ title: z.string() }),
   template: `<div class="fr"><span data-slot="eyebrow" data-anim="eyebrow">e</span><h3 data-slot="title" data-anim="title">t</h3><p data-anim="sub">s</p></div>`,
   css: `.fr { display: grid }`,
-  ground: "pink",
+  ground: "primary",
   example: { title: "T" },
   defaultChildren: () => [],
   fill: (p) => ({ eyebrow: "e", title: p.title }),
@@ -219,7 +219,7 @@ describe("treatment composition", () => {
     expect(html).toContain('data-composition-id="s03-metrics"');
     expect(html).toContain('window.__timelines["s03-metrics"]');
     expect(html).toContain("MC.applyAnims(tl,");
-    expect(html).toContain("background: var(--pink)");
+    expect(html).toContain("background: var(--primary)");
     expect(html).toContain(".s03-metrics-root .stat-grid");
     expect(html).not.toContain("data-slot");
     // determinism holds
@@ -238,9 +238,9 @@ describe("treatment composition", () => {
 
 describe("ground override via wrapSubComposition parts", () => {
   test("storyboard ground replaces the canonical ground", () => {
-    const html = renderScene(StatGrid(), ctx("s"), { ground: "blue" });
-    expect(html).toContain("background: var(--blue)");
-    expect(html).not.toContain("background: var(--pink)");
+    const html = renderScene(StatGrid(), ctx("s"), { ground: "accent-1" });
+    expect(html).toContain("background: var(--accent-1)");
+    expect(html).not.toContain("background: var(--primary)");
   });
 });
 
@@ -252,7 +252,7 @@ describe("backdrop mask", () => {
     const html = renderScene(StatGrid(), ctx("s"));
     expect(html).not.toContain("mc-backdrop");
     // the ground colour is unaffected
-    expect(html).toContain("background: var(--pink)");
+    expect(html).toContain("background: var(--primary)");
   });
 
   test("the theme's canonical backdrop paints the mask overlay", () => {
@@ -260,7 +260,7 @@ describe("backdrop mask", () => {
     expect(html).toContain("mc-backdrop mc-backdrop--dots");
     expect(html).toContain("background-size: 3.625rem 3.625rem");
     // mask overlays the ground; the ground colour is still stamped
-    expect(html).toContain("background: var(--pink)");
+    expect(html).toContain("background: var(--primary)");
     expect(() => scrubDeterminism(html)).not.toThrow();
   });
 

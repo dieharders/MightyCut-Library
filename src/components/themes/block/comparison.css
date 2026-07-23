@@ -31,11 +31,11 @@
   padding: 0.75rem 1.25rem;
 }
 .comparison .ch.a {
-  background: var(--white);
-  border: 0.25rem solid var(--black);
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
 }
 .comparison .ch.b {
-  background: var(--green);
-  border: 0.25rem solid var(--black);
-  box-shadow: 0.375rem 0.375rem 0 var(--black);
+  background: var(--accent-2);
+  border: 0.25rem solid var(--dark);
+  box-shadow: 0.375rem 0.375rem 0 var(--dark);
 }

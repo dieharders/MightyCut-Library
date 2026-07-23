@@ -2,22 +2,34 @@
 import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
+import type { PaletteVar } from "../../types/palette";
 import type { FrameGround } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
 import type { AnimDescriptor } from "./anim";
 
 export type BuildMode = "render" | "showcase";
 
-/** One palette swatch — a named token backing a CSS custom property. */
+/**
+ * One palette entry — the colour a theme assigns to one of the 10 shared palette
+ * ROLES (types/palette.ts). A theme's `palette` has exactly one entry per role, in
+ * canonical role order, and is the single source of its colours: it generates the
+ * `:root` custom properties AND drives every colour the UI displays or offers.
+ *
+ * The SAME colour may appear under several roles (block's Oat is both `muted-2` and
+ * `muted-3`), which is why `name` is the human-facing label the UI de-dupes on —
+ * see `uniquePaletteEntries`.
+ */
 export type PaletteSwatch = {
-  /** Display name, e.g. "Pink". */
+  /** Human/agent-facing colour label, e.g. "Pink", "Cyan", "Oat". Shared by every
+   *  role this colour fills, which is what makes de-duping meaningful. */
   name: string;
-  /** Hex value, e.g. "#FE90E8". */
+  /** Hex value, e.g. "#FE90E8". The de-dupe key. */
   hex: string;
-  /** Optional role note shown after the hex, e.g. "CTA", "canvas". */
+  /** Optional usage note shown after the hex, e.g. "CTA", "canvas". */
   note?: string;
-  /** The CSS custom property name (no leading `--`), e.g. "pink". */
-  varName: string;
+  /** The palette ROLE this colour fills — also the CSS custom property name
+   *  (no leading `--`), e.g. "primary", "accent-1", "muted-2". */
+  varName: PaletteVar;
 };
 
 /** One typographic role — token name, human spec line, a live sample, and the
@@ -46,7 +58,7 @@ export type ThemeTokens = {
   title?: string;
   /** One-paragraph description of the theme's visual language, shown in the showcase header. */
   description?: string;
-  /** `:root { --pink: …; --disp: … }` — emitted to a project's assets/tokens.css. */
+  /** `:root { --primary: …; --disp: … }` — emitted to a project's assets/tokens.css. */
   css: string;
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */

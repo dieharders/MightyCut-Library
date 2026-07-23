@@ -11,7 +11,7 @@
   font-weight: 700;
   font-size: 8.375rem;
   line-height: 0.5;
-  color: var(--fx-cyan);
+  color: var(--primary);
   opacity: 0.6;
   margin-bottom: 1.25rem;
 }
@@ -25,7 +25,7 @@
   letter-spacing: -0.02em;
   font-size: 4.375rem;
   line-height: 1.12;
-  color: var(--fx-ink);
+  color: var(--light);
 }
 .quote .attr {
   font-family: var(--mono);
@@ -33,6 +33,6 @@
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 1.5rem;
-  color: var(--fx-muted);
+  color: var(--muted-1);
   margin-top: 2.875rem;
 }

@@ -5,5 +5,5 @@ import { decorationComponent } from "../decoration-shapes";
 export const Slab = decorationComponent(
   "slab",
   ["square", "rectangle", "rhombus", "hexagon", "cross"],
-  { variant: "square", x: 50, y: 50, size: 24, rotate: 0, layer: "back", accent: "blue" },
+  { variant: "square", x: 50, y: 50, size: 24, rotate: 0, layer: "back", accent: "secondary" },
 );

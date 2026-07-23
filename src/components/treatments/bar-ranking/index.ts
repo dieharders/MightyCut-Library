@@ -11,7 +11,7 @@ export const BarRanking = treatment({
   childComponent: "rank",
   schema: BarRankingSchema,
   template,
-  ground: "cream",
+  ground: "muted-1",
   example: {
     headline: "Market share by vendor",
     caption: "Share of new installs, 2026",

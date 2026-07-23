@@ -5,5 +5,5 @@ import { decorationComponent } from "../decoration-shapes";
 export const Starburst = decorationComponent(
   "starburst",
   ["star", "burst", "triangle", "circle"],
-  { variant: "star", x: 50, y: 50, size: 26, rotate: 0, layer: "back", accent: "pink" },
+  { variant: "star", x: 50, y: 50, size: 26, rotate: 0, layer: "back", accent: "primary" },
 );

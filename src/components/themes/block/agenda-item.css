@@ -3,13 +3,13 @@
   align-items: baseline;
   gap: 2.5rem;
   padding: 1.75rem 0;
-  border-top: 0.375rem solid var(--black);
+  border-top: 0.375rem solid var(--dark);
 }
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 900;
   font-size: 3.375rem;
-  color: var(--pink);
+  color: var(--primary);
   min-width: 6rem;
 }
 .agenda-item .t {
@@ -25,7 +25,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 1.875rem;
-  color: #333;
+  color: color-mix(in srgb, var(--dark) 80%, transparent);
   margin-left: auto;
   align-self: center;
 }

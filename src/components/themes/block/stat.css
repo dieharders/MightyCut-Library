@@ -1,8 +1,8 @@
 .stat {
   position: relative;
-  border: 0.25rem solid var(--black);
-  background: var(--white);
-  box-shadow: 0.5rem 0.5rem 0 var(--black);
+  border: 0.25rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
   padding: 2.5rem;
 }
 .stat-dot {
@@ -12,8 +12,8 @@
   width: 1.375rem;
   height: 1.375rem;
   border-radius: 50%;
-  border: 0.125rem solid var(--black);
-  background: var(--dot, var(--pink));
+  border: 0.125rem solid var(--dark);
+  background: var(--dot, var(--primary));
 }
 .stat-number {
   font-family: var(--disp);

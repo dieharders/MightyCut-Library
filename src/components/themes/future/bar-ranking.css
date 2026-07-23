@@ -16,10 +16,10 @@
   margin-top: 1.875rem;
   background: linear-gradient(
     90deg,
-    var(--fx-cyan) 0%,
-    rgba(var(--fx-cyan-rgb), 0.45) 12%,
-    rgba(148, 176, 204, 0.14) 42%,
-    rgba(148, 176, 204, 0.05) 100%
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
 .bar-ranking .bars {
@@ -30,16 +30,16 @@
 .bar-ranking .bars > .rank:first-child .bcol {
   background: linear-gradient(
     90deg,
-    rgba(var(--fx-cyan-rgb), 0.5) 0%,
-    var(--fx-cyan) 100%
+    color-mix(in srgb, var(--primary) 50%, transparent) 0%,
+    var(--primary) 100%
   );
-  box-shadow: 0 0 1.875rem rgba(var(--fx-cyan-rgb), 0.4);
+  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .bar-ranking .caption {
   font-family: var(--body);
   font-weight: 400;
   font-size: 1.5rem;
-  color: var(--fx-faint);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
   margin-top: 2.125rem;
   text-align: center;
 }

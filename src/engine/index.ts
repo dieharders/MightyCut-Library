@@ -46,6 +46,20 @@ export type {
   TypeSpec,
 } from "../components/runtime/types";
 
+// The palette-role contract. The React chrome renders every colour param and the
+// showcase Palette section from these: the 10 role names, the fold that absorbs the
+// legacy colour vocabulary saved decks still carry, and the by-hex de-dupe that turns
+// a theme's 10 roles into its unique COLOURS. Exported here (not only from the Bun
+// entry) because the web UI reaches the library exclusively through `/engine`.
+export {
+  PALETTE_VARS,
+  ACCENT_CYCLE,
+  LEGACY_PALETTE_ALIASES,
+  normalizePaletteVar,
+  uniquePaletteEntries,
+  type PaletteVar,
+} from "../types/palette";
+
 // Vocab for the React form controls.
 export {
   TRANSITION_NAMES,
