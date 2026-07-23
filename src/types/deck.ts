@@ -35,12 +35,22 @@ export const DeckVoLineSchema = z.object({
   text: z.string().min(1).max(220),
 });
 
+/** Sentinel `treatment` for a CUSTOM slide — one whose kind has no standard treatment
+ *  (custom / matrix / composed / line-chart). A custom slide is not a component scene: its
+ *  composition stays the legacy generic fallback and a deck rebuild passes it through
+ *  untouched (never recomposed). It exists in the deck ONLY so the editor still LISTS the
+ *  slide (read-only) — no slide is silently dropped. See `specToDeck` (which emits it),
+ *  `buildDeckCompositions` (which skips it), and the editor's SceneCard (read-only card). */
+export const CUSTOM_TREATMENT = "custom" as const;
+
 /** One slide's composition — `treatment` + own-slot `params` + resolved `children`,
- *  with optional `decorations` / `ground` / `anim` overrides and the slide's VO ids. */
+ *  with optional `decorations` / `ground` / `anim` overrides and the slide's VO ids.
+ *  `treatment` is a real FRAME_TREATMENT for a component scene, or the CUSTOM_TREATMENT
+ *  sentinel for a read-only custom slide the editor lists but does not render/edit. */
 export const DeckSceneSchema = z
   .object({
     id: z.string().min(1),
-    treatment: z.enum(FRAME_TREATMENTS),
+    treatment: z.enum([...FRAME_TREATMENTS, CUSTOM_TREATMENT]),
     params: z.record(z.string(), z.unknown()),
     children: z.array(ChildSpecSchema),
     decorations: z.array(ChildSpecSchema).optional(),
