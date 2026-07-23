@@ -16,7 +16,8 @@ import { Glyph } from "./primitives/glyph";
 import { Hud } from "./primitives/hud";
 import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
-import { Node } from "./primitives/node";
+// `NodeDeco`, not `Node` — the bare name would shadow the DOM's `Node` global here.
+import { NodeDeco } from "./primitives/node";
 import { Pill } from "./primitives/pill";
 import { Rank } from "./primitives/rank";
 import { Reticle } from "./primitives/reticle";
@@ -40,7 +41,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, Node, Reticle, Glyph, Signal, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -58,7 +59,7 @@ export {
   Hud,
   Icon,
   ListNumber,
-  Node,
+  NodeDeco,
   Pill,
   Rank,
   Reticle,

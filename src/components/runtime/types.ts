@@ -98,8 +98,16 @@ export type ThemeTokens = {
    *  (a component shown outside a full frame). A dark theme sets a dark surface so its
    *  glass / light-on-dark elements read (block's neobrutalist tiles want a light one).
    *  Unset ⇒ a neutral light default. A CONCRETE CSS colour — it's applied in the host
-   *  light DOM (not the preview Shadow DOM), so a `var(--token)` would not resolve. */
+   *  light DOM (not the preview Shadow DOM), so a `var(--token)` would not resolve.
+   *  Purely the SURFACE: it says nothing about whether the theme is dark — declare that
+   *  with `previewScheme`. */
   previewBg?: string;
+  /** Whether that preview surface is light or dark, DECLARED rather than inferred from
+   *  `previewBg` being set (a light theme may want a tinted stage without flipping to a
+   *  dark contract). Drives the preview shadow's `color-scheme` and its safety-net text
+   *  colour — the backstop for an element skin that sets none, so it must match the
+   *  surface or that text renders invisible. Unset ⇒ `"light"`. */
+  previewScheme?: "light" | "dark";
   /** Per-element SHOWCASE sample overrides, keyed by component/treatment name. Lets a theme
    *  show its OWN on-theme copy instead of the shared (block-flavored) def example. `params`
    *  seed the element's own slots; `children` (treatments) seed the child rows as an array of

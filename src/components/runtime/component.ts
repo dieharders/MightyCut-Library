@@ -8,7 +8,7 @@
 import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
 import { TIMING_SECONDS, type ComponentTransition, type TimingPreset, type TransitionName } from "../../types/transitions";
-import { type AnimDescriptor, qualifyAnim } from "./anim";
+import { type AnimDescriptor, isRevealKind, qualifyAnim } from "./anim";
 import { elementIn } from "./transitions";
 import {
   fillRaw,
@@ -116,15 +116,23 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
                 useDefault ? def.animInOpts : undefined,
               )
             : null;
-        // ONE reveal per box. An internal reveal aimed at the SAME target as the
+        // ONE reveal per box. An internal REVEAL aimed at the SAME target as the
         // whole-element entrance is NOT additive: both compile to a `tl.from()` on the
         // same element, and GSAP's immediateRender makes the second tween sample the
         // first's from-state (opacity 0) as its END value — so the element reveals and
         // then vanishes for good (the ledger Row + any picked transition: the entrance
-        // and rowAnim's staggerIn both drive `item`). The chosen entrance wins; internal
-        // reveals on SUB-parts (stat's number, bar's col/value) are untouched.
+        // and rowAnim's staggerIn both drive `item`). The chosen entrance wins.
+        //
+        // Only a same-target REVEAL is dropped (see `REVEAL_KINDS`), matching the runtime
+        // guard in mc.js exactly: a `rule`/`float`/`countUp` on the element's own root is a
+        // to/fromTo tween and `growBar` a from on scale alone, so they stack on a reveal
+        // legitimately and must survive an author picking a transition. Internal reveals on
+        // SUB-parts (stat's number, bar's col/value) are a different target and untouched.
         const local = entrance
-          ? [entrance, ...internals.filter((a) => a.target !== entrance.target)]
+          ? [
+              entrance,
+              ...internals.filter((a) => !(a.target === entrance.target && isRevealKind(a.kind))),
+            ]
           : internals;
         const anims = local.map((a) => qualifyAnim(a, ctx.idPrefix));
         // The skin is theme-owned when the active theme supplies one for this

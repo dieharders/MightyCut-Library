@@ -5,7 +5,7 @@
 import { serialize } from "../../pipeline/mini-dom";
 import { wrapSubComposition } from "../../pipeline/sub-composition";
 import type { FrameGround } from "../../types/storyboard";
-import { scopeCss } from "./css";
+import { scopeCss, swapGround } from "./css";
 import { groundFor } from "./treatment";
 import type { AnimDescriptor, BuildContext, ComponentInstance, SubComposition, TreatmentInstance } from "./types";
 
@@ -35,14 +35,10 @@ export const buildScene = (
       : ctx;
   const parts = treatment.buildScene(sceneCtx);
   if (overrides?.ground) {
-    // buildScene stamps `background: var(--<canonicalGround>)` last; replace it.
-    // NB the character class must admit digits + hyphens: the palette roles are
-    // `accent-1`/`muted-2`/…, and a `[a-z]+`-only class silently fails to match,
-    // dropping the override with no error. Covered by a ground-override test.
-    parts.pageStyle = (parts.pageStyle ?? "").replace(
-      /background:\s*var\(--[a-z0-9-]+\)/,
-      `background: var(--${overrides.ground})`,
-    );
+    // buildScene stamps `background: var(--<canonicalGround>)` last; re-point it. The
+    // swap itself lives in runtime/css.ts because engine/mount.ts runs the same one over
+    // the browser-preview html — one definition, both sides of the seam.
+    parts.pageStyle = swapGround(parts.pageStyle ?? "", overrides.ground);
   }
   return parts;
 };

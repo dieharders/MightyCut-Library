@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import { PALETTE_VARS } from "../../types/palette";
 import { serializeAnims, offsetAnim, qualifyAnim, toSlot, type AnimDescriptor } from "./anim";
 import { component } from "./component";
-import { scopeCss, collectCss } from "./css";
+import { scopeCss, collectCss, swapGround } from "./css";
 import { scrubDeterminism } from "./determinism";
 import { renderScene } from "./emit";
 import { treatment } from "./treatment";
@@ -275,89 +276,27 @@ describe("backdrop mask", () => {
   });
 });
 
-// The scene-ground override is applied by a regex swap of the treatment's canonical
-// `background: var(--<role>)`. There are TWO copies of that regex — the render-side one
-// in runtime/emit.ts and the browser-preview one in engine/mount.ts. Both must admit
-// DIGITS and HYPHENS, because every palette role after the first two has them
-// (accent-1, muted-2, …). A `[a-z]+`-only class matches nothing and drops the override
-// silently — no error, the picker just appears to do nothing.
-describe("ground override accepts every palette role (both regex copies)", () => {
-  const ROLES = [
-    "primary", "secondary", "accent-1", "accent-2", "accent-3",
-    "muted-1", "muted-2", "muted-3", "light", "dark",
-  ];
+// The scene-ground override is a swap of the treatment's canonical
+// `background: var(--<role>)`. It must admit DIGITS and HYPHENS, because every palette
+// role after the first two has them (accent-1, muted-2, …) — an `[a-z]+`-only class
+// matches nothing and drops the override silently, no error, the picker just appears to
+// do nothing. Both the render path (emit.ts) and the browser preview (engine/mount.ts)
+// call the ONE implementation in runtime/css.ts, so testing it once covers both; that
+// shared helper is what replaced a pair of duplicated regex literals (and the
+// substring-grep tripwire that tried, weakly, to hold them in sync).
+describe("ground override accepts every palette role", () => {
+  test.each(PALETTE_VARS.map((r) => [r]))("swapGround re-points a ground to '%s'", (role) => {
+    expect(swapGround("padding: 1rem; background: var(--primary)", role)).toBe(
+      `padding: 1rem; background: var(--${role})`,
+    );
+  });
 
-  test.each(ROLES.map((r) => [r]))("renderScene applies ground '%s'", (role) => {
+  test.each(PALETTE_VARS.map((r) => [r]))("renderScene applies ground '%s'", (role) => {
     const html = renderScene(StatGrid(), ctx("s"), { ground: role as never });
     expect(html).toContain(`background: var(--${role})`);
   });
 
-  test("engine/mount.ts uses the same role-safe class as runtime/emit.ts", async () => {
-    // The role-safe character class, asserted as a plain substring — escaping the full
-    // regex literal here is what makes this kind of tripwire silently vacuous.
-    const SAFE = "[a-z0-9-]+";
-    const emitSrc = await Bun.file(`${import.meta.dir}/emit.ts`).text();
-    const mountSrc = await Bun.file(`${import.meta.dir}/../../engine/mount.ts`).text();
-    expect(emitSrc, "runtime/emit.ts ground regex is not role-safe").toContain(SAFE);
-    expect(mountSrc, "engine/mount.ts ground regex is not role-safe").toContain(SAFE);
-  });
-});
-
-// A component whose root is `display: contents` (the ledger Row, so its cells flow into
-// the parent grid) generates NO box, so a transform/opacity tween on it paints nothing.
-// applyAnims must retarget those to the element's children. Without it, every
-// whole-element entrance the editor offers (pop / rise / fade) is a silent no-op on a
-// Row, while its DEFAULT staggerIn keeps working — which is why the transition picker
-// looked like it was being ignored. mc.js is browser JS with no DOM in this runner, so
-// assert on the source; the behaviour itself was verified in the pinned headless shell.
-describe("applyAnims retargets box-less (display:contents) elements", () => {
-  const mcSrc = async () => Bun.file(`${import.meta.dir}/../../../assets/fx/mc.js`).text();
-
-  test("it detects display:contents and falls back to the children", async () => {
-    const src = await mcSrc();
-    expect(src, "the display:contents guard is gone").toContain('display === "contents"');
-    // …and the fallback must actually be the children, not the element again
-    expect(src).toMatch(/kids\s*=\s*ctx\.qa\(sel \+ " > \*"\)/);
-  });
-
-  test.each(["riseIn", "fadeIn", "scaleIn", "from"])(
-    "the whole-element kind '%s' tweens the resolved box, not the raw element",
-    async (kind) => {
-      const src = await mcSrc();
-      // isolate this kind's dispatch arm and assert it hands GSAP `box`
-      const arm = src.slice(src.indexOf(`a.kind === "${kind}"`));
-      const nextArm = arm.indexOf("a.kind ===", 12);
-      const body = nextArm > 0 ? arm.slice(0, nextArm) : arm.slice(0, 400);
-      expect(body, `${kind} still targets the raw element`).toContain("box");
-    },
-  );
-
-  // staggerIn already targeted children — that asymmetry is the whole bug, keep it.
-  // It now reads them through `boxes` (hoisted so the one-reveal-per-box guard below
-  // can compare resolved elements), but the resolution must stay the children.
-  test("staggerIn still targets children directly", async () => {
-    const src = await mcSrc();
-    expect(src).toMatch(/boxes\s*=\s*a\.kind === "staggerIn" \? ctx\.qa\(sel \+ " > \*"\)/);
-    expect(src).toContain("MC.staggerIn(tl, boxes,");
-  });
-
-  // Two from-style reveals on one box make GSAP's immediateRender read the first's
-  // from-state (opacity 0) as the second's END value — the box reveals, then vanishes
-  // for good. Build-time dedupe (component.ts) is the real fix; this guard catches the
-  // descriptor lists it can't reach (hand-authored, or baked + hand-locked scenes).
-  test("a second whole-box reveal on an already-revealed box is skipped", async () => {
-    const src = await mcSrc();
-    expect(src, "the reveal-kind set is gone").toMatch(
-      /REVEAL_KINDS\s*=\s*\{[^}]*riseIn[^}]*fadeIn[^}]*scaleIn[^}]*staggerIn[^}]*from[^}]*\}/,
-    );
-    expect(src, "the guard no longer skips a clashing reveal").toMatch(
-      /if \(owned\) continue;/,
-    );
-    // `to`-tween kinds must NOT be guarded — they legitimately stack on a reveal.
-    const set = src.slice(src.indexOf("REVEAL_KINDS ="));
-    const decl = set.slice(0, set.indexOf("}"));
-    for (const kind of ["rule", "float", "countUp", "growBar", "backdrop"]) {
-      expect(decl, `${kind} must not be treated as a whole-box reveal`).not.toContain(kind);
-    }
+  test("a declaration-free input is returned untouched (nothing to override)", () => {
+    expect(swapGround("color: red", "dark")).toBe("color: red");
   });
 });

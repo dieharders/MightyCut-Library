@@ -42,10 +42,14 @@ export const PALETTE_VARS = [
 export type PaletteVar = (typeof PALETTE_VARS)[number];
 
 /**
- * The default accent cycle for `defaultChildren` and any repeated-accent loop
- * (stat dots, card icon squares, chart columns). Four slots — the roles that
- * read as "an accent" in every theme; the muted/light/dark roles are grounds and
- * text, not accents.
+ * The accent roles, in cycle order — the subset that reads as "an accent" under
+ * every theme (the muted/light/dark roles are grounds and text, not accents).
+ * Walk it with `ACCENT_CYCLE[i % ACCENT_CYCLE.length]` to colour a repeated list
+ * without re-picking roles by hand: stat-grid's dots do exactly that, and the
+ * WebUI's child-list editor offers the same order when seeding a new row.
+ *
+ * A treatment MAY deviate deliberately (feature-cards skips `accent-1` — block's
+ * yellow is reserved as the CTA colour); the cycle is the default, not a rule.
  */
 export const ACCENT_CYCLE = ["primary", "secondary", "accent-1", "accent-2"] as const satisfies readonly PaletteVar[];
 

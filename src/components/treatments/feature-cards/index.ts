@@ -13,6 +13,9 @@ export const FeatureCards = treatment({
   ground: "secondary",
   example: { headline: "Built for the whole workflow" },
   fill: (p) => ({ headline: p.headline }),
+  // A DELIBERATE deviation from ACCENT_CYCLE (types/palette.ts): the third card takes
+  // --accent-2, skipping --accent-1, because block reserves that yellow as its CTA colour
+  // and a card icon square wearing it reads as a button.
   defaultChildren: () => [
     Card({ title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I", accent: "primary" }),
     Card({ title: "On-brand by default", body: "Themed frames, captions, and motion — no timeline surgery.", icon: "II", accent: "secondary" }),

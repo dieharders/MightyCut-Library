@@ -13,10 +13,9 @@
 // roles every theme defines, so nothing in the markup is future-specific — but
 // `decoration: true` holds every family out of the showcase Components grid, and only
 // futureTheme.decorations lists them (themes never share decorations).
-import { z } from "zod";
 import { component } from "../runtime/component";
 import { remGrid } from "../runtime/css";
-import { PALETTE_VARS, type PaletteVar } from "../../types/palette";
+import { decorationSchema, type DecoParams } from "./decoration-placement";
 
 // Stroke weight for every luminous line/outline, in rem. FIXED (does not scale with
 // `size`): a large reticle keeps the same delicate hairline as a small node. Rendered
@@ -101,25 +100,16 @@ const SHAPES: Record<string, ShapeFn> = {
     `<circle cx="50" cy="84" r="5" fill="${c}"></circle>`,
 };
 
-// Which variant belongs to which family — the disjoint lists (a tripwire guards it).
-const NODE = ["ring", "core", "orbit", "pulse"] as const;
-const RETICLE = ["brackets", "crosshair", "gauge", "frame"] as const;
-const GLYPH = ["hexagon", "diamond", "chevron", "triangle"] as const;
-const SIGNAL = ["waveform", "bars", "beam"] as const;
-export const FUTURE_DECORATION_VARIANTS: Record<
-  FutureDecorationComponentName,
-  readonly string[]
-> = { node: NODE, reticle: RETICLE, glyph: GLYPH, signal: SIGNAL };
-
-type DecoParams = {
-  variant: string;
-  x: number;
-  y: number;
-  size: number;
-  rotate: number;
-  layer: "back" | "front";
-  accent: PaletteVar;
-};
+/** Which shape variants belong to which family — the DISJOINT lists, declared once here
+ *  and consumed by each family's `index.ts`, so the enum a component validates against and
+ *  the list documented here can't drift. Tripwires in registry.test.ts assert the lists
+ *  stay disjoint and that every name resolves to a `SHAPES` entry. */
+export const FUTURE_DECORATION_VARIANTS = {
+  node: ["ring", "core", "orbit", "pulse"],
+  reticle: ["brackets", "crosshair", "gauge", "frame"],
+  glyph: ["hexagon", "diamond", "chevron", "triangle"],
+  signal: ["waveform", "bars", "beam"],
+} as const satisfies Record<FutureDecorationComponentName, readonly string[]>;
 
 /** The shared, var-driven future decoration element (one `.fx-deco`, styled entirely by
  *  inline custom properties from futureDecorationLayout). Transparent box — the SVG carries
@@ -174,59 +164,31 @@ const futureDecoSvg = (p: DecoParams): string => {
 };
 
 /** Build one future decoration component: a sci-fi shape family (its own `variant` enum)
- *  over the shared placement props + luminous shape engine. Flagged `decoration: true`. */
-export const futureDecorationComponent = (
-  name: string,
-  variants: readonly string[],
-  example: DecoParams,
-) =>
-  component({
+ *  over the shared placement props + luminous shape engine. Flagged `decoration: true`.
+ *
+ *  The family NAME is the only key a caller passes — its variant list is looked up from
+ *  FUTURE_DECORATION_VARIANTS here, so a family can't be wired to another's shapes, and
+ *  `example.variant` is typed to that family's own list. */
+export const futureDecorationComponent = <N extends FutureDecorationComponentName>(
+  name: N,
+  example: DecoParams & { variant: (typeof FUTURE_DECORATION_VARIANTS)[N][number] },
+) => {
+  const variants: readonly string[] = FUTURE_DECORATION_VARIANTS[name];
+  return component({
     name,
     // Intrinsic decoration — held out of the showcase Components grid under any theme.
     decoration: true,
-    schema: z.object({
-      variant: z
-        .enum(variants as [string, ...string[]])
-        .default(variants[0]!)
-        .describe("Shape"),
-      x: z
-        .number()
-        .min(0)
-        .max(100)
-        .default(50)
-        .describe("X origin in page-space (0% = left … 100% = right)"),
-      y: z
-        .number()
-        .min(0)
-        .max(100)
-        .default(50)
-        .describe("Y origin in page-space (0% = top … 100% = bottom)"),
-      size: z
-        .number()
-        .positive()
-        .max(60)
-        .default(18)
-        .describe(
-          "Size as a percent of the 1920 design width (18 = 18%, emitted as rem)",
-        ),
-      rotate: z
-        .number()
-        .min(-180)
-        .max(180)
-        .default(0)
-        .describe("Rotation in degrees"),
-      layer: z
-        .enum(["back", "front"])
-        .default("back")
-        .describe("Behind content (back) or over top (front)"),
-      // Default comes from the family's own `example` so each family carries a
-      // DISTINCT signature tint — node --primary (cyan) · reticle --secondary (amber) ·
-      // glyph --accent-2 (violet) · signal --accent-1 (green) — so an unparameterised
-      // deck/showcase render never repeats a colour.
-      accent: z
-        .enum(PALETTE_VARS)
-        .default(example.accent)
-        .describe("Glow / stroke colour — a palette role (--primary … --dark)"),
+    // The variant + placement + accent vocabulary is shared with block's engine
+    // (decoration-placement.ts); future differs only in the larger default size its
+    // hairline shapes need. The accent DEFAULT comes from the family's own `example` so
+    // each carries a distinct signature tint — node --primary (cyan) · reticle --secondary
+    // (amber) · glyph --accent-2 (violet) · signal --accent-1 (green) — so an
+    // unparameterised deck/showcase render never repeats a colour.
+    schema: decorationSchema({
+      variants,
+      sizeDefault: 18,
+      accentDefault: example.accent,
+      accentDescription: "Glow / stroke colour — a palette role (--primary … --dark)",
     }),
     template: FX_DECO_TEMPLATE,
     css: FX_DECO_CSS,
@@ -239,3 +201,4 @@ export const futureDecorationComponent = (
     // negative-space-forward future mood, vs block's pop-in scale.
     animIn: "fade",
   });
+};

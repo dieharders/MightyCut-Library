@@ -52,6 +52,26 @@ export const scopeCss = (css: string, root: string): string => {
     .trim();
 };
 
+/**
+ * The canonical `background: var(--<role>)` declaration a treatment stamps for its
+ * ground, and the swap that re-points it at a scene's chosen ground.
+ *
+ * The character class MUST admit digits and hyphens: every palette role after the first
+ * two has them (`accent-1`, `muted-2`, …), and an `[a-z]+`-only class matches nothing, so
+ * the override is dropped with NO error and the ground picker just appears to do nothing.
+ *
+ * There are two callers on two sides of the same seam — the render path
+ * (runtime/emit.ts, over a treatment's `pageStyle`) and the browser preview path
+ * (engine/mount.ts, over the built html) — which is exactly why this lives here once
+ * instead of as a regex literal duplicated in both.
+ */
+const GROUND_DECL = /background:\s*var\(--[a-z0-9-]+\)/;
+
+/** Re-point the first canonical ground declaration in `css` at `ground`. Returns the
+ *  input unchanged when there is none to swap (nothing to override). */
+export const swapGround = (css: string, ground: string): string =>
+  css.replace(GROUND_DECL, `background: var(--${ground})`);
+
 /** Collect + dedupe component CSS by component name (each authored once). */
 export const collectCss = (parts: { name: string; css: string }[]): string => {
   const seen = new Set<string>();

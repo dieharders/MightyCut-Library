@@ -375,9 +375,19 @@
       return ctx.leadIn;
     };
     // The from-style whole-box reveals (see the one-reveal-per-box guard below) and the
-    // boxes already claimed by one in THIS call.
+    // boxes already claimed by one in THIS call. MIRRORS runtime/anim.ts's REVEAL_KINDS,
+    // which the build-time dedupe uses; boxless-reveal.test.ts drives this interpreter
+    // kind-by-kind from that list, so the two can't drift.
     var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
+    // The canvas FX a `backdrop` descriptor may name (see the backdrop arm below).
+    var BACKDROP_FX = { particleBg: 1 };
     var revealed = [];
+    // display:contents lookups, memoized per call. getComputedStyle FLUSHES pending style,
+    // and a scene runs one applyAnims over every descriptor — without this, a scene with N
+    // anims pays N style recalcs at timeline-build time, several of them for the same
+    // element (a picked entrance + the element's own internals share a target). Null
+    // prototype so a target named `toString`/`constructor` can't read as a cache hit.
+    var displayOf = Object.create(null);
     for (var i = 0; i < anims.length; i++) {
       var a = anims[i];
       var sel = "." + a.target;
@@ -405,7 +415,11 @@
       var box = el;
       var fan = null; // gsap stagger config when one reveal drives many boxes
       try {
-        if (typeof getComputedStyle === "function" && getComputedStyle(el).display === "contents") {
+        if (displayOf[a.target] === undefined) {
+          displayOf[a.target] =
+            typeof getComputedStyle === "function" ? getComputedStyle(el).display : "";
+        }
+        if (displayOf[a.target] === "contents") {
           var kids = ctx.qa(sel + " > *");
           if (kids && kids.length) {
             box = kids;
@@ -414,6 +428,7 @@
         }
       } catch (_e) {
         /* no computed style (non-DOM host) — fall back to the element itself */
+        displayOf[a.target] = "";
       }
       // Reveal opts with the fan-out stagger folded in (a COPY — never mutate the
       // descriptor's own opts, which the showcase replays over and over).
@@ -428,7 +443,7 @@
       // to/fromTo tweens, and growBar is a `from` but on a sub-part's scale alone (never
       // opacity), so all of them legitimately stack on top of a reveal.
       var boxes = a.kind === "staggerIn" ? ctx.qa(sel + " > *") : box;
-      if (REVEAL_KINDS[a.kind] && boxes) {
+      if (REVEAL_KINDS[a.kind] === 1 && boxes) {
         var list = boxes.nodeType == null && boxes.length != null ? boxes : [boxes];
         var owned = false;
         for (var bi = 0; bi < list.length; bi++) {
@@ -468,11 +483,23 @@
         tl.from(box, ro, when);
       } else if (a.kind === "backdrop") {
         // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
-        // DESIGN names via o.fn (this interpreter stays FX-agnostic), driven off the scene
-        // clock for the rest of the scene. Deterministic (seeded; no rAF/Date.now), so seeking
-        // any frame repaints identically. Unknown/missing fn → no-op (the if guard).
-        var fx = MC[o.fn];
-        if (fx) fx(el, o).addTo(tl, when, Math.max(0, (ctx.dur || 6) - when));
+        // DESIGN names via o.fn, driven off the scene clock for the rest of the scene.
+        // Deterministic (seeded; no rAF/Date.now), so seeking any frame repaints identically.
+        //
+        // o.fn is an ALLOWLISTED name, not a free lookup on MC: a bare `MC[o.fn]` resolves an
+        // inherited Object.prototype member (`constructor`, `toString`) or any other MC export
+        // to a function, which then throws on `.addTo` and takes the whole timeline build with
+        // it. An unknown name is a silent no-op instead, matching how a missing target is
+        // skipped above. Add a name here when a new backdrop FX ships — a tripwire in
+        // boxless-reveal.test.ts fails if a registered design names one this list lacks.
+        var fx = BACKDROP_FX[o.fn] === 1 && typeof MC[o.fn] === "function" ? MC[o.fn] : null;
+        if (fx) {
+          try {
+            fx(el, o).addTo(tl, when, Math.max(0, (ctx.dur || 6) - when));
+          } catch (_bdErr) {
+            /* a broken FX must not abort the rest of the scene's timeline */
+          }
+        }
       }
     }
     return tl;

@@ -1,6 +1,7 @@
 import template from "./template.html" with { type: "text" };
 import { Stat } from "../../primitives/stat";
 import { treatment } from "../../runtime/treatment";
+import { ACCENT_CYCLE } from "../../../types/palette";
 import { statGridAnim } from "./anim";
 import { StatGridSchema } from "./schema";
 
@@ -13,11 +14,14 @@ export const StatGrid = treatment({
   ground: "accent-2",
   example: { headline: "Numbers that moved" },
   fill: (p) => ({ headline: p.headline }),
-  defaultChildren: () => [
-    Stat({ value: 92, label: "Detection rate", unitSuffix: "%", accent: "primary" }),
-    Stat({ value: 3, label: "Faster triage", unitSuffix: "x", accent: "secondary" }),
-    Stat({ value: 40, label: "Cost reduction", unitSuffix: "%", accent: "accent-1" }),
-  ],
+  // Dots take the shared ACCENT_CYCLE in order, so the roles a repeated-accent list walks
+  // are stated once (types/palette.ts) rather than re-picked per treatment.
+  defaultChildren: () =>
+    [
+      { value: 92, label: "Detection rate", unitSuffix: "%" },
+      { value: 3, label: "Faster triage", unitSuffix: "x" },
+      { value: 40, label: "Cost reduction", unitSuffix: "%" },
+    ].map((p, i) => Stat({ ...p, accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length]! })),
   // 4+ stats crowd a row, so the grid emits two density vars — theme-agnostic policy
   // stated ONCE here rather than as an absolute font-size per theme:
   //   --dense        a boolean hook ([style*="--dense"]) for look changes a ratio can't

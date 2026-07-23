@@ -246,6 +246,9 @@ export const futureTheme: ThemeTokens = {
   // against, so glass panels + light-on-dark text read (a light card would wash them out).
   // Read off the palette (--muted-2) rather than repeated as a literal.
   previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
+  // …and future is a DARK theme, stated outright: the preview shadow's color-scheme and
+  // its safety-net text colour follow this, not the mere presence of previewBg above.
+  previewScheme: "dark",
   // The treatments' DEFAULT decorations are block's own (cover's pink star, closing's slab)
   // — suppress them so those neobrutalist shapes never auto-render on a future frame or shift
   // the reveal cascade. Future's own decorations (see `decorations` below) are opt-in per

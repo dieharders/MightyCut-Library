@@ -20,9 +20,10 @@ import { describe, expect, test } from "bun:test";
 import { THEMES } from "../../engine/load-theme";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../../types/components";
 import { TRANSITION_NAMES, type TransitionName } from "../../types/transitions";
+import { BACKDROPS } from "../primitives/backdrops";
 import "../registry"; // populate the registry
 import { ALL_THEMES } from "../themes/all";
-import type { AnimDescriptor } from "./anim";
+import { REVEAL_KINDS, type AnimDescriptor } from "./anim";
 import { rootContext } from "./index";
 import { hasComponent, getComponent, hasTreatment, getTreatment } from "./registry";
 import { elementIn } from "./transitions";
@@ -52,12 +53,20 @@ const MC = loadMc();
  * `boxLess` report `display: contents` (so applyAnims must retarget those).
  */
 const run = (anims: AnimDescriptor[], boxLess: string[], childCount = 3): Fake => {
-  const els = new Map<string, { display: string }>();
+  const els = new Map<string, { display: string; getContext: () => null }>();
   const kids = new Map<string, object[]>();
   const idOf = (sel: string) => sel.replace(/^\./, "").replace(/\s*>\s*\*$/, "");
   const elFor = (sel: string) => {
     const id = idOf(sel);
-    if (!els.has(id)) els.set(id, { display: boxLess.includes(id) ? "contents" : "block" });
+    // `getContext` makes the fake element canvas-shaped, so a canvas FX (MC.particleBg,
+    // the constellation backdrop) runs its real factory here. Returning null is enough:
+    // the FX skips painting but still schedules its clock tween, which is the part under
+    // test — the sandbox has no canvas to paint onto.
+    if (!els.has(id))
+      els.set(id, {
+        display: boxLess.includes(id) ? "contents" : "block",
+        getContext: () => null,
+      });
     return els.get(id)!;
   };
   const kidsFor = (sel: string) => {
@@ -127,6 +136,206 @@ describe("a whole-element entrance on a box-less root (every catalog transition)
     const d: AnimDescriptor = { kind: "riseIn", target: "x", time: { at: "line", n: 0 } };
     run([d], ["x"]);
     expect(d.opts).toBeUndefined();
+  });
+});
+
+/* ------------------------------------------- one reveal per box, behaviourally --- */
+
+// Two from-style reveals on ONE box make GSAP's immediateRender read the first's
+// from-state (opacity 0) as the second's END value — the box reveals, then vanishes for
+// good. component.ts dedupes at build time; mc.js guards the descriptor lists it can't
+// reach (hand-authored, or scenes baked + hand-locked before that fix).
+//
+// Driven through the real interpreter rather than grepped out of mc.js's source: the
+// kind list comes from runtime/anim.ts, so this doubles as the parity check that the TS
+// REVEAL_KINDS and mc.js's mirrored literal agree.
+describe("a second whole-box reveal on an already-revealed box is skipped", () => {
+  const at = { at: "line", n: 0 } as const;
+
+  test.each(REVEAL_KINDS.map((k) => [k]))("'%s' twice on one box tweens it once", (kind) => {
+    const f = run(
+      [
+        { kind, target: "x", time: at },
+        { kind, target: "x", time: at },
+      ],
+      [],
+    );
+    expect(f.tweens).toHaveLength(1);
+  });
+
+  // The guard is per resolved BOX, not per target string — which is why the matrix below
+  // excludes staggerIn. A `staggerIn` always resolves to the target's CHILDREN while the
+  // whole-element kinds resolve to the element itself, so on a normal root the two claim
+  // different boxes and legitimately stack (a parent fading while its children cascade is
+  // not the immediateRender clash). They collide only when the root is box-less and the
+  // whole-element reveal is retargeted onto those same children — asserted below.
+  const WHOLE_BOX = REVEAL_KINDS.filter((k) => k !== "staggerIn");
+
+  test.each(WHOLE_BOX.flatMap((a) => WHOLE_BOX.filter((b) => b !== a).map((b) => [a, b])))(
+    "a '%s' reveal blocks a following '%s' on the same box",
+    (first, second) => {
+      const f = run(
+        [
+          { kind: first, target: "x", time: at },
+          { kind: second, target: "x", time: at },
+        ],
+        [],
+      );
+      expect(f.tweens).toHaveLength(1);
+    },
+  );
+
+  test.each(WHOLE_BOX)("'%s' and a staggerIn are different boxes on a NORMAL root", (kind) => {
+    const f = run(
+      [
+        { kind, target: "x", time: at },
+        { kind: "staggerIn", target: "x", time: at },
+      ],
+      [],
+    );
+    expect(f.tweens).toHaveLength(2);
+  });
+
+  test.each(WHOLE_BOX)("'%s' and a staggerIn collide on a BOX-LESS root (both are the kids)", (kind) => {
+    const f = run(
+      [
+        { kind, target: "x", time: at },
+        { kind: "staggerIn", target: "x", time: at },
+      ],
+      ["x"],
+    );
+    expect(f.tweens).toHaveLength(1);
+    expect(f.tweens[0].target).toBe(f.kidsOf("x"));
+  });
+
+  // The non-reveal kinds are to/fromTo tweens (or a from on a sub-part's scale alone), so
+  // they legitimately STACK on a reveal and must survive it. `backdrop` is exercised in its
+  // own block below. This is the invariant component.ts's build-time filter now matches:
+  // it drops a same-target internal only when the internal is itself a reveal.
+  test.each(["rule", "float", "countUp", "growBar"])(
+    "'%s' still fires on a box that already has a reveal",
+    (kind) => {
+      const f = run(
+        [
+          { kind: "fadeIn", target: "x", time: at },
+          { kind, target: "x", time: at } as AnimDescriptor,
+        ],
+        [],
+      );
+      expect(f.tweens.length, `${kind} was swallowed by the reveal guard`).toBeGreaterThan(1);
+    },
+  );
+
+  test("independent boxes each keep their own reveal", () => {
+    const f = run(
+      [
+        { kind: "riseIn", target: "x", time: at },
+        { kind: "riseIn", target: "y", time: at },
+      ],
+      [],
+    );
+    expect(f.tweens).toHaveLength(2);
+  });
+});
+
+/* ------------------------------------------------------- backdrop FX dispatch --- */
+
+// A `backdrop` descriptor names its canvas FX factory by string. That name is ALLOWLISTED,
+// not looked up freely on MC: a bare `MC[o.fn]` resolves an inherited Object.prototype
+// member — or any other MC export — to a function, which then throws on `.addTo` and takes
+// the whole scene's timeline build down with it.
+describe("backdrop FX dispatch is allowlisted", () => {
+  const backdrop = (fn: string): AnimDescriptor => ({
+    kind: "backdrop",
+    target: "bg",
+    time: { at: "seconds", t: 0 },
+    opts: { fn, seed: "s", colorRgb: "52,225,255" },
+  });
+
+  test("the real FX name drives a tween off the scene clock", () => {
+    expect(run([backdrop("particleBg")], []).tweens).toHaveLength(1);
+  });
+
+  test.each(["constructor", "toString", "hasOwnProperty", "valueOf"])(
+    "the inherited member '%s' is not callable as an FX",
+    (fn) => {
+      expect(() => run([backdrop(fn)], [])).not.toThrow();
+      expect(run([backdrop(fn)], []).tweens).toHaveLength(0);
+    },
+  );
+
+  test.each(["riseIn", "applyAnims", "seededRandom", "nope"])(
+    "the non-allowlisted MC export '%s' is a no-op, not a crash",
+    (fn) => {
+      expect(() => run([backdrop(fn)], [])).not.toThrow();
+      expect(run([backdrop(fn)], []).tweens).toHaveLength(0);
+    },
+  );
+
+  // The allowlist lives in mc.js (browser JS — it can't import the registry), so a NEW
+  // animated backdrop design would ship an `fn` mc.js silently refuses to run. Close that
+  // loop by driving every registered design's real descriptor through the real interpreter:
+  // an un-allowlisted name schedules nothing, and this fails.
+  test("every registered backdrop design's FX is allowlisted in mc.js", () => {
+    const theme = ALL_THEMES[0]!;
+    for (const [name, design] of Object.entries(BACKDROPS)) {
+      const built = design.build({
+        ground: "muted-2",
+        theme,
+        ctx: rootContext("bd", theme, { voIds: ["l1"] }),
+      });
+      for (const a of built.anims) {
+        if (a.kind !== "backdrop") continue;
+        expect(
+          run([a], []).tweens.length,
+          `backdrop '${name}' names FX '${String(a.opts?.fn)}', which mc.js's BACKDROP_FX allowlist does not carry`,
+        ).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
+/* ----------------------------------------------- display lookups are memoized --- */
+
+// getComputedStyle FLUSHES pending style, and a scene runs ONE applyAnims over every
+// descriptor — so an un-memoized lookup costs a style recalc per anim, several of them for
+// the same element (a picked entrance and the element's own internals share a target).
+describe("display:contents is resolved once per target", () => {
+  test("N descriptors on one target cost ONE getComputedStyle call", () => {
+    let calls = 0;
+    const win: Record<string, unknown> = {};
+    const gcs = (el: { display?: string }) => {
+      calls++;
+      return { display: el.display ?? "block" };
+    };
+    new Function("window", "getComputedStyle", MC_SRC)(win, gcs);
+    const mc = win.MC as { applyAnims: (tl: unknown, a: unknown, c: unknown) => unknown };
+
+    const el = { display: "block" };
+    const tl: Record<string, unknown> = {};
+    tl.from = tl.to = () => tl;
+    tl.fromTo = () => tl;
+    mc.applyAnims(
+      tl,
+      [
+        { kind: "fadeIn", target: "x", time: { at: "line", n: 0 } },
+        { kind: "countUp", target: "x", time: { at: "line", n: 0 } },
+        { kind: "float", target: "x", time: { at: "line", n: 0 } },
+        { kind: "rule", target: "x", time: { at: "line", n: 0 } },
+      ],
+      {
+        q: () => el,
+        qa: () => [],
+        at: (_id: string, fb: number) => fb ?? 0,
+        atIndex: () => 0,
+        lineId: () => "",
+        leadIn: 0.4,
+        voCount: 2,
+        dur: 8,
+        page: {},
+      },
+    );
+    expect(calls).toBe(1);
   });
 });
 

@@ -6,8 +6,13 @@
 import { describe, expect, test } from "bun:test";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 import { PALETTE_VARS, uniquePaletteEntries } from "../types/palette";
-import { BACKDROP_NAMES } from "../types/storyboard";
+import { BACKDROP_NAMES, FRAME_GROUNDS } from "../types/storyboard";
 import { BACKDROPS, buildBackdrop } from "./primitives/backdrops";
+import { DECORATION_VARIANTS } from "./primitives/decoration-shapes";
+import {
+  FUTURE_DECORATION_COMPONENTS,
+  FUTURE_DECORATION_VARIANTS,
+} from "./primitives/future-decoration-shapes";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -210,6 +215,54 @@ describe("new library components", () => {
   });
 });
 
+/** A family's variant enum as the SCHEMA sees it — what a deck is actually validated
+ *  against, rather than the map the family was declared from. */
+const schemaVariants = (name: string): string[] =>
+  (getComponent(name).jsonSchema() as { properties?: Record<string, { enum?: string[] }> })
+    .properties?.variant?.enum ?? [];
+
+// Both decoration engines declare their families' shape lists in ONE map
+// (DECORATION_VARIANTS / FUTURE_DECORATION_VARIANTS) which each family's index.ts consumes.
+// Assert the map is what actually reaches the schema, so the documented list and the enum a
+// deck is validated against can't drift — and that every name in it resolves to a drawable
+// shape, which is what turns a typo from a silently-wrong render into a failing test.
+describe("decoration variant maps are the single source of truth", () => {
+  const MAPS: [string, Record<string, readonly string[]>][] = [
+    ["block", DECORATION_VARIANTS],
+    ["future", FUTURE_DECORATION_VARIANTS],
+  ];
+
+  test.each(MAPS)("%s: each family's schema enum IS its map entry", (_engine, map) => {
+    for (const [family, variants] of Object.entries(map)) {
+      expect(schemaVariants(family), `${family}'s enum diverges from its variant map`).toEqual([
+        ...variants,
+      ]);
+    }
+  });
+
+  // A variant name with no entry in its engine's SHAPES table doesn't fail — it falls back
+  // to the engine's default shape, so the deck renders a plausible-looking WRONG decoration.
+  // Distinct markup per variant is what makes that detectable: a dead name collides with
+  // whichever variant the fallback draws.
+  test.each(MAPS)("%s: every mapped variant draws a DISTINCT shape (no dead name)", (_engine, map) => {
+    for (const [family, variants] of Object.entries(map)) {
+      const drawn = new Map<string, string>();
+      for (const v of variants) {
+        // Build each at the same size/placement so only the SHAPE can differ.
+        const html = getComponent(family)({ variant: v, x: 50, y: 50, size: 20 } as never).build(
+          ctx(`sc-${family}`),
+        ).html;
+        expect(html.length, `${family}/${v} rendered nothing`).toBeGreaterThan(0);
+        expect(
+          drawn.has(html),
+          `${family}/${v} draws the same shape as '${drawn.get(html)}' — a name with no SHAPES entry falls back to the default`,
+        ).toBe(false);
+        drawn.set(html, v);
+      }
+    }
+  });
+});
+
 // Future's OWN sci-fi decoration families — the luminous-stroke counterpart to block's
 // neobrutalist set. Distinct components, distinct shapes, distinct token vocabulary, so a
 // theme never renders another theme's decorations.
@@ -231,10 +284,9 @@ describe("future decorations", () => {
   });
 
   test("the 4 future families have DISJOINT variant lists (no shared shapes)", () => {
-    const families = ["node", "reticle", "glyph", "signal"];
     const seen = new Map<string, string>();
-    for (const fam of families) {
-      const variants = ((getComponent(fam).jsonSchema() as { properties?: Record<string, { enum?: string[] }> }).properties?.variant?.enum) ?? [];
+    for (const fam of FUTURE_DECORATION_COMPONENTS) {
+      const variants = schemaVariants(fam);
       expect(variants.length).toBeGreaterThan(0);
       for (const v of variants) {
         expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
@@ -512,16 +564,33 @@ describe("palette roles (tripwire)", () => {
     );
   });
 
-  // Roles are the ONLY colour vocabulary — the old names were removed, not aliased,
-  // so a retired name must FAIL validation rather than be silently folded to a role.
-  test.each(["pink", "offwhite", "fx-cyan", "fx-panel-solid"])(
-    "the retired colour name '%s' is rejected, not quietly folded to a role",
-    (retired) => {
-      expect(() =>
-        getComponent("stat")({ value: 1, label: "a", accent: retired } as never).build(ctx("s")),
-      ).toThrow();
-    },
-  );
+  // The complete PRE-migration colour vocabulary: block's own names and future's parallel
+  // --fx-* identity layer. These are NOT leftovers to clean up — they are the fixture for
+  // the migration's central promise. Roles are the only vocabulary now, and the old names
+  // were REMOVED rather than aliased, so a stored deck carrying one must fail loudly at
+  // validation instead of being quietly folded to a role and rendering a different colour.
+  const RETIRED = [
+    // block's pre-role palette
+    "pink", "blue", "green", "yellow", "cream", "offwhite", "white", "black",
+    // future's parallel identity layer
+    "fx-cyan", "fx-panel", "fx-panel-solid", "fx-line", "fx-steel", "fx-faint", "fx-glass", "fx-rule",
+  ];
+
+  // …and the fixture can't rot into a vacuous test: if a role were ever NAMED one of these,
+  // the "is rejected" cases below would be asserting the opposite of the contract.
+  test("no retired name is also a live palette role", () => {
+    const roles = new Set<string>(PALETTE_VARS);
+    expect(RETIRED.filter((r) => roles.has(r))).toEqual([]);
+  });
+
+  test.each(RETIRED)("the retired colour name '%s' is rejected, not quietly folded to a role", (retired) => {
+    // as a component accent…
+    expect(() =>
+      getComponent("stat")({ value: 1, label: "a", accent: retired } as never).build(ctx("s")),
+    ).toThrow();
+    // …and as a scene ground (FrameGround is the same role vocabulary).
+    expect((FRAME_GROUNDS as readonly string[]).includes(retired)).toBe(false);
+  });
 
   test("a role is still accepted", () => {
     const html = getComponent("stat")({ value: 1, label: "a", accent: "accent-3" }).build(ctx("s")).html;

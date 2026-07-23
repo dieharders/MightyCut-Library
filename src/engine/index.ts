@@ -47,10 +47,17 @@ export type {
 } from "../components/runtime/types";
 
 // The palette-role contract. The React chrome renders every colour param and the
-// showcase Palette section from these: the 10 role names, the fold that absorbs the
-// legacy colour vocabulary saved decks still carry, and the by-hex de-dupe that turns
-// a theme's 10 roles into its unique COLOURS. Exported here (not only from the Bun
-// entry) because the web UI reaches the library exclusively through `/engine`.
+// showcase Palette section from these: the 10 role names, the accent subset a repeated
+// -accent list cycles, and the by-hex de-dupe that turns a theme's 10 roles into its
+// unique COLOURS. Exported here (not only from the Bun entry) because the web UI reaches
+// the library exclusively through `/engine`.
+//
+// BREAKING (v0.3.0), and deliberately so: there is NO fold from the pre-role colour
+// vocabulary. `pink`/`cream`/`offwhite`/`black`/future's `fx-*` were REMOVED, not aliased,
+// so a stored deck carrying one now fails Zod validation at load rather than silently
+// rendering a different colour — the loud failure is the point, and a tripwire in
+// registry.test.ts pins it. Decks written before the migration need re-saving; there is no
+// in-library migration step.
 export {
   PALETTE_VARS,
   ACCENT_CYCLE,

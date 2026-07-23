@@ -237,9 +237,23 @@ describe("font coverage (tripwire)", () => {
     return [...out];
   };
 
-  test.each(ALL_THEMES)("$name's content font families are covered by the core faces", async (theme) => {
+  /** The families the core set actually DECLARES — read off each `@font-face`'s own
+   *  `font-family:` so the match is exact. A plain `CORE_FONTS_CSS.includes(fam)` would
+   *  pass a theme naming "Inter" against a face for "Inter Tight" (or any family whose
+   *  name is a substring of a declared one), i.e. green while the render silently falls
+   *  back to a system face. */
+  const coreFamilies = async (): Promise<Set<string>> => {
     const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
-    const missing = familiesOf(theme).filter((fam) => !CORE_FONTS_CSS.includes(fam));
+    return new Set([...CORE_FONTS_CSS.matchAll(/font-family:\s*"([^"]+)"/g)].map((m) => m[1]!));
+  };
+
+  test("the core set declares faces to check against (the sweep isn't vacuous)", async () => {
+    expect((await coreFamilies()).size).toBeGreaterThan(0);
+  });
+
+  test.each(ALL_THEMES)("$name's content font families are covered by the core faces", async (theme) => {
+    const declared = await coreFamilies();
+    const missing = familiesOf(theme).filter((fam) => !declared.has(fam));
     expect(missing, `${theme.name} names font families with no @font-face in the core set: ${missing.join(", ")}`).toEqual([]);
   });
 });

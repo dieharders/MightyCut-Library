@@ -7,6 +7,7 @@
 // Isolation: each preview mounts in its own Shadow DOM so the host app's CSS reset
 // (Tailwind Preflight) can't bleed into the vanilla render, and the theme `:root`
 // tokens are re-scoped to `:host`. Fonts are injected document-level by loadTheme.
+import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
 import {
@@ -153,27 +154,20 @@ export const mountPreview = (
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
-  // NB the character class MUST admit digits + hyphens — the palette roles are
-  // `accent-1` / `muted-2` / …, and a `[a-z]+`-only class silently fails to match, so the
-  // override is dropped with no error and the ground picker looks broken. This is the
-  // SECOND copy of this swap (runtime/emit.ts has the render-side one); a tripwire in
-  // runtime.test.ts asserts both stay role-safe.
-  const html = opts.ground
-    ? built.html.replace(
-        /background:\s*var\(--[a-z0-9-]+\)/,
-        `background: var(--${opts.ground})`,
-      )
-    : built.html;
+  // Same ground swap the render path runs (runtime/css.ts owns it, so the role-safe
+  // character class can't drift between the two sides of the seam).
+  const html = opts.ground ? swapGround(built.html, opts.ground) : built.html;
 
   const shadow =
     container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
   const style = document.createElement("style");
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
-  // (the stage surface uses the theme's previewBg, else a light default). A theme that
-  // declares a previewBg is dark by contract (see ThemeTokens.previewBg), so flip the
-  // safety-net foreground + color-scheme to match; else the block-shaped light default.
-  const dark = !!theme.previewBg;
+  // (the stage surface uses the theme's previewBg, else a light default). The safety-net
+  // foreground + color-scheme follow the theme's DECLARED previewScheme — never inferred
+  // from `previewBg` being set, which would flip a light theme that merely wants a tinted
+  // stage to white-on-light text.
+  const dark = theme.previewScheme === "dark";
   const fg = dark ? "var(--light, #fff)" : "var(--dark, #000)";
   const scheme = dark ? "dark" : "light";
   style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme)}\n${css}`;
