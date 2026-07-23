@@ -1,10 +1,12 @@
 import { z } from "zod";
+// Shared palette roles — see stat/schema.ts.
+import { PALETTE_VARS } from "../../../types/palette";
 
 export const CaptionSchema = z.object({
   text: z.string().max(160).describe("Caption / VO-transcript line rendered in the pill"),
   accentBar: z
-    .enum(["pink", "blue", "green", "yellow"])
-    .default("pink")
-    .describe("Color token for the left accent bar"),
+    .enum(PALETTE_VARS)
+    .optional()
+    .describe("Palette role for the left accent bar (unset ⇒ the theme's default)"),
 });
 export type CaptionParams = z.infer<typeof CaptionSchema>;

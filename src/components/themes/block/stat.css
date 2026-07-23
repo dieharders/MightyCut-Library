@@ -1,0 +1,34 @@
+.stat {
+  position: relative;
+  border: 0.25rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
+  padding: 2.5rem;
+}
+.stat-dot {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  border: 0.125rem solid var(--dark);
+  background: var(--dot, var(--primary));
+}
+.stat-number {
+  font-family: var(--disp);
+  font-weight: 900;
+  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
+     row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
+  font-size: calc(5.5rem * var(--dense-scale, 1));
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.75rem;
+  margin-top: 0.875rem;
+  line-height: 1.3;
+}

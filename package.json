@@ -1,6 +1,6 @@
 {
   "name": "mightycut-library",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MightyCut shared component library — the single source of truth for components, treatments, themes, FX, and Zod contracts, consumed by both the render harness and the web UI.",
   "private": true,
   "type": "module",

@@ -1,0 +1,29 @@
+/* 2 · Feature Cards — glass cards in a responsive grid, headline opened by a cyan rule.
+   Ported from legacy .bf-feature-cards (cqw × 1.2). Card look lives in card.css. */
+.feature-cards > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.feature-cards h3 {
+  font-size: 4.375rem;
+  margin: 0 0 3.625rem;
+}
+.feature-cards h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.feature-cards .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.125rem;
+}

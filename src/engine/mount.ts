@@ -7,6 +7,7 @@
 // Isolation: each preview mounts in its own Shadow DOM so the host app's CSS reset
 // (Tailwind Preflight) can't bleed into the vanilla render, and the theme `:root`
 // tokens are re-scoped to `:host`. Fonts are injected document-level by loadTheme.
+import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
 import {
@@ -68,15 +69,23 @@ export type MountPreviewOptions = {
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
 // color-scheme / font so the vanilla render never inherits the host app's theme.
-const previewCss = (frame: boolean): string => `
-:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: light; font-family: var(--disp, "Inter", system-ui, sans-serif); color: var(--black, #000); }
+// `fg`/`scheme` are theme-derived (see the call site): the safety-net text colour must
+// match the theme's surface — a light default (`var(--dark)`) reads on block's light
+// preview but is near-invisible on future's dark one, so a dark theme flips to
+// `var(--light)`. Every element skin sets its own colour; this only backstops one that
+// forgets, so it must not be a fixed light-background assumption.
+const previewCss = (frame: boolean, surface: string, fg: string, scheme: string): string => `
+:host { display: block; overflow: hidden; border-radius: inherit; color-scheme: ${scheme}; font-family: var(--disp, "Inter", system-ui, sans-serif); color: ${fg}; }
 /* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
    boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
    (stage / inner / preview-root) — exactly like the render border-boxes its padded
    containers (.mc-page) and NOT components — so a content-box component still matches the
    MP4 while the padded scaffold sizes predictably. */
 .mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
-.mc-stage { width: 100%; overflow: hidden; background: #fafafa; }
+/* The stage surface is theme-driven (theme.previewBg): a dark theme paints a dark ground so
+   its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
+   is the surface the user actually sees (it fills the preview box, above the host card). */
+.mc-stage { width: 100%; overflow: hidden; background: ${surface}; }
 .mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 /* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
    viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
@@ -145,19 +154,23 @@ export const mountPreview = (
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
-  const html = opts.ground
-    ? built.html.replace(
-        /background:\s*var\(--[a-z]+\)/,
-        `background: var(--${opts.ground})`,
-      )
-    : built.html;
+  // Same ground swap the render path runs (runtime/css.ts owns it, so the role-safe
+  // character class can't drift between the two sides of the seam).
+  const html = opts.ground ? swapGround(built.html, opts.ground) : built.html;
 
   const shadow =
     container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
   const style = document.createElement("style");
-  // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS.
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame)}\n${css}`;
+  // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
+  // (the stage surface uses the theme's previewBg, else a light default). The safety-net
+  // foreground + color-scheme follow the theme's DECLARED previewScheme — never inferred
+  // from `previewBg` being set, which would flip a light theme that merely wants a tinted
+  // stage to white-on-light text.
+  const dark = theme.previewScheme === "dark";
+  const fg = dark ? "var(--light, #fff)" : "var(--dark, #000)";
+  const scheme = dark ? "dark" : "light";
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme)}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");

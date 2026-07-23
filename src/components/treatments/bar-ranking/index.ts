@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./bar-ranking.css" with { type: "text" };
 import { Rank } from "../../primitives/rank";
 import { treatment } from "../../runtime/treatment";
 import { barRankingAnim } from "./anim";
@@ -12,8 +11,7 @@ export const BarRanking = treatment({
   childComponent: "rank",
   schema: BarRankingSchema,
   template,
-  css,
-  ground: "cream",
+  ground: "muted-1",
   example: {
     headline: "Market share by vendor",
     caption: "Share of new installs, 2026",

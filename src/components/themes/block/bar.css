@@ -1,0 +1,58 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Standalone plot height (the chart's .bars is also 28.25rem); the chart overrides
+     `.chart .bars .bar` to flex:1 + height:100% so bars fill and share its plot. */
+  flex: 0 0 auto;
+  height: 28.25rem;
+  /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
+     value label's changing text width drives the bar width, and the width:100% column tracks
+     it and "wiggles". A wide value label just overflows this box (centred) without resizing
+     it. The chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+  width: 12rem;
+}
+/* The column track. The value label + column live here; the column height is --fill% of the
+   track BELOW the reserved top padding, so it maps LINEARLY to --fill (0–100%) — instead of
+   the value/category labels eating into the plot and clamping a full column to ~78%. The
+   value label floats just above the column; the category label (.bl) sits outside, below. */
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 4rem; /* headroom the floating value label occupies when the column is full */
+  box-sizing: border-box;
+}
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 0.75rem;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 2.75rem;
+}
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(
+    --fill
+  ); /* % of the track below the padding — 0% empty, 100% full */
+  width: 100%;
+  max-width: 11rem;
+  background: var(--col);
+  border: 0.375rem solid var(--dark);
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
+  transform-origin: bottom;
+}
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  font-size: 2rem;
+  text-align: center;
+}

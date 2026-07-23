@@ -11,7 +11,7 @@
   overflow: hidden;
   container-type: size;
   font-family: var(--disp);
-  color: var(--black);
+  color: var(--dark);
 }
 .block-frame > .body {
   position: absolute;
@@ -24,9 +24,9 @@
 .block-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
-  border: 0.25rem solid var(--black);
-  background: var(--white);
-  box-shadow: 0.5rem 0.5rem 0 var(--black);
+  border: 0.25rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
   padding: 0.625rem 1.5rem;
   font-family: var(--mono);
   font-weight: 600;

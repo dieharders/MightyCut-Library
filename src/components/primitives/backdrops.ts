@@ -2,7 +2,7 @@
 // painted on top of a scene's ground COLOUR (behind the content). This is the
 // counterpart to the ground: `ground` sets the base fill (var(--<ground>) on the
 // page wrapper), a backdrop paints a pattern/texture OVER it. Designs are shared
-// across themes and recoloured by theme tokens (block's dots use var(--black)); a
+// across themes and recoloured by theme tokens (block's dots use var(--dark)); a
 // theme picks its canonical design (ThemeTokens.backdrop) and a scene may override
 // it (BuildContext.backdrop / storyboard options.backdrop).
 //
@@ -57,16 +57,86 @@ const dots: BackdropDesign = {
     css: `${BACKDROP_BASE}
 .mc-backdrop--dots {
   opacity: 0.32;
-  background-image: radial-gradient(circle, var(--black) 0.125rem, transparent 0.125rem);
+  /* --dot-ink lets a theme repaint the grid: block's ink dots vanish on a dark ground
+     (future's --dark abyss on navy is invisible), so future re-points it to cyan. */
+  background-image: radial-gradient(circle, var(--dot-ink, var(--dark)) 0.125rem, transparent 0.125rem);
   background-size: 3.625rem 3.625rem;
 }`,
     anims: [],
   }),
 };
 
+// --- The one colour outside the CSS custom-property system ------------------
+// Every other colour in this library is a role var (`var(--primary)`) and anything
+// lighter/darker/translucent is derived with color-mix(). The constellation mask
+// cannot play by that rule: its network is painted into a <canvas> by MC.particleBg,
+// which needs a raw `"r,g,b"` triple for strokeStyle/fillStyle. Canvas 2D reads no
+// CSS custom properties and color-mix() cannot reach a JS opt, so the value has to be
+// a literal by the time it lands in the anim descriptor. Instead of hardcoding one,
+// we RESOLVE it at build time from the active theme's --primary swatch — the palette
+// stays the single source of truth, and a theme swap recolours the particles for free.
+
+/** `#rgb` / `#rrggbb` → `"r,g,b"`. Null for anything unparseable, so a malformed
+ *  swatch degrades to the fallback rather than emitting a broken canvas opt. */
+const hexToRgbTriple = (hex: string): string | null => {
+  const raw = hex.trim().replace(/^#/, "");
+  const full = raw.length === 3 ? raw.replace(/./g, (c) => c + c) : raw;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
+  const n = Number.parseInt(full, 16);
+  return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
+};
+
+/** future's cyan (#34E1FF) — the value this mask shipped with, kept as the fallback
+ *  for a theme that declares no `palette` (the field is optional on ThemeTokens). */
+const PARTICLE_RGB_FALLBACK = "52,225,255";
+
+/** The particle colour for a theme: its --primary swatch, as an `"r,g,b"` triple. */
+const particleRgb = (theme: ThemeTokens): string => {
+  const hex = theme.palette?.find((sw) => sw.varName === "primary")?.hex;
+  return (hex ? hexToRgbTriple(hex) : null) ?? PARTICLE_RGB_FALLBACK;
+};
+
+/** constellation — an ANIMATED seeded particle network (a --primary node graph, cyan
+ *  under future) painted on a
+ *  full-bleed canvas over the ground; future's canonical backdrop. The motion is driven off
+ *  the scene timeline by the `backdrop` anim-kind (MC.particleBg in mc.js) — deterministic
+ *  (seed = compId, no rAF/Date.now), so seeking any frame repaints identically. The canvas
+ *  carries a compId-scoped class because backdrop anims are NOT run through qualifyAnim and
+ *  the render's `q` is document-wide (sub-composition.ts) — the scoped class keeps each
+ *  scene's `q(".<compId>-bg")` resolving to its OWN canvas in the shared render DOM. */
+const constellation: BackdropDesign = {
+  name: "constellation",
+  build: ({ ctx, theme }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop).
+    const canvasClass = `${ctx.idPrefix}-bg`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+      ),
+      css: `${BACKDROP_BASE}
+.mc-backdrop--constellation canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}`,
+      anims: [
+        {
+          kind: "backdrop",
+          target: canvasClass,
+          time: { at: "seconds", t: 0 },
+          // colorRgb is the theme's --primary, resolved at build time (see particleRgb
+          // above — canvas JS can't read a CSS var); seed = compId → deterministic per scene.
+          opts: { fn: "particleBg", seed: ctx.compId, colorRgb: particleRgb(theme), opacity: 0.8 },
+        },
+      ],
+    };
+  },
+};
+
 /** The mask designs, keyed by name. `plain` is intentionally absent — it means "no
  *  mask" and `buildBackdrop` returns null for it (byte-identical to a bare ground). */
-export const BACKDROPS: Record<string, BackdropDesign> = { dots };
+export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation };
 
 /**
  * Resolve a backdrop design to its built parts, or null when there is no mask to

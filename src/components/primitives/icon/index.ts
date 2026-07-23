@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./icon.css" with { type: "text" };
 import { iconSvg } from "../../icons";
 import { component } from "../../runtime/component";
 import { remGrid } from "../../runtime/css";
@@ -13,9 +12,15 @@ export const Icon = component({
   name: "icon",
   schema: IconSchema,
   template,
-  css,
-  example: { name: "shield", accent: "black", size: 10 },
+  // No accent pinned — see caption/index.ts. (Pinning "dark" is exactly what made the
+  // icon invisible on future's dark ground.)
+  example: { name: "shield", size: 10 },
   rawFill: (p) => ({ svg: iconSvg(p.name) }),
-  layout: (p) => ({ "--icol": `var(--${p.accent})`, "--isize": remGrid(p.size * 1.2) }),
+  // --icol is emitted only when set — see caption/index.ts. (This is exactly the case
+  // that forced future to pin its icon to cyan: the old shared default was `dark`.)
+  layout: (p) => ({
+    ...(p.accent ? { "--icol": `var(--${p.accent})` } : {}),
+    "--isize": remGrid(p.size * 1.2),
+  }),
   animIn: "scale",
 });

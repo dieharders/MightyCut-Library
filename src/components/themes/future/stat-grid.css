@@ -1,0 +1,30 @@
+/* 3 · Stat Grid — cyan figures in a responsive grid, headline opened by a cyan rule.
+   Ported from legacy .bf-stat-grid (cqw × 1.2). Stat look lives in stat.css. */
+.stat-grid > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.stat-grid h3 {
+  font-size: 4.375rem;
+  margin: 0 0 6rem;
+}
+.stat-grid h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.stat-grid .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 3.625rem;
+  padding: 0 1.25rem;
+}

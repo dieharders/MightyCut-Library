@@ -1,0 +1,14 @@
+/* Future icon: an inline-SVG glyph that follows the instance's accent (--icol), falling
+   back to cyan. The accent param carries NO shared default (see icon/schema.ts), so an
+   unset accent lands on this theme-owned fallback — future used to have to pin cyan here
+   because the old shared default was `dark`, which vanishes on the dark ground. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--icol, var(--primary));
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

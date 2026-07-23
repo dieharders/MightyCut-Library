@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./cover.css" with { type: "text" };
 import { Slab } from "../../primitives/slab";
 import { Starburst } from "../../primitives/starburst";
 import { treatment } from "../../runtime/treatment";
@@ -13,8 +12,7 @@ export const Cover = treatment({
   name: "cover",
   schema: CoverSchema,
   template,
-  css,
-  ground: "cream",
+  ground: "muted-1",
   example: {
     headline: "Block, bordered, crooked.",
     subtitle: "A maximalist neobrutalist frame system.",
@@ -23,8 +21,8 @@ export const Cover = treatment({
   defaultChildren: () => [],
   // The pink star (top-right) + blue tilt-rect (lower-right) flourishes.
   defaultDecorations: () => [
-    Starburst({ variant: "star", x: 85, y: 22, size: 13, accent: "pink", layer: "back" }),
-    Slab({ variant: "rectangle", x: 78, y: 78, size: 15, rotate: -6, accent: "blue", layer: "back" }),
+    Starburst({ variant: "star", x: 85, y: 22, size: 13, accent: "primary", layer: "back" }),
+    Slab({ variant: "rectangle", x: 78, y: 78, size: 15, rotate: -6, accent: "secondary", layer: "back" }),
   ],
   fill: (p) => ({ headline: p.headline, subtitle: p.subtitle ?? null, eyebrow: p.eyebrow ?? null }),
   anim: coverAnim,

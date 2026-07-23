@@ -3,8 +3,11 @@
 // sceneExitJs) + their runtime clamp, and a byte-identity guard asserting each
 // refactored primitive still emits its exact pre-transition entrance descriptor.
 import { describe, expect, test } from "bun:test";
+import { z } from "zod";
 import { TIMING_SECONDS } from "../../types/transitions";
 import "../registry"; // populate the registry
+import type { AnimDescriptor } from "./anim";
+import { component } from "./component";
 import { scrubDeterminism } from "./determinism";
 import { renderScene } from "./emit";
 import { getComponent, getTreatment } from "./registry";
@@ -106,6 +109,79 @@ describe("primitive entrance byte-identity (post-refactor)", () => {
     // anim is the progress-fill reveal.
     expect(allAnims("row").map((a) => a.kind)).toEqual(["staggerIn"]);
     expect(allAnims("hud").map((a) => a.kind)).toEqual(["growBar"]);
+  });
+});
+
+// A picked transition and an internal reveal aimed at the SAME target both compile to
+// `tl.from()` on one element; GSAP's immediateRender then makes the second sample the
+// first's from-state (opacity 0) as its END value, so the element reveals and vanishes
+// for good. The entrance must WIN — one reveal per box.
+describe("entrance vs. internal reveal on the same target", () => {
+  const withIn = (name: string, animIn: "pop" | "rise" | "fade") =>
+    getComponent(name)()
+      .withTransition({ animIn })
+      .build(rootContext(`sc-${name}`, blockTheme)).anims;
+
+  test("row: a picked entrance replaces the same-target staggerIn", () => {
+    // rowAnim's staggerIn targets `item` — exactly what elementIn drives.
+    for (const t of ["pop", "rise", "fade"] as const) {
+      const anims = withIn("row", t);
+      expect(anims).toHaveLength(1);
+      expect(anims[0].target).toBe("sc-row-item");
+      expect(anims.filter((a) => a.target === "sc-row-item")).toHaveLength(1);
+    }
+  });
+
+  test("row: pop is the back-eased scaleIn, not a dropped no-op", () => {
+    expect(withIn("row", "pop")[0]).toEqual({
+      kind: "scaleIn",
+      target: "sc-row-item",
+      time: { at: "line", n: 0 },
+      opts: { from: 0.8, ease: "back.out(2)" },
+    });
+  });
+
+  test("internal reveals on SUB-parts survive the entrance", () => {
+    // bar's growBar/countUp target col/value — different boxes, so they still stack.
+    expect(withIn("bar", "pop").map((a) => a.kind)).toEqual(["scaleIn", "growBar", "countUp"]);
+    expect(withIn("stat", "pop").map((a) => a.kind)).toEqual(["scaleIn", "countUp"]);
+  });
+
+  // Only a same-target REVEAL is dropped — the filter is kind-aware, matching mc.js's
+  // runtime guard. A to/fromTo tween (or growBar's from-on-scale) aimed at the element's
+  // OWN root stacks on the entrance legitimately: nothing in the registry does that today,
+  // so without this an over-broad `a.target !== entrance.target` filter passes every
+  // existing test while silently deleting the first such component's motion.
+  describe("a NON-reveal internal on the root survives the entrance", () => {
+    const Probe = (internal: AnimDescriptor["kind"]) =>
+      component({
+        name: `probe-${internal}`,
+        schema: z.object({}),
+        template: `<div class="probe" data-anim="item"></div>`,
+        example: {},
+        animIn: "fade",
+        anim: () => [{ kind: internal, target: "item", time: { at: "line", n: 0 } }],
+      });
+
+    test.each(["rule", "float", "countUp", "growBar"] as const)(
+      "'%s' on the root is kept alongside a picked entrance",
+      (kind) => {
+        const anims = Probe(kind)()
+          .withTransition({ animIn: "pop" })
+          .build(rootContext("sc-probe", blockTheme)).anims;
+        expect(anims.map((a) => a.kind)).toEqual(["scaleIn", kind]);
+        // …both aimed at the same box, which is exactly what makes them non-additive
+        // ONLY for reveals — the runtime guard lets these through for the same reason.
+        expect(new Set(anims.map((a) => a.target)).size).toBe(1);
+      },
+    );
+
+    test("a same-target REVEAL is still dropped", () => {
+      const anims = Probe("fadeIn")()
+        .withTransition({ animIn: "pop" })
+        .build(rootContext("sc-probe", blockTheme)).anims;
+      expect(anims.map((a) => a.kind)).toEqual(["scaleIn"]);
+    });
   });
 });
 

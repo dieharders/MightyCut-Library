@@ -23,11 +23,19 @@ export const COMPONENT_NAMES = [
   "cta", // call-to-action button
   "list-number", // numbered index row
   // Decoration families — positioned page-space flourishes any treatment can add.
-  // Each has its OWN disjoint shape-variant list (no two render the same shape).
+  // Each has its OWN disjoint shape-variant list (no two render the same shape), and
+  // is INTRINSICALLY a decoration (ComponentFactory.decoration) so it's held out of the
+  // showcase Components grid; a theme rosters only its own via ThemeTokens.decorations.
+  // block's neobrutalist set:
   "starburst", // star · burst · triangle · circle
   "slab", // square · rectangle · rhombus · hexagon · cross
   "stripe", // stripe · bars · grid
   "badge", // shield · tag · ticket · capsule
+  // future's sci-fi set (luminous strokes + glow, shared palette-role accents):
+  "node", // ring · core · orbit · pulse
+  "reticle", // brackets · crosshair · gauge · frame
+  "glyph", // hexagon · diamond · chevron · triangle
+  "signal", // waveform · bars · beam
   "icon", // inline-SVG icon from the shared set
   "hud", // full-frame HUD overlay composite
 ] as const;

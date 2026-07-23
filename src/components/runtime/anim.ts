@@ -51,8 +51,31 @@ export const ANIM_KINDS = [
   "growBar",
   "scaleIn",
   "from",
+  "backdrop",
 ] as const;
 export type AnimKind = (typeof ANIM_KINDS)[number];
+
+/**
+ * The WHOLE-BOX reveal kinds — every kind that compiles to a `tl.from()` driving the
+ * element's own opacity. Two of these on one box fight over GSAP's immediateRender (the
+ * later tween samples the earlier one's from-state, opacity 0, as its END value), so the
+ * box reveals and then vanishes for good.
+ *
+ * The remaining kinds are NOT reveals and legitimately stack on top of one: `rule`,
+ * `float` and `countUp` are to/fromTo tweens, `growBar` is a `from` but on a sub-part's
+ * scale alone (never opacity), and `backdrop` drives a canvas FX off a proxy.
+ *
+ * MIRRORED in mc.js's `REVEAL_KINDS` (browser JS, no imports). A tripwire in
+ * boxless-reveal.test.ts drives the real interpreter kind-by-kind against this list, so
+ * the two can't drift.
+ */
+export const REVEAL_KINDS = ["riseIn", "fadeIn", "scaleIn", "staggerIn", "from"] as const satisfies readonly AnimKind[];
+export type RevealKind = (typeof REVEAL_KINDS)[number];
+
+const REVEAL_SET: ReadonlySet<string> = new Set<string>(REVEAL_KINDS);
+
+/** Does this descriptor drive its target box's own opacity (see `REVEAL_KINDS`)? */
+export const isRevealKind = (kind: string): kind is RevealKind => REVEAL_SET.has(kind);
 
 export const AnimDescriptorSchema = z.object({
   kind: z.enum(ANIM_KINDS).describe("Which MC.* motion to apply"),
@@ -103,5 +126,6 @@ export const serializeAnims = (anims: AnimDescriptor[]): string => {
   const json = JSON.stringify(anims).replace(CLOSE_SCRIPT, "<\\/");
   // voCount = the slide's caption count (drives the runtime slot-delay); `voIds` is a var in
   // the sub-composition <script> the preamble already defines, so no wrapper change is needed.
-  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, voCount: voIds.length, page: page });`;
+  // `dur` (scene duration) is also a preamble var — an animated backdrop spans the scene.
+  return `          MC.applyAnims(tl, ${json}, { q: q, qa: qa, at: at, atIndex: atIndex, lineId: lineId, leadIn: leadIn, voCount: voIds.length, dur: dur, page: page });`;
 };

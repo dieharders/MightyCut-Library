@@ -1,0 +1,16 @@
+.pill-c {
+  display: inline-block;
+  border: 0.625rem solid var(--dark);
+  /* Unset ⇒ block's pink. The fallback IS block's default for this element (the shared
+     pill carries no default, so each theme picks its own — future tints its glass chip). */
+  background: var(--pillbg, var(--primary));
+  box-shadow: 0.875rem 0.875rem 0 var(--dark);
+  padding: 1.375rem 3.5rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 2.875rem;
+  line-height: 1.2;
+  color: var(--dark);
+}

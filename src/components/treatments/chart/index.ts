@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./chart.css" with { type: "text" };
 import { Bar } from "../../primitives/bar";
 import { treatment } from "../../runtime/treatment";
 import { chartAnim } from "./anim";
@@ -12,8 +11,7 @@ export const Chart = treatment({
   childComponent: "bar",
   schema: ChartSchema,
   template,
-  css,
-  ground: "cream",
+  ground: "muted-1",
   example: { headline: "Revenue by quarter", caption: "Net new revenue" },
   defaultChildren: () => {
     const series = [

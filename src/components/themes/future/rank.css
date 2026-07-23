@@ -1,0 +1,58 @@
+/* Bar-ranking row: a mono label, a glass track, a cyan fill (--fill%), a cyan value. The
+   leader glow is positional (bar-ranking.css). Ported from legacy .bf-bar-ranking .bar.
+   The shared bar/rank set --col from `leader`, resolving it through --lead-col/--base-col
+   so a THEME decides what winning looks like. Future runs cyan (--primary) as the NORMAL
+   column and hands the leader the complementary amber (--secondary) — amber sits opposite
+   cyan on the wheel, so the winner reads instantly instead of being a slightly brighter
+   shade of its neighbours. */
+.rank {
+  --lead-col: var(--secondary);
+  --base-col: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  width: 100%;
+}
+.rank .bl {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  color: var(--muted-1);
+  width: 19.25rem;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 3.125rem;
+  background: color-mix(in srgb, var(--muted-3) 55%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
+  border-radius: 0.625rem;
+  /* No overflow:hidden — the fill rounds itself (below), so its cyan glow can bleed out
+     of the track instead of being clipped away. */
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--col, var(--primary)) 35%, transparent) 0%,
+    color-mix(in srgb, var(--col, var(--primary)) 75%, transparent) 100%
+  );
+  border-radius: 0.5rem;
+  /* The leader's extra glow scales off --lead (0|1) — set from the `leader` PARAM, not
+     from :first-child, so the winner is emphasised wherever it sits in the list. */
+  box-shadow: 0 0 calc(1.5rem + var(--lead, 0) * 1.875rem)
+    color-mix(in srgb, var(--col, var(--primary)) calc((30 + var(--lead, 0) * 20) * 1%), transparent);
+  transform-origin: left center;
+}
+.rank .bv {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.125rem;
+  color: var(--primary);
+  width: 6rem;
+  text-align: right;
+  flex-shrink: 0;
+}

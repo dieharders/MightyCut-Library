@@ -116,17 +116,29 @@
 
   /* ------------------------------------------------------ tween helpers --- */
 
+  // A whole-element reveal that got fanned across SEVERAL boxes (applyAnims'
+  // display:contents retarget) carries `opts.stagger` — the gsap stagger config —
+  // so the boxes cascade instead of firing in lockstep. Single-box reveals never
+  // set it, and the key is omitted entirely then (byte/behaviour preserving).
+  var withStagger = function (vars, o) {
+    if (o && o.stagger) vars.stagger = o.stagger;
+    return vars;
+  };
+
   // Entrance: fade + rise from below (the old riseIn spring).
   MC.riseIn = function (tl, target, at, opts) {
     var o = opts || {};
     tl.from(
       target,
-      {
-        y: o.dist != null ? o.dist : 26,
-        opacity: 0,
-        duration: o.dur != null ? o.dur : 0.65,
-        ease: o.ease || "power3.out",
-      },
+      withStagger(
+        {
+          y: o.dist != null ? o.dist : 26,
+          opacity: 0,
+          duration: o.dur != null ? o.dur : 0.65,
+          ease: o.ease || "power3.out",
+        },
+        o,
+      ),
       at || 0,
     );
     return tl;
@@ -137,7 +149,10 @@
     var o = opts || {};
     tl.from(
       target,
-      { opacity: 0, duration: o.dur != null ? o.dur : 0.55, ease: o.ease || "power2.out" },
+      withStagger(
+        { opacity: 0, duration: o.dur != null ? o.dur : 0.55, ease: o.ease || "power2.out" },
+        o,
+      ),
       at || 0,
     );
     return tl;
@@ -359,6 +374,20 @@
       if (t.at === "seconds") return t.t || 0;
       return ctx.leadIn;
     };
+    // The from-style whole-box reveals (see the one-reveal-per-box guard below) and the
+    // boxes already claimed by one in THIS call. MIRRORS runtime/anim.ts's REVEAL_KINDS,
+    // which the build-time dedupe uses; boxless-reveal.test.ts drives this interpreter
+    // kind-by-kind from that list, so the two can't drift.
+    var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
+    // The canvas FX a `backdrop` descriptor may name (see the backdrop arm below).
+    var BACKDROP_FX = { particleBg: 1 };
+    var revealed = [];
+    // display:contents lookups, memoized per call. getComputedStyle FLUSHES pending style,
+    // and a scene runs one applyAnims over every descriptor — without this, a scene with N
+    // anims pays N style recalcs at timeline-build time, several of them for the same
+    // element (a picked entrance + the element's own internals share a target). Null
+    // prototype so a target named `toString`/`constructor` can't read as a cache hit.
+    var displayOf = Object.create(null);
     for (var i = 0; i < anims.length; i++) {
       var a = anims[i];
       var sel = "." + a.target;
@@ -366,9 +395,66 @@
       if (!el) continue; // optional/removed slot — gsap.from(null) would throw
       var when = timeOf(a.time);
       var o = a.opts || {};
-      if (a.kind === "riseIn") MC.riseIn(tl, el, when, o);
-      else if (a.kind === "fadeIn") MC.fadeIn(tl, el, when, o);
-      else if (a.kind === "staggerIn") MC.staggerIn(tl, ctx.qa(sel + " > *"), when, o);
+      // An element with `display: contents` generates NO box, so a transform/opacity
+      // tween on it runs but paints nothing. The ledger Row is display:contents (its
+      // cells flow into the parent .ledger grid), so ANY whole-element entrance on a
+      // Row — pop/rise/fade from the editor's transition picker — was a silent no-op.
+      // Retarget to the children, which DO generate boxes. `staggerIn` already targets
+      // children, which is why the Row's DEFAULT reveal always worked and only an
+      // explicitly chosen transition appeared to be ignored. Resolved at runtime, not
+      // baked into the descriptor, because whether a component is display:contents is
+      // the active THEME's choice.
+      // When that retarget fans ONE reveal onto SEVERAL boxes, it must cascade, not fire
+      // them in lockstep: the element's own default reveal for a box-less root is a
+      // `staggerIn` over exactly those children (the ledger Row's cells enter left→right),
+      // and the build-time one-reveal-per-box dedupe DROPS it in favour of a picked
+      // transition — so without a stagger here, assigning any transition (even the same
+      // one) flattened the cascade. Theme-agnostic: it keys off the resolved boxes, not
+      // off which component/theme made the root display:contents. `each` is overridable
+      // per descriptor; 0.08 matches the box-less components' default staggerIn.
+      var box = el;
+      var fan = null; // gsap stagger config when one reveal drives many boxes
+      try {
+        if (displayOf[a.target] === undefined) {
+          displayOf[a.target] =
+            typeof getComputedStyle === "function" ? getComputedStyle(el).display : "";
+        }
+        if (displayOf[a.target] === "contents") {
+          var kids = ctx.qa(sel + " > *");
+          if (kids && kids.length) {
+            box = kids;
+            if (kids.length > 1) fan = { each: o.each != null ? o.each : 0.08, from: "start" };
+          }
+        }
+      } catch (_e) {
+        /* no computed style (non-DOM host) — fall back to the element itself */
+        displayOf[a.target] = "";
+      }
+      // Reveal opts with the fan-out stagger folded in (a COPY — never mutate the
+      // descriptor's own opts, which the showcase replays over and over).
+      var ro = fan ? Object.assign({}, o, { stagger: fan }) : o;
+      // Defence in depth: never let a SECOND whole-box reveal land on a box that already
+      // has one. Every reveal kind compiles to `tl.from()`, and two of them on the same
+      // element fight over immediateRender — the later tween samples the earlier one's
+      // from-state (opacity 0) as its END value, so the box reveals and then vanishes for
+      // good. runtime/component.ts dedupes this at build time; this guard covers the lists
+      // it can't reach — hand-authored descriptors and scenes BAKED + hand-locked before
+      // that fix. Only the whole-box OPACITY reveals are guarded — rule/float/countUp are
+      // to/fromTo tweens, and growBar is a `from` but on a sub-part's scale alone (never
+      // opacity), so all of them legitimately stack on top of a reveal.
+      var boxes = a.kind === "staggerIn" ? ctx.qa(sel + " > *") : box;
+      if (REVEAL_KINDS[a.kind] === 1 && boxes) {
+        var list = boxes.nodeType == null && boxes.length != null ? boxes : [boxes];
+        var owned = false;
+        for (var bi = 0; bi < list.length; bi++) {
+          if (revealed.indexOf(list[bi]) !== -1) { owned = true; break; }
+        }
+        if (owned) continue; // an earlier reveal already owns these boxes
+        for (var bj = 0; bj < list.length; bj++) revealed.push(list[bj]);
+      }
+      if (a.kind === "riseIn") MC.riseIn(tl, box, when, ro);
+      else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, ro);
+      else if (a.kind === "staggerIn") MC.staggerIn(tl, boxes, when, o);
       else if (a.kind === "rule") MC.rule(tl, el, when, o);
       else if (a.kind === "float") MC.float(tl, el, when, o);
       else if (a.kind === "countUp") MC.countUp(tl, el, when, o);
@@ -380,17 +466,40 @@
         tl.from(el, gb, when);
       } else if (a.kind === "scaleIn") {
         tl.from(
-          el,
-          {
-            scale: o.from != null ? o.from : 0.9,
-            opacity: 0,
-            duration: o.dur != null ? o.dur : 0.6,
-            ease: o.ease || "back.out(1.5)",
-          },
+          box,
+          withStagger(
+            {
+              scale: o.from != null ? o.from : 0.9,
+              opacity: 0,
+              duration: o.dur != null ? o.dur : 0.6,
+              ease: o.ease || "back.out(1.5)",
+            },
+            ro,
+          ),
           when,
         );
       } else if (a.kind === "from") {
-        tl.from(el, o, when);
+        // `from` opts are raw gsap vars; `ro` is those plus the fan-out stagger.
+        tl.from(box, ro, when);
+      } else if (a.kind === "backdrop") {
+        // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
+        // DESIGN names via o.fn, driven off the scene clock for the rest of the scene.
+        // Deterministic (seeded; no rAF/Date.now), so seeking any frame repaints identically.
+        //
+        // o.fn is an ALLOWLISTED name, not a free lookup on MC: a bare `MC[o.fn]` resolves an
+        // inherited Object.prototype member (`constructor`, `toString`) or any other MC export
+        // to a function, which then throws on `.addTo` and takes the whole timeline build with
+        // it. An unknown name is a silent no-op instead, matching how a missing target is
+        // skipped above. Add a name here when a new backdrop FX ships — a tripwire in
+        // boxless-reveal.test.ts fails if a registered design names one this list lacks.
+        var fx = BACKDROP_FX[o.fn] === 1 && typeof MC[o.fn] === "function" ? MC[o.fn] : null;
+        if (fx) {
+          try {
+            fx(el, o).addTo(tl, when, Math.max(0, (ctx.dur || 6) - when));
+          } catch (_bdErr) {
+            /* a broken FX must not abort the rest of the scene's timeline */
+          }
+        }
       }
     }
     return tl;
@@ -422,6 +531,8 @@
       },
       leadIn: 0.1,
       voCount: 0,
+      // Scene duration for animated backdrops on hover-replay (render passes the real dur).
+      dur: 6,
       page: root,
     };
   };
@@ -521,82 +632,6 @@
             ease: "none",
             onUpdate: function () {
               paint(proxy.t);
-            },
-          },
-          at || 0,
-        );
-        return tl;
-      },
-    };
-  };
-
-  /* ------------------------------------------------------ progress ring --- */
-
-  /**
-   * Animated percent ring with count-up center (port of ProgressRing).
-   * Builds SVG inside `container`; animate via the returned addTo(tl, atSec).
-   *
-   *   MC.progressRing(el, { value: 96, label: "Detection", color: "var(--accent)" }).addTo(tl, at)
-   */
-  MC.progressRing = function (container, opts) {
-    var o = opts || {};
-    var value = o.value || 0;
-    var size = o.size || 260;
-    var thickness = o.thickness || 14;
-    var suffix = o.suffix != null ? o.suffix : "%";
-    var decimals = o.decimals || 0;
-    var color = o.color || "var(--accent)";
-    var cx = size / 2;
-    var r = (size - thickness) / 2;
-    var circumference = 2 * Math.PI * r;
-
-    container.innerHTML =
-      '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:14px;">' +
-      '<div style="position:relative;width:' + size + "px;height:" + size + 'px;">' +
-      '<svg width="' + size + '" height="' + size + '" style="display:block">' +
-      '<circle cx="' + cx + '" cy="' + cx + '" r="' + r +
-      '" fill="none" stroke="var(--steel)" stroke-width="' + thickness + '" opacity="0.45"/>' +
-      '<circle class="mc-ring-arc" cx="' + cx + '" cy="' + cx + '" r="' + r +
-      '" fill="none" stroke="' + color + '" stroke-width="' + thickness +
-      '" stroke-linecap="round" stroke-dasharray="' + circumference +
-      '" stroke-dashoffset="' + circumference + '" transform="rotate(-90 ' + cx + " " + cx + ')"/>' +
-      "</svg>" +
-      '<div class="mc-ring-value" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
-      "font-family:var(--font-heading);font-size:" + size * 0.21 + "px;font-weight:700;letter-spacing:-1px;color:" +
-      color + ';opacity:0;"></div>' +
-      "</div>" +
-      (o.label
-        ? '<div style="font-family:var(--font-body);font-size:var(--fs-small);color:var(--text-muted);">' +
-          o.label +
-          "</div>"
-        : "") +
-      "</div>";
-
-    var arc = container.querySelector(".mc-ring-arc");
-    var valueEl = container.querySelector(".mc-ring-value");
-
-    return {
-      addTo: function (tl, at) {
-        var dur = o.dur != null ? o.dur : 1.4;
-        tl.to(
-          arc,
-          {
-            strokeDashoffset: circumference * (1 - value / 100),
-            duration: dur,
-            ease: "power2.out",
-          },
-          at || 0,
-        );
-        tl.to(valueEl, { opacity: 1, duration: 0.3 }, at || 0);
-        var proxy = { v: 0 };
-        tl.to(
-          proxy,
-          {
-            v: value,
-            duration: dur,
-            ease: "power2.out",
-            onUpdate: function () {
-              valueEl.textContent = proxy.v.toFixed(decimals) + suffix;
             },
           },
           at || 0,

@@ -45,7 +45,10 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   schema: S;
   /** Frame markup: own data-slots + one data-children container + own data-anim. */
   template: string;
-  css: string;
+  /** Optional default CSS. A theme normally OWNS a treatment's skin via
+   *  `theme.skins[name]` (which buildNode prefers); an unskinned treatment falls back
+   *  to this, else renders unstyled. */
+  css?: string;
   /** Canonical full-bleed ground (a storyboard override can replace it at scene time). */
   ground: FrameGround;
   example: z.input<S>;
@@ -78,6 +81,11 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   /** Page entrance tween statement; `page` is in scope. Default: a soft fade. */
   entrance?: string;
 };
+
+/** The ground a scene actually paints: an explicit scene override wins, else the THEME's
+ *  default (a monochrome theme pins every frame), else the treatment's canonical ground. */
+export const groundFor = (ctx: BuildContext, canonical: FrameGround): FrameGround =>
+  ctx.ground ?? (ctx.theme.groundDefault as FrameGround | undefined) ?? canonical;
 
 export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): TreatmentFactory<S> {
   const delay = def.revealDelay ?? 0.5;
@@ -117,7 +125,9 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
       },
       buildNode(ctx: BuildContext): BuildNode {
         const p = parse(raw);
-        const root = rootElement(def.template);
+        // A theme may override this treatment's structure (theme.templates[name]); the
+        // override must keep the shared markers so fill/anim/children still resolve.
+        const root = rootElement(ctx.theme.templates?.[def.name] ?? def.template);
         if (def.fill) fillSlots(root, def.fill(p));
         pruneRemoved(root);
         stampAnims(root, ctx.idPrefix); // own data-anim (headline, …)
@@ -130,14 +140,21 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
 
         const cssParts: { name: string; css: string }[] = [];
         if (ctx.theme.frameCss) cssParts.push({ name: `@frame:${ctx.theme.name}`, css: ctx.theme.frameCss });
-        cssParts.push({ name: def.name, css: def.css });
+        // The skin is theme-owned when the active theme supplies one for this treatment
+        // name (theme.skins[name]); else the treatment's own css; else none — mirrors the
+        // component skin seam (component.ts) so treatments are themeable the same way.
+        cssParts.push({ name: def.name, css: ctx.theme.skins?.[def.name] ?? def.css ?? "" });
 
         // Ordered cascade slots: decorations first, then the title, then each child in turn.
         // Decorations can be added to ANY treatment, so their count shifts the title/child slots.
         // The per-slot delay is resolved at runtime (MC.applyAnims) from the slide's caption
         // count — NOT from VO-line keying — so the cascade is identical in the showcase, the
         // preview, and the render, and never collapses onto a single narration line.
-        const decorations = addedDecorations ?? (def.defaultDecorations ? def.defaultDecorations(p) : []);
+        // A theme may suppress a treatment's default decorations (e.g. future owns its
+        // look via the backdrop, not per-frame shapes). An explicit addDecorations() wins.
+        const defaultDecos =
+          def.defaultDecorations && !ctx.theme.suppressDefaultDecorations ? def.defaultDecorations(p) : [];
+        const decorations = addedDecorations ?? defaultDecos;
         const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
         // Framing own-anims keyed to `leadIn` (an eyebrow pill, a backing card) take the title
         // slot; the title itself (a `line-0` reveal) then falls to the NEXT beat, so it doesn't
@@ -180,7 +197,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // Resolve the effective ground (scene override → treatment canonical) so a
         // ground-tinted mask recolours against what the scene actually paints.
         const backdropName = ctx.backdrop ?? ctx.theme.backdrop ?? "plain";
-        const backdrop = buildBackdrop(backdropName, { ground: ctx.ground ?? def.ground, theme: ctx.theme, ctx });
+        const backdrop = buildBackdrop(backdropName, { ground: groundFor(ctx, def.ground), theme: ctx.theme, ctx });
         const backdropAnims: AnimDescriptor[] = [];
         if (backdrop) {
           root.children.unshift(backdrop.node);
@@ -231,7 +248,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const root = bn.node;
         const pageClasses = root.attrs.class ?? def.name;
         const ownStyle = (root.attrs.style ?? "").trim().replace(/;\s*$/, "");
-        const ground = `background: var(--${def.ground})`;
+        const ground = `background: var(--${groundFor(ctx, def.ground)})`;
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
         // Whole-page transition: an assigned animIn/animOut wins over the legacy

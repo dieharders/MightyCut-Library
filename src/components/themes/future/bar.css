@@ -1,0 +1,65 @@
+/* Chart bar: a cyan gradient column in a .btrack whose height is --fill% (structure from
+   the shared template; the chart treatment overrides flex/height to share the plot and
+   glows the last column). Ported from legacy .bf-chart .bar (cqw × 1.2).
+   The shared bar/rank set --col from `leader`, resolving it through --lead-col/--base-col
+   so a THEME decides what winning looks like. Future runs cyan (--primary) as the NORMAL
+   column and hands the leader the complementary amber (--secondary) — amber sits opposite
+   cyan on the wheel, so the winner reads instantly instead of being a slightly brighter
+   shade of its neighbours. */
+.bar {
+  --lead-col: var(--secondary);
+  --base-col: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 28.25rem;
+  width: 8.375rem;
+}
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 3rem;
+  box-sizing: border-box;
+}
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 0.875rem;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.875rem;
+  color: var(--primary);
+}
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(--fill);
+  width: 100%;
+  max-width: 8.375rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--col, var(--primary)) 70%, transparent) 0%,
+    color-mix(in srgb, var(--col, var(--primary)) 12%, transparent) 100%
+  );
+  border-top: 0.25rem solid var(--col, var(--primary));
+  border-radius: 0.5rem 0.5rem 0 0;
+  /* Leader emphasis scales off --lead (0|1) — the `leader` param, not :last-child. */
+  box-shadow: 0 0 calc(1.875rem + var(--lead, 0) * 2.375rem)
+    color-mix(in srgb, var(--col, var(--primary)) calc((30 + var(--lead, 0) * 20) * 1%), transparent);
+  transform-origin: bottom;
+}
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1.125rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  color: var(--muted-1);
+  text-align: center;
+}

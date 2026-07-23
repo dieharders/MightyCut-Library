@@ -1,0 +1,48 @@
+/* 8 · Chart — cyan gradient columns sharing a plot (bar.css); the column flagged
+   `leader` (NOT the last one) takes the complementary amber + a wider glow — see bar.css.
+   Headline opened by a cyan rule. Ported from legacy .bf-chart (cqw × 1.2). */
+.chart > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.chart h3 {
+  font-size: 4.125rem;
+  margin: 0 0 3.625rem;
+}
+.chart h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.chart .bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 2.875rem;
+  height: 27rem;
+  border-bottom: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
+  padding: 0 2.375rem;
+}
+.chart .bars .bar {
+  flex: 1;
+  height: 100%;
+}
+/* NOTE: the leader column is NOT styled here — see the same note in bar-ranking.css.
+   bar.css derives its fill + glow from --col / --lead (the `leader` param). */
+.chart .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  margin-top: 2.125rem;
+  text-align: center;
+}

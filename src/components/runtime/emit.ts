@@ -5,7 +5,8 @@
 import { serialize } from "../../pipeline/mini-dom";
 import { wrapSubComposition } from "../../pipeline/sub-composition";
 import type { FrameGround } from "../../types/storyboard";
-import { scopeCss } from "./css";
+import { scopeCss, swapGround } from "./css";
+import { groundFor } from "./treatment";
 import type { AnimDescriptor, BuildContext, ComponentInstance, SubComposition, TreatmentInstance } from "./types";
 
 export type SceneOverrides = {
@@ -34,11 +35,10 @@ export const buildScene = (
       : ctx;
   const parts = treatment.buildScene(sceneCtx);
   if (overrides?.ground) {
-    // buildScene stamps `background: var(--<canonicalGround>)` last; replace it.
-    parts.pageStyle = (parts.pageStyle ?? "").replace(
-      /background:\s*var\(--[a-z]+\)/,
-      `background: var(--${overrides.ground})`,
-    );
+    // buildScene stamps `background: var(--<canonicalGround>)` last; re-point it. The
+    // swap itself lives in runtime/css.ts because engine/mount.ts runs the same one over
+    // the browser-preview html — one definition, both sides of the seam.
+    parts.pageStyle = swapGround(parts.pageStyle ?? "", overrides.ground);
   }
   return parts;
 };
@@ -62,7 +62,7 @@ export const buildPreview = (inst: ComponentInstance | TreatmentInstance, ctx: B
   const bn = inst.buildNode(ctx);
   if (inst.kind === "treatment") {
     const own = (bn.node.attrs.style ?? "").trim().replace(/;\s*$/, "");
-    const ground = `background: var(--${(inst as TreatmentInstance).ground})`;
+    const ground = `background: var(--${groundFor(ctx, (inst as TreatmentInstance).ground)})`;
     bn.node.attrs.style = own ? `${own}; ${ground}` : ground;
   }
   return {

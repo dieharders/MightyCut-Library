@@ -1,0 +1,30 @@
+/* 6 · Timeline — glass step cards in a row with faint arrow connectors (step.css), headline
+   opened by a cyan rule. Ported from legacy .bf-timeline (cqw × 1.2). */
+.timeline > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.timeline h3 {
+  font-size: 4.375rem;
+  margin: 0 0 3.625rem;
+}
+.timeline h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.timeline .row {
+  --step-gap: 2.875rem;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: var(--step-gap);
+}

@@ -1,0 +1,39 @@
+/* Stat = a bare figure + label (no dot — dropped in templates/stat.html). Because there
+   is no dot to tint, the NUMERAL carries the instance's accent (--dot, the prop the shared
+   stat emits); unset ⇒ cyan. The glass panel stays theme chrome. */
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 16%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--light) 6%, transparent),
+      color-mix(in srgb, var(--dark) 16%, transparent)
+    ),
+    color-mix(in srgb, var(--muted-3) 55%, transparent);
+  backdrop-filter: blur(2px);
+  border-radius: 1.25rem;
+  padding: 2.25rem;
+  box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);
+}
+.stat-number {
+  font-family: var(--disp);
+  font-weight: 700;
+  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
+     row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
+  font-size: calc(6.5rem * var(--dense-scale, 1));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--dot, var(--primary));
+}
+.stat-label {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--muted-1);
+  margin-top: 1.25rem;
+  line-height: 1.35;
+  max-width: 26.375rem;
+}

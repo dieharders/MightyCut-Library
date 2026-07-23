@@ -10,6 +10,7 @@
 // only produced for frame themes (isFrameTheme — any theme with a
 // FRAME_THEME_TOKENS entry; block is the reference).
 import { z } from "zod";
+import { PALETTE_VARS, type PaletteVar } from "./palette";
 import { TransitionSpecSchema } from "./transitions";
 
 const id = z.string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
@@ -51,21 +52,17 @@ export const FRAME_TREATMENTS = [
 export type FrameTreatment = (typeof FRAME_TREATMENTS)[number];
 
 /**
- * The five candy pastels (+ structural offwhite/white/black) that cycle as
- * full-bleed grounds across frames. FRAME.md: the cycle is the rhythm. The
- * builder applies the ground as an inline background on the frame so a single
- * shared frame.css restyles every scene.
+ * The grounds that cycle as full-bleed backgrounds across frames. FRAME.md: the
+ * cycle is the rhythm. The builder applies the ground as an inline background on
+ * the frame so a single shared frame.css restyles every scene.
+ *
+ * A ground is ANY palette colour of the active theme, so this is exactly the 10
+ * palette roles (see types/palette.ts) — the same address space accent params
+ * use. It is deliberately NOT a per-theme list: a treatment names a role, and
+ * whichever theme renders it supplies the colour.
  */
-export const FRAME_GROUNDS = [
-  "offwhite",
-  "cream",
-  "blue",
-  "pink",
-  "green",
-  "yellow",
-  "black",
-] as const;
-export type FrameGround = (typeof FRAME_GROUNDS)[number];
+export const FRAME_GROUNDS = PALETTE_VARS;
+export type FrameGround = PaletteVar;
 
 /**
  * The backdrop MASK designs — a full-bleed overlay painted on top of the ground
@@ -73,10 +70,10 @@ export type FrameGround = (typeof FRAME_GROUNDS)[number];
  * backdrop is the pattern/texture over it. Theme-agnostic + shareable — a theme
  * recolours the mask with its own tokens/skin. `plain` = no mask (byte-identical
  * to a bare ground). A theme declares its canonical design (ThemeTokens.backdrop);
- * a scene may override it here. Static today (block's dots); the design interface
- * already carries anims so an animated mask (e.g. a constellation) drops in later.
+ * a scene may override it here. `dots` is static (block); `constellation` is animated
+ * (future's cyan particle network, driven off the scene timeline via the backdrop anim-kind).
  */
-export const BACKDROP_NAMES = ["plain", "dots"] as const;
+export const BACKDROP_NAMES = ["plain", "dots", "constellation"] as const;
 export type BackdropName = (typeof BACKDROP_NAMES)[number];
 
 // Decorations (star / tilt-rect / stripe / dot-grid) are authored per-treatment in

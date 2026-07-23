@@ -1,0 +1,50 @@
+/* 5 · Quote — a centered statement with a cyan quote mark, the attribution below the card
+   (templates/quote.html). The eyebrow sits above the card as future's `label` type role
+   (mono, uppercase, wide-tracked, cyan) and self-removes when the slide sets none — the
+   template used to DROP the slot, so typing an eyebrow silently did nothing.
+   Ported from legacy .bf-quote (cqw × 1.2). */
+.quote > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 12rem 13.5rem;
+}
+.quote .eyebrow {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 3.625rem;
+}
+.quote .qmark {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 8.375rem;
+  line-height: 0.5;
+  color: var(--primary);
+  opacity: 0.6;
+  margin-bottom: 1.25rem;
+}
+.quote .qcard {
+  background: transparent;
+  max-width: 96rem;
+}
+.quote .qt {
+  font-family: var(--disp);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 4.375rem;
+  line-height: 1.12;
+  color: var(--light);
+}
+.quote .attr {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 1.5rem;
+  color: var(--muted-1);
+  margin-top: 2.875rem;
+}

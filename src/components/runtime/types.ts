@@ -2,22 +2,34 @@
 import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
+import type { PaletteVar } from "../../types/palette";
 import type { FrameGround } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
 import type { AnimDescriptor } from "./anim";
 
 export type BuildMode = "render" | "showcase";
 
-/** One palette swatch — a named token backing a CSS custom property. */
+/**
+ * One palette entry — the colour a theme assigns to one of the 10 shared palette
+ * ROLES (types/palette.ts). A theme's `palette` has exactly one entry per role, in
+ * canonical role order, and is the single source of its colours: it generates the
+ * `:root` custom properties AND drives every colour the UI displays or offers.
+ *
+ * The SAME colour may appear under several roles (block's Oat is both `muted-2` and
+ * `muted-3`), which is why `name` is the human-facing label the UI de-dupes on —
+ * see `uniquePaletteEntries`.
+ */
 export type PaletteSwatch = {
-  /** Display name, e.g. "Pink". */
+  /** Human/agent-facing colour label, e.g. "Pink", "Cyan", "Oat". Shared by every
+   *  role this colour fills, which is what makes de-duping meaningful. */
   name: string;
-  /** Hex value, e.g. "#FE90E8". */
+  /** Hex value, e.g. "#FE90E8". The de-dupe key. */
   hex: string;
-  /** Optional role note shown after the hex, e.g. "CTA", "canvas". */
+  /** Optional usage note shown after the hex, e.g. "CTA", "canvas". */
   note?: string;
-  /** The CSS custom property name (no leading `--`), e.g. "pink". */
-  varName: string;
+  /** The palette ROLE this colour fills — also the CSS custom property name
+   *  (no leading `--`), e.g. "primary", "accent-1", "muted-2". */
+  varName: PaletteVar;
 };
 
 /** One typographic role — token name, human spec line, a live sample, and the
@@ -46,32 +58,81 @@ export type ThemeTokens = {
   title?: string;
   /** One-paragraph description of the theme's visual language, shown in the showcase header. */
   description?: string;
-  /** `:root { --pink: …; --disp: … }` — emitted to a project's assets/tokens.css. */
+  /** `:root { --primary: …; --disp: … }` — emitted to a project's assets/tokens.css. */
   css: string;
   /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
-  /** Per-component skins, keyed by component name (e.g. `{ hud, caption }`). The
-   *  component owns the STRUCTURE (template) + BEHAVIOR (anim/schema) — the same
-   *  across every theme — while each theme styles those standard class names its
-   *  own way here. `buildNode` prefers a theme skin over the component's own `css`,
-   *  so future themes just add their skin file. Today only `block` supplies these. */
+  /** Per-element skins, keyed by component OR treatment name (e.g. `{ hud, caption,
+   *  stat, "stat-grid", … }`). The element owns the STRUCTURE (template) + BEHAVIOR
+   *  (anim/schema) — the same across every theme — while each theme styles those
+   *  standard class names its own way here. Both `component.buildNode` and
+   *  `treatment.buildNode` prefer a theme skin over the element's own `css`, so a
+   *  theme just adds its skin file. Elements carry no `css` of their own now; each
+   *  theme supplies every skin it renders (an unskinned element renders unstyled). */
   skins?: Record<string, string>;
+  /** Per-element HTML template overrides, keyed by component OR treatment name.
+   *  A theme may restyle structure it can't reach with CSS (re-order the attribution,
+   *  add a quote mark). INVARIANT: an override MUST keep the shared marker vocabulary
+   *  (data-slot / data-anim / data-children / data-repeat ids) so the element's shared
+   *  schema/anim/fill/layout keep working — it may only re-wrap, rename or ADD nodes.
+   *
+   *  It may NOT drop a data-slot. The schema field survives a dropped slot, so the editor
+   *  still renders a control for it that silently does nothing — future's cover AND quote
+   *  both dropped `eyebrow`, and typing one had no effect. A slot a theme doesn't want
+   *  should be styled away; it already self-removes when the slide leaves it empty.
+   *  Enforced by a tripwire in registry.test.ts. */
+  templates?: Record<string, string>;
+  /** The ground this theme falls back to when a scene sets none, OVERRIDING the
+   *  treatment's canonical `ground`. A monochrome theme (future: every frame on navy)
+   *  sets it so the shared, block-flavoured per-treatment grounds don't leak through —
+   *  the job future's `background: … !important` used to do, except an explicit scene
+   *  ground still WINS here, which `!important` made impossible.
+   *  Resolution order: scene override → theme.groundDefault → treatment canonical. */
+  groundDefault?: PaletteVar;
   /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
    *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
    *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
   backdrop?: string;
-  /** Self-hosted content fonts to stage into the project (theme-fonts.css + files). */
-  fonts?: { css: string; files: string[] };
+  /** Surface colour the showcase/editor paints BEHIND a natural-size element preview
+   *  (a component shown outside a full frame). A dark theme sets a dark surface so its
+   *  glass / light-on-dark elements read (block's neobrutalist tiles want a light one).
+   *  Unset ⇒ a neutral light default. A CONCRETE CSS colour — it's applied in the host
+   *  light DOM (not the preview Shadow DOM), so a `var(--token)` would not resolve.
+   *  Purely the SURFACE: it says nothing about whether the theme is dark — declare that
+   *  with `previewScheme`. */
+  previewBg?: string;
+  /** Whether that preview surface is light or dark, DECLARED rather than inferred from
+   *  `previewBg` being set (a light theme may want a tinted stage without flipping to a
+   *  dark contract). Drives the preview shadow's `color-scheme` and its safety-net text
+   *  colour — the backstop for an element skin that sets none, so it must match the
+   *  surface or that text renders invisible. Unset ⇒ `"light"`. */
+  previewScheme?: "light" | "dark";
+  /** Per-element SHOWCASE sample overrides, keyed by component/treatment name. Lets a theme
+   *  show its OWN on-theme copy instead of the shared (block-flavored) def example. `params`
+   *  seed the element's own slots; `children` (treatments) seed the child rows as an array of
+   *  child PARAMS (the treatment's `childComponent`). SHOWCASE-ONLY — the render/deck path
+   *  always uses real spec content + `defaultChildren`, never these. Unset ⇒ the def example. */
+  examples?: Record<string, { params?: Record<string, unknown>; children?: Record<string, unknown>[] }>;
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
   palette?: PaletteSwatch[];
   /** The theme's type scale — drives the showcase Typography section. */
   typography?: TypeSpec[];
   /** The theme's authoring rules — drives the showcase Rules section. */
   rules?: ThemeRules;
-  /** The decoration component families this theme offers (starburst, slab, …) —
-   *  drives the showcase Decorations section + the treatment decoration editor. */
+  /** The decoration component families THIS theme offers (block: starburst/slab/…;
+   *  future: node/reticle/…) — its own roster, listed in the showcase Decorations
+   *  section and the treatment decoration editor. Themes do NOT share decorations:
+   *  each lists only its own here, and every decoration-flagged component (see
+   *  `ComponentFactory.decoration`) is held out of the Components grid globally, so
+   *  another theme's decorations never appear under this one. */
   decorations?: string[];
+  /** When true, a treatment's `defaultDecorations` are suppressed (no auto-injected
+   *  cover star / closing slab). A theme whose look owns the backdrop instead of
+   *  per-frame decorations (e.g. future's constellation) sets this so block's default
+   *  shapes don't render off-theme or shift the reveal cascade. A caller's explicit
+   *  `addDecorations()` is unaffected. */
+  suppressDefaultDecorations?: boolean;
 };
 
 export type BuildContext = {
@@ -151,6 +212,12 @@ export type ComponentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((
   /** True for a full-frame composite (e.g. `hud`) — the showcase renders it in a
    *  1920×1080 frame slot instead of the natural-size component slot. */
   readonly frame?: boolean;
+  /** True for a positioned page-space decoration flourish (starburst, node, …). It's an
+   *  INTRINSIC property of the element, not a per-theme role: a decoration is never listed
+   *  in the showcase Components grid under ANY theme, so one theme's decorations never leak
+   *  into another's. Which decorations a theme actually OFFERS is `ThemeTokens.decorations`
+   *  (its own roster, surfaced in the Decorations section + the treatment decoration editor). */
+  readonly decoration?: boolean;
   jsonSchema(): object;
   defaults(): z.infer<S>;
 };

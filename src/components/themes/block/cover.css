@@ -1,0 +1,28 @@
+/* 1 · Cover — the opening title frame. The cream ground is applied by the builder
+   (ground), so it isn't re-authored here; only the cover's own layout, the
+   oversized headline, and the mono subtitle. The star + tilt-rect flourishes are
+   decoration components (defaultDecorations in index.ts), not inline markup. */
+.cover > .body {
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.cover .eyebrow {
+  margin-bottom: 2.5rem;
+}
+.cover h3 {
+  font-size: 9rem;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  max-width: 86.375rem;
+  margin: 0;
+}
+.cover .sub {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 3rem;
+  line-height: 1.5;
+  color: var(--dark);
+  margin-top: 2.5rem;
+  max-width: 60rem;
+}

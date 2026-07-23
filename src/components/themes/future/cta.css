@@ -1,0 +1,17 @@
+/* Future CTA: a glowing cyan glass pill (matches the closing-plate call-to-action). */
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: 0 0 3rem color-mix(in srgb, var(--primary) 28%, transparent);
+  border-radius: 9999px;
+  padding: 2rem 5rem;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 3rem;
+  color: var(--primary);
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

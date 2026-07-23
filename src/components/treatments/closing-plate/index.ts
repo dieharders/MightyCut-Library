@@ -1,5 +1,4 @@
 import template from "./template.html" with { type: "text" };
-import css from "./closing-plate.css" with { type: "text" };
 import { Slab } from "../../primitives/slab";
 import { Starburst } from "../../primitives/starburst";
 import { treatment } from "../../runtime/treatment";
@@ -12,8 +11,7 @@ export const ClosingPlate = treatment({
   name: "closing-plate",
   schema: ClosingPlateSchema,
   template,
-  css,
-  ground: "pink",
+  ground: "primary",
   example: { headline: "Stay loud.", cta: "Start building" },
   defaultChildren: () => [],
   // A blue tilt-rect behind (upper-left) + a yellow star popping over the card corner.
@@ -24,7 +22,7 @@ export const ClosingPlate = treatment({
       y: 73,
       size: 15,
       rotate: -10,
-      accent: "blue",
+      accent: "secondary",
       layer: "back",
     }),
     Starburst({
@@ -32,7 +30,7 @@ export const ClosingPlate = treatment({
       x: 70,
       y: 20,
       size: 13,
-      accent: "yellow",
+      accent: "accent-1",
       layer: "front",
     }),
   ],

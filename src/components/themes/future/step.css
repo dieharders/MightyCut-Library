@@ -1,0 +1,74 @@
+/* Timeline step = a glass card with a cyan index chip; a faint arrow connector bridges
+   the gap to the next step. Ported from legacy .bf-timeline .step (cqw × 1.2). */
+.step {
+  position: relative;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 16%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--light) 6%, transparent),
+      color-mix(in srgb, var(--dark) 16%, transparent)
+    ),
+    color-mix(in srgb, var(--muted-3) 55%, transparent);
+  backdrop-filter: blur(2px);
+  border-radius: 1.25rem;
+  padding: 2.25rem;
+  box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);
+}
+/* Connector: a rule that spans the full grid gap (edge to edge) plus a chevron head
+   landing on the next card's border — the gap width is published by .timeline .row. */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--step-gap, 2.875rem));
+  width: var(--step-gap, 2.875rem);
+  height: 0.125rem;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 18%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 55%, transparent) 55%,
+    color-mix(in srgb, var(--primary) 30%, transparent) 100%
+  );
+}
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--step-gap, 2.875rem));
+  width: 0.625rem;
+  height: 0.625rem;
+  transform: translateY(-50%) rotate(45deg);
+  border-top: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+  border-right: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
+}
+.step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 3.625rem;
+  height: 3.625rem;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 40%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 0.875rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+.step-title {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--light);
+}
+.step-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--muted-1);
+  margin-top: 0.875rem;
+}

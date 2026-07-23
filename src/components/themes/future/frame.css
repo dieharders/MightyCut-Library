@@ -1,0 +1,48 @@
+/* Future's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
+   ground onto. Future keeps every frame on navy via `groundDefault: "muted-2"` (theme.ts)
+   rather than a `background: … !important` here — the theme default replaces the shared,
+   block-flavoured per-treatment grounds, but an EXPLICIT scene ground still wins, which
+   !important made impossible (picking a background did nothing). The per-scene backdrop
+   paints over whichever ground lands. Sizes are rem on a 0.125rem grid (see runtime/css.ts).
+   Inlined ONCE per scene by the treatment builder. */
+.block-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* The dot-grid backdrop is ink-on-light by default; future's --dark (abyss) would be
+     invisible on this ground, so repaint the grid in cyan. See primitives/backdrops.ts. */
+  --dot-ink: var(--primary);
+  container-type: size;
+  font-family: var(--body);
+  color: var(--light);
+}
+.block-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+/* Headline: Space Grotesk 700, near-white, sentence case, slight negative tracking. */
+.block-frame h3 {
+  font-family: var(--disp);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  color: var(--light);
+  margin: 0;
+}
+/* Base eyebrow — future's `label` type role (mono, uppercase, wide-tracked, cyan). The
+   shared fallback so ANY eyebrow-bearing treatment reads on-theme even without its own
+   eyebrow skin (block/frame.css provides the analogous chip base). Per-treatment skins
+   (cover/quote) layer only positional margins over this; it self-removes when the slide
+   sets no eyebrow (pruneRemoved). */
+.block-frame .eyebrow {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2rem;
+  color: var(--primary);
+}
