@@ -1,0 +1,31 @@
+/* 3 · Stat Grid — white candy stat cards in a responsive grid, under a Bodoni headline.
+   Ported from legacy .bf-stat-grid (cqw × 1.2, cqh × 0.675). The card look lives in
+   stat.css; this file owns only the body padding, the headline size/rhythm and the grid.
+   Three legacy rules are DELIBERATELY dropped:
+     · the `.sc:nth-child(3n+1/2/3)` colour cascade — the per-instance accent now arrives
+       as --dot and the cycling happens upstream in ACCENT_CYCLE (see stat.css);
+     · `.bf-stat-grid .pill { background: peach }` — this template carries no eyebrow slot;
+     · `.bf-stat-grid::before` (the white wash over the saturated mint ground) — grounds are
+       scene-configurable now, so whitening one would make the ground picker look broken.
+   Capsule's pills sit STRAIGHT: block's nth-child tilt is not part of this identity. */
+.stat-grid > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.stat-grid h3 {
+  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+     section heading is the base Bodoni cut, so only the size and rhythm are stated. */
+  font-size: 4.75rem;
+  margin: 1.625rem 0 3.125rem;
+}
+.stat-grid .row {
+  display: grid;
+  /* --cols is emitted by the treatment's layout() (min(childCount, 4)); a hardcoded
+     repeat(3, 1fr) — the legacy — breaks a 2- or 4-stat slide. */
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.375rem;
+}
+/* The other half of layout()'s density pair, --dense (a boolean hook at 4+ stats), is
+   deliberately UNUSED here, as in block and future: capsule answers density entirely with
+   the ratio, --dense-scale, applied to the figure in stat.css. Nothing tightens the grid,
+   so there is no selector to write. */

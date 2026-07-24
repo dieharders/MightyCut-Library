@@ -1,0 +1,29 @@
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css): a wide-tracked label, a white pill
+   track and a capped candy fill. Ported from legacy .bf-bar-ranking (cqw x 1.2, cqh x 0.675).
+   Canonical ground is muted-1 (cream) — never authored here, the emitter stamps it. */
+.bar-ranking > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.bar-ranking h3 {
+  font-size: 4.375rem;
+  margin: 1.625rem 0 2.875rem;
+}
+.bar-ranking .bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2.125rem;
+}
+/* The leader row's fill is NOT styled here. The legacy pinned it to `:first-child` in
+   hard-coded coral, which ignored the `leader` param entirely (ticking the box changed
+   nothing) and mis-emphasised any deck whose winner wasn't listed first. rank.css derives
+   it from --col / --lead instead. */
+/* Qualified: `.caption` is also the caption primitive's root class. */
+.bar-ranking .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.375rem;
+  color: color-mix(in srgb, var(--dark) 60%, transparent);
+  margin-top: 1.875rem;
+  text-align: center;
+}

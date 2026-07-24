@@ -1,0 +1,51 @@
+/* 4 · Closing Plate — capsule's closer is an OPEN plate, not a card: no border, no fill,
+   no shadow on .cardf; just the big sentence-case Bodoni line, a lavender accent rule drawn
+   off the headline, and the yellow CTA capsule, centred on the coral ground the emitter
+   stamps. The rule is a pseudo-element on purpose — closingPlateAnim targets only
+   card / headline / cta, so a real node would be inert markup that also costs a template
+   override the theme does not otherwise need. Ported from legacy .bf-closing-plate. */
+.closing-plate > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 9.625rem 10.75rem;
+}
+.closing-plate .cardf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.closing-plate h3 {
+  font-weight: 800;
+  font-size: 10.25rem;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  color: var(--dark);
+}
+.closing-plate h3::after {
+  content: "";
+  display: block;
+  width: 6rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--accent-3);
+  margin: 2.875rem auto 0;
+}
+/* .cta here is closing-plate's OWN node (a plain div in the shared template), not the cta
+   component (.cta-c) — same yellow capsule recipe, one shadow rung lighter because it sits
+   under a headline rather than standing alone. */
+.closing-plate .cta {
+  margin-top: 3.125rem;
+  border: 0.25rem solid var(--dark);
+  border-radius: 9999px;
+  background: var(--accent-1);
+  box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  padding: 0.875rem 2.375rem;
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 1.25rem;
+  color: var(--dark);
+}

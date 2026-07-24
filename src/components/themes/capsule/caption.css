@@ -1,0 +1,33 @@
+/* Capsule caption skin: a white, fully-rounded pill with the universal 0.25rem ink outline
+   and a soft (never blurred) offset shadow, led by a coral accent bar. The harness owns the
+   root rail placement + the master-timeline autoAlpha hook in the render.
+   The bar follows the instance's accent (--capbar); unset ⇒ capsule's coral primary. The
+   pill's own outline/ground stay theme chrome, so only the accent moves — as in block. */
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1.75rem 3.75rem;
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  border-radius: 9999px;
+  box-shadow: 0.75rem 0.75rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+}
+.caption .cap-bar {
+  align-self: stretch;
+  width: 0.625rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--capbar, var(--primary));
+}
+/* Deliberately no alignment declaration: theme-parity's "cap-text alignment matches block"
+   sweep reads block's rule, which declares none, so the legacy centring is dropped. Keep this
+   note OUTSIDE the rule — the extractor regex is not comment-aware and would read it.
+   The 3.625rem size is the cross-theme caption convention (block and future both). */
+.caption .cap-text {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 3.625rem;
+  line-height: 1.3;
+  color: var(--dark);
+}

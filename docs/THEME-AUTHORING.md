@@ -105,12 +105,21 @@ A treatment's `layout()` sets these on its root; your skin decides what they mea
 
 ### Backdrop ink hooks
 
-Every shared mask paints through `var(--<design>-ink, var(--dark))`. Set all four in your
-`frame.css` — this is how you restyle a design someone else authored (§7).
+Every shared mask paints through `var(--<design>-ink, var(--dark))` — the hook name is the
+design name, mechanically, and `registry.test.ts` derives it rather than looking it up, so a
+design that coins its own spelling fails the build. Set all five in your `frame.css` — this is
+how you restyle a design someone else authored (§7).
 
 ```
---dot-ink   --grid-ink   --hatch-ink   --wash-ink
+--dots-ink   --grid-ink   --hatch-ink   --gradient-ink   --gradient-ink-2
 ```
+
+`gradient` is the one **two-tone** design, so it takes a second hook past the convention:
+`--gradient-ink` is the leading glow and `--gradient-ink-2` the counter glow in the opposite
+corner. `--gradient-ink-2` falls back through `--gradient-ink`, so a theme that states only
+the first still gets a coherent single-tone
+wash — but then both corners bloom the same colour, which is not the effect. Pick a genuine
+second hue (block: ink + pink; future: cyan + violet).
 
 ### Animation timing vocabulary (read-only for a theme)
 
@@ -332,35 +341,37 @@ A **ground** is the scene's base colour (a palette role). A **backdrop** is a fu
 painted over it, behind the content. Designs live in one shared registry
 (`primitives/backdrops.ts`) and are listed in `BACKDROP_NAMES`:
 
-| Design          | Kind                                 | Contributed by                  |
-| --------------- | ------------------------------------ | ------------------------------- |
-| `plain`         | no mask (bare ground)                | —                               |
-| `dots`          | static ink dot-grid                  | block                           |
-| `constellation` | **animated** seeded particle network | future                          |
-| `gradient`      | static soft vertical wash            | ported from the old root chrome |
-| `grid`          | static 4rem ruled line grid          | ported from the old root chrome |
-| `hatch`         | static 45° stripes                   | ported from the old root chrome |
+| Design          | Kind                                                                   | Contributed by                  |
+| --------------- | ---------------------------------------------------------------------- | ------------------------------- |
+| `plain`         | no mask (bare ground)                                                  | —                               |
+| `dots`          | static ink dot-grid                                                    | block                           |
+| `constellation` | **animated** seeded particle network                                   | future                          |
+| `gradient`      | **animated** two-tone corner wash, turning a few degrees over the scene | ported from the old root chrome |
+| `grid`          | static 4rem ruled line grid                                            | ported from the old root chrome |
+| `hatch`         | static 45° stripes                                                     | ported from the old root chrome |
 
 **Every theme may use every design.** A theme names one as its default
 (`ThemeTokens.backdrop`) — that's its signature, not its property. A scene overrides the default per slide.
 
-**How a design stays theme-neutral.** It never names a colour: static designs paint through
-`var(--<design>-ink, var(--dark))`, and the animated one resolves its canvas colour from the
-**active** theme's `--primary` at build time (`particleRgb`, because canvas 2D can't read CSS
-custom properties). So restyling is a four-line job in your `frame.css`:
+**How a design stays theme-neutral.** It never names a colour: CSS-painted designs paint
+through `var(--<design>-ink, var(--dark))` (`gradient` adds `--gradient-ink-2` for its second
+tone), and `constellation` resolves its canvas colour from the **active** theme's `--primary`
+at build time (`particleRgb`, because canvas 2D can't read CSS custom properties). So
+restyling is a five-line job in your `frame.css`:
 
 ```css
 .block-frame {
-  --dot-ink: var(
+  --dots-ink: var(
     --primary
   ); /* future: cyan dots read on navy; block: black on pastel */
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
-  --wash-ink: var(--primary);
+  --gradient-ink: var(--primary); /* gradient's leading glow */
+  --gradient-ink-2: var(--accent-2); /* …and its counter glow, opposite corner */
 }
 ```
 
-Set all four even when the default (`var(--dark)`) is what you want — the hook is the knob,
+Set all five even when the default (`var(--dark)`) is what you want — the hook is the knob,
 and a theme that leaves it implicit teaches the next author nothing.
 
 ### Contributing a new design
@@ -377,7 +388,7 @@ const scanlines: BackdropDesign = {
 .mc-backdrop--scanlines {
   opacity: 0.12;
   background-image: repeating-linear-gradient(
-    0deg, var(--scan-ink, var(--dark)) 0, var(--scan-ink, var(--dark)) 0.125rem,
+    0deg, var(--scanlines-ink, var(--dark)) 0, var(--scanlines-ink, var(--dark)) 0.125rem,
     transparent 0.125rem, transparent 0.5rem);
 }`,
     anims: [], // static; an animated design returns a `backdrop`-kind descriptor
@@ -386,10 +397,24 @@ const scanlines: BackdropDesign = {
 ```
 
 An **animated** design returns one `{kind: "backdrop", target: "<compId>-bg", opts: {fn}}`
-descriptor whose `fn` names an `MC.*` FX; `mc.js` runs it across the scene duration. Follow
-`constellation`: scope the canvas class with `ctx.idPrefix` (backdrop anims aren't run through
-`qualifyAnim`, and the render's selector is document-wide) and seed from `ctx.compId` so every
-frame repaints identically.
+descriptor whose `fn` names an `MC.*` FX factory — `fx(el, opts).addTo(tl, atSec, durationSec)`
+— which `mc.js` runs across the scene duration. Three things to get right:
+
+- **Allowlist the name.** `fn` is looked up in `BACKDROP_FX` in `mc.js`, not freely on `MC`. A
+  name that isn't listed is a silent no-op; `boxless-reveal.test.ts` → _"every registered
+  backdrop design's FX is allowlisted in mc.js"_ catches it.
+- **Scope the target class with `ctx.idPrefix`.** Backdrop anims aren't run through
+  `qualifyAnim` and the render's selector is document-wide, so an unscoped class lets one
+  scene's tween grab another scene's element. Keep the CSS structural (`> div`) so the
+  stylesheet itself carries no per-scene class.
+- **Stay time-driven.** Seed from `ctx.compId` (`constellation`) or use motion that is a pure
+  function of timeline position (`gradient`'s rotation needs no seed at all). No rAF, no
+  clock, no `repeat: -1` — the renderer seeks a paused timeline.
+
+The FX need not paint a canvas: `constellation` drives `MC.particleBg` over a `<canvas>`,
+`gradient` drives `MC.washSpin` over a plain `<div>`. Rotating or panning a layer is only safe
+if the design oversizes it past sqrt(2) of the frame and clips the parent — see `gradient`'s
+150%/-25% inner element.
 
 ---
 
@@ -576,11 +601,12 @@ export const neonTheme: ThemeTokens = {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  /* How this theme restyles the shared backdrop designs. Always state all four. */
-  --dot-ink: var(--primary);
+  /* How this theme restyles the shared backdrop designs. Always state all five. */
+  --dots-ink: var(--primary);
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
-  --wash-ink: var(--primary);
+  --gradient-ink: var(--primary);
+  --gradient-ink-2: var(--accent-2);
   container-type: size;
   font-family: var(--disp);
   color: var(--light);

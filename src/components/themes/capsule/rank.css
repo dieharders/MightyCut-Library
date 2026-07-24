@@ -1,0 +1,67 @@
+/* Ranked row — the capsule reduced to one line: a wide-tracked label, a white pill TRACK
+   in the universal ink outline with a soft offset shadow, and a candy FILL inside it that
+   ends in an ink right-cap. Ported from legacy .bf-bar-ranking .bar.
+   The shared bar/rank set --col from the `leader` param, resolving it through
+   --lead-col/--base-col so a THEME decides what winning looks like. Capsule gives the
+   leader coral (--primary), the brand's leading accent, and the rest sky (--secondary).
+   This deliberately differs from the chart's yellow leader (bar.css): a chart column is a
+   call to act on ONE bar, whereas a ranking is a standings board and the top of it should
+   wear the house colour. Both are the legacy's answer, kept. */
+.rank {
+  --lead-col: var(--primary);
+  --base-col: var(--secondary);
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  /* Span the row so the flex:1 track has a definite width to fill. Inside bar-ranking's
+     full-width column this matches the default stretch (no-op); shown bare in the showcase
+     it stops the track collapsing to a sliver. */
+  width: 100%;
+}
+.rank .bl {
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.375rem;
+  color: var(--dark);
+  width: 19.25rem;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 3.625rem;
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  border-radius: 9999px;
+  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  /* Clips the fill's own round head back to the track's pill at 100%. */
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: var(--col, var(--secondary));
+  border-radius: 9999px;
+  /* The ink right-cap: the fill closes itself off rather than fading into the track. */
+  border-right: 0.25rem solid var(--dark);
+  /* border-box so the cap is drawn INSIDE --fill — otherwise every fill runs 0.25rem long
+     and a 100% row overflows the track it is clipped by. */
+  box-sizing: border-box;
+  /* MC.growBar scales this from scaleX 0; the skin owns the origin, never the motion. */
+  transform-origin: left center;
+}
+/* The shared template puts the value OUTSIDE the track (the legacy nested it inside the
+   fill, white-on-coral for the leader). So it gets its own fixed, right-aligned column —
+   fixed because countUp rewrites the digits and a shrink-to-fit box would shove the track
+   about on every frame — and it is sized up from the faithful 1.5rem conversion, which was
+   calibrated for text sitting on a coloured bar rather than on the open ground. */
+.rank .bv {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 2.5rem;
+  color: var(--dark);
+  width: 7.75rem;
+  text-align: right;
+  flex-shrink: 0;
+}

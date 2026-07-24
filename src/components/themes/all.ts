@@ -10,7 +10,8 @@
 // iterates ALL_THEMES covers it automatically.
 import type { ThemeTokens } from "../runtime/types";
 import { blockTheme } from "./block/theme";
+import { capsuleTheme } from "./capsule/theme";
 import { futureTheme } from "./future/theme";
 
 /** All live themes, in conversion order (block is the reference implementation). */
-export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme];
+export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme, capsuleTheme];

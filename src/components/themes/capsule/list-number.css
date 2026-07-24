@@ -1,0 +1,31 @@
+/* Capsule numbered bullet: the timeline/agenda numeral rendered at bullet scale — a circular
+   yellow disc with the universal 0.25rem ink outline and a Bodoni numeral, beside grotesk
+   body ink. No legacy counterpart; built from capsule vocabulary so the chip reads as the
+   same object as .step-num (4.125rem) and the agenda .num, one step up in scale.
+   FLAT on purpose: like the step disc, a numeral chip is a mark, not a lifted container — the
+   soft offset shadow is reserved for pills, cards and tracks. */
+.listnum-c {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.375rem;
+}
+.listnum-c .ln-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 0.25rem solid var(--dark);
+  background: var(--accent-1);
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.375rem;
+  color: var(--dark);
+}
+.listnum-c .ln-text {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 2.75rem;
+  color: var(--dark);
+}

@@ -379,8 +379,10 @@
     // which the build-time dedupe uses; boxless-reveal.test.ts drives this interpreter
     // kind-by-kind from that list, so the two can't drift.
     var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
-    // The canvas FX a `backdrop` descriptor may name (see the backdrop arm below).
-    var BACKDROP_FX = { particleBg: 1 };
+    // The backdrop FX a `backdrop` descriptor may name (see the backdrop arm below).
+    // particleBg paints a canvas; washSpin turns a plain element. Both answer the same
+    // factory contract — fx(el, opts).addTo(tl, atSec, durationSec).
+    var BACKDROP_FX = { particleBg: 1, washSpin: 1 };
     var revealed = [];
     // display:contents lookups, memoized per call. getComputedStyle FLUSHES pending style,
     // and a scene runs one applyAnims over every descriptor — without this, a scene with N
@@ -482,9 +484,10 @@
         // `from` opts are raw gsap vars; `ro` is those plus the fan-out stagger.
         tl.from(box, ro, when);
       } else if (a.kind === "backdrop") {
-        // An animated full-bleed backdrop (e.g. the constellation): a canvas FX factory the
-        // DESIGN names via o.fn, driven off the scene clock for the rest of the scene.
-        // Deterministic (seeded; no rAF/Date.now), so seeking any frame repaints identically.
+        // An animated full-bleed backdrop (the constellation's particle canvas, the gradient
+        // wash's slow turn): an FX factory the DESIGN names via o.fn, driven off the scene
+        // clock for the rest of the scene. Deterministic (seeded or purely time-driven; no
+        // rAF/Date.now), so seeking any frame repaints identically.
         //
         // o.fn is an ALLOWLISTED name, not a free lookup on MC: a bare `MC[o.fn]` resolves an
         // inherited Object.prototype member (`constructor`, `toString`) or any other MC export
@@ -633,6 +636,52 @@
             onUpdate: function () {
               paint(proxy.t);
             },
+          },
+          at || 0,
+        );
+        return tl;
+      },
+    };
+  };
+
+  /* ----------------------------------------------------------- wash spin --- */
+
+  /**
+   * Very slow rotation of a full-bleed element — the motion behind the `gradient` backdrop's
+   * two-tone atmospheric wash. Same factory contract as MC.particleBg above: hand it the
+   * element plus the descriptor's opts, then addTo(tl, atSec, durationSec) to schedule it.
+   *
+   *   MC.washSpin(el, { deg: 10 }).addTo(tl, 0, totalSec)
+   *
+   * DETERMINISM. The whole effect is ONE plain, time-driven tween — no rAF, no wall clock, no
+   * timers, no infinite repeat (every one of those is banned by the determinism scrub, and the
+   * renderer never "plays" anyway: it SEEKS a paused timeline frame by frame). Because the
+   * angle is a pure function of timeline position, every run lands on the same rotation for
+   * the same frame, and no seed is needed.
+   *
+   * GEOMETRY IS THE CALLER'S JOB. Rotating an element that exactly fills its parent swings
+   * the element's own corners into view. The design must therefore oversize the target to at
+   * least sqrt(2) of the clipping parent in BOTH axes and turn it about its own centre, with
+   * the parent clipping the overflow — see the `gradient` design in primitives/backdrops.ts,
+   * which uses left/top -25% at 150% x 150% with transform-origin 50% 50%.
+   *
+   * Nothing here touches the DOM or a rendering context, so the boxless-reveal tripwire can
+   * drive it against a bare stub element.
+   */
+  MC.washSpin = function (el, opts) {
+    var o = opts || {};
+    // Degrees swept across the WHOLE scene, not per second: `deg` is a total, so a longer
+    // slide turns more slowly rather than further. Keep it small — this is atmosphere.
+    var deg = o.deg != null ? o.deg : 10;
+    return {
+      /** Turn from the element's resting angle to `deg` over durationSec, starting at atSec. */
+      addTo: function (tl, at, durationSec) {
+        tl.to(
+          el,
+          {
+            rotation: deg,
+            duration: durationSec,
+            ease: "none",
           },
           at || 0,
         );

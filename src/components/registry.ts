@@ -7,15 +7,20 @@ import { registerComponent, registerTreatment } from "./runtime/registry";
 
 // primitives (leaf components)
 import { AgendaItem } from "./primitives/agenda-item";
+import { Arch } from "./primitives/arch";
 import { Bar } from "./primitives/bar";
 import { Badge } from "./primitives/badge";
+// `Blob` shadows the platform's `Blob` global in this module — nothing here uses it.
+import { Blob } from "./primitives/blob";
 import { Caption } from "./primitives/caption";
 import { Card } from "./primitives/card";
+import { Confetti } from "./primitives/confetti";
 import { Cta } from "./primitives/cta";
 import { Glyph } from "./primitives/glyph";
 import { Hud } from "./primitives/hud";
 import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
+import { Lozenge } from "./primitives/lozenge";
 // `NodeDeco`, not `Node` — the bare name would shadow the DOM's `Node` global here.
 import { NodeDeco } from "./primitives/node";
 import { Pill } from "./primitives/pill";
@@ -41,7 +46,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -50,15 +55,19 @@ for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, C
 
 export {
   AgendaItem,
+  Arch,
   Badge,
   Bar,
+  Blob,
   Caption,
   Card,
+  Confetti,
   Cta,
   Glyph,
   Hud,
   Icon,
   ListNumber,
+  Lozenge,
   NodeDeco,
   Pill,
   Rank,

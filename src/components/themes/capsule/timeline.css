@@ -1,0 +1,25 @@
+/* 6 · Timeline — a row of white candy step cards (step.css) bridged by short rounded ink
+   connector dashes, under a Bodoni headline. Ported from legacy .bf-timeline
+   (cqw × 1.2, cqh × 0.675). The card look, the numeral disc and the connector all live in
+   step.css; this file owns only the body padding, the headline rhythm and the grid.
+   One legacy rule is DELIBERATELY dropped: `.bf-timeline .pill { background: lavender }` —
+   this template carries no eyebrow slot (only cover and quote do), so it would be dead. */
+.timeline > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.timeline h3 {
+  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+     section heading is the base Bodoni cut, so only the size and rhythm are stated. */
+  font-size: 4.75rem;
+  margin: 1.625rem 0 3.125rem;
+}
+.timeline .row {
+  display: grid;
+  /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the legacy's
+     hardcoded repeat(4, 1fr) leaves dead tracks on a 2- or 3-step slide. */
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  /* COUPLED to step.css's connector dash (`right: -2.125rem; width: 1.625rem`), which is
+     positioned inside this gap — change one, change both. */
+  gap: 2.875rem;
+}

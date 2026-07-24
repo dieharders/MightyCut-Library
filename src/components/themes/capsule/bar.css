@@ -1,0 +1,79 @@
+/* Chart column — a candy pill standing on the plot's ink baseline (chart.css): filled with
+   the accent, wrapped in the universal 0.25rem ink outline, capped round at the top, and
+   lifted by a soft (never blurred) offset shadow. Ported from legacy .bf-chart .bar.
+   The shared bar/rank set --col from the `leader` param, resolving it through
+   --lead-col/--base-col so a THEME decides what winning looks like. Capsule runs sky
+   (--secondary) as the ordinary column and hands the leader the CTA yellow (--accent-1),
+   the same hue that fills every capsule call-to-action pill — so the winning column reads
+   as "the one you are meant to act on" rather than a brighter neighbour. (bar-ranking
+   deliberately answers this differently; see rank.css.) */
+.bar {
+  --lead-col: var(--accent-1);
+  --base-col: var(--secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Standalone plot height (the chart's .bars is 27rem); `.chart .bars .bar` overrides
+     flex:1 + height:100% so bars fill and share its plot. */
+  flex: 0 0 auto;
+  height: 28.25rem;
+  /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
+     value label's changing text width drives the bar width and the width:100% column
+     tracks it and "wiggles". A wide value label just overflows this box (centred). The
+     chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+  width: 9.625rem;
+}
+/* The column track. Value label + column live here; the column height is --fill% of the
+   track BELOW the reserved top padding, so it maps LINEARLY to --fill (0-100%) instead of
+   the labels eating into the plot and clamping a full column to ~78%. */
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 4rem; /* headroom the floating value label occupies when the column is full */
+  box-sizing: border-box;
+}
+/* One of the three sanctioned colour-on-Bodoni spots (with the stat figure and the agenda
+   numeral); everywhere else the serif is ink. line-height 1 + the 1.125rem margin sum to
+   exactly the 4rem of headroom above — change one, change the other. */
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 1.125rem;
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 2.875rem;
+  line-height: 1;
+  color: var(--primary);
+}
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(--fill); /* % of the track below the padding — 0% empty, 100% full */
+  width: 100%;
+  max-width: 9.625rem;
+  background: var(--col, var(--secondary));
+  border: 0.25rem solid var(--dark);
+  /* Top-capped pill: the round head is the capsule signature, the foot is cut by the
+     baseline rule. 9999px is a "fully round" sentinel, not a size. */
+  border-radius: 9999px 9999px 0 0;
+  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  /* The outline sits INSIDE the column so max-width is the true column width — otherwise
+     it overflows the (equally wide) standalone .bar box by the two 0.25rem edges. */
+  box-sizing: border-box;
+  /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
+  transform-origin: bottom;
+}
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 2.125rem;
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.5rem;
+  color: var(--dark);
+  text-align: center;
+}

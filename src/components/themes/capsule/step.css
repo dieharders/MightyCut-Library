@@ -1,0 +1,59 @@
+/* Timeline step = a white candy card: the universal 0.25rem ink outline, a large pill radius
+   and a soft (never blurred) offset shadow, opened by a circular yellow numeral disc. A short
+   rounded ink dash bridges the gap to the next step — a capsule signature.
+   Ported from legacy .bf-timeline .step (cqw × 1.2). */
+.step {
+  position: relative;
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  border-radius: 1.875rem;
+  box-shadow: 0.625rem 0.625rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  padding: 2.375rem 2.125rem;
+}
+/* Connector: a short ink capsule FLOATING in the grid gap — not a full-width rule (block) and
+   not a hairline + chevron (future). `right` is measured from the padding box, so the offset
+   already includes this card's 0.25rem border: the dash starts 0.25rem clear of the card edge
+   and stops 1rem short of the next one (2.875rem gap − 1.875rem reach). Derived from the
+   timeline gap + the .step border — keep the three in sync. */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -2.125rem;
+  width: 1.625rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--dark);
+  transform: translateY(-50%);
+}
+.step-num {
+  /* Yellow disc, ink numeral — never white-on-colour. Matches the agenda numeral's weight and
+     the list-number chip's construction, one step down in scale. */
+  display: inline-grid;
+  place-items: center;
+  width: 4.125rem;
+  height: 4.125rem;
+  border-radius: 50%;
+  border: 0.25rem solid var(--dark);
+  background: var(--accent-1);
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.625rem;
+  color: var(--dark);
+  margin-bottom: 1.5rem;
+}
+.step-title {
+  /* Bodoni, sentence case, ink (inherited from .block-frame) — never uppercase, never coloured. */
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+.step-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--dark) 65%, transparent);
+  margin-top: 0.875rem;
+}

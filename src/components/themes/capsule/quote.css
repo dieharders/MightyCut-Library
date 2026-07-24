@@ -1,0 +1,62 @@
+/* 5 · Quote — capsule's pull quote is left-set and open: a white eyebrow capsule above a
+   transparent max-width wrapper, the statement in sentence-case Bodoni, and a small
+   wide-tracked grotesk attribution under it. The shared template nests .attr INSIDE .qcard;
+   that is invisible here because the card carries no box (no border, no fill, no padding),
+   so the shared structure reproduces the legacy layout without a template override.
+   The colour in this frame therefore rides the eyebrow capsule and the ground, never the
+   Bodoni statement. Ported from legacy .bf-quote (cqw × 1.2 → the 0.125rem grid). */
+.quote > .body {
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 8.125rem 9.625rem 10.75rem;
+}
+/* The quote's eyebrow is the plain WHITE capsule, not the yellow one frame.css bases every
+   eyebrow on — yellow is reserved for the two declarative frames (cover, closing) and the HUD
+   title, and it would fight the coral ground here. Everything else (the ink outline, the
+   9999px radius, the uppercase grotesk label, the soft offset shadow) comes from the base. */
+.quote .eyebrow {
+  align-self: flex-start;
+  background: var(--light);
+  margin-bottom: 2.875rem;
+}
+.quote .qcard {
+  background: transparent;
+  max-width: 98.375rem;
+}
+.quote .qt {
+  font-family: var(--disp);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 5rem;
+  line-height: 1.3;
+  color: var(--dark);
+}
+/* The legacy inline candy-pill highlight, kept as capsule's stated signature the same way
+   frame.css keeps `.block-frame h3 em`: slot text is HTML-escaped, so this can only ever be
+   reached by markup a template override (or showcase copy) authors — never by a deck's quote
+   string. Grotesk, upright and unspaced, so the emphasised phrase reads as a chip dropped
+   into the Bodoni line rather than as italic serif. */
+.quote .qt em {
+  display: inline-flex;
+  align-items: center;
+  border: 0.25rem solid var(--dark);
+  border-radius: 9999px;
+  background: var(--accent-2);
+  padding: 0 1.5rem;
+  font-family: var(--body);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 3.625rem;
+  letter-spacing: 0;
+  color: var(--dark);
+}
+.quote .attr {
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 1.375rem;
+  color: color-mix(in srgb, var(--dark) 60%, transparent);
+  margin-top: 2.875rem;
+}

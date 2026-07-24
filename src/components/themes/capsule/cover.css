@@ -1,0 +1,57 @@
+/* 1 · Cover — capsule's identity plate: a yellow eyebrow capsule, an oversized
+   sentence-case Bodoni headline in ink, the coral accent rule, and a wide-tracked
+   grotesk subtitle, all centred. The cream ground is stamped by the emitter, so it is
+   never re-authored here; the floating candy pills around the plate are decoration
+   components, not markup. Ported from legacy .bf-cover (cqw × 1.2 → the 0.125rem grid). */
+.cover > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 6.75rem 9.625rem 9.5rem;
+}
+/* frame.css's base eyebrow already supplies the yellow fill, the ink outline, the 9999px
+   radius and the uppercase grotesk label, so this layers only the cover's own scale, its
+   heavier shadow rung and its spacing over that base. The fill is restated deliberately: the
+   cover capsule is one of the two the theme pins to yellow (the HUD title is the other), so
+   it should not silently follow a change to the shared eyebrow default. */
+.cover .eyebrow {
+  align-self: center;
+  background: var(--accent-1);
+  box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  padding: 1rem 2.625rem;
+  letter-spacing: 0.18em;
+  font-size: 1.375rem;
+  margin-bottom: 3.625rem;
+}
+.cover h3 {
+  font-weight: 800;
+  font-size: 13.25rem;
+  letter-spacing: -0.03em;
+  line-height: 0.88;
+  max-width: 105.625rem;
+  margin: 0;
+}
+/* The accent rule exists only under templates/cover.html — the shared cover has no such
+   node, and coverAnim's `rule` descriptor is emitted under every theme and simply no-ops
+   when the node is absent (mc.js applyAnims skips a missing target). So the draw-in comes
+   free with the override. MC.rule tweens scaleX 0→1, which needs a stated origin or the
+   bar grows out of its own centre. */
+.cover .rule {
+  width: 7.25rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  margin: 3.125rem auto 0;
+  transform-origin: left;
+}
+.cover .sub {
+  font-family: var(--body);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--dark) 60%, transparent);
+  margin-top: 2.5rem;
+  max-width: 67.25rem;
+}

@@ -1,0 +1,26 @@
+/* 2 · Feature Cards — white candy cards in a responsive grid, under a Bodoni headline.
+   Ported from legacy .bf-feature-cards (cqw × 1.2, cqh × 0.675). The card look lives in
+   card.css; this file owns only the body padding, the headline size/rhythm and the grid.
+   Two legacy rules are DELIBERATELY dropped:
+     · `.bf-feature-cards .pill { background: lavender }` — this template carries no eyebrow
+       slot (only cover and quote do), so the selector would be dead.
+     · `.bf-feature-cards::before` (the white 84→93% wash over the saturated sky ground) —
+       grounds are scene-configurable now, so whitening the ground would make the ground
+       picker look broken. The two-glow atmosphere on .block-frame is the only wash left. */
+.feature-cards > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.feature-cards h3 {
+  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+     section heading is the base Bodoni cut, so only the size and rhythm are stated. */
+  font-size: 4.75rem;
+  margin: 1.625rem 0 2.875rem;
+}
+.feature-cards .row {
+  display: grid;
+  /* --cols is emitted by the treatment's layout() (min(childCount, 4)); a hardcoded
+     repeat(3, 1fr) — the legacy — breaks a 2- or 4-card slide. */
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.375rem;
+}
