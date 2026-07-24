@@ -20,22 +20,22 @@
 }
 /* Fade the numbered discs into the future — each step dimmer than the last. Count-agnostic via
    nth-child (targets the shared step's .step-num), so it holds for any step count the builder
-   emits. */
+   emits. The floor is kept legible (never below 0.55) so a distant numeral still reads. */
 .timeline .step:nth-child(1) .step-num {
   opacity: 1;
 }
 .timeline .step:nth-child(2) .step-num {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .timeline .step:nth-child(3) .step-num {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 .timeline .step:nth-child(4) .step-num {
-  opacity: 0.55;
+  opacity: 0.7;
 }
 .timeline .step:nth-child(5) .step-num {
-  opacity: 0.42;
+  opacity: 0.62;
 }
 .timeline .step:nth-child(n + 6) .step-num {
-  opacity: 0.32;
+  opacity: 0.55;
 }

@@ -18,17 +18,31 @@
   z-index: 3;
   max-width: 88.875rem;
 }
-/* The faint oversized quotation mark — a pseudo, cobalt at low alpha (matching the source's
-   0.15 opacity), sitting above the statement. */
-.quote .qcard::before {
-  content: "\201C";
-  display: block;
-  font-family: var(--disp);
-  font-weight: 700;
-  font-size: 9.625rem;
-  line-height: 0.5;
-  height: 4.75rem;
-  color: color-mix(in srgb, var(--primary) 15%, transparent);
+/* Professional's own RING decoration (the halo variant), enlarged and CENTRED behind all the
+   content — the concentric rings the showcase floats behind a pull quote, drawn here as two faint
+   cobalt hairline circles. Theme-driven via color-mix (no literal); z-index 1 sits above the hatch
+   backdrop (z0) and below the body content (z3). (A treatment can't be handed a decoration
+   *component* by a theme, so the ring's look is reproduced in the skin; a scene may still drop the
+   actual Ring family anywhere via addDecorations().) */
+.quote::before,
+.quote::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+.quote::before {
+  width: 34rem;
+  height: 34rem;
+}
+.quote::after {
+  width: 22rem;
+  height: 22rem;
 }
 .quote .qt {
   font-family: var(--disp);

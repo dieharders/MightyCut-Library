@@ -255,17 +255,24 @@ const hatch: BackdropDesign = {
 
 /** The vanishing-stripe ladder, generated once: parallel vertical bars stepping across x, each
  *  THINNER and FAINTER than the last (the receding "vanish"). The parent `<g>` rotates them to
- *  the stripe angle and the parent layer clips the overflow. Oversized in both axes (x from −40,
- *  y from −80, height 268) so the rotated, cover-scaled band leaves no bare corner. Pure maths,
- *  no randomness — byte-identical every build. */
+ *  the stripe angle and the parent layer clips the overflow.
+ *
+ *  ASYMMETRIC BY DESIGN: the ladder is concentrated in the LEFT two-thirds — it marches from the
+ *  left edge (x=-44, oversized so the rotation leaves no bare left/top/bottom corner) and fades
+ *  out by ~x=104 of the 192-wide viewBox. After the −22° rotation about centre that lands the
+ *  field's right extent just short of the frame's 2/3 line, so the RIGHT THIRD stays clear (open
+ *  negative space, no stripes). Fewer stripes than a full-bleed ladder, and none on the right.
+ *  Pure maths, no randomness — byte-identical every build. */
 const HATCH_STRIPES: string = (() => {
-  const N = 30;
+  const N = 18; // fewer stripes; none reach the right third
+  const X_START = -44; // past the left edge so the rotation leaves no bare corner there
+  const X_SPAN = 148; // ends ~x=104 → rendered right extent stays left of the frame's 2/3 line
   const parts: string[] = [];
   for (let i = 0; i < N; i++) {
     const t = i / (N - 1);
-    const x = (-40 + t * 272).toFixed(2); // march across an oversized span
-    const w = (6.5 * (1 - t) + 0.8).toFixed(2); // taper thick → thin
-    const op = (0.9 * (1 - t) + 0.08).toFixed(3); // fade opaque → faint
+    const x = (X_START + t * X_SPAN).toFixed(2);
+    const w = (6.4 * (1 - t) + 0.6).toFixed(2); // taper thick → thin, completing by the cutoff
+    const op = (0.92 * (1 - t) + 0.06).toFixed(3); // fade opaque → faint
     parts.push(`<rect x="${x}" y="-80" width="${w}" height="268" opacity="${op}"></rect>`);
   }
   return parts.join("");
