@@ -354,6 +354,7 @@ describe("font coverage (tripwire)", () => {
    *  in scripts/gen-inline-fonts.mjs and the inject call in register-<theme>.ts. */
   const ADDON_FONT_CSS: Record<string, () => Promise<string>> = {
     capsule: async () => (await import("../engine/capsule-fonts.generated")).CAPSULE_FONTS_CSS,
+    professional: async () => (await import("../engine/professional-fonts.generated")).PROFESSIONAL_FONTS_CSS,
   };
 
   const addonFamilies = async (themeName: string): Promise<Set<string>> => {

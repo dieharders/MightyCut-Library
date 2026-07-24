@@ -1,0 +1,19 @@
+/* Professional CTA: the standalone call-to-action — a solid cobalt pill with a cream label and an
+   optional trailing arrow. The one saturated fill in the theme, and the single element allowed a
+   soft cobalt glow on hover in the source design (static here — the render casts no shadow).
+   Ported from the showcase .cta capsule. */
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary);
+  color: var(--light);
+  border-radius: 9999px;
+  padding: 1.25rem 3.125rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 1.75rem;
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

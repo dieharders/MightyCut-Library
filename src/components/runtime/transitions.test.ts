@@ -191,13 +191,18 @@ describe("treatment scene transition (render)", () => {
     expect(html).toContain('tl.from(page, { opacity: 0, duration: 0.3, ease: "power2.out" }, 0);');
     expect(html).not.toContain("_dout");
   });
-  test("assigned animOut emits the clamped page exit; stays deterministic + leak-free", () => {
+  test("assigned animOut is NOT emitted into the sub-composition (leak-safe)", () => {
     const html = renderScene(
       getTreatment("stat-grid")().withTransition({ animOut: "slide-left", timeOut: "medium" }),
       rootContext("s01-out", blockTheme, { voIds: ["l1", "l2", "l3"] }),
     );
-    expect(html).toContain("MC.slideOut(tl, page, dur - _dout, { dur: _dout, x: -140 });");
-    expect(html).toContain("var _dout = Math.min(3, Math.max(0, dur - Math.min(1, dur)));");
+    // A tween INSIDE a nested sub-composition that drives an element toward a hidden
+    // end-state leaks that state backward under HyperFrames' seek render and blanks the
+    // content mid-scene, so buildScene suppresses the page exit regardless of animOut (see
+    // runtime/treatment.ts). Scene exits belong on the ROOT/master timeline (clip-level).
+    // So no MC.*Out call and no exit scaffolding appear in the sub-composition.
+    expect(html).not.toContain("_dout");
+    expect(html).not.toMatch(/MC\.\w+Out\(/);
     expect(html).not.toContain("data-anim");
     expect(() => scrubDeterminism(html)).not.toThrow();
   });

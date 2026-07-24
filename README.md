@@ -51,6 +51,24 @@ docs/
   backdrops (a shared pool) and decorations (theme-exclusive), a copy-paste starter skeleton,
   the wiring checklist, and what the test sweeps already cover for you.
 
+## Rendering gotchas
+
+- **No exit tweens inside a sub-composition.** HyperFrames renders by SEEKING a paused GSAP
+  timeline, and a tween INSIDE a nested sub-composition that drives an element toward a
+  _hidden_ end-state (opacity 0 / off-canvas) leaks that end-state BACKWARD across the whole
+  scene — the content blanks partway through while its narration/caption is still on screen.
+  An _entrance_ ends visible, so the identical leak is invisible; only exits show it. Because
+  of this, `runtime/treatment.ts` `buildScene` emits the page **entrance** but never an
+  **exit** (`sceneExitJs` is retained but unwired). Scenes cut cleanly at their end (the
+  harness root hard-cuts the clip via `autoAlpha`). The correct home for an animated scene
+  exit is the **root/master** timeline — a clip-level `tl.to("#<clip>", { autoAlpha: 0, … })`
+  does NOT leak (captions, HUD and the progress bar animate there cleanly); wiring the
+  page-out spec into the harness's `pipeline/root-html.ts` is the follow-up that restores
+  animated exits.
+- **Verify transition timing against the real MP4, not `hyperframes snapshot`.** A single
+  seek (snapshot) does not reproduce the leak above; only the actual render does. Extract
+  frames from `final.mp4` with ffmpeg when checking entrance/exit behaviour.
+
 ## Consumers
 
 - **Harness (Bun):** resolves this package to TS source via a `tsconfig` `paths` alias (`@mightycut/library/*` → `../MightyCut-Library/src/*`). Bun handles the trio's `import … with { type: "text" }` natively; no build step, code is used raw.

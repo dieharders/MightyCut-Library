@@ -1,0 +1,17 @@
+/* Professional label pill: the quiet eyebrow tag — a faint cobalt tint fill carrying an uppercase,
+   wide-tracked cobalt Space Grotesk label, fully rounded, no border, no shadow. Same recipe as
+   frame.css's base eyebrow. The accent param (--pillbg) floods the FILL when an author picks one;
+   unset ⇒ the faint cobalt tint. Ported from the showcase .bframe .pill base. */
+.pill-c {
+  display: inline-block;
+  background: var(--pillbg, color-mix(in srgb, var(--primary) 6%, transparent));
+  color: var(--primary);
+  border-radius: 9999px;
+  padding: 0.625rem 1.625rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  line-height: 1.35;
+}

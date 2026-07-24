@@ -1,0 +1,64 @@
+/* 5 · Pull Quote — a centred statement in near-black Space Grotesk, opened by a faint oversized
+   cobalt quotation mark and closed by a small muted uppercase attribution, on the cream ground.
+   The concentric rings the showcase centres here are the `ring` decoration family, opt-in per
+   scene. The quote mark is a pseudo-element, so no template override is needed (the shared quote
+   template has no .qm node). Ported from the showcase .bf-quote (cqw × 1.2 → the 0.125rem grid). */
+.quote > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 10.875rem 13.5rem;
+}
+.quote .eyebrow {
+  align-self: center;
+  margin-bottom: 2.375rem;
+}
+.quote .qcard {
+  position: relative;
+  z-index: 3;
+  max-width: 88.875rem;
+}
+/* Professional's own RING decoration (the halo variant), enlarged and CENTRED behind all the
+   content — the concentric rings the showcase floats behind a pull quote, drawn here as two faint
+   cobalt hairline circles. Theme-driven via color-mix (no literal); z-index 1 sits above the hatch
+   backdrop (z0) and below the body content (z3). (A treatment can't be handed a decoration
+   *component* by a theme, so the ring's look is reproduced in the skin; a scene may still drop the
+   actual Ring family anywhere via addDecorations().) */
+.quote::before,
+.quote::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+.quote::before {
+  width: 34rem;
+  height: 34rem;
+}
+.quote::after {
+  width: 22rem;
+  height: 22rem;
+}
+.quote .qt {
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: 3.75rem;
+  line-height: 1.42;
+  letter-spacing: 0;
+  color: var(--dark);
+  margin-top: 1.25rem;
+}
+.quote .attr {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.25rem;
+  color: var(--muted-3);
+  margin-top: 2.375rem;
+}

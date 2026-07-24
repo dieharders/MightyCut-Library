@@ -1,0 +1,41 @@
+/* 6 · Timeline — a row of open steps (step.css) bridged by hairline cobalt connectors, under a
+   near-black headline, with the numeral discs FADING into the future (each dimmer than the last).
+   The card-less step, its cobalt disc and the connector live in step.css; this file owns the body
+   padding, the headline rhythm, the grid and the fade cascade. Ported from the showcase
+   .bf-timeline (cqw × 1.2, cqh × 0.675). */
+.timeline > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.timeline h3 {
+  font-size: 4.125rem;
+  margin: 1.25rem 0 3.125rem;
+}
+.timeline .row {
+  display: grid;
+  /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the connector in step.css
+     is positioned inside this gap — change one, change both. */
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 2.375rem;
+}
+/* Fade the numbered discs into the future — each step dimmer than the last. Count-agnostic via
+   nth-child (targets the shared step's .step-num), so it holds for any step count the builder
+   emits. The floor is kept legible (never below 0.55) so a distant numeral still reads. */
+.timeline .step:nth-child(1) .step-num {
+  opacity: 1;
+}
+.timeline .step:nth-child(2) .step-num {
+  opacity: 0.9;
+}
+.timeline .step:nth-child(3) .step-num {
+  opacity: 0.8;
+}
+.timeline .step:nth-child(4) .step-num {
+  opacity: 0.7;
+}
+.timeline .step:nth-child(5) .step-num {
+  opacity: 0.62;
+}
+.timeline .step:nth-child(n + 6) .step-num {
+  opacity: 0.55;
+}

@@ -1,0 +1,17 @@
+/* 2 · Feature Cards — soft cobalt-tinted cards in a responsive grid, under a near-black headline.
+   The card look lives in card.css; this file owns the body padding, the headline size/rhythm and
+   the grid. --cols is emitted by the treatment's layout() (min(childCount, 4)) so a 2- or 4-card
+   slide lays out cleanly. Ported from the showcase .bf-feature-cards (cqw × 1.2, cqh × 0.675). */
+.feature-cards > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.feature-cards h3 {
+  font-size: 4.125rem;
+  margin: 1.25rem 0 2.625rem;
+}
+.feature-cards .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 1.875rem;
+}

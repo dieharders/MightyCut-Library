@@ -1,0 +1,91 @@
+/* Professional HUD skin: a cobalt brand mark, a near-black Space Grotesk brand name, a muted
+   uppercase tagline, a faint cobalt-tinted pill title top-right, a near-black counter bottom-right,
+   and a cobalt-tinted track with a cobalt fill. No shadow. Ported from the showcase .bf-hud*
+   (cqw × 1.2). The harness owns placement + the #hud-progress / #ctr-N ids in the render; this is
+   the professional look. */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--mono);
+  color: var(--dark);
+  container-type: size;
+}
+.hud .hud-brand {
+  position: absolute;
+  top: 5rem;
+  left: 9.125rem;
+  display: flex;
+  align-items: center;
+  gap: 1.375rem;
+}
+.hud .hud-brand-mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  flex-shrink: 0;
+  background: var(--primary);
+}
+.hud .hud-brand-name {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 2.25rem;
+  letter-spacing: -0.01em;
+  color: var(--dark);
+}
+.hud .hud-tagline {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+}
+.hud .hud-title {
+  position: absolute;
+  top: 5rem;
+  right: 9.125rem;
+  padding: 0.625rem 1.625rem;
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 1.125rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1.375rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.hud .hud-counter {
+  position: absolute;
+  bottom: 5.25rem;
+  right: 9.125rem;
+}
+.hud .hud-counter-item {
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--dark);
+}
+.hud .hud-track {
+  position: absolute;
+  bottom: 4.625rem;
+  left: 9.125rem;
+  right: 9.125rem;
+  height: 0.5rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  overflow: hidden;
+}
+.hud .hud-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  border-radius: 0.5rem;
+  /* GSAP drives the scale (growBar, prop scaleX); the skin states the origin + the resting factor
+     the hud layout() emits as --pfill (unitless 0..1). */
+  transform-origin: left center;
+  transform: scaleX(var(--pfill, 0));
+}
