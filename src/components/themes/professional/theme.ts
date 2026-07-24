@@ -51,14 +51,19 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Cobalt", hex: "#1E2BFA", note: "the accent", varName: "primary" },
   { name: "Cobalt", hex: "#1E2BFA", varName: "secondary" },
   { name: "Cobalt", hex: "#1E2BFA", varName: "accent-1" },
-  { name: "Cobalt", hex: "#1E2BFA", varName: "accent-2" },
-  // The one non-cobalt hue: a semantic emerald reserved for the LEADING value (chart/rank leader)
-  // and any deliberate "positive". Deliberately the LAST accent role, which is OUTSIDE the
-  // ACCENT_CYCLE (primary→secondary→accent-1→accent-2) — so auto-cycled card icons and stat figures
-  // stay pure cobalt, and the green only appears where a skin/scene asks for accent-3.
+  // Ice — a soft cool periwinkle surface. It sits on accent-2, the LAST slot of the ACCENT_CYCLE
+  // (primary→secondary→accent-1→accent-2), which 3-item rows never reach — so auto-cycled card
+  // icons / stat figures stay cobalt, and ice only appears where a scene asks for it (a quiet
+  // panel or an alternate slide ground). A light surface, not an icon-fill accent.
+  { name: "Ice", hex: "#C9CAEA", note: "soft cool surface", varName: "accent-2" },
+  // Emerald — the one saturated non-cobalt hue: reserved for the LEADING value (chart/rank leader)
+  // and any deliberate "positive". accent-3 is OUTSIDE the accent cycle, so the green only appears
+  // where a skin/scene asks for it.
   { name: "Emerald", hex: "#059669", note: "leader / positive", varName: "accent-3" },
   { name: "Cream", hex: "#FDFAE7", note: "canvas", varName: "muted-1" },
-  { name: "Cream", hex: "#FDFAE7", note: "canvas", varName: "muted-2" },
+  // Tint — a warm neutral-gray surface (alternate slide ground / panel fill). muted-1 stays the
+  // cream canvas; nothing in the skins pins muted-2, so this is a free surface a scene can pick.
+  { name: "Tint", hex: "#EBEAE7", note: "warm surface", varName: "muted-2" },
   { name: "Slate", hex: "#6B6B6B", note: "body text", varName: "muted-3" },
   { name: "White", hex: "#FFFFFF", note: "cards", varName: "light" },
   { name: "Ink", hex: "#111111", note: "text + headlines", varName: "dark" },
@@ -169,7 +174,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     children: [
       { title: "Single Accent", body: "One cobalt carries every emphasis across the deck.", icon: "I", accent: "primary" },
       { title: "Soft Tints", body: "Cards lift on a faint cobalt fill — no borders that shout, no shadows.", icon: "II", accent: "secondary" },
-      { title: "Quiet Density", body: "Substance over noise: measured type, generous margins.", icon: "III", accent: "accent-2" },
+      { title: "Quiet Density", body: "Substance over noise: measured type, generous margins.", icon: "III", accent: "accent-1" },
     ],
   },
   "stat-grid": {
