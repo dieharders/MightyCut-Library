@@ -294,7 +294,7 @@ export const capsuleTheme: ThemeTokens = {
   name: "capsule",
   title: "Capsule",
   description:
-    "A soft candy theme on a cream canvas. Every container a rounded pill wrapped in ink outline and lifted by soft offset shadow, never blurred. Wide-tracked uppercase. Color never lives on a headline. Frame unit: 1920×1080, 16:9.",
+    "A soft candy theme on a cream canvas. Every container a rounded pill outlined in ink and lifted by soft shadow. Wide-tracked uppercase. Color never lives on a headline. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every capsule frame lands on the cream canvas: this REPLACES the shared per-treatment
