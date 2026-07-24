@@ -418,12 +418,45 @@ describe("backdrop registry (tripwire)", () => {
     }
   });
 
-  test("constellation is animated (a backdrop anim); dots is static", () => {
+  test("constellation is animated (a backdrop anim); every other design is static", () => {
     const con = BACKDROPS.constellation.build(input);
     expect(con.anims.length).toBe(1);
     expect(con.anims[0].kind).toBe("backdrop");
     expect(con.anims[0].opts?.fn).toBe("particleBg");
-    expect(BACKDROPS.dots.build(input).anims.length).toBe(0);
+    for (const [name, design] of Object.entries(BACKDROPS)) {
+      if (name === "constellation") continue;
+      expect(design.build(input).anims, `design '${name}' should be static (pure CSS)`).toEqual([]);
+    }
+  });
+
+  // Every static mask paints through an `--<design>-ink` hook with a role fallback, which is
+  // the ONLY way a theme repaints a shared design (future's frame.css re-points --dot-ink /
+  // --grid-ink / --wash-ink to cyan, because ink-on-light is invisible on navy). A design that
+  // hardcodes `var(--dark)` instead renders the same on every theme — invisibly, on a dark one.
+  const INK_HOOKS: Record<string, string> = {
+    dots: "--dot-ink",
+    gradient: "--wash-ink",
+    grid: "--grid-ink",
+    hatch: "--hatch-ink",
+  };
+
+  test.each(Object.entries(INK_HOOKS))("%s paints through its %s hook (theme-recolourable)", (name, hook) => {
+    const css = BACKDROPS[name].build(input).css;
+    expect(css, `design '${name}' must paint via var(${hook}, …)`).toContain(`var(${hook}, var(--dark))`);
+  });
+
+  // No design may reintroduce a raw colour or a retired theme-css token — the reason the
+  // `.mc-bg--*` layer these were ported from could not be themed at all.
+  test("no design carries a colour literal or a legacy theme-css token", () => {
+    for (const [name, design] of Object.entries(BACKDROPS)) {
+      const css = design.build(input).css;
+      expect(css, `design '${name}' has a colour literal`).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(/);
+      // Closing paren required: the ink hooks legitimately START with a retired name
+      // (`var(--grid-ink, …)` is the themeable hook, `var(--grid)` the retired token).
+      expect(css, `design '${name}' reads a retired theme-css token`).not.toMatch(
+        /var\(--(?:grad-page|bg|grid|abyss|steel|accent2?)\)/,
+      );
+    }
   });
 });
 

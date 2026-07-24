@@ -90,9 +90,14 @@ export type ThemeTokens = {
    *  ground still WINS here, which `!important` made impossible.
    *  Resolution order: scene override → theme.groundDefault → treatment canonical. */
   groundDefault?: PaletteVar;
-  /** The theme's canonical backdrop MASK design (a BACKDROP_NAMES value) painted
-   *  over every scene's ground colour. Unset ⇒ `"plain"` (no mask). A scene may
-   *  override it (BuildContext.backdrop). See primitives/backdrops.ts. */
+  /** The theme's DEFAULT backdrop MASK design (a BACKDROP_NAMES value) painted over every
+   *  scene's ground colour when the scene names none. Unset ⇒ `"plain"` (no mask).
+   *
+   *  This is a default, NOT ownership: backdrops are a SHARED pool. Each theme contributes
+   *  one signature design to it (block → `dots`, future → `constellation`) and every theme
+   *  may then use every design — a mask carries no theme-specific token, it paints through
+   *  an `--<design>-ink` hook the using theme re-points from its own frameCss. (Contrast
+   *  `decorations`, which ARE theme-exclusive.) See primitives/backdrops.ts. */
   backdrop?: string;
   /** Surface colour the showcase/editor paints BEHIND a natural-size element preview
    *  (a component shown outside a full frame). A dark theme sets a dark surface so its

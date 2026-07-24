@@ -237,8 +237,10 @@ export const blockTheme: ThemeTokens = {
     "A maximalist neobrutalist theme: black borders, hard offset shadows, square corners, tilted decorations, saturated pastel accents, shadows stacking comfortably dense. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
-  // Block's canonical backdrop mask: the ink dot-grid painted over every ground.
-  // A scene can override it (storyboard/deck `backdrop`); see primitives/backdrops.ts.
+  // Block's DEFAULT backdrop mask: the ink dot-grid painted over every ground — also the
+  // signature design block contributes to the SHARED pool (any theme may use it, recoloured
+  // through --dot-ink). A scene can pick any other design (storyboard/deck `backdrop`);
+  // see primitives/backdrops.ts.
   backdrop: "dots",
   // Block's skins for the shared structure+behavior elements — every primitive +
   // treatment block renders. The element trios carry no css; these are the block look.

@@ -32,15 +32,24 @@ git submodule update --init --recursive
 ```
 src/
   components/        the typed "trio" system (runtime/, primitives/, treatments/,
-                     themes/block.ts, compose.ts, registry.ts, icons.ts, sample-spec.ts)
+                     themes/<theme>/, compose.ts, registry.ts, icons.ts, sample-spec.ts)
   types/             the Zod contract cluster (spec, storyboard, transitions, deck, components)
   pipeline/          mini-dom + sub-composition (dependency-free render utilities)
   util/issues.ts     ZodError → compact issue list (shared with the harness)
   engine/            browser engine: mountPreview + loadTheme + THEMES (per-theme lazy chunks)
 assets/
   fx/                mc.js (window.MC) + gsap.min.js — the deterministic animation runtime
-  themes/block/      self-hosted block theme fonts
+  fonts/             the self-hosted core chrome fonts (a superset of every live theme's)
+docs/
+  THEME-AUTHORING.md how to create, wire up and verify a new theme
 ```
+
+## Docs
+
+- **[Theme Authoring Guide](docs/THEME-AUTHORING.md)** — the full contract for a new theme:
+  what themes share vs. own, the palette-role colour system, the template/CSS/animation rules,
+  backdrops (a shared pool) and decorations (theme-exclusive), a copy-paste starter skeleton,
+  the wiring checklist, and what the test sweeps already cover for you.
 
 ## Consumers
 
