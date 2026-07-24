@@ -811,10 +811,10 @@ describe("professional theme (tripwire)", () => {
     expect(halo).toContain("var(--primary)"); // accent role → stroke
     expect(halo).not.toContain("drop-shadow("); // professional casts NO shadow
     expect(build("ring", { variant: "contour", layer: "front" })).toContain("--pd-z: 5");
-    expect(build("panel", { variant: "wedge" })).toContain("<polygon"); // diagonal accent panel
+    expect(build("keyline", { variant: "double" })).toContain("<rect"); // concentric squares
+    expect(build("corner", { variant: "corners" })).toContain("<path"); // framing corner brackets
     expect(build("grille", { variant: "matrix" })).toContain("<circle"); // dot field
-    expect(build("rule", { variant: "ladder", accent: "accent-2" })).toContain("var(--accent-2)");
-    expect(build("rule", { variant: "ladder" })).toContain("<line"); // stroked rules
+    expect(build("grille", { variant: "stack", accent: "accent-2" })).toContain("var(--accent-2)");
   });
 
   test("the 4 professional families have DISJOINT variant lists (no shared shapes)", () => {

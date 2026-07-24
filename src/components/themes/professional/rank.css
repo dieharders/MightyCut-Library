@@ -4,7 +4,10 @@
    is single-accent, so both resolve to cobalt. Ported from the showcase .bf-bar-ranking .bar
    (cqw × 1.2). */
 .rank {
-  --lead-col: var(--primary);
+  /* The top row's fill gets the complementary EMERALD (--accent-3, the palette's one non-cobalt
+     hue), the rest stay cobalt (--base-col) — the winner wears the "positive" colour. The shared
+     rank component sets --col to one or the other from the `leader` param. */
+  --lead-col: var(--accent-3);
   --base-col: var(--primary);
   display: flex;
   align-items: center;

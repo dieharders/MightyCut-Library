@@ -22,15 +22,15 @@ import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
 import { Lozenge } from "./primitives/lozenge";
 // `NodeDeco`, not `Node` — the bare name would shadow the DOM's `Node` global here.
+import { Corner } from "./primitives/corner";
 import { NodeDeco } from "./primitives/node";
-import { Panel } from "./primitives/panel";
 import { Pill } from "./primitives/pill";
 import { Grille } from "./primitives/grille";
+import { Keyline } from "./primitives/keyline";
 import { Rank } from "./primitives/rank";
 import { Reticle } from "./primitives/reticle";
 import { Ring } from "./primitives/ring";
 import { Row } from "./primitives/row";
-import { Rule } from "./primitives/rule";
 import { Signal } from "./primitives/signal";
 import { Slab } from "./primitives/slab";
 import { Starburst } from "./primitives/starburst";
@@ -50,7 +50,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Panel, Grille, Ring, Rule, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -66,21 +66,21 @@ export {
   Caption,
   Card,
   Confetti,
+  Corner,
   Cta,
   Glyph,
   Grille,
   Hud,
   Icon,
+  Keyline,
   ListNumber,
   Lozenge,
   NodeDeco,
-  Panel,
   Pill,
   Rank,
   Reticle,
   Ring,
   Row,
-  Rule,
   Signal,
   Slab,
   Starburst,

@@ -4,7 +4,11 @@
    is single-accent, so both resolve to cobalt (the leader reads by position, not a second hue).
    Ported from the showcase .bf-chart .bar (cqw × 1.2). */
 .bar {
-  --lead-col: var(--primary);
+  /* The leader gets the complementary EMERALD (--accent-3, the palette's one non-cobalt hue), the
+     rest stay cobalt (--base-col) — so the winning column reads as "the positive one" rather than
+     just a brighter neighbour. The shared bar component sets --col to one or the other from the
+     `leader` param. */
+  --lead-col: var(--accent-3);
   --base-col: var(--primary);
   display: flex;
   flex-direction: column;

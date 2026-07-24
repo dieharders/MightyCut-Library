@@ -1,22 +1,21 @@
 // Professional's decoration engine — the consulting-grade counterpart to block's neobrutalist
-// solids, future's luminous strokes and capsule's candy fills. Where those shout, professional
-// WHISPERS: every family is a single-cobalt hairline stroke or a faint (single-digit-percent)
-// tint fill, and — unlike every other engine — casts NO shadow at all (professional's one hard
-// rule is "no drop shadows"). The four families reproduce the four decorative marks the
-// professional showcase uses as chrome — the diagonal accent PANEL, the cobalt dot GRILLE, the
-// concentric RING, and the thin accent RULE — as positioned page-space flourishes any treatment
+// solids, future's luminous strokes and capsule's candy fills. Professional's marks are quiet
+// GEOMETRIC LINE-ART in the single cobalt accent — concentric circles, concentric squares, framing
+// corner marks, and dot fields — and, unlike every other engine, cast NO shadow (professional's
+// one hard rule is "no drop shadows"). The four families are coherent, recognisable framing motifs
+// (not abstract): ring · keyline · corner · grille. Positioned page-space flourishes any treatment
 // can carry via addDecorations().
 //
 // PROFESSIONAL-ONLY by ROSTER, not by token: they paint with the shared 10 palette roles (every
-// role is cobalt under professional, so the whole set reads as one restrained accent — the
-// theme's signature), so nothing in the markup is professional-specific. `decoration: true`
-// holds every family out of the showcase Components grid under any theme, and only
-// professionalTheme.decorations lists them (themes never share decorations).
+// role is cobalt under professional, so the whole set reads as one restrained accent), so nothing
+// in the markup is professional-specific. `decoration: true` holds every family out of the showcase
+// Components grid under any theme, and only professionalTheme.decorations lists them.
 //
-// Constant-ink, like block/future/capsule: the STROKE weight is FIXED (does NOT scale with
-// `size`) so a large panel keeps the same crisp hairline as a small rule — computed per-shape in
-// viewBox units (professionalDecoSvg). The "solids" that DO scale are the filled dots and the
-// faint panel fill, exactly as a fill should.
+// Constant-ink, like block/future/capsule: the STROKE weight is FIXED (does NOT scale with `size`)
+// so a large mark keeps the same crisp hairline as a small one — computed per-shape in viewBox
+// units (professionalDecoSvg). The filled dots (grille) DO scale, exactly as a fill should. Every
+// default placement is CENTRED (x/y 50), matching capsule, so a decoration reads on-canvas in the
+// showcase preview rather than hiding in a corner.
 import { component } from "../runtime/component";
 import { remGrid } from "../runtime/css";
 import { decorationSchema, type DecoParams } from "./decoration-placement";
@@ -28,10 +27,10 @@ const STROKE_REM = 0.1875;
 
 // The four professional decoration component names (the showcase + professionalTheme reference these).
 export const PROFESSIONAL_DECORATION_COMPONENTS = [
-  "panel",
-  "grille",
   "ring",
-  "rule",
+  "keyline",
+  "corner",
+  "grille",
 ] as const;
 export type ProfessionalDecorationComponentName =
   (typeof PROFESSIONAL_DECORATION_COMPONENTS)[number];
@@ -42,72 +41,69 @@ export type ProfessionalDecorationComponentName =
  *  (within professional AND against block/future/capsule) and that every name draws a distinct
  *  shape. */
 export const PROFESSIONAL_DECORATION_VARIANTS = {
-  panel: ["wedge", "slice", "flank"],
-  grille: ["matrix", "scatter", "stack"],
   ring: ["halo", "target", "contour"],
-  rule: ["hairline", "notch", "ladder"],
+  keyline: ["single", "double", "inset"],
+  corner: ["corners", "elbow", "ticks"],
+  grille: ["matrix", "scatter", "stack"],
 } as const satisfies Record<ProfessionalDecorationComponentName, readonly string[]>;
 
 // Each shape is authored in a square 0..100 viewBox so the box scales uniformly and the outline
-// stays a true SVG stroke. A shape receives the accent as a solid role var (`color`), a faint
-// tint of the same role (`tint`, a color-mix — never a literal), and the viewBox-unit stroke
-// width (`sw`) that renders at the constant STROKE_REM. The `opacity` attributes are the per-mark
-// restraint (a numeric attribute, not a colour), so the marks sit as quiet chrome behind content.
-type ShapeAttrs = { color: string; tint: string; sw: string };
+// stays a true SVG stroke. A shape receives the accent as a solid role var (`color`) and the
+// viewBox-unit stroke width (`sw`) that renders at the constant STROKE_REM. The `opacity`
+// attributes are the per-mark restraint (a numeric attribute, not a colour), so the marks sit as
+// quiet chrome behind content.
+type ShapeAttrs = { color: string; sw: string };
 type ShapeFn = (a: ShapeAttrs) => string;
 
 const dot = (cx: number, cy: number, r: number, color: string, op: number): string =>
   `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" opacity="${op}"></circle>`;
+const ringC = (r: number, a: ShapeAttrs, op: number): string =>
+  `<circle cx="50" cy="50" r="${r}" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="${op}"></circle>`;
+const box = (x: number, y: number, s: number, rx: number, a: ShapeAttrs, op: number): string =>
+  `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${rx}" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="${op}"></rect>`;
+const line = (d: string, a: ShapeAttrs, op: number): string =>
+  `<path d="${d}" fill="none" stroke="${a.color}" stroke-width="${a.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="${op}"></path>`;
 
 const SHAPES: Record<string, ShapeFn> = {
-  // panel — diagonal accent panels (the showcase's `.deco` clip-path): a faint cobalt tint fill
-  // edged by a slightly stronger hairline, so the plane reads as a soft field, never a block.
-  wedge: (a) =>
-    `<polygon points="100,0 100,100 0,100" fill="${a.tint}" stroke="${a.color}" stroke-width="${a.sw}" stroke-opacity="0.35" stroke-linejoin="round"></polygon>`,
-  slice: (a) =>
-    `<polygon points="34,0 100,0 66,100 0,100" fill="${a.tint}" stroke="${a.color}" stroke-width="${a.sw}" stroke-opacity="0.35" stroke-linejoin="round"></polygon>`,
-  flank: (a) =>
-    `<polygon points="46,0 100,0 100,100 54,100" fill="${a.tint}" stroke="${a.color}" stroke-width="${a.sw}" stroke-opacity="0.35" stroke-linejoin="round"></polygon>`,
+  // ring — concentric circles (the showcase's `.rings`): hairline strokes, no fill. The reference
+  // motif the whole set is a variation on.
+  halo: (a) => ringC(46, a, 0.5) + ringC(30, a, 0.5),
+  target: (a) => ringC(46, a, 0.5) + ringC(32, a, 0.5) + ringC(18, a, 0.5),
+  contour: (a) => ringC(44, a, 0.5) + dot(50, 50, 7, a.color, 0.5),
 
-  // grille — cobalt dot fields (the showcase's `.dots`): filled discs, quietly translucent.
+  // keyline — concentric SQUARES: the ring motif answered with right angles. A clean nested-frame
+  // border, the kind that keylines a slide region in an editorial deck.
+  single: (a) => box(10, 10, 80, 10, a, 0.5),
+  double: (a) => box(6, 6, 88, 12, a, 0.5) + box(26, 26, 48, 8, a, 0.5),
+  inset: (a) => box(6, 6, 88, 10, a, 0.5) + box(17, 17, 66, 7, a, 0.3),
+
+  // corner — framing CORNER MARKS: L-brackets and edge ticks that frame a region, like a
+  // viewfinder or print crop marks. Recognisable, structural, not abstract.
+  corners: (a) =>
+    line("M10 32 L10 10 L32 10", a, 0.55) +
+    line("M68 10 L90 10 L90 32", a, 0.55) +
+    line("M90 68 L90 90 L68 90", a, 0.55) +
+    line("M32 90 L10 90 L10 68", a, 0.55),
+  elbow: (a) =>
+    line("M10 40 L10 10 L40 10", a, 0.55) + line("M60 90 L90 90 L90 60", a, 0.55),
+  ticks: (a) =>
+    line("M50 8 L50 24", a, 0.55) +
+    line("M92 50 L76 50", a, 0.55) +
+    line("M50 92 L50 76", a, 0.55) +
+    line("M8 50 L24 50", a, 0.55),
+
+  // grille — cobalt DOT fields (the showcase's `.dots`): filled discs, bold enough to read as a
+  // deliberate grid rather than dust. Two matrices and a column.
   matrix: (a) =>
-    [20, 50, 80]
-      .flatMap((cx) => [20, 50, 80].map((cy) => dot(cx, cy, 6, a.color, 0.4)))
-      .join(""),
+    [22, 50, 78].flatMap((cx) => [22, 50, 78].map((cy) => dot(cx, cy, 8, a.color, 0.6))).join(""),
   scatter: (a) =>
-    dot(22, 26, 6, a.color, 0.45) +
-    dot(58, 16, 4.5, a.color, 0.3) +
-    dot(80, 38, 6.5, a.color, 0.4) +
-    dot(38, 58, 5, a.color, 0.35) +
-    dot(72, 74, 6, a.color, 0.45) +
-    dot(24, 84, 4.5, a.color, 0.3),
-  stack: (a) =>
-    [14, 32, 50, 68, 86].map((cy) => dot(50, cy, 6, a.color, 0.42)).join(""),
-
-  // ring — concentric rings (the showcase's `.rings`): hairline strokes, no fill.
-  halo: (a) =>
-    `<circle cx="50" cy="50" r="46" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>` +
-    `<circle cx="50" cy="50" r="30" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>`,
-  target: (a) =>
-    `<circle cx="50" cy="50" r="46" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>` +
-    `<circle cx="50" cy="50" r="32" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>` +
-    `<circle cx="50" cy="50" r="18" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>`,
-  contour: (a) =>
-    `<circle cx="50" cy="50" r="44" fill="none" stroke="${a.color}" stroke-width="${a.sw}" opacity="0.5"></circle>` +
-    dot(50, 50, 7, a.color, 0.5),
-
-  // rule — thin accent lines (the showcase's `.aline`): round-capped hairline strokes.
-  hairline: (a) =>
-    `<line x1="4" y1="50" x2="96" y2="50" stroke="${a.color}" stroke-width="${a.sw}" stroke-linecap="round" opacity="0.7"></line>`,
-  notch: (a) =>
-    `<path d="M12 88 L12 30 L70 30" fill="none" stroke="${a.color}" stroke-width="${a.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"></path>`,
-  ladder: (a) =>
-    [30, 50, 70]
-      .map(
-        (cy) =>
-          `<line x1="14" y1="${cy}" x2="86" y2="${cy}" stroke="${a.color}" stroke-width="${a.sw}" stroke-linecap="round" opacity="0.6"></line>`,
-      )
-      .join(""),
+    dot(24, 28, 9, a.color, 0.62) +
+    dot(60, 18, 6.5, a.color, 0.4) +
+    dot(82, 40, 9.5, a.color, 0.55) +
+    dot(40, 60, 7.5, a.color, 0.5) +
+    dot(74, 76, 9, a.color, 0.6) +
+    dot(26, 82, 6.5, a.color, 0.42),
+  stack: (a) => [14, 32, 50, 68, 86].map((cy) => dot(50, cy, 8, a.color, 0.6)).join(""),
 };
 
 /** The shared, var-driven professional decoration element (one `.pd-deco`, styled entirely by
@@ -140,30 +136,29 @@ const professionalDecorationLayout = (p: DecoParams): Record<string, string> => 
   };
 };
 
-/** Inline SVG for a variant — a hairline stroke (and, for panels, a faint tint fill) in the
- *  instance accent, in a square 0..100 viewBox. stroke-width is chosen in viewBox units so it
- *  RENDERS at the constant STROKE_REM at any size: rendered = strokeWidth × (size×1.2 / 100) =
- *  STROKE_REM (the box is size×1.2 rem square). */
+/** Inline SVG for a variant — a hairline stroke (or, for grille, filled dots) in the instance
+ *  accent, in a square 0..100 viewBox. stroke-width is chosen in viewBox units so it RENDERS at
+ *  the constant STROKE_REM at any size: rendered = strokeWidth × (size×1.2 / 100) = STROKE_REM
+ *  (the box is size×1.2 rem square). */
 const professionalDecoSvg = (p: DecoParams): string => {
-  const shape = SHAPES[p.variant] ?? SHAPES.wedge!;
+  const shape = SHAPES[p.variant] ?? SHAPES.halo!;
   const color = `var(--${p.accent})`;
-  const tint = `color-mix(in srgb, var(--${p.accent}) 10%, transparent)`;
   const sw = ((STROKE_REM * 100) / (p.size * 1.2)).toFixed(3);
   return (
     `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">` +
-    shape({ color, tint, sw }) +
+    shape({ color, sw }) +
     `</svg>`
   );
 };
 
-/** Build one professional decoration component: a hairline shape family (its own `variant` enum)
- *  over the shared placement props + stroke engine. Flagged `decoration: true`.
+/** Build one professional decoration component: a geometric line-art family (its own `variant`
+ *  enum) over the shared placement props + stroke engine. Flagged `decoration: true`.
  *
  *  The family NAME is the only key a caller passes — its variant list is looked up from
  *  PROFESSIONAL_DECORATION_VARIANTS here, so a family can't be wired to another's shapes, and
- *  `example.variant` is typed to that family's own list. `sizeDefault` differs per family — a
- *  panel wants area, a rule barely any — but the accent default is always `primary` (cobalt),
- *  the single accent every professional mark shares. */
+ *  `example.variant` is typed to that family's own list. `sizeDefault` differs per family — corner
+ *  marks want to frame a larger area than a dot cluster — but the accent default is always
+ *  `primary` (cobalt), the single accent every professional mark shares. */
 export const professionalDecorationComponent = <N extends ProfessionalDecorationComponentName>(
   name: N,
   sizeDefault: number,
@@ -178,7 +173,7 @@ export const professionalDecorationComponent = <N extends ProfessionalDecoration
       variants,
       sizeDefault,
       accentDefault: example.accent,
-      accentDescription: "Stroke / tint colour — a palette role of the active theme",
+      accentDescription: "Stroke / dot colour — a palette role of the active theme",
     }),
     template: PD_DECO_TEMPLATE,
     css: PD_DECO_CSS,

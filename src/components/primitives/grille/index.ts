@@ -1,15 +1,15 @@
 import { professionalDecorationComponent } from "../professional-decoration-shapes";
 
 /** Professional decoration family — cobalt dot grilles (matrix, scatter, stack): the quiet dot
- *  fields the showcase drops top-right of a cover, rendered as filled, translucent discs.
- *  Defaults to a 3×3 matrix. Positioned page-space flourish; any treatment can add these via
+ *  fields the showcase drops beside a cover, rendered as bold, translucent discs. Defaults to a
+ *  centred 3×3 matrix. Positioned page-space flourish; any treatment can add these via
  *  addDecorations(). Professional-only by ROSTER — paints with the shared palette roles, no
  *  theme-specific token. */
-export const Grille = professionalDecorationComponent("grille", 18, {
+export const Grille = professionalDecorationComponent("grille", 26, {
   variant: "matrix",
-  x: 88,
-  y: 20,
-  size: 18,
+  x: 50,
+  y: 50,
+  size: 26,
   rotate: 0,
   layer: "back",
   accent: "primary",

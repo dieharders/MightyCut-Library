@@ -48,11 +48,15 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // bar fills) resolves to cobalt everywhere WITHOUT a per-skin !important. The two ground roles are
 // cream (canvas); muted-3 is the body gray. The UI de-dupes on hex to professional's 5 colours.
 const palette: NonNullable<ThemeTokens["palette"]> = [
-  { name: "Cobalt", hex: "#1E2BFA", note: "the single accent", varName: "primary" },
+  { name: "Cobalt", hex: "#1E2BFA", note: "the accent", varName: "primary" },
   { name: "Cobalt", hex: "#1E2BFA", varName: "secondary" },
   { name: "Cobalt", hex: "#1E2BFA", varName: "accent-1" },
   { name: "Cobalt", hex: "#1E2BFA", varName: "accent-2" },
-  { name: "Cobalt", hex: "#1E2BFA", varName: "accent-3" },
+  // The one non-cobalt hue: a semantic emerald reserved for the LEADING value (chart/rank leader)
+  // and any deliberate "positive". Deliberately the LAST accent role, which is OUTSIDE the
+  // ACCENT_CYCLE (primary→secondary→accent-1→accent-2) — so auto-cycled card icons and stat figures
+  // stay pure cobalt, and the green only appears where a skin/scene asks for accent-3.
+  { name: "Emerald", hex: "#059669", note: "leader / positive", varName: "accent-3" },
   { name: "Cream", hex: "#FDFAE7", note: "canvas", varName: "muted-1" },
   { name: "Cream", hex: "#FDFAE7", note: "canvas", varName: "muted-2" },
   { name: "Slate", hex: "#6B6B6B", note: "body text", varName: "muted-3" },
@@ -129,9 +133,10 @@ const rules: ThemeTokens["rules"] = {
     "Render every numeral in cobalt Space Grotesk 600–700.",
     "Lift content with soft cobalt-TINTED cards — 5% fill, 22% hairline border, gently rounded.",
     "Body in Inter 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
+    "The emerald is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
   ],
   dont: [
-    "No second accent colour; no cobalt headlines.",
+    "No decorative second accent; cobalt carries emphasis and the emerald is leader/positive-only. No cobalt headlines.",
     "No drop shadows anywhere.",
     "No square corners; no opaque cobalt borders.",
     "No font substitutes; no uppercase body.",
@@ -172,7 +177,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     children: [
       { value: 24.3, label: "Annual revenue", unitSuffix: "M", decimals: 1, accent: "primary" },
       { value: 94, label: "Net retention", unitSuffix: "%", accent: "secondary" },
-      { value: 18, label: "Growth YoY", unitSuffix: "%", accent: "accent-3" },
+      { value: 18, label: "Growth YoY", unitSuffix: "%", accent: "accent-1" },
     ],
   },
   timeline: {
@@ -224,7 +229,7 @@ export const professionalTheme: ThemeTokens = {
   name: "professional",
   title: "ProfessionalFrame",
   description:
-    "A consulting-grade theme on a warm cream canvas: a single saturated cobalt carries every accent, near-black Space Grotesk headlines sit against muted-gray Inter body, and content lifts on soft cobalt-tinted cards — no second colour, no drop shadows. Frame unit: 1920×1080, 16:9.",
+    "A consulting-grade theme on a warm cream canvas: a single saturated cobalt carries every accent — with one complementary emerald reserved for the leading/positive value — near-black Space Grotesk headlines against muted-gray Inter body, and content lifting on soft cobalt-tinted cards; no drop shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every professional frame lands on the cream canvas: groundDefault REPLACES the shared
@@ -283,9 +288,9 @@ export const professionalTheme: ThemeTokens = {
   typography,
   rules,
   examples,
-  // Professional's OWN restrained decoration families (panel · grille · ring · rule) — single-cobalt
-  // hairline strokes + faint tint fills, no shadow. Themes don't share decorations: this roster lists
-  // only professional's, and every one is held out of the Components grid globally. Opt-in per scene
-  // via addDecorations().
+  // Professional's OWN restrained decoration families (ring · keyline · corner · grille) — coherent
+  // single-cobalt geometric line-art (concentric circles, concentric squares, framing corner marks,
+  // dot fields), no shadow. Themes don't share decorations: this roster lists only professional's,
+  // and every one is held out of the Components grid globally. Opt-in per scene via addDecorations().
   decorations: [...PROFESSIONAL_DECORATION_COMPONENTS],
 };

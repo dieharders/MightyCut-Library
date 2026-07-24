@@ -41,11 +41,11 @@ export const COMPONENT_NAMES = [
   "lozenge", // pill · stadium · disc · slot
   "arch", // dome · gate · tunnel · rainbow
   "confetti", // squiggle · plus · spark · comma
-  // professional's consulting-grade set (single-cobalt hairline strokes + faint tint fills, no shadow):
-  "panel", // wedge · slice · flank (diagonal accent panels)
-  "grille", // matrix · scatter · stack (cobalt dot fields)
+  // professional's consulting-grade set (single-cobalt geometric line-art, no shadow):
   "ring", // halo · target · contour (concentric rings)
-  "rule", // hairline · notch · ladder (accent lines)
+  "keyline", // single · double · inset (concentric squares)
+  "corner", // corners · elbow · ticks (framing corner marks)
+  "grille", // matrix · scatter · stack (cobalt dot fields)
   "icon", // inline-SVG icon from the shared set
   "hud", // full-frame HUD overlay composite
 ] as const;
