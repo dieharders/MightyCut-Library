@@ -71,29 +71,69 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // — the deep green and the secondary ink — giving the theme ten distinct swatches rather than
 // eight and a repeat.
 const palette: NonNullable<ThemeTokens["palette"]> = [
-  { name: "Pink", hex: "#F06CA8", note: "quote + closing ground", varName: "primary" },
+  {
+    name: "Pink",
+    hex: "#F06CA8",
+    note: "quote + closing ground",
+    varName: "primary",
+  },
   {
     name: "Orange",
     hex: "#E85A1F",
     note: "the hard-shadow colour",
     varName: "secondary",
   },
-  { name: "Yellow", hex: "#F5C518", note: "ledger ground", varName: "accent-1" },
-  { name: "Green", hex: "#1F8A4C", note: "stat ground + the answer", varName: "accent-2" },
+  {
+    name: "Yellow",
+    hex: "#F5C518",
+    note: "ledger ground",
+    varName: "accent-1",
+  },
+  {
+    name: "Green",
+    hex: "#1F8A4C",
+    note: "stat ground + the answer",
+    varName: "accent-2",
+  },
   // Green Dark — depth on decorative levers. accent-3 is the one accent OUTSIDE the cycle
   // (primary→secondary→accent-1→accent-2), so it never lands on an auto-cycled badge; it only
   // appears where a skin or a scene asks for it.
   { name: "Green Dk", hex: "#136636", note: "depth", varName: "accent-3" },
-  { name: "Cream", hex: "#EFE9D9", note: "canvas + the light ink", varName: "muted-1" },
-  { name: "Oat", hex: "#E4DCC4", note: "recessed ground + track fill", varName: "muted-2" },
+  {
+    name: "Cream",
+    hex: "#EFE9D9",
+    note: "canvas + the light ink",
+    varName: "muted-1",
+  },
+  {
+    name: "Oat",
+    hex: "#E4DCC4",
+    note: "recessed ground + track fill",
+    varName: "muted-2",
+  },
   // Ink 2 — creative's secondary body text. Nothing pins muted-3 as a ground, so this role is
   // free to be a TYPE colour rather than a surface (the reference wasted it on a duplicate oat).
-  { name: "Ink 2", hex: "#2A2A2A", note: "secondary body text", varName: "muted-3" },
+  {
+    name: "Ink 2",
+    hex: "#2A2A2A",
+    note: "secondary body text",
+    varName: "muted-3",
+  },
   // White exists for completeness and is deliberately rare: creative's "light ink" is the CREAM
   // (--muted-1), which is what every cream-on-accent line in the skins names. The design rule is
   // explicit that a frame never grounds on pure white.
-  { name: "White", hex: "#FFFFFF", note: "rare — cream is the light ink", varName: "light" },
-  { name: "Ink", hex: "#0F0F0F", note: "every border + all display type", varName: "dark" },
+  {
+    name: "White",
+    hex: "#FFFFFF",
+    note: "rare — cream is the light ink",
+    varName: "light",
+  },
+  {
+    name: "Ink",
+    hex: "#0F0F0F",
+    note: "every border + all display type",
+    varName: "dark",
+  },
 ];
 
 /** Font tokens — the only `:root` entries that aren't colours. All three faces are already in the
@@ -195,7 +235,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   cover: {
     params: {
       headline: "Loud, bordered, creative.",
-      subtitle: "A neo-brutalist editorial frame system.",
+      subtitle: "A neo-brutalist editorial theme.",
       eyebrow: "Creative Mode",
     },
   },
@@ -278,7 +318,13 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   "bar-ranking": {
     params: { headline: "What Moves It", caption: "Ranked by contribution." },
     children: [
-      { value: 88, label: "Expansion", max: 100, unitSuffix: "%", leader: true },
+      {
+        value: 88,
+        label: "Expansion",
+        max: 100,
+        unitSuffix: "%",
+        leader: true,
+      },
       { value: 62, label: "New Logos", max: 100, unitSuffix: "%" },
       { value: 41, label: "Pricing", max: 100, unitSuffix: "%" },
     ],
@@ -287,7 +333,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: { headline: "Four Considerations" },
     children: [
       { num: "01", title: "Lay the Planes", detail: "One ground per frame" },
-      { num: "02", title: "Set the Caps", detail: "Archivo, uppercase, always" },
+      {
+        num: "02",
+        title: "Set the Caps",
+        detail: "Archivo, uppercase, always",
+      },
       { num: "03", title: "Drop the Shadow", detail: "One block per frame" },
       { num: "04", title: "Cut the Ground", detail: "Swap it and end" },
     ],
@@ -298,7 +348,7 @@ export const creativeTheme: ThemeTokens = {
   name: "creative",
   title: "Creative",
   description:
-    "A neo-brutalist punk-zine editorial theme: a rotation of full-bleed colour planes, one constant ink outline on every block, the signature orange hard-offset shadow, Archivo Black uppercase and a JetBrains Mono taxonomy. Frame unit: 1920×1080, 16:9.",
+    "A neo-brutalist punk-zine editorial theme. A rotation of full-bleed color planes, one constant ink outline on every block, a signature orange hard-offset shadow. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // NO `groundDefault` — deliberately. See the header note: the per-treatment ground rotation IS
