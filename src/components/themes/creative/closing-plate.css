@@ -40,8 +40,12 @@
    own 7.25rem inset now binds tighter than that ceiling ever would, so the cap drops to 80rem to do
    real work — it keeps the sign-off to a compact two-or-three-word stack and stops the plate
    stretching to the full content box, which would flatten the object the shadow is lifting. */
+/* Sized to the longest word, like the cover — and tighter, because the plate's own 7.25rem inset
+   leaves a NARROWER measure (80rem) than the cover's 103.25rem. Archivo Black runs ~0.72em per
+   cap, so 8.5rem holds ~13 characters on a line; at the reference-derived 12rem a single
+   12-character sign-off already overruns the plate and pushes through the ink border. */
 .closing-plate h3 {
-  font-size: 12rem;
+  font-size: 8.5rem;
   line-height: 0.86;
   color: var(--dark);
   max-width: 80rem;

@@ -31,8 +31,17 @@
    close up and the letters want to lock into one solid block. max-width equals the body's content
    box exactly (120rem frame − 2 × 8.375rem), i.e. the headline is allowed the full measure and is
    held only by the padding. */
+/* SIZED TO THE LONGEST WORD, not to the reference's number. The reference sets this at 10.5cqw
+   (= 12.625rem), but its showcase headline is "Creative Mode." — two short words. Archivo Black is
+   a far wider face than block's Inter or professional's Baskerville (~0.72em average cap advance),
+   and a display line CANNOT wrap inside a word, so a single long token sets the real ceiling: at
+   12.625rem a 14-character word like "COMPONENTIZED." measures ~124rem against a 103.25rem
+   content box and runs straight off the canvas (caught by the harness layout audit, not by any
+   unit test). 9.5rem holds ~15 characters on one line with the −0.02em tracking, which covers
+   realistic generated headlines while staying hero-scale — block's Inter hero is 9rem for the same
+   reason. This is the theme's own "size it to the line" rule applied to the face we actually load. */
 .cover h3 {
-  font-size: 12.625rem;
+  font-size: 9.5rem;
   line-height: 0.86;
   letter-spacing: -0.02em;
   max-width: 103.25rem;
