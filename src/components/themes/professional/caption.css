@@ -1,0 +1,31 @@
+/* Professional caption skin: a white card with a hairline cobalt-tinted border and a single
+   cobalt accent bar, carrying near-black VO-transcript copy. No shadow (professional casts
+   none). The harness owns the root rail placement + the master-timeline autoAlpha hook.
+   The bar follows the instance's accent (--capbar); unset ⇒ cobalt. Ported from the showcase
+   .bf-cap / .bf-cap-bar / .bf-cap-text (rem on the 0.125rem grid). */
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1.75rem 3.25rem;
+  background: var(--light);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 0.875rem;
+}
+.caption .cap-bar {
+  align-self: stretch;
+  width: 0.625rem;
+  flex-shrink: 0;
+  border-radius: 0.375rem;
+  background: var(--capbar, var(--primary));
+}
+/* Deliberately no alignment declaration: theme-parity's "cap-text alignment matches block" sweep
+   reads block's rule, which declares none. Keep this note OUTSIDE the rule — the extractor regex
+   is not comment-aware. 3.625rem is the cross-theme caption convention (block, future, capsule). */
+.caption .cap-text {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 3.625rem;
+  line-height: 1.35;
+  color: var(--dark);
+}

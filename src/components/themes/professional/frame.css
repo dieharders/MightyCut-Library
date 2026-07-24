@@ -1,0 +1,73 @@
+/* Professional's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
+   ground onto (the class name is historical — read it as "the frame"); it's the scene's
+   containment root. Professional keeps every frame on the warm cream canvas via
+   `groundDefault: "muted-1"` (theme.ts) rather than a `background: … !important` here — the
+   theme default replaces the shared, block-flavoured per-treatment grounds, but an EXPLICIT
+   scene ground still WINS, which !important made impossible.
+
+   The whole identity is RESTRAINT: warm cream ground, a SINGLE saturated cobalt (--primary,
+   which fills every accent role — the "single accent" is the palette, not a per-skin override),
+   near-black headlines, muted-gray Inter body, soft cobalt-TINTED cards, and NO drop shadows.
+   Every shade lighter/darker/translucent is derived per-use with color-mix() from the ten roles
+   (there is no --pf-* identity layer here — that was the standalone showcase's device). Sizes
+   are rem on a 0.125rem grid (see runtime/css.ts); `9999px` is a shape sentinel ("fully round"),
+   not a size. Ported from video-assets/themes/professional/frame.css (cqw × 1.2, cqh × 0.675). */
+.block-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Backdrop ink hooks — how professional restyles the SHARED mask designs (backdrops are a pool
+     every theme draws from; see primitives/backdrops.ts). Each line-work design paints through
+     `var(--<design>-ink, var(--dark))`; professional runs them all on its single cobalt accent
+     so a mask reads as the house colour on the cream ground rather than a near-black smudge. The
+     hatch design is professional's signature default — the angled vanishing stripes, cobalt on
+     cream, with the soothing hue-drift. The wash is single-TONE on purpose: professional has no
+     second accent, so both gradient hooks point at cobalt (a coherent one-colour bloom, not the
+     two-tone swing block/capsule use). */
+  --dots-ink: var(--primary);
+  --grid-ink: var(--primary);
+  --hatch-ink: var(--primary);
+  --gradient-ink: var(--primary);
+  --gradient-ink-2: var(--primary);
+  container-type: size;
+  font-family: var(--body);
+  /* Body copy default: the muted gray (--muted-3). Headlines/numerals override to ink/cobalt. */
+  color: var(--muted-3);
+}
+.block-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+/* Headline: Space Grotesk, near-black ink, tight tracking. Cobalt never lands on a headline —
+   the accent is carried by numerals, icon badges, pills, rules and fills. */
+.block-frame h3 {
+  font-family: var(--disp);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--dark);
+  margin: 0;
+}
+/* Base eyebrow — professional's quiet cobalt pill: a faint (single-digit-percent) cobalt tint
+   fill carrying an uppercase, wide-tracked cobalt Space Grotesk label, fully rounded, no border,
+   no shadow. The shared fallback so ANY eyebrow-bearing treatment reads on-theme even without
+   its own eyebrow skin; per-treatment skins (cover) layer only scale + spacing over this. It
+   self-removes when the slide sets no eyebrow (pruneRemoved). */
+.block-frame .eyebrow {
+  display: inline-block;
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  color: var(--primary);
+  border-radius: 9999px;
+  padding: 0.625rem 1.625rem;
+  font-family: var(--disp);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  line-height: 1.35;
+}

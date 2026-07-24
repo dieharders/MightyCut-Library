@@ -1,0 +1,47 @@
+/* Ranked row — a label, a faint cobalt-tinted track, and a cobalt fill, with a cobalt value at
+   the end. No shadow, no border on the track (a soft tinted channel, not an outlined pill).
+   The shared bar/rank set --col from the `leader` param via --lead-col/--base-col; professional
+   is single-accent, so both resolve to cobalt. Ported from the showcase .bf-bar-ranking .bar
+   (cqw × 1.2). */
+.rank {
+  --lead-col: var(--primary);
+  --base-col: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  /* Span the row so the flex:1 track has a definite width to fill (a no-op inside bar-ranking's
+     full-width column; stops the track collapsing when shown bare in the showcase). */
+  width: 100%;
+}
+.rank .bl {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: var(--dark);
+  width: 19.25rem;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 3.125rem;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: var(--col, var(--primary));
+  border-radius: 0.75rem;
+  /* MC.growBar scales this from scaleX 0 on a static-width element; the skin owns the origin. */
+  transform-origin: left center;
+}
+.rank .bv {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 1.75rem;
+  color: var(--primary);
+  width: 6rem;
+  text-align: right;
+  flex-shrink: 0;
+}

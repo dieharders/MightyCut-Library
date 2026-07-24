@@ -5,7 +5,7 @@
 import type { ThemeTokens } from "../components/runtime/types";
 
 /** Theme values the engine can lazily register (grows as themes are converted). */
-export const THEMES = ["block", "future", "capsule"] as const;
+export const THEMES = ["block", "future", "capsule", "professional"] as const;
 export type ThemeName = (typeof THEMES)[number];
 
 /** Lazily register a theme's elements + inject its fonts, returning its tokens. */
@@ -22,6 +22,10 @@ export const loadTheme = async (name: ThemeName | string): Promise<ThemeTokens> 
     case "capsule": {
       const m = await import("./register-capsule");
       return m.registerCapsule();
+    }
+    case "professional": {
+      const m = await import("./register-professional");
+      return m.registerProfessional();
     }
     default:
       throw new Error(`unknown theme: ${name} (available: ${THEMES.join(", ")})`);

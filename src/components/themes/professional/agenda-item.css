@@ -1,0 +1,32 @@
+/* Agenda index row: a big cobalt Space Grotesk numeral, a near-black title, and a small muted
+   detail pushed to the right margin — all sitting on a hairline cobalt-tinted rule. Ported from
+   the showcase .bf-agenda .arow / .num / .t / .d (cqw × 1.2). The rule is bottom-only and belongs
+   to the row itself, so agenda.css adds nothing below the last item. */
+.agenda-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2.375rem;
+  padding: 1.75rem 0;
+  border-bottom: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+}
+.agenda-item .num {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.375rem;
+  color: var(--primary);
+  min-width: 5.375rem;
+}
+.agenda-item .t {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.375rem;
+  color: var(--dark);
+}
+.agenda-item .d {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+  margin-left: auto;
+  align-self: center;
+}

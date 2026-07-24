@@ -19,7 +19,7 @@ import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/t
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
 import { collectCss, scopeCss } from "./css";
 import { scrubDeterminism } from "./determinism";
-import { DEFAULT_ENTRANCE, sceneEntranceJs, sceneExitJs } from "./transitions";
+import { DEFAULT_ENTRANCE, sceneEntranceJs } from "./transitions";
 import {
   childrenContainer,
   fillSlots,
@@ -251,12 +251,29 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const ground = `background: var(--${groundFor(ctx, def.ground)})`;
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
-        // Whole-page transition: an assigned animIn/animOut wins over the legacy
-        // def.entrance; unset ⇒ the byte-identical DEFAULT_ENTRANCE + no exit.
-        const { animIn, animOut, timeIn, timeOut } = this.pageTransition();
+        // Whole-page ENTRANCE: an assigned animIn wins over the legacy def.entrance;
+        // unset ⇒ the byte-identical DEFAULT_ENTRANCE.
+        const { animIn, timeIn } = this.pageTransition();
         const entranceJs =
           animIn && animIn !== "none" ? sceneEntranceJs(animIn, timeIn) : (def.entrance ?? DEFAULT_ENTRANCE);
-        const exitJs = animOut && animOut !== "none" ? sceneExitJs(animOut, timeIn, timeOut) : "";
+        // Whole-page EXIT is deliberately NOT emitted into the sub-composition. Under
+        // HyperFrames' seek-based render, a tween INSIDE a nested sub-composition that drives
+        // an element toward a HIDDEN end-state (opacity 0 / off-canvas) leaks that end-state
+        // BACKWARD across the scene: the content blanks partway through while the scene's
+        // narration and caption are still on screen (the "transitioned too early" bug). An
+        // entrance ends VISIBLE, so the identical leak is invisible — only exits show it,
+        // which is why only slides carrying an animOut broke. Verified by rendering a scene
+        // with vs without the exit: without it the content holds for the whole scene; with it
+        // the content vanishes ~mid-scene regardless of the exit's shape (opacity, transform)
+        // or which element it targets (page root or an inner wrapper). The correct home for a
+        // scene exit is the ROOT/master timeline, tweening the CLIP element — root-level
+        // tweens do NOT leak (captions, HUD and the progress bar animate there cleanly), and a
+        // clip-level `tl.to(#clip, {autoAlpha:0, …})` was verified to hold the content for the
+        // whole scene and slide out only in its own window. Threading the page-out spec into
+        // pipeline/root-html.ts is the follow-up that restores animated exits; until then a
+        // scene cuts cleanly at its end (the root already hard-cuts the clip via autoAlpha),
+        // which is strictly better than an exit that blanks the slide mid-narration.
+        const exitJs = "";
         scrubDeterminism(`${entranceJs}\n${bodyJs}\n${exitJs}`, def.name);
         return {
           compId: ctx.compId,

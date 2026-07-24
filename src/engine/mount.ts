@@ -10,11 +10,7 @@
 import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
-import {
-  pageInFor,
-  pageOutFor,
-  type PageSpec,
-} from "../components/runtime/transitions";
+import { pageInFor } from "../components/runtime/transitions";
 import type {
   ComponentInstance,
   ThemeTokens,
@@ -207,8 +203,7 @@ export const mountPreview = (
     root.style.transform = `scale(${k})`;
   };
   let tl: Timeline | null = null;
-  const HOLD = 0.5; // preview beat between the last reveal and the page exit
-  // The resolved whole-scene page transition (treatments only) — replayed live below.
+  // The resolved whole-scene page transition (treatments only) — its IN is replayed live below.
   const pageTx =
     instance.kind === "treatment"
       ? (instance as TreatmentInstance).pageTransition()
@@ -217,38 +212,22 @@ export const mountPreview = (
     if (!gsap || !MC) return;
     const timeline = (tl = gsap.timeline({ paused: true }));
     MC.applyAnims(timeline, anims, MC.showcaseCtx(inner));
-    // Replay the whole-PAGE transition the render emits (buildScene's entranceJs /
-    // exitJs): page IN over the reveals at t=0, page OUT after a hold. buildNode omits
-    // these (the render adds them separately), so the preview reconstructs them here
-    // from the pageInFor / pageOutFor data — otherwise the OUT is never visible.
+    // Replay the whole-PAGE ENTRANCE the render emits (buildScene's entranceJs): page IN
+    // over the reveals at t=0. buildNode omits it (the render adds it separately), so the
+    // preview reconstructs it here from pageInFor. The page EXIT is deliberately NOT
+    // replayed: the render no longer emits a whole-page exit into the sub-composition (it
+    // leaks under HyperFrames' nested seek and blanks the content mid-scene — see
+    // runtime/treatment.ts), so replaying one here would diverge from the rendered video.
     let holdAt = timeline.duration();
-    if (pageTx && (pageTx.animIn || pageTx.animOut)) {
+    if (pageTx && pageTx.animIn && pageTx.animIn !== "none") {
       const pageEl =
         (inner.querySelector(`.${compId}-root`) as Element | null) ?? inner;
-      const play = (
-        spec: PageSpec | null,
-        at: number,
-        durSec: number,
-      ): void => {
-        if (!spec) return;
+      const spec = pageInFor(pageTx.animIn);
+      if (spec) {
         const fn = (MC as unknown as Record<string, PageFactory>)[spec.fn];
-        if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
-      };
-      if (pageTx.animIn && pageTx.animIn !== "none")
-        play(
-          pageInFor(pageTx.animIn),
-          0,
-          TIMING_SECONDS[pageTx.timeIn ?? "short"],
-        );
-      holdAt = timeline.duration(); // the composed frame: after reveals + page-in settle
-      if (pageTx.animOut && pageTx.animOut !== "none") {
-        play(
-          pageOutFor(pageTx.animOut),
-          holdAt + HOLD,
-          TIMING_SECONDS[pageTx.timeOut ?? "short"],
-        );
-        timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause()); // rest revealed, not faded-out
+        if (fn) fn(timeline, pageEl, 0, { dur: TIMING_SECONDS[pageTx.timeIn ?? "short"], ...spec.opts });
       }
+      holdAt = timeline.duration(); // the composed frame: after reveals + page-in settle
     }
     timeline.time(holdAt).pause(); // settle to the composed frame so content is visible at rest
   };

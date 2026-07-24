@@ -1,0 +1,47 @@
+/* 7 · Comparison — a ledger (1.3fr 1fr 1fr): a row-label column plus a "status quo"/"our approach"
+   pair. The empty .corner and the two .ch headers are the treatment's own markup on the grid's
+   first row; each Row child flows into the SAME grid (its .rows wrapper and each .row are
+   display:contents). Row cells live in row.css. Ported from the showcase .bf-comparison
+   (cqw × 1.2, cqh × 0.675). */
+.comparison > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.comparison h3 {
+  font-size: 3.875rem;
+  margin: 1.25rem 0 2.375rem;
+}
+.comparison .ledger {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1.25rem 1.625rem;
+  align-content: center;
+}
+/* Structural, not decorative: without it every Row lands in ONE grid cell instead of spreading
+   its label + two cells across the three tracks. */
+.comparison .rows {
+  display: contents;
+}
+/* Column heads as chips. `.ch.a` is the faint tinted "status quo" pill; `.ch.b` is the solid
+   cobalt "our approach" one — the single place type goes cream-on-cobalt, so it reads as the
+   answer. */
+.comparison .ch {
+  font-family: var(--disp);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.25rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.875rem;
+  text-align: center;
+  align-self: center;
+}
+.comparison .ch.a {
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--muted-3);
+}
+.comparison .ch.b {
+  background: var(--primary);
+  color: var(--light);
+}

@@ -380,9 +380,9 @@
     // kind-by-kind from that list, so the two can't drift.
     var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
     // The backdrop FX a `backdrop` descriptor may name (see the backdrop arm below).
-    // particleBg paints a canvas; washSpin turns a plain element. Both answer the same
-    // factory contract — fx(el, opts).addTo(tl, atSec, durationSec).
-    var BACKDROP_FX = { particleBg: 1, washSpin: 1 };
+    // particleBg paints a canvas; washSpin turns a plain element; hueShift drifts a plain
+    // element's hue. All answer the same factory contract — fx(el, opts).addTo(tl, atSec, durationSec).
+    var BACKDROP_FX = { particleBg: 1, washSpin: 1, hueShift: 1 };
     var revealed = [];
     // display:contents lookups, memoized per call. getComputedStyle FLUSHES pending style,
     // and a scene runs one applyAnims over every descriptor — without this, a scene with N
@@ -682,6 +682,52 @@
             rotation: deg,
             duration: durationSec,
             ease: "none",
+          },
+          at || 0,
+        );
+        return tl;
+      },
+    };
+  };
+
+  /* ---------------------------------------------------------- hue shift --- */
+
+  /**
+   * Very slow hue drift of a full-bleed element — the "soothing colour shift" behind the `hatch`
+   * backdrop's vanishing stripes. Same factory contract as MC.washSpin / MC.particleBg: hand it
+   * the element plus the descriptor's opts, then addTo(tl, atSec, durationSec) to schedule it.
+   *
+   *   MC.hueShift(el, { deg: 28 }).addTo(tl, 0, totalSec)
+   *
+   * The effect is a single time-driven tween of a plain proxy object whose value we write onto
+   * el.style.filter as `hue-rotate(<n>deg)` each update. It touches NO transform (the layer keeps
+   * its own), and hue-rotate is a no-op on a hueless (near-black/white) ink, so a theme that
+   * paints hatch in its dark ink simply doesn't drift — only a saturated hook (professional's
+   * cobalt) visibly shifts.
+   *
+   * DETERMINISM. One plain, ease-less tween — no rAF, no wall clock, no timers, no infinite
+   * repeat. The hue is a pure function of timeline position, so seeking any frame lands on the
+   * same rotation and every run is byte-identical; no seed needed. onUpdate fires only when the
+   * (seeked) playhead moves, exactly as the renderer drives it.
+   */
+  MC.hueShift = function (el, opts) {
+    var o = opts || {};
+    // Degrees of hue drift across the WHOLE scene (a total, not a rate) — keep it small so it is
+    // felt at the edge of vision, never watched.
+    var deg = o.deg != null ? o.deg : 28;
+    var st = { h: 0 };
+    return {
+      /** Drift the element's hue from 0 to `deg` over durationSec, starting at atSec. */
+      addTo: function (tl, at, durationSec) {
+        tl.to(
+          st,
+          {
+            h: deg,
+            duration: durationSec,
+            ease: "none",
+            onUpdate: function () {
+              if (el && el.style) el.style.filter = "hue-rotate(" + st.h + "deg)";
+            },
           },
           at || 0,
         );

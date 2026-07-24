@@ -1,0 +1,50 @@
+/* 5 · Pull Quote — a centred statement in near-black Space Grotesk, opened by a faint oversized
+   cobalt quotation mark and closed by a small muted uppercase attribution, on the cream ground.
+   The concentric rings the showcase centres here are the `ring` decoration family, opt-in per
+   scene. The quote mark is a pseudo-element, so no template override is needed (the shared quote
+   template has no .qm node). Ported from the showcase .bf-quote (cqw × 1.2 → the 0.125rem grid). */
+.quote > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8.125rem 10.875rem 13.5rem;
+}
+.quote .eyebrow {
+  align-self: center;
+  margin-bottom: 2.375rem;
+}
+.quote .qcard {
+  position: relative;
+  z-index: 3;
+  max-width: 88.875rem;
+}
+/* The faint oversized quotation mark — a pseudo, cobalt at low alpha (matching the source's
+   0.15 opacity), sitting above the statement. */
+.quote .qcard::before {
+  content: "\201C";
+  display: block;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 9.625rem;
+  line-height: 0.5;
+  height: 4.75rem;
+  color: color-mix(in srgb, var(--primary) 15%, transparent);
+}
+.quote .qt {
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: 4.125rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--dark);
+  margin-top: 1.25rem;
+}
+.quote .attr {
+  font-family: var(--disp);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.25rem;
+  color: var(--muted-3);
+  margin-top: 2.375rem;
+}

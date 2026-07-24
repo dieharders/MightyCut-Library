@@ -17,6 +17,10 @@ import {
   CAPSULE_DECORATION_COMPONENTS,
   CAPSULE_DECORATION_VARIANTS,
 } from "./primitives/capsule-decoration-shapes";
+import {
+  PROFESSIONAL_DECORATION_COMPONENTS,
+  PROFESSIONAL_DECORATION_VARIANTS,
+} from "./primitives/professional-decoration-shapes";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -36,6 +40,7 @@ import type { BuildContext } from "./runtime/types";
 import { blockTheme } from "./themes/block/theme";
 import { capsuleTheme } from "./themes/capsule/theme";
 import { futureTheme } from "./themes/future/theme";
+import { professionalTheme } from "./themes/professional/theme";
 // The live-theme barrel — every theme-generic sweep iterates THIS, not a hand-written
 // [blockTheme, futureTheme] literal, so a newly converted theme (added to ALL_THEMES +
 // engine THEMES) inherits every parity tripwire below automatically. The pin test
@@ -236,6 +241,7 @@ describe("decoration variant maps are the single source of truth", () => {
     ["block", DECORATION_VARIANTS],
     ["future", FUTURE_DECORATION_VARIANTS],
     ["capsule", CAPSULE_DECORATION_VARIANTS],
+    ["professional", PROFESSIONAL_DECORATION_VARIANTS],
   ];
 
   test.each(MAPS)("%s: each family's schema enum IS its map entry", (_engine, map) => {
@@ -424,13 +430,14 @@ describe("backdrop registry (tripwire)", () => {
     }
   });
 
-  // Exactly two designs are animated, and each drives a DIFFERENT mc.js FX:
-  // constellation paints a seeded particle canvas (particleBg), gradient turns its
-  // two-tone corner wash a few degrees over the scene (washSpin). Everything else is
-  // pure CSS. Adding a third animated design is a deliberate change to this list.
-  const ANIMATED_DESIGNS: Record<string, string> = { constellation: "particleBg", gradient: "washSpin" };
+  // THREE designs are animated, and each drives a DIFFERENT mc.js FX: constellation paints a
+  // seeded particle canvas (particleBg), gradient turns its two-tone corner wash a few degrees
+  // over the scene (washSpin), and hatch drifts the hue of its vanishing stripes across the scene
+  // (hueShift). Everything else is pure CSS. Adding a fourth animated design is a deliberate
+  // change to this list.
+  const ANIMATED_DESIGNS: Record<string, string> = { constellation: "particleBg", gradient: "washSpin", hatch: "hueShift" };
 
-  test("constellation + gradient are animated (a backdrop anim); every other design is static", () => {
+  test("constellation + gradient + hatch are animated (a backdrop anim); every other design is static", () => {
     for (const [name, fn] of Object.entries(ANIMATED_DESIGNS)) {
       const r = BACKDROPS[name].build(input);
       expect(r.anims.length, `design '${name}' should emit exactly one backdrop anim`).toBe(1);
@@ -732,6 +739,142 @@ describe("capsule theme (tripwire)", () => {
     const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
     expect(CORE_FONTS_CSS).not.toContain("Bodoni Moda"); // kept OUT of the always-injected set
     expect(capsuleTheme.css).toContain('"Bodoni Moda"'); // …and named exactly in :root
+  });
+});
+
+// Professional — the fourth live theme (warm cream canvas, a SINGLE cobalt carrying every accent,
+// soft cobalt-tinted cards, NO drop shadows). The generic ALL_THEMES sweeps in theme-parity.test.ts
+// already cover the shared contract; THIS block pins the choices that are professional's alone, so
+// a hand edit that quietly un-picks one (the cream ground pin, the hatch default + hue drift, the
+// no-override CSS-only look, its own hairline decoration roster) fails here instead of shipping as
+// a look change.
+describe("professional theme (tripwire)", () => {
+  const prctx = (compId: string): BuildContext =>
+    rootContext(compId, professionalTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
+
+  for (const factory of allTreatments()) {
+    test(`${factory.treatmentName}: professional scene is well-formed + deterministic`, () => {
+      const compId = `p01-${factory.treatmentName}`;
+      const html = renderScene(factory(), prctx(compId));
+      expect(html).toContain(`data-composition-id="${compId}"`);
+      expect(html).toContain(`.${compId}-root .block-frame`);
+      // professional pins the cream canvas on EVERY treatment via groundDefault (--muted-1), which
+      // replaces the block-flavoured per-treatment grounds without an !important.
+      expect(html).toContain("background: var(--muted-1)");
+      // …and carries the angled vanishing-stripes hatch as its default backdrop.
+      expect(html).toContain("mc-backdrop--hatch");
+      expect(html).not.toContain("data-slot");
+      expect(html).not.toContain("data-anim");
+      expect(html).not.toContain("data-children");
+      expect(() => scrubDeterminism(html)).not.toThrow();
+      // byte-identical across builds (the stripe geometry is fixed + the hue drift is time-driven)
+      expect(renderScene(factory(), prctx(compId))).toBe(html);
+    });
+  }
+
+  test("an explicit scene ground still beats professional's cream pin", () => {
+    const html = renderScene(getTreatment("cover")(), prctx("p01-g"), { ground: "accent-3" });
+    expect(html).toContain("background: var(--accent-3)");
+    expect(html).not.toContain("background: var(--muted-1)");
+  });
+
+  test("hatch backdrop emits a valid, compId-scoped animated (hue-drift) descriptor", () => {
+    const built = getTreatment("cover")().build(prctx("p01-cover-a"));
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "professional scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("hueShift"); // the stripes drift hue; they are not a canvas FX
+    expect(bd?.target).toBe("p01-cover-a-hue"); // the hue-rotated layer is compId-scoped
+  });
+
+  test("professional ships NO template overrides (the whole look is CSS alone)", () => {
+    // The cover panel/dots and the quote rings are decoration components, not markup; the quote
+    // mark is a pseudo-element. Shipping an override is a deliberate change, not a drive-by.
+    expect(Object.keys(professionalTheme.templates ?? {})).toEqual([]);
+  });
+
+  test("treatment skin: stat-grid renders professional's skin, not block's or capsule's", () => {
+    const html = renderScene(getTreatment("stat-grid")(), prctx("p01-sg"));
+    // professional's soft cobalt-tinted card fill — derived, never a literal.
+    expect(html).toContain("color-mix(in srgb, var(--primary) 5%, transparent)");
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
+    expect(html).not.toContain("color-mix(in srgb, var(--dark) 12%, transparent)"); // capsule's soft offset gone
+  });
+
+  test("professional families render the selected shape (inline SVG) + placement + accent, no shadow", () => {
+    const build = (name: string, params?: Record<string, unknown>) =>
+      getComponent(name)(params as never).build(prctx(`sc-${name}`)).html;
+    const halo = build("ring", { variant: "halo", x: 80, y: 20, size: 30, accent: "primary" });
+    expect(halo).toContain("<svg"); // the hairline shape is inline SVG
+    expect(halo).toContain("<circle"); // halo = two concentric rings
+    expect(halo).toContain("--pd-x: 80%"); // placement is var-driven
+    expect(halo).toContain("var(--primary)"); // accent role → stroke
+    expect(halo).not.toContain("drop-shadow("); // professional casts NO shadow
+    expect(build("ring", { variant: "contour", layer: "front" })).toContain("--pd-z: 5");
+    expect(build("panel", { variant: "wedge" })).toContain("<polygon"); // diagonal accent panel
+    expect(build("grille", { variant: "matrix" })).toContain("<circle"); // dot field
+    expect(build("rule", { variant: "ladder", accent: "accent-2" })).toContain("var(--accent-2)");
+    expect(build("rule", { variant: "ladder" })).toContain("<line"); // stroked rules
+  });
+
+  test("the 4 professional families have DISJOINT variant lists (no shared shapes)", () => {
+    const seen = new Map<string, string>();
+    for (const fam of PROFESSIONAL_DECORATION_COMPONENTS) {
+      const variants = schemaVariants(fam);
+      expect(variants.length).toBeGreaterThan(0);
+      for (const v of variants) {
+        expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
+        seen.set(v, fam);
+      }
+    }
+  });
+
+  test("professional's shape vocabulary is disjoint from block's, future's and capsule's", () => {
+    const namesOf = (map: Record<string, readonly string[]>) => Object.values(map).flat();
+    const others = new Set([
+      ...namesOf(DECORATION_VARIANTS),
+      ...namesOf(FUTURE_DECORATION_VARIANTS),
+      ...namesOf(CAPSULE_DECORATION_VARIANTS),
+    ]);
+    for (const v of namesOf(PROFESSIONAL_DECORATION_VARIANTS)) {
+      expect(others.has(v), `professional's shape '${v}' collides with another theme's`).toBe(false);
+    }
+    for (const fam of PROFESSIONAL_DECORATION_COMPONENTS) {
+      expect(Object.keys(DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(FUTURE_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(CAPSULE_DECORATION_VARIANTS)).not.toContain(fam);
+    }
+  });
+
+  test("professional's decoration roster matches its own families (and only those)", () => {
+    expect([...(professionalTheme.decorations ?? [])].sort()).toEqual([...PROFESSIONAL_DECORATION_COMPONENTS].sort());
+    for (const d of PROFESSIONAL_DECORATION_COMPONENTS) {
+      expect(getComponent(d).decoration, `${d} must be flagged a decoration`).toBe(true);
+    }
+  });
+
+  test("professional's examples compose + seed every treatment", () => {
+    const seen: string[] = [];
+    for (const [tname, ex] of Object.entries(professionalTheme.examples ?? {})) {
+      const factory = getTreatment(tname);
+      let inst = factory((ex.params ?? {}) as never);
+      if (ex.children?.length) {
+        const childName = factory.childComponent!;
+        inst = inst.addChildren(...ex.children.map((p) => getComponent(childName)(p as never)));
+      }
+      const exCtx = rootContext(`ex-professional-${tname}`, professionalTheme, { voIds: ["l1", "l2", "l3"] });
+      expect(() => renderScene(inst, exCtx), `professional example '${tname}' failed to compose`).not.toThrow();
+      seen.push(tname);
+    }
+    expect(seen.sort()).toEqual([...TREATMENT_NAMES].sort());
+  });
+
+  test("core fonts cover professional's content families (no add-on woff2 needed)", async () => {
+    const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
+    for (const fam of ["Space Grotesk", "Inter"]) expect(CORE_FONTS_CSS).toContain(fam);
+    // …and professional declares no add-on module, so it must NOT appear in the add-on map.
+    expect(professionalTheme.css).toContain('"Space Grotesk"');
+    expect(professionalTheme.css).toContain('"Inter"');
   });
 });
 

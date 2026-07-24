@@ -1,0 +1,20 @@
+/* Professional icon: a cobalt rounded-square badge with a cream glyph — the same badge the feature
+   cards wear, standalone. The instance accent (--icol) floods the badge fill (a sanctioned
+   re-reading of the shared param, as capsule/future do); unset ⇒ cobalt. The glyph paints through
+   currentColor, pinned to cream so it reads on the cobalt fill. The badge is 1.35× the glyph so
+   the shape stays proportionate at any --isize, which the component always emits. No shadow. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: calc(var(--isize, 12rem) * 1.35);
+  height: calc(var(--isize, 12rem) * 1.35);
+  border-radius: 0.875rem;
+  background: var(--icol, var(--primary));
+  color: var(--light);
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

@@ -12,6 +12,7 @@ import type { ThemeTokens } from "../runtime/types";
 import { blockTheme } from "./block/theme";
 import { capsuleTheme } from "./capsule/theme";
 import { futureTheme } from "./future/theme";
+import { professionalTheme } from "./professional/theme";
 
 /** All live themes, in conversion order (block is the reference implementation). */
-export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme, capsuleTheme];
+export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme, capsuleTheme, professionalTheme];

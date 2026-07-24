@@ -77,11 +77,11 @@ export type FrameGround = PaletteVar;
  * roster. Every theme may use every design, because a design names no theme-specific
  * token; it paints through an `--<design>-ink` hook the using theme re-points.
  *
- * `constellation` and `gradient` are animated (a particle network and a slow-turning
- * two-tone wash, both driven off the scene timeline via the backdrop anim-kind); `dots`,
- * `grid` and `hatch` are static CSS. `gradient`, `grid` and `hatch` were the root chrome's
- * deck-wide `.mc-bg--gradient/grid/pattern` layers before they became per-scene,
- * role-recoloured designs.
+ * `constellation`, `gradient` and `hatch` are animated (a particle network, a slow-turning
+ * two-tone wash, and angled vanishing stripes with a soothing hue drift — all driven off the
+ * scene timeline via the backdrop anim-kind); `dots` and `grid` are static CSS. `gradient`,
+ * `grid` and `hatch` were the root chrome's deck-wide `.mc-bg--gradient/grid/pattern` layers
+ * before they became per-scene, role-recoloured designs.
  */
 export const BACKDROP_NAMES = ["plain", "dots", "constellation", "gradient", "grid", "hatch"] as const;
 export type BackdropName = (typeof BACKDROP_NAMES)[number];

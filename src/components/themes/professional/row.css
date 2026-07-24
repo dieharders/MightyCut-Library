@@ -1,0 +1,35 @@
+/* A ledger row: a row label plus a "status quo"/"our approach" cell pair. The root is
+   display:contents so its three cells participate directly in the parent .ledger grid (comparison
+   .rows is display:contents too). A display:contents root has NO box — never give .row padding,
+   background, border or shadow. All of that lives on .rl / .cell. Ported from the showcase
+   .bf-comparison .rl / .cell / .cell.b (cqw × 1.2). */
+.row {
+  display: contents;
+}
+.row .rl {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--dark);
+  align-self: center;
+}
+/* Each cell is a soft cobalt-tinted capsule of copy: a faint 5% fill, a hairline cobalt border,
+   gently rounded. The "our approach" cell (.cell.b) reads as the answer — a stronger 10% tint and
+   near-black text. No shadow. */
+.row .cell {
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  padding: 1.125rem 1.5rem;
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  color: var(--muted-3);
+  align-self: center;
+}
+.row .cell.b {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--dark);
+  font-weight: 500;
+}

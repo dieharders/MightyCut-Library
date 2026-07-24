@@ -187,26 +187,89 @@ const grid: BackdropDesign = {
   }),
 };
 
-/** hatch — 45° repeating stripes (the old `.mc-bg--pattern`). Static. */
+/** hatch — ANGLED VANISHING STRIPES with a SOOTHING COLOUR SHIFT (was a flat 45° repeating
+ *  gradient, the old `.mc-bg--pattern`). A ladder of parallel diagonal stripes marches across
+ *  the frame THICK+OPAQUE on one edge and TAPERING to a thin, faint hairline on the other, so
+ *  the field reads as stripes receding into the distance — the "vanishing stripes" look ported
+ *  from the source SVG, minus its baked navy ground and hardcoded colour ramp so it stays
+ *  theme-neutral. Every stripe paints through `var(--hatch-ink, var(--dark))` (the design's one
+ *  themeable hook — a theme re-points it in frame.css: professional runs it cobalt on cream),
+ *  and the "colours" the SVG hand-authored as a ramp are reproduced by the single ink at
+ *  ramping OPACITY, so one hook still recolours the whole design.
+ *
+ *  ANIMATED: one `backdrop` descriptor drives MC.hueShift, which turns a slow `hue-rotate()` on
+ *  the layer across the scene — a gentle drift of the ink's hue (cobalt → indigo → violet under
+ *  professional; a no-op for a hueless near-black ink, so block/capsule's hatch is unaffected).
+ *  This is the "soothing colour shift" the source SVG's programmatic colours invited. Like the
+ *  gradient wash it is deterministic — a pure function of timeline position, no seed, no clock.
+ *
+ *  WHY THE SCOPED CLASS. Same reason as gradient/constellation: a `backdrop` anim is NOT run
+ *  through qualifyAnim and the render's `q` is document-wide, so the filter target carries a
+ *  compId-scoped class (`${ctx.idPrefix}-hue`) — otherwise one scene's hue tween would grab
+ *  another scene's layer in the shared render DOM. The CSS stays structural (no per-scene class)
+ *  so it dedupes by name across scenes.
+ *
+ *  The stripe geometry is generated ONCE at module load (a pure loop, no randomness), so the
+ *  markup is byte-identical every build. The viewBox is 16:9 (192×108) with
+ *  preserveAspectRatio="none", which fills the 1920×1080 frame at a uniform 10× scale (the
+ *  aspect ratios match), so the −22° stripe angle renders true rather than sheared. */
 const hatch: BackdropDesign = {
   name: "hatch",
-  build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--hatch"></div>`),
-    css: `${BACKDROP_BASE}
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop).
+    const hueClass = `${ctx.idPrefix}-hue`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--hatch ${hueClass}"><svg viewBox="0 0 192 108" preserveAspectRatio="none"><g transform="rotate(-22 96 54)">${HATCH_STRIPES}</g></svg></div>`,
+      ),
+      css: `${BACKDROP_BASE}
 .mc-backdrop--hatch {
-  opacity: 0.16;
-  /* --hatch-ink: the stripe colour. */
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--hatch-ink, var(--dark)) 0,
-    var(--hatch-ink, var(--dark)) 0.125rem,
-    transparent 0.125rem,
-    transparent 1.125rem
-  );
+  opacity: 0.18;
+  overflow: hidden;
+}
+.mc-backdrop--hatch svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* --hatch-ink: the stripe colour (the design's one themeable hook). The per-stripe opacity in
+   the markup carries the vanish; the hue-rotate FX carries the soothing colour shift. */
+.mc-backdrop--hatch rect {
+  fill: var(--hatch-ink, var(--dark));
 }`,
-    anims: [],
-  }),
+      anims: [
+        {
+          kind: "backdrop",
+          target: hueClass,
+          time: { at: "seconds", t: 0 },
+          // One ease-less hue drift across the whole scene. `deg` is a TOTAL, not a rate, so a
+          // long slide drifts more gently rather than further — atmosphere, felt not watched.
+          opts: { fn: "hueShift", deg: 28 },
+        },
+      ],
+    };
+  },
 };
+
+/** The vanishing-stripe ladder, generated once: parallel vertical bars stepping across x, each
+ *  THINNER and FAINTER than the last (the receding "vanish"). The parent `<g>` rotates them to
+ *  the stripe angle and the parent layer clips the overflow. Oversized in both axes (x from −40,
+ *  y from −80, height 268) so the rotated, cover-scaled band leaves no bare corner. Pure maths,
+ *  no randomness — byte-identical every build. */
+const HATCH_STRIPES: string = (() => {
+  const N = 30;
+  const parts: string[] = [];
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
+    const x = (-40 + t * 272).toFixed(2); // march across an oversized span
+    const w = (6.5 * (1 - t) + 0.8).toFixed(2); // taper thick → thin
+    const op = (0.9 * (1 - t) + 0.08).toFixed(3); // fade opaque → faint
+    parts.push(`<rect x="${x}" y="-80" width="${w}" height="268" opacity="${op}"></rect>`);
+  }
+  return parts.join("");
+})();
 
 // --- The one colour outside the CSS custom-property system ------------------
 // Every other colour in this library is a role var (`var(--primary)`) and anything

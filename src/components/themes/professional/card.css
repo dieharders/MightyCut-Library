@@ -1,0 +1,41 @@
+/* Feature-card = a soft cobalt-tinted card (faint 5% fill, hairline cobalt border, gently
+   rounded, no shadow) opened by a cobalt icon badge. The instance's accent (--ic) fills the
+   badge and nothing else — under professional every role is cobalt, so a row of cards reads as
+   one restrained family. The glyph on the badge is cream (var(--light)). Ported from the
+   showcase .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2). */
+.card {
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 1.25rem;
+  padding: 2.125rem;
+  display: flex;
+  flex-direction: column;
+}
+.card-icon {
+  width: 4.125rem;
+  height: 4.125rem;
+  border-radius: 0.875rem;
+  background: var(--ic, var(--primary));
+  color: var(--light);
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.875rem;
+  margin-bottom: 1.5rem;
+}
+.card-title {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--dark);
+}
+.card-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--muted-3);
+  margin-top: 0.875rem;
+}

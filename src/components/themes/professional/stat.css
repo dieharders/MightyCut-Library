@@ -1,0 +1,36 @@
+/* Stat = a soft cobalt-TINTED card: a faint (5%) cobalt fill, a hairline cobalt border, gently
+   rounded, NO shadow. The figure is the one place colour meets type here — cobalt Space Grotesk,
+   arriving per-instance as --dot (professional's roles are all cobalt, so it reads as the single
+   accent whatever the author picks). The shared corner dot is hidden — professional has no dot.
+   Ported from the showcase .bf-stat-grid .sc / .n / .l (cqw × 1.2). */
+.stat {
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 1.25rem;
+  padding: 2.375rem;
+}
+/* Professional has no corner dot; the shared template's node is hidden rather than removed (no
+   template override needed — nothing animates it). */
+.stat-dot {
+  display: none;
+}
+.stat-number {
+  font-family: var(--disp);
+  font-weight: 700;
+  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
+     crowd; unset ⇒ 1. */
+  font-size: calc(5rem * var(--dense-scale, 1));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--dot, var(--primary));
+}
+.stat-label {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  color: var(--dark);
+  margin-top: 1rem;
+}

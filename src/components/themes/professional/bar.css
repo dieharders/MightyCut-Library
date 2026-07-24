@@ -1,0 +1,59 @@
+/* Chart column — a cobalt bar rising from the plot's baseline (chart.css draws the rule),
+   round-topped, with a cobalt value floating above and a muted uppercase label below. No shadow.
+   The shared bar/rank set --col from the `leader` param via --lead-col/--base-col; professional
+   is single-accent, so both resolve to cobalt (the leader reads by position, not a second hue).
+   Ported from the showcase .bf-chart .bar (cqw × 1.2). */
+.bar {
+  --lead-col: var(--primary);
+  --base-col: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  /* Standalone plot height (chart.css's .bars is 27rem and overrides flex/height so bars share
+     the plot); fixed width so the column stays constant as the value label's text width changes. */
+  height: 28.25rem;
+  width: 9.625rem;
+}
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 3rem; /* headroom the floating value label occupies when the column is full */
+  box-sizing: border-box;
+}
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 0.875rem;
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 1.875rem;
+  line-height: 1;
+  color: var(--primary);
+}
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(--fill); /* % of the track below the padding — 0% empty, 100% full */
+  width: 100%;
+  max-width: 9.625rem;
+  background: var(--col, var(--primary));
+  border-radius: 0.75rem 0.75rem 0 0;
+  box-sizing: border-box;
+  /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
+  transform-origin: bottom;
+}
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1rem;
+  font-family: var(--body);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.25rem;
+  color: var(--muted-3);
+  text-align: center;
+}
