@@ -1,0 +1,56 @@
+/* 3 · Stat Grid — creative's GREEN plane. This is the one frame where the port deliberately
+   INVERTS the reference, and the reason is worth stating plainly for whoever reads it next.
+
+   The reference forced this frame to cream with `background: var(--muted-1) !important` so that
+   its cells could be the accent-filled objects (a green / pink / orange cycle driven by
+   `.sc:nth-child(3n+k)`). Neither half of that move survives the port:
+     · `!important` is banned — it makes an explicit scene ground impossible, i.e. the editor's
+       ground picker silently does nothing (see the ground-resolution tripwire in
+       theme-parity.test.ts). So the frame keeps its shared canonical ground, --accent-2 GREEN.
+     · the nth-child colour cascade is gone too: a stat's accent now arrives per-instance as
+       --dot, cycled upstream by ACCENT_CYCLE in the treatment's defaultChildren, so it survives
+       reordering and an author's explicit pick.
+
+   Inverted, the frame lands in the same place by the opposite route: the GROUND carries the
+   saturated colour and the CELLS become the cream plates (stat.css), with the per-instance accent
+   reduced to the one dot each cell wears. Cream figures on green cells becomes ink figures on
+   cream cells — more legible at 7.25rem, and it keeps the green reading as a plane rather than as
+   nine small patches.
+
+   Consequence for this file: the headline goes CREAM (--muted-1), exactly as on feature-cards'
+   orange — frame.css bases every h3 on --dark, so each saturated-ground treatment restates it.
+
+   The cell look lives in stat.css; this file owns the body padding, the headline rhythm and the
+   grid. Ported from the reference .bf-stat-grid (cqw × 1.2, cqh × 0.675, snapped to 0.125rem). */
+.stat-grid > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* Header block centred, content grid full-width — the reference's shared rule for the six content
+   treatments. As on feature-cards the eyebrow half is a forward guard: the SHARED template has no
+   eyebrow slot (only cover and quote do), so it styles nothing until a template override adds
+   one, and without it frame.css's `align-self: flex-start` would strand a left ink kicker over a
+   centred headline. */
+.stat-grid .eyebrow {
+  align-self: center;
+  margin-bottom: 1.875rem;
+}
+.stat-grid h3 {
+  font-size: 4.75rem;
+  margin: 0 0 2.875rem;
+  color: var(--muted-1);
+  text-align: center;
+}
+/* --cols is emitted by layout() (min(childCount, 4)); the reference's hardcoded repeat(3, 1fr)
+   breaks a 2- or 4-stat slide. `.row` stays qualified — the bare class is also the comparison
+   `row` primitive's root. The gap is wide on purpose: the cream plates each carry a 0.75rem ink
+   offset, so the gutter has to clear the shadow before it reads as a gutter. */
+.stat-grid .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.375rem;
+}
+/* The other half of layout()'s density pair — --dense, the boolean hook at 4+ stats — is
+   deliberately UNUSED here, as in block, capsule and professional: creative answers density with
+   the ratio alone (--dense-scale, applied to the figure in stat.css). Nothing about the grid
+   tightens, so there is no selector to write. */

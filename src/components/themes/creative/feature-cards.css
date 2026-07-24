@@ -1,0 +1,50 @@
+/* 2 · Feature Cards — creative's ORANGE plane, and the loudest frame in the rotation. The ground
+   is the shared canonical --secondary: creative states no groundDefault, so every treatment lands
+   on its own colour and the deck reads as a sequence of full-bleed planes rather than one canvas.
+   Two consequences this file owns:
+
+     · the headline goes CREAM (--muted-1), not ink. Cream-on-accent IS creative's light ink
+       (--light/white is deliberately rare here), and frame.css bases every h3 on --dark — so the
+       colour has to be restated on each saturated-ground treatment. This one and stat-grid are
+       the two; everything else lands on cream / oat / yellow / pink and keeps ink.
+     · the CARDS become the cream plates (card.css), so the orange survives only as the gutter
+       between them and the margin around them. That inversion is the whole frame: the ground is
+       the loud object, the content is the quiet one.
+
+   The card look — cream fill, ink outline, accent badge, the quiet ink-only offset — lives
+   entirely in card.css. This file owns the body padding, the headline size/rhythm and the grid,
+   and nothing else. Ported from the reference .bf-feature-cards (cqw × 1.2, cqh × 0.675, then
+   snapped to the 0.125rem authoring grid — runtime/css.ts). */
+.feature-cards > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* The reference centres this treatment's HEADER BLOCK (`.bf-feature-cards .pill` → align-self
+   center, `.bf-feature-cards h3` → text-align center) while the card row below stays full-width;
+   cover / quote / closing keep their own left anchor. The h3 half is live; the eyebrow half is a
+   one-declaration forward guard — the SHARED template carries no eyebrow slot today (only cover
+   and quote do), so it styles nothing until a template override adds one, at which point
+   frame.css's base `align-self: flex-start` would hang a left-anchored ink kicker over a centred
+   headline and read as a bug. */
+.feature-cards .eyebrow {
+  align-self: center;
+  margin-bottom: 1.875rem;
+}
+/* Case, tracking, leading and family all come from .block-frame h3 in frame.css — Archivo Black,
+   uppercase, 0.92 leading, −0.01em, and NO font-weight (the face ships one weight; asking for a
+   bold would synthesise one). Only size, rhythm, colour and alignment are stated here. */
+.feature-cards h3 {
+  font-size: 4.75rem;
+  margin: 0 0 2.875rem;
+  color: var(--muted-1);
+  text-align: center;
+}
+/* --cols is emitted by the treatment's layout() (min(childCount, 4)); the reference's hardcoded
+   repeat(3, 1fr) breaks a 2- or 4-card slide, so the fallback here IS creative's default and the
+   var is what the author's card count actually drives. `.row` must stay qualified: the bare class
+   is also the root of the comparison `row` primitive. */
+.feature-cards .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 1.875rem;
+}

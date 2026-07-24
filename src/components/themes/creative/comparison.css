@@ -1,0 +1,77 @@
+/* 7 · Comparison — creative's LEDGER: one ink-ruled grid printed onto the YELLOW ground
+   (--accent-1, this treatment's shared canonical ground). Creative states no groundDefault, so the
+   yellow plane IS this frame's identity — the skin is authored against it and never restates it
+   (the emitter stamps the resolved ground inline on `.comparison`).
+
+   The reference reads the ledger as a table pasted into a zine: an OAT block (--muted-2) inside a
+   0.5rem ink outline, its head row one solid bar of ink, its "answer" column picked out in green.
+
+   ONE GRID, NOT THREE. The treatment's own markup lays the first row — the empty `.corner` plus
+   the two `.ch` heads — and every Row child flows into the SAME three tracks because `.rows` AND
+   each `.row` are display:contents (row.css owns the second half of that pair). It is structural,
+   not decorative: drop either one and a whole Row lands inside a single cell.
+
+   NO GAP, deliberately. The cells rule themselves — the head bar is solid ink edge to edge, and
+   each body row draws its own 0.375rem ink border-top (row.css) — so the ledger reads as one
+   printed block. Floating, gapped, individually-outlined chips are block's idiom; creative must
+   not read as a block re-skin.
+
+   THE FRAME'S ONE FLOURISH lands here: the ledger is this frame's single featured block, so it
+   carries the signature ORANGE+INK hard offset (0 blur, never a halo) — orange plate on top, ink
+   sitting 0.25rem proud beneath it as a keyline. Chart and bar-ranking spend nothing on shadow;
+   their columns and fills are GSAP-scaled and a 0-blur offset shears with the transform.
+
+   Ported from the showcase .bf-comparison (cqw × 1.2, cqh × 0.675). */
+.comparison > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* Centred, like every content treatment's header under creative. `.block-frame h3` already fixes
+   the face, case, leading and tracking — a treatment skin varies only size, colour and spacing. */
+.comparison h3 {
+  font-size: 4.375rem;
+  margin: 0 0 2.375rem;
+  text-align: center;
+}
+.comparison .ledger {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  border: 0.5rem solid var(--dark);
+  background: var(--muted-2);
+  box-shadow:
+    1.5rem 1.5rem 0 var(--secondary),
+    1.5rem 1.5rem 0 0.25rem var(--dark);
+}
+/* Structural (see the head comment): without it every Row lands in ONE grid cell instead of
+   spreading its label + two cells across the three tracks. */
+.comparison .rows {
+  display: contents;
+}
+/* The empty top-left cell. Painted INK so the head row reads as one uninterrupted bar rather than
+   an oat notch beside two dark chips — the reference reached the same cell with `:first-child`;
+   the shared template names it. QUALIFIED because `.corner` is also the root class of a decoration
+   family (professional's framing corner marks). That family is never rendered inside a ledger, but
+   an unqualified `.corner` rule would style it if one ever were. */
+.comparison .corner {
+  background: var(--dark);
+}
+/* Column heads: inverted ink plates carrying CREAM Archivo — the same move as the eyebrow
+   kicker-block, at table scale. Archivo Black ships one weight, so no font-weight is stated.
+   flex+center keeps a two-line head aligned with its one-line neighbour. */
+.comparison .ch {
+  display: flex;
+  align-items: center;
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  font-size: 2rem;
+  padding: 1.5rem 1.625rem;
+  background: var(--dark);
+  color: var(--muted-1);
+}
+/* `.ch.b` is the ANSWER column — the one place the head bar breaks from ink into green, so the eye
+   lands on it before reading a single row. `.ch.a` keeps the ink default (no rule needed). */
+.comparison .ch.b {
+  background: var(--accent-2);
+}

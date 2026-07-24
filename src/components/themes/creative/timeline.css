@@ -1,0 +1,64 @@
+/* 6 · Timeline — a row of ink-outlined CREAM step cards (step.css) under a centred Archivo
+   headline, on the OAT plane (--muted-2) the emitter stamps for this treatment. Oat is creative's
+   recessed ground: one step warmer and darker than the cream canvas, so the cream cards read as
+   paper laid ON a sheet rather than holes cut out of it. The card look lives entirely in step.css;
+   this file owns the body padding, the headline rhythm, the grid — and the flip.
+
+   THE LAST STEP FLIPS TO GREEN. This is creative's "swap the ground" move played at card scale: a
+   sequence that ends on --accent-2 reads as a journey that ARRIVES somewhere, instead of four
+   equal tiles in a row. It lives HERE and not in step.css because it is a property of the
+   SEQUENCE, not of a step — a lone step rendered outside a timeline (the Components grid, a
+   one-step slide) must stay cream. And it is written with :last-child rather than
+   :nth-child(4) so it holds at whatever child count layout() emits: 2 steps, 4, or 7.
+
+   The reference's `.bf-timeline { background: var(--muted-2) }` is deliberately dropped — the
+   emitter stamps the RESOLVED scene ground onto .block-frame as an inline style, so a background
+   on a treatment root here would be both dead and a ground-resolution test failure. Ported from
+   the reference .bf-timeline (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem authoring grid —
+   runtime/css.ts). */
+.timeline > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* Header block centred over a full-width grid — the reference's shared rule for the six content
+   treatments (cover / quote / closing keep their own left anchor, and agenda opts out; see
+   agenda.css). As on feature-cards and stat-grid the eyebrow half is a forward guard: the SHARED
+   timeline template carries no eyebrow slot today, so it styles nothing until a template override
+   adds one — at which point frame.css's base `align-self: flex-start` would strand a
+   left-anchored ink kicker over a centred headline and read as a bug. */
+.timeline .eyebrow {
+  align-self: center;
+  margin-bottom: 1.875rem;
+}
+/* Family, case, tracking, ink and the 0.92 leading all come from .block-frame h3 in frame.css —
+   and no font-weight is stated anywhere in this theme, because Archivo Black ships a single
+   weight (400) and asking for a bolder one renders a synthetic. Size, rhythm and alignment only. */
+.timeline h3 {
+  font-size: 4.75rem;
+  margin: 0 0 2.875rem;
+  text-align: center;
+}
+/* `.row` must stay QUALIFIED: the bare class is also the root of the comparison `row` primitive,
+   and an unqualified rule here would restyle it in any scene that inlines both skins. --cols is
+   emitted by the treatment's layout() (min(childCount, 4)); the reference's hardcoded
+   repeat(4, 1fr) breaks a 2- or 3-step slide, so the FALLBACK is creative's default and the var
+   is what the author's step count actually drives. The gutter is the reference's 1.4cqw: each
+   card carries a 0.75rem ink offset into it, leaving 0.875rem of oat still showing between one
+   card's shadow and its neighbour's edge — enough that the offset reads as depth, not as a join. */
+.timeline .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 1.625rem;
+}
+.timeline .step:last-child {
+  background: var(--accent-2);
+}
+/* Every text node in the flipped card is restated rather than left to inherit: step.css gives the
+   numeral, the title and the body each their OWN colour (ink, ink, Ink 2), so a single `color` on
+   the card above would inherit into none of them and all three would stay ink on green. Cream
+   (--muted-1) is creative's light ink — never --light/white. */
+.timeline .step:last-child .step-num,
+.timeline .step:last-child .step-title,
+.timeline .step:last-child .step-body {
+  color: var(--muted-1);
+}

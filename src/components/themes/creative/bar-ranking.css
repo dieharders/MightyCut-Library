@@ -1,0 +1,39 @@
+/* 9 · Bar Ranking — the horizontal sibling of the chart: a stack of ink-outlined tracks whose
+   fills run left to right (rank.css), on the CREAM ground (--muted-1, this treatment's shared
+   canonical ground). Creative states no groundDefault, so cream is the frame's identity; the
+   emitter stamps it inline on `.bar-ranking`, so nothing here states a background on the root.
+
+   Chart and bar-ranking are deliberately the SAME frame turned ninety degrees — identical body
+   padding, identical headline size and rhythm, identical caption — so a deck that shows both reads
+   them as one pair rather than two designs. The only structural difference is the plot: the chart
+   draws an ink baseline under a row of columns, the ranking gives each row its own outlined track.
+
+   NO HARD SHADOW here either. Four stacked tracks each wearing a 0.75rem ink offset turns the
+   frame into a wall of ink and lands squarely on block's idiom; the emphasis is spent on the LEAD
+   COLOUR instead (green leader against pink, rank.css) — the same signal the chart uses.
+
+   Ported from the showcase .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
+.bar-ranking > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.bar-ranking h3 {
+  font-size: 4.375rem;
+  margin: 0 0 2.875rem;
+  text-align: center;
+}
+.bar-ranking .bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1.875rem;
+}
+/* QUALIFIED: `.caption` is also the caption primitive's root class, and both stylesheets can be
+   collected into one scene — an unqualified rule would restyle every rail caption. Matched to
+   chart.css line for line so the pair closes the same way. */
+.bar-ranking .caption {
+  font-family: var(--body);
+  font-size: 1.5rem;
+  color: var(--muted-3);
+  margin-top: 1.625rem;
+  text-align: center;
+}

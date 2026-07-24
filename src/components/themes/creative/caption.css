@@ -1,0 +1,65 @@
+/* Creative caption skin — ROOT CHROME, like the HUD: the harness stamps it into the root caption
+   rail, OUTSIDE .block-frame, so it has no ground of its own and must hold up over all six planes
+   creative rotates through. It is the reference's zine chip: a CREAM card, one ink outline, a hard
+   0-blur ink offset, and a pink bar down the leading edge carrying ink VO copy.
+
+   THE OUTLINE AND THE OFFSET ARE LOAD-BEARING, not decoration. Three treatments land on cream
+   (cover, chart, bar-ranking) and one on oat, so on those frames the chip is very nearly the same
+   colour as the plane behind it — the ink ring and the offset are the ONLY things separating chip
+   from ground. That is why professional's recipe (a white card with a hairline tinted border, no
+   shadow) cannot be borrowed here, and why this is the one root-chrome element in the theme that
+   carries a shadow at all.
+
+   The fill is --muted-1 rather than --light on purpose: creative's "light" ink IS the cream, and
+   --light (true white) appears essentially nowhere in this theme — using it here would introduce a
+   value that reads as a foreign eleventh colour the moment the chip sits on a cream frame.
+
+   border-radius: 0 is STATED rather than left to the default, for the same reason cta.css states
+   it: the caption chip is a rounded lozenge in every other theme in this library, so squareness is
+   a decision here, not an omission.
+
+   UNITS. The reference authored this block in px (it lives outside the cqw frame), but the port
+   deliberately does not convert it literally: .cap-text is pinned to 3.625rem, the cross-theme
+   caption convention every other theme already uses, which is ~2.2× the reference's 26px — so the
+   BOX has to scale with the text, not with the divisor. Padding and gap therefore land on the
+   shared caption geometry (professional's box), while the CHROME comes from creative's own
+   taxonomy: the outline is the 0.5rem ink rule the whole theme is built on, and the offset is held
+   at 0.5rem — a deliberate half-step under the 0.75rem repeated-card stack, because the rail sits
+   at root scale over live footage where a bigger offset crowds the copy, and because an offset
+   exactly as wide as the outline it trails thickens the chip's bottom-right edge rather than
+   detaching from it.
+
+   No font-weight: creative's body ramp is Space Grotesk regular throughout (theme.ts), so the
+   reference's 500 is dropped rather than converted — consistent with every other skin here. Body,
+   not mono: this is transcript prose, the one voice in the theme that is neither display nor
+   taxonomy. The bar takes the instance accent (--capbar); unset ⇒ pink, which IS creative's
+   default for this element. */
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.75rem 3.25rem;
+  background: var(--muted-1);
+  border: 0.5rem solid var(--dark);
+  border-radius: 0;
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
+}
+/* align-self: stretch makes the bar a full-height rule rather than a dash — it reads as the ink
+   frame's coloured inner edge, which is how the reference stages it. */
+.caption .cap-bar {
+  align-self: stretch;
+  width: 0.625rem;
+  flex-shrink: 0;
+  background: var(--capbar, var(--primary));
+}
+/* Deliberately NO alignment declaration: theme-parity's "cap-text alignment matches block" sweep
+   reads block's rule, which declares none, so any text-align here fails the build. This note is
+   kept OUTSIDE the rule body because that extractor's regex is not comment-aware. 3.625rem is the
+   cross-theme caption convention (block, future, capsule, professional), not a conversion of the
+   reference's 26px. */
+.caption .cap-text {
+  font-family: var(--body);
+  font-size: 3.625rem;
+  line-height: 1.3;
+  color: var(--dark);
+}

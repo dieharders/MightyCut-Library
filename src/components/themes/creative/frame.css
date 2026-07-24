@@ -1,0 +1,77 @@
+/* Creative's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
+   resolved ground onto (the class name is historical — read it as "the frame"); it is also the
+   scene's containment root.
+
+   THE IDENTITY IS THE GROUND SWAP. Unlike professional (one cream canvas via groundDefault),
+   creative states NO groundDefault: every treatment lands on its own shared canonical ground and
+   the deck reads as a rotation of full-bleed colour planes — cream · orange · green · pink · oat ·
+   yellow — which is exactly the punk-zine editorial move the source deck is built on ("lay the
+   colour planes, swap the ground"). Each skin in this folder is therefore authored AGAINST ITS
+   OWN GROUND, and a scene that picks an explicit ground still wins over all of it.
+
+   The atoms are sacred: 0 radius on everything structural, one constant INK outline, the
+   signature ORANGE+INK hard offset shadow (0 blur, never a halo) on the one featured block per
+   frame, Archivo Black uppercase at 0.92 line-height, JetBrains Mono taxonomy, Space Grotesk body.
+   Every shade lighter/darker/translucent is derived per-use with color-mix() from the ten roles —
+   the `--cr-*` identity layer of the standalone showcase does NOT exist here. Sizes are rem on the
+   0.125rem grid (runtime/css.ts). Ported from video-assets/themes/creative/frame.css
+   (cqw × 1.2, cqh × 0.675). */
+.block-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Backdrop ink hooks — how creative restyles the SHARED mask designs (backdrops are a pool
+     every theme draws from; see primitives/backdrops.ts). Creative's signature default is `grid`:
+     the 4rem ruled line grid, painted in INK, which reads as the ruled sheet a zine is pasted up
+     on — and ink is legible on EVERY ground creative rotates through (cream, oat, yellow, pink,
+     orange, green are all mid-to-light saturated), which is why the three line-work designs all
+     run on --dark rather than an accent. The wash is the one two-tone design, so it takes a
+     genuine second hue: pink leading, yellow counter-glow in the opposite corner. */
+  --dots-ink: var(--dark);
+  --grid-ink: var(--dark);
+  --hatch-ink: var(--dark);
+  --gradient-ink: var(--primary);
+  --gradient-ink-2: var(--accent-1);
+  container-type: size;
+  font-family: var(--body);
+  /* Body copy default: ink. Cream-on-accent type is stated per-skin, on the frames whose ground
+     is a saturated plane (feature-cards, stat-grid). */
+  color: var(--dark);
+}
+.block-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+/* Eyebrow = creative's KICKER-BLOCK: an INVERTED ink plate carrying cream wide-tracked mono —
+   square, no border, no shadow, never a pill (the theme's one rounded chip is the HUD title's
+   sibling, not this). The shared fallback so any eyebrow-bearing treatment reads on-theme
+   without its own eyebrow rule; per-treatment skins layer only spacing/alignment over it. It
+   self-removes when the slide sets no eyebrow (pruneRemoved). */
+.block-frame .eyebrow {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--dark);
+  color: var(--muted-1);
+  padding: 0.625rem 1.25rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1.375rem;
+  line-height: 1.3;
+}
+/* Headline: Archivo Black, UPPERCASE, 0.92 line-height, −0.01em. The one type rule the whole
+   system is built on — every treatment skin varies only the size, never the case or the leading
+   ratio. Archivo Black ships a single weight (400), so no font-weight is stated: asking for 700
+   or 900 would invite a synthetic bold on a face that has none. */
+.block-frame h3 {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  color: var(--dark);
+  margin: 0;
+}

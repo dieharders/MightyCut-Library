@@ -23,6 +23,8 @@ import { ListNumber } from "./primitives/list-number";
 import { Lozenge } from "./primitives/lozenge";
 // `NodeDeco`, not `Node` — the bare name would shadow the DOM's `Node` global here.
 import { Corner } from "./primitives/corner";
+import { Cutout } from "./primitives/cutout";
+import { Marker } from "./primitives/marker";
 import { NodeDeco } from "./primitives/node";
 import { Pill } from "./primitives/pill";
 import { Grille } from "./primitives/grille";
@@ -33,10 +35,12 @@ import { Ring } from "./primitives/ring";
 import { Row } from "./primitives/row";
 import { Signal } from "./primitives/signal";
 import { Slab } from "./primitives/slab";
+import { Stamp } from "./primitives/stamp";
 import { Starburst } from "./primitives/starburst";
 import { Stat } from "./primitives/stat";
 import { Step } from "./primitives/step";
 import { Stripe } from "./primitives/stripe";
+import { Zag } from "./primitives/zag";
 
 // treatments (whole-slide archetypes)
 import { Agenda } from "./treatments/agenda";
@@ -50,7 +54,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -68,6 +72,7 @@ export {
   Confetti,
   Corner,
   Cta,
+  Cutout,
   Glyph,
   Grille,
   Hud,
@@ -75,6 +80,7 @@ export {
   Keyline,
   ListNumber,
   Lozenge,
+  Marker,
   NodeDeco,
   Pill,
   Rank,
@@ -83,10 +89,12 @@ export {
   Row,
   Signal,
   Slab,
+  Stamp,
   Starburst,
   Stat,
   Step,
   Stripe,
+  Zag,
   Agenda,
   BarRanking,
   Chart,

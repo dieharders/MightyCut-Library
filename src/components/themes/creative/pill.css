@@ -1,0 +1,32 @@
+/* Creative label pill: the KICKER-BLOCK as a standalone atom — the exact recipe frame.css gives
+   .eyebrow, so a pill dropped loose on a frame is indistinguishable from the eyebrow slot of the
+   treatment next to it. An INVERTED ink plate carrying a cream, uppercase, 0.1em-tracked mono
+   label. Square, NO border, NO shadow: this is the one piece of creative chrome that is a solid
+   colour block and nothing else, which is precisely what lets it sit calmly above a headline that
+   is already outlined and shadowed. It is never a rounded chip — the theme's sole rounded shapes
+   are the stat corner dot and the decorative circles.
+
+   The name is historical (the shared primitive is called `pill`); read it as "kicker-block".
+
+   ACCENT PARAM: --pillbg floods the FILL. Unset ⇒ ink (--dark), which IS creative's default for
+   this element — the shared primitive carries no default of its own, so this fallback is the whole
+   specification. DOCUMENTED TRADE-OFF: the label stays on --muted-1 (cream) no matter what the
+   author picks, exactly as the reference does. On the theme's dark and saturated roles that is
+   correct and high-contrast; on a light pick (--accent-1 yellow, --muted-2 oat) cream-on-light
+   goes soft. The alternative — deriving the label colour from the fill — cannot be done in CSS
+   without a literal or a per-variant rule, and inverting it would break the atom's whole identity,
+   which is that it is a PLATE with light type. Authors wanting a light kicker should reach for the
+   badge/lozenge families instead.
+
+   Ported from the showcase .bframe .pill base (cqw × 1.2, snapped to the 0.125rem grid). */
+.pill-c {
+  display: inline-block;
+  background: var(--pillbg, var(--dark));
+  color: var(--muted-1);
+  padding: 0.625rem 1.25rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1.375rem;
+  line-height: 1.3;
+}

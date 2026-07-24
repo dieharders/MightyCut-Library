@@ -1,0 +1,70 @@
+/* Ranked row — a tracked mono label, an ink-outlined OAT track (--muted-2, creative's recessed
+   ground) carrying a flat fill, and an Archivo value at the end. The track is a real outlined
+   channel, not a soft tint: the empty remainder must read as an unfilled printed box, which is
+   what makes a short row look short rather than merely faint.
+
+   THE LEADER VOCABULARY, identical to bar.css by design. The shared Rank component sets `--col`
+   from its `leader` param, resolving through `--lead-col` / `--base-col`; creative points them at
+   GREEN (the answer/arrival colour it uses everywhere — the ledger's answer column, the timeline's
+   final step) and PINK (the resting accent). A chart and a ranking therefore say "this one won" in
+   exactly the same language, which is the point of declaring the pair on both roots rather than
+   letting each treatment invent its own winner colour.
+
+   MOTION SEAM: MC.growBar reveals the fill with scaleX on a STATIC-width element (never by
+   animating layout width, which snapshots ~0 before the scaled container lays out and leaves the
+   track empty). The skin therefore owns the transform-ORIGIN and nothing else — no transition, no
+   animation property, and no hard offset on `.bcol`, which would shear as the fill scales.
+
+   Ported from the showcase .bf-bar-ranking .bar (cqw × 1.2). */
+.rank {
+  --lead-col: var(--accent-2);
+  --base-col: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  width: 100%;
+}
+/* width:100% above spans the row so the flex:1 track has a definite width to fill — a no-op inside
+   bar-ranking's full-width column, but it stops the track collapsing to a sliver when a single
+   Rank is shown bare in the showcase. */
+.rank .bl {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.5rem;
+  color: var(--dark);
+  width: 19.25rem;
+  flex-shrink: 0;
+}
+/* Fixed label width + flex-shrink:0 keep every track starting on the same vertical line, so the
+   bars are comparable by length alone; overflow:hidden clips the fill to the channel, and
+   box-sizing:border-box keeps the 0.5rem outline inside the stated height. */
+.rank .track {
+  flex: 1;
+  height: 3.625rem;
+  background: var(--muted-2);
+  border: 0.5rem solid var(--dark);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: var(--col, var(--primary));
+  transform-origin: left center;
+}
+/* The value closes the row in ink display type — fixed width, right-aligned, so the column of
+   numbers stays flush no matter how long each label or fill is. tabular-nums keeps the count-up
+   from re-flowing digit by digit (a no-op on faces that ship no tnum table). */
+.rank .bv {
+  font-family: var(--disp);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 2.125rem;
+  line-height: 1;
+  color: var(--dark);
+  width: 6rem;
+  text-align: right;
+  flex-shrink: 0;
+}

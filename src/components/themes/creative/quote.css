@@ -1,0 +1,53 @@
+/* 5 · Quote / Big Claim — the frame where THE GROUND IS THE ACCENT. A full-bleed pink plane
+   carrying nothing but an ink kicker-block and an oversized Archivo Black claim in solid INK,
+   left-anchored and vertically centred. FRAME.md: "the ground IS the accent" — so the claim gets
+   no card, no border, no shadow. This is the deliberate parting of ways with the `block` theme,
+   whose quote sets its .qcard as a white shadowed panel; creative's punk-zine move is to paint the
+   whole sheet and let the type sit straight on it.
+
+   GROUND: pink (--primary), stamped inline by the emitter. Ink on pink is the reference pairing
+   and stays well clear of the cream/accent type used on the saturated frames, so no colour is
+   restated on .qt beyond the explicit --dark (the claim must never inherit a lighter ink if the
+   frame default ever moves).
+
+   TEMPLATE DIFFERENCE from the reference: the shared quote template nests .attr INSIDE .qcard,
+   where the showcase had the two as siblings under .body. Two consequences are handled below —
+   the attribution now inherits the card's 82cqw measure (fine, it is one short line), and its
+   top margin would otherwise be an adjacent-sibling margin against .qt. Making .qcard a flex
+   column with align-items:flex-start takes margin collapsing out of the picture entirely and
+   keeps both children hard against the left edge regardless of their intrinsic widths.
+
+   Ported from the showcase .bf-quote (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem grid). */
+.quote > .body {
+  justify-content: center;
+  align-items: flex-start;
+  padding: 9.5rem 9.625rem 13.5rem;
+}
+.quote .eyebrow {
+  margin-bottom: 2.875rem;
+}
+.quote .qcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 98.375rem;
+}
+/* The claim. Same single-weight Archivo Black rule as every other display string in the theme,
+   opened one notch from the frame's 0.92 leading to 0.9 because a claim is short and wants its
+   lines stacked as a slab. No font-weight — the face has one. */
+.quote .qt {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  font-size: 9rem;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: var(--dark);
+}
+.quote .attr {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.625rem;
+  color: var(--dark);
+  margin-top: 2.875rem;
+}

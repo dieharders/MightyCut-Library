@@ -1,0 +1,68 @@
+/* Feature-card = a CREAM plate cut out of the orange ground, opened by a square accent badge.
+   Every atom of creative is in this one object: 0 radius, a constant INK outline, a hard 0-blur
+   offset shadow, Archivo Black uppercase for the title, Space Grotesk for the body.
+
+   WHICH SHADOW: the QUIET ink-only stack, `0.75rem 0.75rem 0 var(--dark)` — never the signature
+   orange+ink one. The rule is one featured block per frame, and a row of three identical cards is
+   by definition not it; three orange-shadowed plates on an orange ground would also lose the
+   offset entirely (the shadow colour would equal the ground). The ink stack reads on every ground
+   creative rotates through, which is why it is the repeated-element default.
+
+   The badge is the theme's per-instance colour hook: the accent arrives as --ic (feature-cards'
+   defaultChildren pick primary / secondary / accent-2 per card), never as an :nth-child cascade,
+   so an author's chosen accent survives reordering. Unset ⇒ yellow (--accent-1), creative's badge
+   colour. The glyph on it stays INK at every accent — pink, orange, green and yellow are all
+   mid-to-light saturated, so ink is the one label colour that reads on all four.
+
+   Ported from the reference .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2, snapped to the
+   0.125rem grid): the reference's 0.4cqw border lands exactly on creative's structural 0.5rem
+   outline, its 0.3cqw badge border on the 0.375rem inner-chrome weight. */
+.card {
+  background: var(--muted-1);
+  border: 0.5rem solid var(--dark);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+  padding: 2.375rem 2.125rem;
+  display: flex;
+  flex-direction: column;
+}
+/* A SQUARE badge, not a chip — the same object icon.css builds standalone. It is a fixed-size
+   box in a flex column, so flex-shrink is pinned: a long body must not squeeze it out of square.
+   No font-weight (Archivo Black is single-weight); box-sizing so the ink ring stays inside the
+   4.75rem square rather than growing it. */
+.card-icon {
+  box-sizing: border-box;
+  width: 4.75rem;
+  height: 4.75rem;
+  flex-shrink: 0;
+  border: 0.375rem solid var(--dark);
+  background: var(--ic, var(--accent-1));
+  color: var(--dark);
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-size: 2.375rem;
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 1.625rem;
+}
+/* Archivo Black, uppercase, set SOLID (line-height 1) so a two-line title reads as a stacked
+   slab — the zine headline idiom at card scale. Never sentence-case this. */
+.card-title {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--dark);
+}
+/* The reference hung this gap off the title (`.t { margin-bottom }`); it is stated as the body's
+   margin-TOP instead, matching every other skin in the library — so a card with no body copy
+   doesn't leave a dangling gap under the title. --muted-3 is creative's Ink 2: body copy sits one
+   step back from the display type without introducing a fifth grey. */
+.card-body {
+  font-family: var(--body);
+  font-size: 1.5rem;
+  line-height: 1.4;
+  color: var(--muted-3);
+  margin-top: 1rem;
+}

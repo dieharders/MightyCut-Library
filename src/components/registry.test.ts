@@ -21,6 +21,10 @@ import {
   PROFESSIONAL_DECORATION_COMPONENTS,
   PROFESSIONAL_DECORATION_VARIANTS,
 } from "./primitives/professional-decoration-shapes";
+import {
+  CREATIVE_DECORATION_COMPONENTS,
+  CREATIVE_DECORATION_VARIANTS,
+} from "./primitives/creative-decoration-shapes";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -39,6 +43,7 @@ import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
 import { blockTheme } from "./themes/block/theme";
 import { capsuleTheme } from "./themes/capsule/theme";
+import { creativeTheme } from "./themes/creative/theme";
 import { futureTheme } from "./themes/future/theme";
 import { professionalTheme } from "./themes/professional/theme";
 // The live-theme barrel — every theme-generic sweep iterates THIS, not a hand-written
@@ -242,6 +247,7 @@ describe("decoration variant maps are the single source of truth", () => {
     ["future", FUTURE_DECORATION_VARIANTS],
     ["capsule", CAPSULE_DECORATION_VARIANTS],
     ["professional", PROFESSIONAL_DECORATION_VARIANTS],
+    ["creative", CREATIVE_DECORATION_VARIANTS],
   ];
 
   test.each(MAPS)("%s: each family's schema enum IS its map entry", (_engine, map) => {
@@ -883,6 +889,189 @@ describe("professional theme (tripwire)", () => {
     // …and both are named exactly in :root.
     expect(professionalTheme.css).toContain('"Libre Baskerville"');
     expect(professionalTheme.css).toContain('"IBM Plex Sans"');
+  });
+});
+
+// Creative — the neobrutalist punk-zine port. Its theme-SPECIFIC fact, and the reason it needs a
+// block of its own, is that it is the first live theme to deliberately declare NO groundDefault:
+// where professional pins one cream canvas and future one navy, creative's identity IS the
+// per-treatment GROUND ROTATION ("lay the colour planes, swap the ground"). The reference CSS
+// reached that rotation with two `background: … !important` overrides, which the ground-resolution
+// tripwire bans; the pins below are what keeps the rotation intact WITHOUT them, so a future edit
+// that adds a groundDefault (or re-pins a frame in a skin) fails here rather than silently
+// flattening the deck to one colour.
+describe("creative theme (tripwire)", () => {
+  const crctx = (compId: string): BuildContext =>
+    rootContext(compId, creativeTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
+
+  // Treatment → the ground creative lands it on. This IS the rotation: six distinct planes across
+  // the ten treatments, every one of them a palette role the theme also uses as an accent or a
+  // canvas. Written out rather than derived so the intended deck rhythm is legible here.
+  const GROUND: Record<string, string> = {
+    cover: "muted-1", // cream
+    chart: "muted-1", // cream
+    "bar-ranking": "muted-1", // cream
+    "feature-cards": "secondary", // orange
+    "stat-grid": "accent-2", // green
+    quote: "primary", // pink
+    "closing-plate": "primary", // pink
+    timeline: "muted-2", // oat
+    agenda: "muted-2", // oat
+    comparison: "accent-1", // yellow
+  };
+
+  for (const factory of allTreatments()) {
+    test(`${factory.treatmentName}: creative scene is well-formed + deterministic`, () => {
+      const name = factory.treatmentName;
+      const compId = `c01-${name}`;
+      const html = renderScene(factory(), crctx(compId));
+      expect(html).toContain(`data-composition-id="${compId}"`);
+      expect(html).toContain(`.${compId}-root .block-frame`);
+      // The rotation: each treatment keeps its OWN canonical ground (no groundDefault to replace
+      // it, no !important to force it).
+      expect(html, `${name} did not land on its canonical ground --${GROUND[name]}`).toContain(
+        `background: var(--${GROUND[name]})`,
+      );
+      // …and carries the ruled line grid as its default backdrop.
+      expect(html).toContain("mc-backdrop--grid");
+      expect(html).not.toContain("data-slot");
+      expect(html).not.toContain("data-anim");
+      expect(html).not.toContain("data-children");
+      expect(() => scrubDeterminism(html)).not.toThrow();
+      expect(renderScene(factory(), crctx(compId))).toBe(html);
+    });
+  }
+
+  test("creative declares NO groundDefault — the rotation is the identity", () => {
+    // Adding one would silently REPLACE every canonical ground above with a single colour, which
+    // is the one change that would erase the theme without failing anything else.
+    expect(creativeTheme.groundDefault).toBeUndefined();
+    // The rotation must actually be a rotation: more than one distinct plane across the deck.
+    expect(new Set(Object.values(GROUND)).size).toBeGreaterThan(3);
+  });
+
+  test("an explicit scene ground still beats creative's canonical ground", () => {
+    const html = renderScene(getTreatment("cover")(), crctx("c01-g"), { ground: "accent-3" });
+    expect(html).toContain("background: var(--accent-3)");
+    expect(html).not.toContain("background: var(--muted-1)");
+  });
+
+  test("creative's default backdrop is the STATIC grid (no backdrop anim to seed)", () => {
+    const built = getTreatment("cover")().build(crctx("c01-cover-a"));
+    expect(built.anims.find((a) => a.kind === "backdrop")).toBeUndefined();
+    // The ruled grid paints through --grid-ink, which frame.css re-points at the ink so the rules
+    // read on every one of the six grounds above.
+    expect(built.css).toContain("--grid-ink");
+  });
+
+  test("creative ships NO template overrides (the whole look is CSS alone)", () => {
+    // The reference's corner disc and rotated stamp are decoration COMPONENTS here, not markup.
+    expect(Object.keys(creativeTheme.templates ?? {})).toEqual([]);
+  });
+
+  test("the signature ORANGE hard offset lands on the closing plate, and only there", () => {
+    // Creative's one flourish: `<off> <off> 0 var(--secondary)` under an ink spread, 0 blur. The
+    // design rule is ONE featured block per frame, so the closer's card wears it and the repeated
+    // cards/cells/steps take the quiet ink-only offset.
+    const closer = renderScene(getTreatment("closing-plate")(), crctx("c01-cp"));
+    expect(closer).toContain("0 var(--secondary)");
+    const cards = renderScene(getTreatment("feature-cards")(), crctx("c01-fc"));
+    expect(cards).not.toContain("0 var(--secondary)");
+  });
+
+  test("treatment skin: stat-grid renders creative's skin, not block's or professional's", () => {
+    const html = renderScene(getTreatment("stat-grid")(), crctx("c01-sg"));
+    expect(html).toContain("var(--dense-scale"); // the density hook is honoured
+    expect(html).not.toContain("color-mix(in srgb, var(--primary) 5%, transparent)"); // professional's tint
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat shadow
+  });
+
+  test("creative families render the selected shape (inline SVG) + placement + accent + hard offset", () => {
+    const build = (name: string, params?: Record<string, unknown>) =>
+      getComponent(name)(params as never).build(crctx(`sc-${name}`)).html;
+    const seal = build("stamp", { variant: "seal", x: 80, y: 20, size: 20, accent: "primary" });
+    expect(seal).toContain("<svg"); // the solid is inline SVG so the outline is a true stroke
+    expect(seal).toContain("--cr-x: 80%"); // placement is var-driven
+    expect(seal).toContain("var(--primary)"); // accent role → fill
+    // The ORANGE hard offset: an ATOM, not the instance accent — and the `0` third component is
+    // the blur, so this also pins "creative casts a solid duplicate, never a halo".
+    expect(seal).toContain("0 var(--secondary)");
+    expect(build("stamp", { variant: "medallion", layer: "front" })).toContain("--cr-z: 5");
+    // Each engine owns a DISTINCT class + var prefix, because `addDecorations()` will happily put
+    // two engines' marks in one scene and a shared prefix silently breaks one of them (capsule's
+    // `--cd-shadow` is a whole drop-shadow() function; creative's `--cr-shadow` is a bare offset).
+    expect(seal).toContain("cr-deco");
+    expect(seal).not.toContain("cd-deco"); // capsule's namespace, not creative's
+    expect(build("marker", { variant: "bolt" })).toContain("<svg");
+    expect(build("zag", { variant: "zigzag" })).toContain("<svg");
+    expect(build("cutout", { variant: "sprocket", accent: "accent-2" })).toContain("var(--accent-2)");
+  });
+
+  test("the 4 creative families have DISJOINT variant lists (no shared shapes)", () => {
+    const seen = new Map<string, string>();
+    for (const fam of CREATIVE_DECORATION_COMPONENTS) {
+      const variants = schemaVariants(fam);
+      expect(variants.length).toBeGreaterThan(0);
+      for (const v of variants) {
+        expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
+        seen.set(v, fam);
+      }
+    }
+  });
+
+  test("creative's shape vocabulary is disjoint from every other theme's", () => {
+    const namesOf = (map: Record<string, readonly string[]>) => Object.values(map).flat();
+    const others = new Set([
+      ...namesOf(DECORATION_VARIANTS),
+      ...namesOf(FUTURE_DECORATION_VARIANTS),
+      ...namesOf(CAPSULE_DECORATION_VARIANTS),
+      ...namesOf(PROFESSIONAL_DECORATION_VARIANTS),
+    ]);
+    for (const v of namesOf(CREATIVE_DECORATION_VARIANTS)) {
+      expect(others.has(v), `creative's shape '${v}' collides with another theme's`).toBe(false);
+    }
+    for (const fam of CREATIVE_DECORATION_COMPONENTS) {
+      expect(Object.keys(DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(FUTURE_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(CAPSULE_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(PROFESSIONAL_DECORATION_VARIANTS)).not.toContain(fam);
+    }
+  });
+
+  test("creative's decoration roster matches its own families (and only those)", () => {
+    expect([...(creativeTheme.decorations ?? [])].sort()).toEqual([...CREATIVE_DECORATION_COMPONENTS].sort());
+    for (const d of CREATIVE_DECORATION_COMPONENTS) {
+      expect(getComponent(d).decoration, `${d} must be flagged a decoration`).toBe(true);
+    }
+  });
+
+  test("creative's examples compose + seed every treatment", () => {
+    const seen: string[] = [];
+    for (const [tname, ex] of Object.entries(creativeTheme.examples ?? {})) {
+      const factory = getTreatment(tname);
+      let inst = factory((ex.params ?? {}) as never);
+      if (ex.children?.length) {
+        const childName = factory.childComponent!;
+        inst = inst.addChildren(...ex.children.map((p) => getComponent(childName)(p as never)));
+      }
+      const exCtx = rootContext(`ex-creative-${tname}`, creativeTheme, { voIds: ["l1", "l2", "l3"] });
+      expect(() => renderScene(inst, exCtx), `creative example '${tname}' failed to compose`).not.toThrow();
+      seen.push(tname);
+    }
+    expect(seen.sort()).toEqual([...TREATMENT_NAMES].sort());
+  });
+
+  test("creative's three faces are ALL core — it ships no add-on font module", async () => {
+    // The inverse of professional's font test: creative names Archivo Black, Space Grotesk and
+    // JetBrains Mono, every one of which is already in the always-injected chrome set, so
+    // register-creative.ts injects core alone and the theme adds ZERO font bytes to a deck. If a
+    // future edit swaps in a face that isn't core, this fails here (and in the parity sweep's
+    // font-coverage check) rather than silently rendering a system fallback.
+    const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
+    for (const fam of ["Archivo Black", "Space Grotesk", "JetBrains Mono"]) {
+      expect(creativeTheme.css, `creative must name ${fam} in :root`).toContain(`"${fam}"`);
+      expect(CORE_FONTS_CSS, `${fam} must be a core face`).toContain(`font-family: "${fam}"`);
+    }
   });
 });
 
