@@ -1,12 +1,12 @@
 /* Ranked row — a label, a faint cobalt-tinted track, and a cobalt fill, with a cobalt value at
    the end. No shadow, no border on the track (a soft tinted channel, not an outlined pill).
    The shared bar/rank set --col from the `leader` param via --lead-col/--base-col; professional
-   is single-accent, so both resolve to cobalt. Ported from the showcase .bf-bar-ranking .bar
-   (cqw × 1.2). */
+   resolves --base-col to cobalt and --lead-col to the one complement (see below). Ported from the
+   showcase .bf-bar-ranking .bar (cqw × 1.2). */
 .rank {
-  /* The top row's fill gets the complementary EMERALD (--accent-3, the palette's one non-cobalt
-     hue), the rest stay cobalt (--base-col) — the winner wears the "positive" colour. The shared
-     rank component sets --col to one or the other from the `leader` param. */
+  /* The top row's fill gets the complementary EMBER ORANGE (--accent-3, the palette's one
+     non-cobalt hue), the rest stay cobalt (--base-col) — the winner wears the complement. The
+     shared rank component sets --col to one or the other from the `leader` param. */
   --lead-col: var(--accent-3);
   --base-col: var(--primary);
   display: flex;

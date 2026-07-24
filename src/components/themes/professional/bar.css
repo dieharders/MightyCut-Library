@@ -1,13 +1,13 @@
 /* Chart column — a cobalt bar rising from the plot's baseline (chart.css draws the rule),
    round-topped, with a cobalt value floating above and a muted uppercase label below. No shadow.
    The shared bar/rank set --col from the `leader` param via --lead-col/--base-col; professional
-   is single-accent, so both resolve to cobalt (the leader reads by position, not a second hue).
+   resolves --base-col to cobalt and --lead-col to the one complement (see below).
    Ported from the showcase .bf-chart .bar (cqw × 1.2). */
 .bar {
-  /* The leader gets the complementary EMERALD (--accent-3, the palette's one non-cobalt hue), the
-     rest stay cobalt (--base-col) — so the winning column reads as "the positive one" rather than
-     just a brighter neighbour. The shared bar component sets --col to one or the other from the
-     `leader` param. */
+  /* The leader gets the complementary EMBER ORANGE (--accent-3, the palette's one non-cobalt hue —
+     the cobalt's opposite on the wheel), the rest stay cobalt (--base-col) — so the winning column
+     reads as "the one that matters" rather than just a brighter neighbour. The shared bar component
+     sets --col to one or the other from the `leader` param. */
   --lead-col: var(--accent-3);
   --base-col: var(--primary);
   display: flex;

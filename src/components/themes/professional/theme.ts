@@ -61,12 +61,14 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
     note: "soft cool surface",
     varName: "accent-2",
   },
-  // Emerald — the one saturated non-cobalt hue: reserved for the LEADING value (chart/rank leader)
-  // and any deliberate "positive". accent-3 is OUTSIDE the accent cycle, so the green only appears
-  // where a skin/scene asks for it.
+  // Ember — the one saturated non-cobalt hue: a true warm COMPLEMENT to the cobalt (opposite side
+  // of the wheel), reserved for the LEADING value (chart/rank leader) and any deliberate "positive".
+  // It also picks up the cream canvas's warmth, so the winning bar reads as a deliberate pairing
+  // rather than a second brand colour. accent-3 is OUTSIDE the accent cycle, so the orange only
+  // appears where a skin/scene asks for it.
   {
-    name: "Emerald",
-    hex: "#059669",
+    name: "Ember",
+    hex: "#EA580C",
     note: "leader / positive",
     varName: "accent-3",
   },
@@ -152,10 +154,10 @@ const rules: ThemeTokens["rules"] = {
     "Render every numeral in cobalt Space Grotesk 600–700.",
     "Lift content with soft cobalt-TINTED cards — 5% fill, 22% hairline border, gently rounded.",
     "Body in Inter 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
-    "The emerald is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
+    "The ember orange is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
   ],
   dont: [
-    "No decorative second accent; cobalt carries emphasis and the emerald is leader/positive-only. No cobalt headlines.",
+    "No decorative second accent; cobalt carries emphasis and the ember orange is leader/positive-only. No cobalt headlines.",
     "No drop shadows anywhere.",
     "No square corners; no opaque cobalt borders.",
     "No font substitutes; no uppercase body.",
