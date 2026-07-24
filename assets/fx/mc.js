@@ -356,7 +356,7 @@
     // title, children …); the gap between slots tightens as the slide narrates more, so every
     // element is up well before the VO finishes reading and nothing flashes at the end. A no-VO
     // scene (voCount 0, incl. the showcase) uses the full per-treatment default `d`.
-    var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.5;
+    var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.6;
     for (var si = 0; si < anims.length; si++) {
       if (anims[si].time && anims[si].time.at === "slot" && anims[si].time.d != null) { slotDefault = anims[si].time.d; break; }
     }
