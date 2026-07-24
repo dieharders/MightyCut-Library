@@ -57,9 +57,9 @@ const dots: BackdropDesign = {
     css: `${BACKDROP_BASE}
 .mc-backdrop--dots {
   opacity: 0.32;
-  /* --dot-ink lets a theme repaint the grid: block's ink dots vanish on a dark ground
+  /* --dots-ink lets a theme repaint the grid: block's ink dots vanish on a dark ground
      (future's --dark abyss on navy is invisible), so future re-points it to cyan. */
-  background-image: radial-gradient(circle, var(--dot-ink, var(--dark)) 0.125rem, transparent 0.125rem);
+  background-image: radial-gradient(circle, var(--dots-ink, var(--dark)) 0.125rem, transparent 0.125rem);
   background-size: 3.625rem 3.625rem;
 }`,
     anims: [],
@@ -73,7 +73,7 @@ const dots: BackdropDesign = {
 // address. They are per-scene designs now, recoloured like every other mask through an
 // `--<design>-ink` hook (the `dots` convention above) so a theme repaints them from its own
 // frame.css without forking the design. (`gradient` is two-tone, so it takes a second hook,
-// `--wash-ink-2`, which falls back through the first.)
+// `--gradient-ink-2`, which falls back through the first.)
 //
 // The two root kinds with no entry here are deliberate: `.mc-bg--solid` IS `plain` (a bare
 // ground, no overlay), and `.mc-bg--particles` IS `constellation` — the same MC.particleBg
@@ -81,7 +81,7 @@ const dots: BackdropDesign = {
 
 /** gradient — a SLOW-TURNING TWO-TONE atmospheric wash (was the old `.mc-bg--gradient`'s
  *  static vertical fade, minus the hardcoded --grad-page). Two soft radial glows sit toward
- *  opposite corners — a leading tone from `--wash-ink`, a counter tone from `--wash-ink-2` —
+ *  opposite corners — a leading tone from `--gradient-ink`, a counter from `--gradient-ink-2` —
  *  over whatever ground the scene carries, and the pair turns a few degrees across the scene
  *  so the field breathes instead of sitting dead still. ANIMATED: one `backdrop` descriptor
  *  driving MC.washSpin, the second animated design after `constellation`.
@@ -122,25 +122,36 @@ const gradient: BackdropDesign = {
   width: 150%;
   height: 150%;
   transform-origin: 50% 50%;
-  /* TWO TONES, TWO HOOKS. --wash-ink is the leading glow (each theme's own warm/ink shade);
-     --wash-ink-2 is the counter glow toward the opposite corner and FALLS BACK THROUGH
-     --wash-ink, so a theme that states only the one hook still gets a coherent single-tone
-     wash rather than an unthemed ink blob. Kept at 8%/10% — this is atmosphere, not a tint:
-     the ground colour must still read as itself underneath.
-     The percentages are stated against this 150% box, so they land where the frame wants
-     them: 25%/23% of the box is 12.5%/9.5% of the FRAME, and 75%/74% is 87.5%/86% — i.e.
-     the same opposite-corner pair the legacy capsule wash used. Likewise the 36% stop spans
-     roughly the frame-relative reach a 46% stop would have on an un-oversized layer. */
+  /* TWO TONES, TWO HOOKS. --gradient-ink is the leading glow (each theme's own warm/ink
+     shade); --gradient-ink-2 is the counter glow toward the opposite corner and FALLS BACK
+     THROUGH it, so a theme that states only the one hook still gets a coherent single-tone
+     wash rather than an unthemed ink blob.
+
+     THE TWO GLOWS MUST OVERLAP. This shipped at 8%/10% with a "transparent 36%" stop and
+     measured, on cream, as a warm/cool swing of ~12/255 with a completely flat band through
+     the middle — i.e. two faint dots rather than one field, which reads as a smudge and not
+     as a two-tone at all. The stop is what fixes it: at 70% each glow reaches well past
+     centre, so the tones MEET and the eye gets a continuous warm-to-cool traverse instead of
+     two isolated blooms. The alphas then carry the hue.
+
+     Still atmosphere, not a tint — the ground must read as itself underneath, which is why
+     these are alphas over the ground rather than opaque stops. Both are deliberately
+     restrained; a theme that wants more turns the hooks at a stronger role, it does not need
+     this file.
+
+     The percentages are stated against the 150% box, so they land where the frame wants
+     them: 25%/23% of the box is 12.5%/9.5% of the FRAME and 75%/74% is 87.5%/86% — the same
+     opposite-corner pair the legacy capsule wash used. */
   background-image:
     radial-gradient(
       ellipse at 25% 23%,
-      color-mix(in srgb, var(--wash-ink, var(--dark)) 8%, transparent),
-      transparent 36%
+      color-mix(in srgb, var(--gradient-ink, var(--dark)) 16%, transparent),
+      transparent 70%
     ),
     radial-gradient(
       ellipse at 75% 74%,
-      color-mix(in srgb, var(--wash-ink-2, var(--wash-ink, var(--dark))) 10%, transparent),
-      transparent 36%
+      color-mix(in srgb, var(--gradient-ink-2, var(--gradient-ink, var(--dark))) 20%, transparent),
+      transparent 70%
     );
 }`,
       anims: [
@@ -267,8 +278,10 @@ const constellation: BackdropDesign = {
 
 /** The mask designs, keyed by name. `plain` is intentionally absent — it means "no
  *  mask" and `buildBackdrop` returns null for it (byte-identical to a bare ground).
- *  Designs are SHARED (any theme may roster any of them); which ones a theme actually
- *  offers is `ThemeTokens.backdrops`, and its canonical one `ThemeTokens.backdrop`. */
+ *  Designs are SHARED and uncurated: every theme may use every one of them (a design
+ *  names no theme-specific token — it paints through its `--<design>-ink` hook), so
+ *  there is no per-theme roster here. A theme names only its DEFAULT, `ThemeTokens.backdrop`.
+ *  (Contrast `ThemeTokens.decorations`, which IS an exclusive roster.) */
 export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation, gradient, grid, hatch };
 
 /**

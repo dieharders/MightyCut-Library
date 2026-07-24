@@ -105,16 +105,19 @@ A treatment's `layout()` sets these on its root; your skin decides what they mea
 
 ### Backdrop ink hooks
 
-Every shared mask paints through `var(--<design>-ink, var(--dark))`. Set all five in your
-`frame.css` — this is how you restyle a design someone else authored (§7).
+Every shared mask paints through `var(--<design>-ink, var(--dark))` — the hook name is the
+design name, mechanically, and `registry.test.ts` derives it rather than looking it up, so a
+design that coins its own spelling fails the build. Set all five in your `frame.css` — this is
+how you restyle a design someone else authored (§7).
 
 ```
---dot-ink   --grid-ink   --hatch-ink   --wash-ink   --wash-ink-2
+--dots-ink   --grid-ink   --hatch-ink   --gradient-ink   --gradient-ink-2
 ```
 
-`gradient` is the one **two-tone** design, so it takes two hooks: `--wash-ink` is the leading
-glow and `--wash-ink-2` the counter glow in the opposite corner. `--wash-ink-2` falls back
-through `--wash-ink`, so a theme that states only the first still gets a coherent single-tone
+`gradient` is the one **two-tone** design, so it takes a second hook past the convention:
+`--gradient-ink` is the leading glow and `--gradient-ink-2` the counter glow in the opposite
+corner. `--gradient-ink-2` falls back through `--gradient-ink`, so a theme that states only
+the first still gets a coherent single-tone
 wash — but then both corners bloom the same colour, which is not the effect. Pick a genuine
 second hue (block: ink + pink; future: cyan + violet).
 
@@ -351,20 +354,20 @@ painted over it, behind the content. Designs live in one shared registry
 (`ThemeTokens.backdrop`) — that's its signature, not its property. A scene overrides the default per slide.
 
 **How a design stays theme-neutral.** It never names a colour: CSS-painted designs paint
-through `var(--<design>-ink, var(--dark))` (`gradient` adds `--wash-ink-2` for its second
+through `var(--<design>-ink, var(--dark))` (`gradient` adds `--gradient-ink-2` for its second
 tone), and `constellation` resolves its canvas colour from the **active** theme's `--primary`
 at build time (`particleRgb`, because canvas 2D can't read CSS custom properties). So
 restyling is a five-line job in your `frame.css`:
 
 ```css
 .block-frame {
-  --dot-ink: var(
+  --dots-ink: var(
     --primary
   ); /* future: cyan dots read on navy; block: black on pastel */
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
-  --wash-ink: var(--primary); /* gradient's leading glow */
-  --wash-ink-2: var(--accent-2); /* …and its counter glow, opposite corner */
+  --gradient-ink: var(--primary); /* gradient's leading glow */
+  --gradient-ink-2: var(--accent-2); /* …and its counter glow, opposite corner */
 }
 ```
 
@@ -385,7 +388,7 @@ const scanlines: BackdropDesign = {
 .mc-backdrop--scanlines {
   opacity: 0.12;
   background-image: repeating-linear-gradient(
-    0deg, var(--scan-ink, var(--dark)) 0, var(--scan-ink, var(--dark)) 0.125rem,
+    0deg, var(--scanlines-ink, var(--dark)) 0, var(--scanlines-ink, var(--dark)) 0.125rem,
     transparent 0.125rem, transparent 0.5rem);
 }`,
     anims: [], // static; an animated design returns a `backdrop`-kind descriptor
@@ -598,11 +601,12 @@ export const neonTheme: ThemeTokens = {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  /* How this theme restyles the shared backdrop designs. Always state all four. */
-  --dot-ink: var(--primary);
+  /* How this theme restyles the shared backdrop designs. Always state all five. */
+  --dots-ink: var(--primary);
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
-  --wash-ink: var(--primary);
+  --gradient-ink: var(--primary);
+  --gradient-ink-2: var(--accent-2);
   container-type: size;
   font-family: var(--disp);
   color: var(--light);

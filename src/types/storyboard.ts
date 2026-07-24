@@ -69,18 +69,19 @@ export type FrameGround = PaletteVar;
  * COLOR (behind the content). Distinct from `ground`: ground is the base colour,
  * backdrop is the pattern/texture over it. Theme-agnostic + shareable — a theme
  * recolours the mask through its `--<design>-ink` hook. `plain` = no mask
- * (byte-identical to a bare ground). A theme declares its canonical design
- * (ThemeTokens.backdrop) and the roster it offers (ThemeTokens.backdrops); a scene may
- * override the design here.
+ * (byte-identical to a bare ground). A theme declares its DEFAULT design
+ * (ThemeTokens.backdrop); a scene may override the design here.
  *
- * This list is the VALIDATION vocabulary (every design that exists); a theme's roster is
- * CURATION over it — the same split decorations use (`ComponentFactory.decoration` gates
- * what exists, `ThemeTokens.decorations` what a theme offers).
+ * This list is the whole vocabulary AND the whole pool: unlike decorations — which the
+ * owning theme curates via `ThemeTokens.decorations` — backdrops carry no per-theme
+ * roster. Every theme may use every design, because a design names no theme-specific
+ * token; it paints through an `--<design>-ink` hook the using theme re-points.
  *
- * `constellation` is animated (a particle network driven off the scene timeline via the
- * backdrop anim-kind); `dots`, `gradient`, `grid` and `hatch` are static CSS. The last
- * three were the root chrome's deck-wide `.mc-bg--gradient/grid/pattern` layers before
- * they became per-scene, role-recoloured designs.
+ * `constellation` and `gradient` are animated (a particle network and a slow-turning
+ * two-tone wash, both driven off the scene timeline via the backdrop anim-kind); `dots`,
+ * `grid` and `hatch` are static CSS. `gradient`, `grid` and `hatch` were the root chrome's
+ * deck-wide `.mc-bg--gradient/grid/pattern` layers before they became per-scene,
+ * role-recoloured designs.
  */
 export const BACKDROP_NAMES = ["plain", "dots", "constellation", "gradient", "grid", "hatch"] as const;
 export type BackdropName = (typeof BACKDROP_NAMES)[number];

@@ -241,8 +241,9 @@ export const capsuleTheme: ThemeTokens = {
   // (yellow eyebrow, coral rule, mint cell, lavender closer), not from the ground.
   groundDefault: "muted-1",
   // Capsule's DEFAULT backdrop: the shared `gradient` wash, re-tinted two-tone through the
-  // --wash-ink / --wash-ink-2 hooks in frame.css (coral top-left into sky bottom-right) — the
-  // component-system home of the legacy `.bframe::before` radial candy glow. It is a default,
+  // --gradient-ink / --gradient-ink-2 hooks in frame.css (coral top-left into sky
+  // bottom-right) — the component-system home of the legacy `.bframe::before` radial candy
+  // glow. It is a default,
   // not ownership: a scene may pick any other design from the shared pool, and any other theme
   // may set this one. See primitives/backdrops.ts.
   backdrop: "gradient",

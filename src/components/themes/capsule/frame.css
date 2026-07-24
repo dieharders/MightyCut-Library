@@ -21,12 +21,12 @@
      candy grounds, which is also their fallback — stated rather than inherited, because the
      hook is the knob a theme turns and a theme that leaves it implicit teaches the next
      author nothing. The wash is the exception: capsule's atmosphere is a two-TONE glow, coral
-     into sky, so it re-points both wash hooks at palette accents. */
-  --dot-ink: var(--dark);
+     into sky, so it re-points both gradient hooks at palette accents. */
+  --dots-ink: var(--dark);
   --grid-ink: var(--dark);
   --hatch-ink: var(--dark);
-  --wash-ink: var(--primary);
-  --wash-ink-2: var(--secondary);
+  --gradient-ink: var(--primary);
+  --gradient-ink-2: var(--secondary);
   container-type: size;
   font-family: var(--body);
   color: var(--dark);

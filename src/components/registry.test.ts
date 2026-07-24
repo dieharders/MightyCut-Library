@@ -443,18 +443,19 @@ describe("backdrop registry (tripwire)", () => {
     }
   });
 
-  // Every static mask paints through an `--<design>-ink` hook with a role fallback, which is
-  // the ONLY way a theme repaints a shared design (future's frame.css re-points --dot-ink /
-  // --grid-ink / --wash-ink to cyan, because ink-on-light is invisible on navy). A design that
-  // hardcodes `var(--dark)` instead renders the same on every theme — invisibly, on a dark one.
-  const INK_HOOKS: Record<string, string> = {
-    dots: "--dot-ink",
-    gradient: "--wash-ink",
-    grid: "--grid-ink",
-    hatch: "--hatch-ink",
-  };
+  // Every CSS-painted mask paints through an `--<design>-ink` hook with a role fallback, which
+  // is the ONLY way a theme repaints a shared design (future's frame.css re-points --dots-ink /
+  // --grid-ink / --gradient-ink to cyan, because ink-on-light is invisible on navy). A design
+  // that hardcodes `var(--dark)` instead renders the same on every theme — invisibly, on a
+  // dark one. The hook name is DERIVED from the design name, not mapped: that is the whole
+  // convention (§7 of docs/THEME-AUTHORING.md), and a design that coins its own hook spelling
+  // fails here rather than silently ignoring what a theme author wrote in frame.css.
+  // `constellation` is exempt — it paints into a canvas, so its colour comes from the theme's
+  // --primary resolved at build time (particleRgb), not from CSS.
+  const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => n !== "constellation");
 
-  test.each(Object.entries(INK_HOOKS))("%s paints through its %s hook (theme-recolourable)", (name, hook) => {
+  test.each(CSS_PAINTED)("%s paints through its --<design>-ink hook (theme-recolourable)", (name) => {
+    const hook = `--${name}-ink`;
     const css = BACKDROPS[name].build(input).css;
     expect(css, `design '${name}' must paint via var(${hook}, …)`).toContain(`var(${hook}, var(--dark))`);
   });
@@ -934,11 +935,11 @@ describe("ground resolution (tripwire)", () => {
   });
 
   // The dot grid is ink-on-light by default; a dark theme must be able to repaint it.
-  test("the dots mask is theme-recolourable via --dot-ink", () => {
+  test("the dots mask is theme-recolourable via --dots-ink", () => {
     expect(BACKDROPS.dots.build({ ground: "muted-2", theme: futureTheme, ctx: fctx("d") }).css).toContain(
-      "var(--dot-ink",
+      "var(--dots-ink",
     );
-    expect(futureTheme.frameCss ?? "").toContain("--dot-ink");
+    expect(futureTheme.frameCss ?? "").toContain("--dots-ink");
   });
 
   // future's cover template dropped the eyebrow slot entirely, so typing one did nothing.
