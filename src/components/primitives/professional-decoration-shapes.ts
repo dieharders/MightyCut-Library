@@ -37,15 +37,22 @@ export type ProfessionalDecorationComponentName =
 
 /** Which shape variants belong to which family — the DISJOINT lists, declared once here and
  *  consumed by each family's `index.ts`, so the enum a component validates against and the list
- *  documented here can't drift. Tripwires in registry.test.ts assert the lists stay disjoint
- *  (within professional AND against block/future/capsule) and that every name draws a distinct
- *  shape. */
+ *  documented here can't drift. Tripwires in registry.test.ts assert the NAMES stay disjoint
+ *  (within professional AND against block/future/capsule); that every name actually DRAWS is
+ *  enforced by the type below, not by a test. */
 export const PROFESSIONAL_DECORATION_VARIANTS = {
   ring: ["halo", "target", "contour"],
   keyline: ["single", "double", "inset"],
   corner: ["corners", "elbow", "ticks"],
   grille: ["matrix", "scatter", "stack"],
 } as const satisfies Record<ProfessionalDecorationComponentName, readonly string[]>;
+
+/** Every professional shape name, flattened — the key type `SHAPES` is checked against, so a
+ *  variant listed above with no drawing (or a typo'd SHAPES key) is a COMPILE error rather than
+ *  a silent fall back to `halo` at render time. The sibling engines (block/future/capsule) still
+ *  type their maps `Record<string, …>`; tightening those the same way is a worthwhile follow-up. */
+export type ProfessionalDecorationVariant =
+  (typeof PROFESSIONAL_DECORATION_VARIANTS)[ProfessionalDecorationComponentName][number];
 
 // Each shape is authored in a square 0..100 viewBox so the box scales uniformly and the outline
 // stays a true SVG stroke. A shape receives the accent as a solid role var (`color`) and the
@@ -64,7 +71,7 @@ const box = (x: number, y: number, s: number, rx: number, a: ShapeAttrs, op: num
 const line = (d: string, a: ShapeAttrs, op: number): string =>
   `<path d="${d}" fill="none" stroke="${a.color}" stroke-width="${a.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="${op}"></path>`;
 
-const SHAPES: Record<string, ShapeFn> = {
+const SHAPES: Record<ProfessionalDecorationVariant, ShapeFn> = {
   // ring — concentric circles (the showcase's `.rings`): hairline strokes, no fill. The reference
   // motif the whole set is a variation on.
   halo: (a) => ringC(46, a, 0.5) + ringC(30, a, 0.5),
@@ -141,7 +148,9 @@ const professionalDecorationLayout = (p: DecoParams): Record<string, string> => 
  *  the constant STROKE_REM at any size: rendered = strokeWidth × (size×1.2 / 100) = STROKE_REM
  *  (the box is size×1.2 rem square). */
 const professionalDecoSvg = (p: DecoParams): string => {
-  const shape = SHAPES[p.variant] ?? SHAPES.halo!;
+  // `p.variant` is a plain string on the shared DecoParams, so the read is widened here; the
+  // MAP itself stays exhaustively typed (above), which is where the drift would happen.
+  const shape = (SHAPES as Record<string, ShapeFn | undefined>)[p.variant] ?? SHAPES.halo;
   const color = `var(--${p.accent})`;
   const sw = ((STROKE_REM * 100) / (p.size * 1.2)).toFixed(3);
   return (

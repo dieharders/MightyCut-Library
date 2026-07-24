@@ -7,7 +7,8 @@
 
    The whole identity is RESTRAINT: warm cream ground, a SINGLE saturated cobalt (--primary,
    which fills every accent role — the "single accent" is the palette, not a per-skin override),
-   near-black headlines, muted-gray Inter body, soft cobalt-TINTED cards, and NO drop shadows.
+   near-black serif headlines, muted-gray IBM Plex Sans body, soft cobalt-TINTED cards, and NO
+   drop shadows.
    Every shade lighter/darker/translucent is derived per-use with color-mix() from the ten roles
    (there is no --pf-* identity layer here — that was the standalone showcase's device). Sizes
    are rem on a 0.125rem grid (see runtime/css.ts); `9999px` is a shape sentinel ("fully round"),
@@ -42,7 +43,7 @@
   display: flex;
   flex-direction: column;
 }
-/* Headline: Space Grotesk, near-black ink, tight tracking. Cobalt never lands on a headline —
+/* Headline: Libre Baskerville, near-black ink, neutral tracking. Cobalt never lands on a headline —
    the accent is carried by numerals, icon badges, pills, rules and fills. */
 .block-frame h3 {
   font-family: var(--disp);
@@ -55,7 +56,7 @@
   margin: 0;
 }
 /* Base eyebrow — professional's quiet cobalt pill: a faint (single-digit-percent) cobalt tint
-   fill carrying an uppercase, wide-tracked cobalt Space Grotesk label, fully rounded, no border,
+   fill carrying an uppercase, wide-tracked cobalt IBM Plex Sans label, fully rounded, no border,
    no shadow. The shared fallback so ANY eyebrow-bearing treatment reads on-theme even without
    its own eyebrow skin; per-treatment skins (cover) layer only scale + spacing over this. It
    self-removes when the slide sets no eyebrow (pruneRemoved). */

@@ -1,4 +1,4 @@
-/* Agenda index row: a big cobalt Space Grotesk numeral, a near-black title, and a small muted
+/* Agenda index row: a big cobalt IBM Plex Sans numeral, a near-black serif title, and a small muted
    detail pushed to the right margin — all sitting on a hairline cobalt-tinted rule. Ported from
    the showcase .bf-agenda .arow / .num / .t / .d (cqw × 1.2). The rule is bottom-only and belongs
    to the row itself, so agenda.css adds nothing below the last item. */

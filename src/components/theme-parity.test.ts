@@ -385,6 +385,31 @@ describe("font coverage (tripwire)", () => {
       `${theme.name} names font families with no @font-face in the core set or in ${theme.name}'s add-on module: ${missing.join(", ")} — inline the woff2 (scripts/gen-inline-fonts.mjs ADDONS) and inject it from register-${theme.name}.ts`,
     ).toEqual([]);
   });
+
+  // The sweeps above prove a theme's `:root` families are really LOADED. This one proves its
+  // SHOWCASE PROSE describes the faces it loads. A theme's `rules` and `typography[].spec` are
+  // user-visible copy rendered in the theme browser, and they are the easiest thing to leave
+  // behind when a port swaps a face late (professional shipped naming Space Grotesk + Inter
+  // while loading Libre Baskerville + IBM Plex Sans). Every font name a theme WRITES DOWN must
+  // be one it actually declares — checked against the union of ALL themes' declared families,
+  // so this only fires on a name that is a real font in this library and demonstrably the wrong
+  // one for that theme. Prose mentioning no font at all is fine.
+  test.each(ALL_THEMES)("$name's showcase prose names only fonts it loads", async (theme) => {
+    const mine = new Set(familiesOf(theme));
+    const anyThemeFamilies = new Set<string>();
+    for (const t of ALL_THEMES) for (const f of familiesOf(t)) anyThemeFamilies.add(f);
+    const prose = [
+      ...(theme.rules?.do ?? []),
+      ...(theme.rules?.dont ?? []),
+      ...(theme.typography ?? []).map((t) => t.spec),
+      theme.description,
+    ].join("   ");
+    const wrong = [...anyThemeFamilies].filter((fam) => !mine.has(fam) && prose.includes(fam));
+    expect(
+      wrong,
+      `${theme.name}'s rules/typography/description name font families it does not load: ${wrong.join(", ")} — it loads ${[...mine].join(", ")}. Update the copy (it renders in the theme browser).`,
+    ).toEqual([]);
+  });
 });
 
 // ------------------------------------------------------------------ palette sanity ---

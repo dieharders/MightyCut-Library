@@ -1,6 +1,6 @@
 // Professional theme — the consulting-grade frame system: a warm cream canvas, a SINGLE saturated
-// cobalt carrying every accent, near-black Space Grotesk headlines, muted-gray Inter body, soft
-// cobalt-TINTED cards, and NO drop shadows. Ported from video-assets/themes/professional/
+// cobalt carrying every accent, near-black Libre Baskerville headlines, muted-gray IBM Plex Sans
+// body, soft cobalt-TINTED cards, and NO drop shadows. Ported from video-assets/themes/professional/
 // frame-showcase.html + frame.css onto the shared component system. Everything professional OWNS
 // lives in this folder, imported as text:
 //   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, the cobalt eyebrow pill)
@@ -9,9 +9,10 @@
 // The `:root` tokens are DERIVED from the 10-role `palette` below (see `tokensCss`), the same shape
 // block, future and capsule use. The showcase's `--pf-*` identity layer does NOT exist here: the
 // "single accent" is the PALETTE (all five accent roles are the one cobalt), and every tint/border
-// shade a skin needs is derived per-use with color-mix() from the ten roles. Space Grotesk (--disp)
-// and Inter (--body) both ride along in the always-staged core chrome set, so professional ships no
-// add-on font (like block).
+// shade a skin needs is derived per-use with color-mix() from the ten roles. Professional is the
+// first theme whose content faces are ENTIRELY its own — Libre Baskerville (--disp) and IBM Plex
+// Sans (--body/--mono), NEITHER of which is in the core chrome set — so it ships an add-on sheet
+// (assets/fonts/professional-fonts.css) and register-professional.ts injects only that, not core.
 import { PROFESSIONAL_DECORATION_COMPONENTS } from "../../primitives/professional-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
 import frameCss from "./frame.css" with { type: "text" };
@@ -112,7 +113,7 @@ const typography: ThemeTokens["typography"] = [
     spec: "Libre Baskerville 700 · serif · near-black — hero titles & the biggest line on a frame",
     sample: "Measured.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-size: 76px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 76px; color: var(--dark);",
   },
   {
     token: "eyebrow",
@@ -150,10 +151,10 @@ const typography: ThemeTokens["typography"] = [
 const rules: ThemeTokens["rules"] = {
   do: [
     "Start every frame on warm cream; a single cobalt carries every accent.",
-    "Set headlines near-black with −0.02em tracking; eyebrows cobalt, uppercase, 0.08em.",
-    "Render every numeral in cobalt Space Grotesk 600–700.",
+    "Set headlines near-black at neutral tracking (a text serif cramps under negative); eyebrows cobalt, uppercase, 0.08em.",
+    "Render every numeral in cobalt IBM Plex Sans 600, tabular.",
     "Lift content with soft cobalt-TINTED cards — 5% fill, 22% hairline border, gently rounded.",
-    "Body in Inter 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
+    "Body in IBM Plex Sans 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
     "The ember orange is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
   ],
   dont: [

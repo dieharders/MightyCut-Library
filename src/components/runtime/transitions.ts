@@ -123,7 +123,15 @@ export const sceneEntranceJs = (animIn: TransitionName, timeIn: TimingPreset = "
 };
 
 /** Page-exit statement(s) for a treatment; anchored to scene end (`dur`), clamped so the
- *  OUT never starts before the IN finishes. Returns `""` for `none`. */
+ *  OUT never starts before the IN finishes. Returns `""` for `none`.
+ *
+ *  RETAINED BUT UNWIRED — `buildScene` deliberately does NOT call this. A tween INSIDE a
+ *  nested sub-composition that drives an element toward a HIDDEN end-state leaks that state
+ *  BACKWARD under HyperFrames' seek render and blanks the scene mid-narration; scene exits
+ *  therefore run on the ROOT/master timeline at the clip level, built from `pageOutFor` by
+ *  the harness (page-exits.json → root-html). See runtime/treatment.ts for the full why.
+ *  Kept because it is the correct emitter for any FLAT (non-nested) page timeline, and its
+ *  clamp is the reference for the root-level one. Do not re-wire it into buildScene. */
 export const sceneExitJs = (
   animOut: TransitionName,
   timeIn: TimingPreset = "short",

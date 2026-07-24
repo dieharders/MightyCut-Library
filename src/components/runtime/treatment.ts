@@ -73,7 +73,9 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   revealDelay?: number;
   /** Whole-scene page IN transition (catalog name). Unset ⇒ the legacy DEFAULT_ENTRANCE. */
   animIn?: TransitionName;
-  /** Whole-scene page OUT transition (catalog name). Unset/`none` ⇒ no exit (hard cut). */
+  /** Whole-scene page OUT transition (catalog name). Unset/`none` ⇒ no exit (hard cut).
+   *  NOT emitted into this sub-composition (see buildScene) — it is resolved via `pageOutFor`
+   *  and played on the ROOT/master timeline at the clip level by the render pipeline. */
   animOut?: TransitionName;
   /** IN duration preset (short/medium/long). Default short when animIn is set. */
   timeIn?: TimingPreset;
@@ -270,12 +272,12 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // scene exit is the ROOT/master timeline, tweening the CLIP element — root-level
         // tweens do NOT leak (captions, HUD and the progress bar animate there cleanly), and a
         // clip-level `tl.to(#clip, {autoAlpha:0, …})` was verified to hold the content for the
-        // whole scene and slide out only in its own window. Threading the page-out spec into
-        // pipeline/root-html.ts is the follow-up that restores animated exits; until then a
-        // scene cuts cleanly at its end (the root already hard-cuts the clip via autoAlpha),
-        // which is strictly better than an exit that blanks the slide mid-narration.
-        const exitJs = "";
-        scrubDeterminism(`${entranceJs}\n${bodyJs}\n${exitJs}`, def.name);
+        // whole scene and slide out only in its own window. That IS where the animated exit now
+        // lives: the harness resolves each scene's animOut through `pageOutFor` into a
+        // page-exits.json sidecar and pipeline/root-html.ts emits `MC.<fn>(tl, "#<clip>", …)`,
+        // clamped so the exit never begins before the scene's narration ends. A scene with no
+        // animOut (or a consumer with no sidecar) hard-cuts via the root's autoAlpha set.
+        scrubDeterminism(`${entranceJs}\n${bodyJs}`, def.name);
         return {
           compId: ctx.compId,
           voIds: ctx.voIds ?? [],
@@ -284,7 +286,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
           bodyHtml: `\n          ${serialize(root.children)}`,
           bodyCss: `\n${scopeCss(bn.css, ctx.compId)}`,
           entranceJs,
-          exitJs,
+          // no `exitJs` — the optional field is left unset (sub-composition defaults it to "")
           bodyJs,
         };
       },
