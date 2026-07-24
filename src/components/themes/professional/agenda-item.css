@@ -10,7 +10,8 @@
   border-bottom: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
 }
 .agenda-item .num {
-  font-family: var(--disp);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 2.375rem;
   color: var(--primary);

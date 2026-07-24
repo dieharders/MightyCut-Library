@@ -17,8 +17,9 @@
   display: none;
 }
 .stat-number {
-  font-family: var(--disp);
-  font-weight: 700;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
   /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
      crowd; unset ⇒ 1. */
   font-size: calc(5rem * var(--dense-scale, 1));

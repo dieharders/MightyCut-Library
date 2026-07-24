@@ -869,12 +869,20 @@ describe("professional theme (tripwire)", () => {
     expect(seen.sort()).toEqual([...TREATMENT_NAMES].sort());
   });
 
-  test("core fonts cover professional's content families (no add-on woff2 needed)", async () => {
+  test("professional's add-on faces are inlined into the engine (neither is a core face)", async () => {
+    // Professional's content faces are ENTIRELY its own — Libre Baskerville (--disp serif) + IBM
+    // Plex Sans (--body/--mono) — injected by register-professional.ts as a second sheet, and the
+    // font-coverage sweep in theme-parity.test.ts credits them from these exact bytes.
+    const { PROFESSIONAL_FONTS_CSS } = await import("../engine/professional-fonts.generated");
+    expect(PROFESSIONAL_FONTS_CSS).toContain('font-family: "Libre Baskerville"');
+    expect(PROFESSIONAL_FONTS_CSS).toContain('font-family: "IBM Plex Sans"');
+    expect(PROFESSIONAL_FONTS_CSS).toContain("data:font/woff2;base64,");
     const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
-    for (const fam of ["Space Grotesk", "Inter"]) expect(CORE_FONTS_CSS).toContain(fam);
-    // …and professional declares no add-on module, so it must NOT appear in the add-on map.
-    expect(professionalTheme.css).toContain('"Space Grotesk"');
-    expect(professionalTheme.css).toContain('"Inter"');
+    expect(CORE_FONTS_CSS).not.toContain("Libre Baskerville"); // kept OUT of the always-injected set
+    expect(CORE_FONTS_CSS).not.toContain("IBM Plex Sans");
+    // …and both are named exactly in :root.
+    expect(professionalTheme.css).toContain('"Libre Baskerville"');
+    expect(professionalTheme.css).toContain('"IBM Plex Sans"');
   });
 });
 

@@ -46,15 +46,15 @@
 }
 .quote .qt {
   font-family: var(--disp);
-  font-weight: 500;
-  font-size: 4.125rem;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  font-size: 3.75rem;
+  line-height: 1.42;
+  letter-spacing: 0;
   color: var(--dark);
   margin-top: 1.25rem;
 }
 .quote .attr {
-  font-family: var(--disp);
+  font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;

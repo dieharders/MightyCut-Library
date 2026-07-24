@@ -8,7 +8,7 @@
   color: var(--primary);
   border-radius: 9999px;
   padding: 0.625rem 1.625rem;
-  font-family: var(--disp);
+  font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;

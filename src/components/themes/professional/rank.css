@@ -40,7 +40,8 @@
   transform-origin: left center;
 }
 .rank .bv {
-  font-family: var(--disp);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 1.75rem;
   color: var(--primary);

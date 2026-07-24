@@ -19,16 +19,16 @@
   color: var(--light);
   display: grid;
   place-items: center;
-  font-family: var(--disp);
+  font-family: var(--mono);
   font-weight: 700;
   font-size: 1.875rem;
   margin-bottom: 1.5rem;
 }
 .card-title {
   font-family: var(--disp);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.75rem;
-  line-height: 1.15;
+  line-height: 1.25;
   color: var(--dark);
 }
 .card-body {

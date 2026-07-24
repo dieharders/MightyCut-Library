@@ -69,14 +69,16 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Ink", hex: "#111111", note: "text + headlines", varName: "dark" },
 ];
 
-/** Font tokens — the only `:root` entries that aren't colours. Space Grotesk carries the display,
- *  headlines, numerals and labels; Inter carries the body. `mono` aliases the display face so a
- *  stray var(--mono) inherited from a shared idiom still lands on Space Grotesk. Both faces are in
- *  the always-staged core set, so professional needs no add-on woff2. */
+/** Font tokens — the only `:root` entries that aren't colours. Libre Baskerville (--disp) carries
+ *  the SERIF prose voice: headlines, section/card/step/agenda titles and the pull-quote statement.
+ *  IBM Plex Sans carries everything structural — paragraphs & supporting copy (--body) and the
+ *  labels / eyebrows / numerals / values / chrome (--mono). Both are professional's OWN add-on
+ *  faces (assets/fonts/professional-fonts.css, injected by engine/register-professional); NEITHER
+ *  is in the core chrome set, so professional loads only these two. */
 const fontTokens: Record<string, string> = {
-  disp: '"Space Grotesk", sans-serif',
-  body: '"Inter", sans-serif',
-  mono: '"Space Grotesk", sans-serif',
+  disp: '"Libre Baskerville", serif',
+  body: '"IBM Plex Sans", sans-serif',
+  mono: '"IBM Plex Sans", sans-serif',
 };
 
 /** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
@@ -93,39 +95,39 @@ const tokensCss = `:root {\n${[
 const typography: ThemeTokens["typography"] = [
   {
     token: "display",
-    spec: "Space Grotesk 700 · −0.02em · near-black — hero titles & the biggest line on a frame",
+    spec: "Libre Baskerville 700 · serif · near-black — hero titles & the biggest line on a frame",
     sample: "Measured.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; line-height: 1.06; font-size: 82px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-size: 76px; color: var(--dark);",
   },
   {
     token: "eyebrow",
-    spec: "Space Grotesk 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
+    spec: "IBM Plex Sans 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
     sample: "Executive Summary",
     style:
-      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--disp); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--primary);",
+      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--primary);",
   },
   {
     token: "metric-value",
-    spec: "Space Grotesk 700 · cobalt — the ONE place colour meets type: stats, counts, prices",
+    spec: "IBM Plex Sans 600 · tabular · cobalt — the ONE place colour meets type: stats, counts, prices",
     sample: "$24.3M",
     style:
-      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--primary);",
+      "font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--primary);",
   },
   {
     token: "body",
-    spec: "Inter 400 · line 1.6 · muted gray — paragraphs & supporting copy, never competing",
+    spec: "IBM Plex Sans 400 · line 1.6 · muted gray — paragraphs & supporting copy, never competing",
     sample:
-      "Inter carries every paragraph in muted gray — readable, premium, never competing with the cobalt accent or the near-black headline.",
+      "IBM Plex Sans carries every paragraph in muted gray — readable, premium, never competing with the cobalt accent or the serif headline.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 660px; color: var(--muted-3);",
   },
   {
     token: "cta",
-    spec: "Space Grotesk 600 · solid cobalt pill · cream label — the one saturated call to action",
+    spec: "IBM Plex Sans 600 · solid cobalt pill · cream label — the one saturated call to action",
     sample: "Book a Briefing",
     style:
-      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--disp); font-weight: 600; letter-spacing: 0.02em; font-size: 17px; color: var(--light);",
+      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.02em; font-size: 17px; color: var(--light);",
   },
 ];
 

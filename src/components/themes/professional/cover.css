@@ -12,8 +12,11 @@
   margin-bottom: 2.125rem;
 }
 .cover h3 {
-  font-size: 8.125rem;
-  line-height: 1.06;
+  /* Baskerville sets wider than the grotesque it replaced, so the hero drops from 8.125rem to
+     hold the same two-line measure without overflowing. */
+  font-size: 7rem;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
   max-width: 74.375rem;
   margin: 0;
 }

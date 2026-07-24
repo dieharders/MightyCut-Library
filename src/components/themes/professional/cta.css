@@ -9,7 +9,7 @@
   color: var(--light);
   border-radius: 9999px;
   padding: 1.25rem 3.125rem;
-  font-family: var(--disp);
+  font-family: var(--mono);
   font-weight: 600;
   letter-spacing: 0.02em;
   font-size: 1.75rem;

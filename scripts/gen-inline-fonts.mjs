@@ -78,7 +78,10 @@ emit(
 // ------------------------------------------------------------- theme add-ons ---
 // theme name → the stylesheet in assets/fonts/ holding the faces that theme needs beyond
 // core. Emits src/engine/<theme>-fonts.generated.ts exporting <THEME>_FONTS_CSS.
-const ADDONS = [{ theme: "capsule", css: "capsule-fonts.css" }];
+const ADDONS = [
+  { theme: "capsule", css: "capsule-fonts.css" },
+  { theme: "professional", css: "professional-fonts.css" },
+];
 
 for (const { theme, css } of ADDONS) {
   const constName = `${theme.toUpperCase().replace(/-/g, "_")}_FONTS_CSS`;
