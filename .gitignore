@@ -6,7 +6,9 @@ node_modules/
 # step (`pnpm prepare:engine`). Do not commit dist/.
 dist/
 
-# Prebuild output: `gen-inline-fonts.mjs` (prebuild:engine) inlines theme fonts into
-# this module before every engine build. Generated, deterministic — do not commit.
-# Only src/engine consumes it; the harness never imports the engine path.
-src/engine/block-fonts.generated.ts
+# Prebuild output: `gen-inline-fonts.mjs` (prebuild:engine / pretest / pretypecheck)
+# inlines fonts into these modules before every engine build — block-fonts.generated.ts
+# (the core chrome set) plus one <theme>-fonts.generated.ts per theme add-on
+# (capsule → Bodoni Moda). Generated, deterministic — do not commit.
+# Only src/engine consumes them; the harness never imports the engine path.
+src/engine/*-fonts.generated.ts

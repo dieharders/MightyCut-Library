@@ -12,11 +12,16 @@
   /* Backdrop ink hooks — how this theme restyles the SHARED mask designs (backdrops are a
      pool every theme draws from; see primitives/backdrops.ts). Each design paints in
      `var(--<design>-ink, var(--dark))`, i.e. ink-on-light by default, which is invisible
-     against future's navy ground — so future paints them all in cyan instead. */
+     against future's navy ground — so future paints them all in cyan instead.
+     `gradient` is the one two-tone design: --wash-ink is its leading glow and --wash-ink-2
+     the counter glow in the opposite corner. Cyan against the violet --accent-2 gives the
+     slow-turning wash the same cool spectral split as future's rule gradients; left unstated
+     it would fall back to --wash-ink and bloom cyan at both corners. */
   --dot-ink: var(--primary);
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
   --wash-ink: var(--primary);
+  --wash-ink-2: var(--accent-2);
   container-type: size;
   font-family: var(--body);
   color: var(--light);

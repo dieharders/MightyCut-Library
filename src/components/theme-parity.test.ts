@@ -294,11 +294,38 @@ describe("caption alignment parity (block is the reference)", () => {
 });
 
 // ----------------------------------------------------------------- font coverage ---
-// Every font family a theme names in its :root font tokens must be a face the render can
-// actually load — i.e. present in the always-staged core chrome set. (Both live themes use
-// only core families; a future theme shipping a non-core woff2 would need it wired into
-// staging AND added to the allowance below — the failure here is the prompt to do so, which
-// is exactly the point: a mis-named or unstaged family renders in a fallback face silently.)
+// Every font family a theme names in its :root font tokens must be a face the browser can
+// actually load. A family with no @font-face anywhere renders in a silent system fallback —
+// green tests, wrong deck — so this sweep pins each theme's names against the faces that are
+// genuinely inlined into the engine.
+//
+// TWO SOURCES OF DECLARED FACES, and the second one is an EXTENSION, not a loosening:
+//   • CORE — assets/fonts.css, inlined into block-fonts.generated.ts and injected by
+//     core-fonts.ts for EVERY theme payload. Space Grotesk / Inter / JetBrains Mono /
+//     Archivo Black.
+//   • THAT THEME'S OWN ADD-ON — assets/fonts/<theme>-fonts.css, inlined into
+//     <theme>-fonts.generated.ts and injected by register-<theme>.ts ALONE (capsule →
+//     Bodoni Moda, which is deliberately kept out of core so block/future decks don't
+//     download a serif they never use).
+//
+// Why this is still as strict as the core-only check it replaces:
+//   1. The add-on set is read from the REAL GENERATED MODULE — the same bytes the browser
+//      injects — not from a hardcoded allowlist of family names. A name can only be credited
+//      if an @font-face for it is actually inlined into the engine bundle. Allowlisting the
+//      string "Bodoni Moda" would have been the loosening; reading the payload is not.
+//   2. The union is PER THEME, not global. Capsule's Bodoni does not become legal for block:
+//      each theme is checked against core ∪ its own add-on, so a theme naming a family that
+//      only some OTHER theme ships still fails.
+//   3. Both sides are parsed the same exact way (each @font-face's own `font-family:`), so a
+//      theme naming "Inter" can't pass against a declared "Inter Tight" — substring matching
+//      would be green while the render fell back to a system face.
+//   4. A typo'd ADDON_FONT_CSS key can't hide a hole: the theme it was meant to cover simply
+//      isn't credited with its add-on and fails the main sweep below.
+//   5. The second test keeps the extension from going vacuous — an add-on module that
+//      inlined nothing (a broken generator run, a renamed source stylesheet) would otherwise
+//      silently degrade a theme back to core-only coverage AND ship a face-less <style>.
+// The one thing this file cannot see is whether register-<theme>.ts remembers to inject the
+// module; that wiring is one line and lives in engine/register-<theme>.ts next to the import.
 describe("font coverage (tripwire)", () => {
   const familiesOf = (theme: ThemeTokens): string[] => {
     // token lines look like `--disp: "Inter", sans-serif;` — pull the FIRST quoted family.
@@ -307,24 +334,55 @@ describe("font coverage (tripwire)", () => {
     return [...out];
   };
 
-  /** The families the core set actually DECLARES — read off each `@font-face`'s own
-   *  `font-family:` so the match is exact. A plain `CORE_FONTS_CSS.includes(fam)` would
-   *  pass a theme naming "Inter" against a face for "Inter Tight" (or any family whose
-   *  name is a substring of a declared one), i.e. green while the render silently falls
-   *  back to a system face. */
+  /** The families a stylesheet actually DECLARES — read off each `@font-face`'s own
+   *  `font-family:` so the match is exact. A plain `CSS.includes(fam)` would pass a theme
+   *  naming "Inter" against a face for "Inter Tight" (or any family whose name is a
+   *  substring of a declared one), i.e. green while the render silently falls back to a
+   *  system face. Used for BOTH the core set and the per-theme add-ons, so the two sides
+   *  are held to identical standards. */
+  const facesIn = (css: string): Set<string> =>
+    new Set([...css.matchAll(/font-family:\s*"([^"]+)"/g)].map((m) => m[1]!));
+
   const coreFamilies = async (): Promise<Set<string>> => {
     const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
-    return new Set([...CORE_FONTS_CSS.matchAll(/font-family:\s*"([^"]+)"/g)].map((m) => m[1]!));
+    return facesIn(CORE_FONTS_CSS);
+  };
+
+  /** theme name → its generated add-on module's CSS (the payload register-<theme>.ts
+   *  injects). Themes absent from this map have no add-on and are checked against core
+   *  alone, exactly as before. Add a row here in the same change that adds the ADDONS row
+   *  in scripts/gen-inline-fonts.mjs and the inject call in register-<theme>.ts. */
+  const ADDON_FONT_CSS: Record<string, () => Promise<string>> = {
+    capsule: async () => (await import("../engine/capsule-fonts.generated")).CAPSULE_FONTS_CSS,
+  };
+
+  const addonFamilies = async (themeName: string): Promise<Set<string>> => {
+    const load = ADDON_FONT_CSS[themeName];
+    return load ? facesIn(await load()) : new Set<string>();
   };
 
   test("the core set declares faces to check against (the sweep isn't vacuous)", async () => {
     expect((await coreFamilies()).size).toBeGreaterThan(0);
   });
 
-  test.each(ALL_THEMES)("$name's content font families are covered by the core faces", async (theme) => {
-    const declared = await coreFamilies();
+  test.each(Object.keys(ADDON_FONT_CSS).map((n) => [n]))(
+    "%s's add-on font module declares at least one face (the extension isn't vacuous)",
+    async (name) => {
+      const faces = await addonFamilies(name);
+      expect(
+        faces.size,
+        `${name} has an add-on font module but it declares no @font-face — re-run \`pnpm gen:fonts\` and check assets/fonts/${name}-fonts.css`,
+      ).toBeGreaterThan(0);
+    },
+  );
+
+  test.each(ALL_THEMES)("$name's content font families are covered by core + its own add-on faces", async (theme) => {
+    const declared = new Set([...(await coreFamilies()), ...(await addonFamilies(theme.name))]);
     const missing = familiesOf(theme).filter((fam) => !declared.has(fam));
-    expect(missing, `${theme.name} names font families with no @font-face in the core set: ${missing.join(", ")}`).toEqual([]);
+    expect(
+      missing,
+      `${theme.name} names font families with no @font-face in the core set or in ${theme.name}'s add-on module: ${missing.join(", ")} — inline the woff2 (scripts/gen-inline-fonts.mjs ADDONS) and inject it from register-${theme.name}.ts`,
+    ).toEqual([]);
   });
 });
 

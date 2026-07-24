@@ -36,6 +36,11 @@ export const COMPONENT_NAMES = [
   "reticle", // brackets · crosshair · gauge · frame
   "glyph", // hexagon · diamond · chevron · triangle
   "signal", // waveform · bars · beam
+  // capsule's candy set (accent-filled solids, one constant ink outline + a soft offset shadow):
+  "blob", // bean · pebble · cloud · drop
+  "lozenge", // pill · stadium · disc · slot
+  "arch", // dome · gate · tunnel · rainbow
+  "confetti", // squiggle · plus · spark · comma
   "icon", // inline-SVG icon from the shared set
   "hud", // full-frame HUD overlay composite
 ] as const;

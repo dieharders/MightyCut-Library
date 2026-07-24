@@ -1,0 +1,52 @@
+/* 7 · Comparison — a pill ledger (1.3fr 1fr 1fr): a row-label column plus a "them"/"us"
+   pair. The empty .corner and the two .ch headers are the treatment's own markup on the
+   grid's first row; each Row child flows into the SAME grid (its .rows wrapper and each
+   .row are display:contents). Row cells live in row.css.
+   Ported from legacy .bf-comparison (cqw x 1.2, cqh x 0.675). Canonical ground is accent-1
+   (yellow) — never authored here, the emitter stamps it. The legacy's white ::before wash
+   over that ground is NOT ported: grounds are scene-configurable now, so whitening whatever
+   the user picks would make the ground control appear to do nothing. */
+.comparison > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.comparison h3 {
+  font-size: 4.375rem;
+  margin: 1.625rem 0 2.625rem;
+}
+.comparison .ledger {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1.375rem 1.625rem;
+  align-content: center;
+}
+/* Structural, not decorative: without it every Row lands in ONE grid cell instead of
+   spreading its label + two cells across the three tracks. row.css carries the twin rule
+   on .row itself, and MC.applyAnims' display:contents retarget path depends on both. */
+.comparison .rows {
+  display: contents;
+}
+/* Column heads as chips. `.ch.a` is the plain white pill; `.ch.b` is the filled coral one
+   — the one place in capsule where type goes light-on-colour, and it is lifted off the
+   ledger by the soft offset shadow so "us" reads as the answer. */
+.comparison .ch {
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1.25rem;
+  color: var(--dark);
+  padding: 0.875rem 1.5rem;
+  border-radius: 9999px;
+  text-align: center;
+}
+.comparison .ch.a {
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+}
+.comparison .ch.b {
+  background: var(--primary);
+  color: var(--light);
+  border: 0.25rem solid var(--dark);
+  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+}

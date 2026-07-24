@@ -13,6 +13,10 @@ import {
   FUTURE_DECORATION_COMPONENTS,
   FUTURE_DECORATION_VARIANTS,
 } from "./primitives/future-decoration-shapes";
+import {
+  CAPSULE_DECORATION_COMPONENTS,
+  CAPSULE_DECORATION_VARIANTS,
+} from "./primitives/capsule-decoration-shapes";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -30,6 +34,7 @@ import {
 import { rootContext } from "./runtime";
 import type { BuildContext } from "./runtime/types";
 import { blockTheme } from "./themes/block/theme";
+import { capsuleTheme } from "./themes/capsule/theme";
 import { futureTheme } from "./themes/future/theme";
 // The live-theme barrel — every theme-generic sweep iterates THIS, not a hand-written
 // [blockTheme, futureTheme] literal, so a newly converted theme (added to ALL_THEMES +
@@ -230,6 +235,7 @@ describe("decoration variant maps are the single source of truth", () => {
   const MAPS: [string, Record<string, readonly string[]>][] = [
     ["block", DECORATION_VARIANTS],
     ["future", FUTURE_DECORATION_VARIANTS],
+    ["capsule", CAPSULE_DECORATION_VARIANTS],
   ];
 
   test.each(MAPS)("%s: each family's schema enum IS its map entry", (_engine, map) => {
@@ -418,13 +424,21 @@ describe("backdrop registry (tripwire)", () => {
     }
   });
 
-  test("constellation is animated (a backdrop anim); every other design is static", () => {
-    const con = BACKDROPS.constellation.build(input);
-    expect(con.anims.length).toBe(1);
-    expect(con.anims[0].kind).toBe("backdrop");
-    expect(con.anims[0].opts?.fn).toBe("particleBg");
+  // Exactly two designs are animated, and each drives a DIFFERENT mc.js FX:
+  // constellation paints a seeded particle canvas (particleBg), gradient turns its
+  // two-tone corner wash a few degrees over the scene (washSpin). Everything else is
+  // pure CSS. Adding a third animated design is a deliberate change to this list.
+  const ANIMATED_DESIGNS: Record<string, string> = { constellation: "particleBg", gradient: "washSpin" };
+
+  test("constellation + gradient are animated (a backdrop anim); every other design is static", () => {
+    for (const [name, fn] of Object.entries(ANIMATED_DESIGNS)) {
+      const r = BACKDROPS[name].build(input);
+      expect(r.anims.length, `design '${name}' should emit exactly one backdrop anim`).toBe(1);
+      expect(r.anims[0].kind).toBe("backdrop");
+      expect(r.anims[0].opts?.fn).toBe(fn);
+    }
     for (const [name, design] of Object.entries(BACKDROPS)) {
-      if (name === "constellation") continue;
+      if (name in ANIMATED_DESIGNS) continue;
       expect(design.build(input).anims, `design '${name}' should be static (pure CSS)`).toEqual([]);
     }
   });
@@ -546,6 +560,177 @@ describe("future theme (tripwire)", () => {
         expect(() => renderScene(inst, exCtx), `${theme.name} example '${tname}' failed to compose`).not.toThrow();
       }
     }
+  });
+});
+
+// Capsule — the third live theme (cream candy canvas, every container a fully rounded pill
+// wrapped in ONE ink outline and lifted by a soft, never-blurred offset shadow). The generic
+// ALL_THEMES sweeps in theme-parity.test.ts already cover the contract capsule shares with
+// block and future; THIS block pins the choices that are capsule's alone, so a hand edit that
+// quietly un-picks one (the cream ground pin, the two-tone gradient default, the cover rule
+// override, its own candy decoration roster) fails here instead of shipping as a look change.
+describe("capsule theme (tripwire)", () => {
+  const cctx = (compId: string): BuildContext =>
+    rootContext(compId, capsuleTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
+
+  for (const factory of allTreatments()) {
+    test(`${factory.treatmentName}: capsule scene is well-formed + deterministic`, () => {
+      const compId = `c01-${factory.treatmentName}`;
+      const html = renderScene(factory(), cctx(compId));
+      expect(html).toContain(`data-composition-id="${compId}"`);
+      expect(html).toContain(`.${compId}-root .block-frame`);
+      // capsule pins the cream canvas on EVERY treatment via groundDefault (--muted-1), which
+      // replaces the block-flavoured per-treatment grounds without an !important; the candy
+      // variety comes from the wash + the accents, not from the ground.
+      expect(html).toContain("background: var(--muted-1)");
+      // …and carries the two-tone corner wash as its default backdrop.
+      expect(html).toContain("mc-backdrop--gradient");
+      expect(html).not.toContain("data-slot");
+      expect(html).not.toContain("data-anim");
+      expect(html).not.toContain("data-children");
+      expect(() => scrubDeterminism(html)).not.toThrow();
+      // byte-identical across builds (the wash is pure CSS + one time-driven tween)
+      expect(renderScene(factory(), cctx(compId))).toBe(html);
+    });
+  }
+
+  test("an explicit scene ground still beats capsule's cream pin", () => {
+    // groundDefault REPLACES the canonical grounds; it must not FORCE them. (A
+    // `background: … !important` in frameCss is what would break this — and the editor's
+    // ground picker would appear to do nothing.)
+    const html = renderScene(getTreatment("cover")(), cctx("c01-g"), { ground: "accent-3" });
+    expect(html).toContain("background: var(--accent-3)");
+    expect(html).not.toContain("background: var(--muted-1)");
+  });
+
+  test("gradient backdrop emits a valid, compId-scoped animated descriptor", () => {
+    const built = getTreatment("cover")().build(cctx("c01-cover-a"));
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "capsule scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("washSpin"); // the wash turns; it is not a canvas FX
+    expect(bd?.target).toBe("c01-cover-a-wash"); // the rotating layer is compId-scoped
+  });
+
+  test("template override: cover adds an ANIMATED coral rule + preserves every shared slot", () => {
+    const built = getTreatment("cover")().build(cctx("c01-cover"));
+    const html = built.html;
+    const ex = getTreatment("cover").defaults() as {
+      headline: string;
+      subtitle?: string;
+      eyebrow?: string;
+    };
+    // The shared coverAnim ALREADY emits a `rule`-kind descriptor that no-ops wherever no node
+    // stamps the id (block). Capsule's override adds the node, so the accent bar draws itself
+    // in under the just-arrived headline for free. `rule` is the ONE class idiom — cover.css
+    // styles `.cover .rule`, and the reveal binds to the stamped `.<prefix>-rule` from the
+    // data-anim id, never to the class attribute.
+    expect(html).toContain('class="rule c01-cover-rule"');
+    expect(built.anims.some((a) => a.kind === "rule" && a.target === "c01-cover-rule")).toBe(true);
+    // Additive only: every shared data-slot survives the override, so no editor control no-ops.
+    if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
+    expect(html).toContain(ex.headline);
+    if (ex.subtitle) expect(html).toContain(ex.subtitle);
+  });
+
+  test("cover is capsule's ONLY structure override (the rest is CSS alone)", () => {
+    // closing-plate, quote and stat reach their capsule look with a pseudo-element rule, a
+    // transparent max-width quote wrapper and flex `order` on the existing (untargeted)
+    // .stat-dot. Shipping a second override is a deliberate change, not a drive-by.
+    expect(Object.keys(capsuleTheme.templates ?? {})).toEqual(["cover"]);
+    // …so the shared stat template's dot SURVIVES here (future deletes it); capsule re-purposes
+    // it as the accent underline, painted off the SAME --dot role as the figure.
+    const sg = renderScene(getTreatment("stat-grid")(), cctx("c01-sg"));
+    expect(sg).toContain("stat-dot");
+    expect(sg).toContain("stat-number");
+    expect(sg).toContain("var(--dot"); // the accent arrives as a param, never :nth-child
+  });
+
+  test("treatment skin: stat-grid renders capsule's skin, not block's or future's", () => {
+    const html = renderScene(getTreatment("stat-grid")(), cctx("c01-sg2"));
+    // capsule's one shadow colour — a hard 0-blur offset of the ink at 12%, never a literal.
+    expect(html).toContain("color-mix(in srgb, var(--dark) 12%, transparent)");
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
+  });
+
+  test("capsule families render the selected shape (inline SVG) + placement + candy lift", () => {
+    const build = (name: string, params?: Record<string, unknown>) =>
+      getComponent(name)(params as never).build(cctx(`sc-${name}`)).html;
+    const bean = build("blob", { variant: "bean", x: 80, y: 20, size: 20, accent: "primary" });
+    expect(bean).toContain("<svg"); // the silhouette + its ink outline are ONE stroked SVG
+    expect(bean).toContain("<path");
+    expect(bean).toContain("--cd-x: 80%"); // placement is var-driven
+    expect(bean).toContain("var(--primary)"); // accent role → fill
+    expect(bean).toContain('stroke="var(--dark)"'); // the universal ink outline
+    expect(bean).toContain("drop-shadow("); // alpha-following offset lift (hugs a blob)
+    expect(build("blob", { variant: "bean", layer: "front" })).toContain("--cd-z: 5");
+    expect(build("lozenge", { variant: "slot" })).toContain("<rect"); // track + seated fill
+    expect(build("arch", { variant: "tunnel" })).toContain('fill-rule="evenodd"'); // punched hole
+    expect(build("confetti", { variant: "spark", accent: "accent-1" })).toContain("var(--accent-1)");
+  });
+
+  test("the 4 capsule families have DISJOINT variant lists (no shared shapes)", () => {
+    const seen = new Map<string, string>();
+    for (const fam of CAPSULE_DECORATION_COMPONENTS) {
+      const variants = schemaVariants(fam);
+      expect(variants.length).toBeGreaterThan(0);
+      for (const v of variants) {
+        expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
+        seen.set(v, fam);
+      }
+    }
+  });
+
+  test("capsule's shape vocabulary is disjoint from block's and future's", () => {
+    // Three engines, three vocabularies: a name shared across them would read as one set in
+    // the editor's picker and let a capsule scene request another theme's silhouette.
+    const namesOf = (map: Record<string, readonly string[]>) => Object.values(map).flat();
+    const others = new Set([...namesOf(DECORATION_VARIANTS), ...namesOf(FUTURE_DECORATION_VARIANTS)]);
+    for (const v of namesOf(CAPSULE_DECORATION_VARIANTS)) {
+      expect(others.has(v), `capsule's shape '${v}' collides with block's or future's`).toBe(false);
+    }
+    for (const fam of CAPSULE_DECORATION_COMPONENTS) {
+      expect(Object.keys(DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(FUTURE_DECORATION_VARIANTS)).not.toContain(fam);
+    }
+  });
+
+  test("capsule's decoration roster matches its own families (and only those)", () => {
+    expect([...(capsuleTheme.decorations ?? [])].sort()).toEqual([...CAPSULE_DECORATION_COMPONENTS].sort());
+    // …and every one is intrinsically flagged, which is what holds it out of the showcase
+    // Components grid under EVERY theme.
+    for (const d of CAPSULE_DECORATION_COMPONENTS) {
+      expect(getComponent(d).decoration, `${d} must be flagged a decoration`).toBe(true);
+    }
+  });
+
+  test("capsule's examples compose (params + children valid against schemas)", () => {
+    const seen: string[] = [];
+    for (const [tname, ex] of Object.entries(capsuleTheme.examples ?? {})) {
+      const factory = getTreatment(tname);
+      let inst = factory((ex.params ?? {}) as never);
+      if (ex.children?.length) {
+        const childName = factory.childComponent!;
+        inst = inst.addChildren(...ex.children.map((p) => getComponent(childName)(p as never)));
+      }
+      const exCtx = rootContext(`ex-capsule-${tname}`, capsuleTheme, { voIds: ["l1", "l2", "l3"] });
+      expect(() => renderScene(inst, exCtx), `capsule example '${tname}' failed to compose`).not.toThrow();
+      seen.push(tname);
+    }
+    // …and it seeds sample copy for EVERY treatment (a missing one is a blank showcase card).
+    expect(seen.sort()).toEqual([...TREATMENT_NAMES].sort());
+  });
+
+  test("capsule's add-on display face is inlined into the engine (Bodoni is not a core face)", async () => {
+    // Space Grotesk (--body/--mono) rides along in the core chrome set, but Bodoni Moda
+    // (--disp) is capsule's OWN face — register-capsule.ts injects it as a second sheet, and
+    // the font-coverage sweep in theme-parity.test.ts credits it from these exact bytes.
+    const { CAPSULE_FONTS_CSS } = await import("../engine/capsule-fonts.generated");
+    expect(CAPSULE_FONTS_CSS).toContain('font-family: "Bodoni Moda"');
+    expect(CAPSULE_FONTS_CSS).toContain("data:font/woff2;base64,");
+    const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
+    expect(CORE_FONTS_CSS).not.toContain("Bodoni Moda"); // kept OUT of the always-injected set
+    expect(capsuleTheme.css).toContain('"Bodoni Moda"'); // …and named exactly in :root
   });
 });
 

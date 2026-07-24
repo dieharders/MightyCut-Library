@@ -1,0 +1,25 @@
+/* Capsule icon: an outlined candy DISC, not a bare glyph. Capsule reinterprets the instance
+   accent (--icol) as the disc FILL rather than the stroke — a sanctioned re-reading of the
+   shared param, the same move future makes with --pillbg. The glyph keeps painting through
+   currentColor, pinned to ink so it reads on every fill (white glyphs are wrong everywhere
+   in this theme except comparison's coral header cell). The disc is 1.5× the glyph so the
+   0.25rem outline stays proportionate at any --isize, which the component always emits.
+   Ported from the legacy .bf-feature-cards .c .ic circle. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: calc(var(--isize, 12rem) * 1.5);
+  height: calc(var(--isize, 12rem) * 1.5);
+  border: 0.25rem solid var(--dark);
+  border-radius: 50%;
+  background: var(--icol, var(--accent-1));
+  box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  color: var(--dark);
+  transform-origin: center;
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

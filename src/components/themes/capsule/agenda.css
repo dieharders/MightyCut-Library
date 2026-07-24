@@ -1,0 +1,22 @@
+/* 10 · Agenda — a sparse numbered index under a Bodoni headline. Ported from legacy
+   .bf-agenda (cqw × 1.2, cqh × 0.675). Capsule rules each row BOTTOM-only, so every rule
+   ships with its row in agenda-item.css and this file adds NOTHING below the last one —
+   block's `.alist > *:last-child { border-bottom }` closer would double the final rule.
+   The legacy `.bf-agenda { background: var(--muted-2) }` is also dropped: the emitter stamps
+   the resolved scene ground onto .block-frame, and authoring a background in a skin breaks
+   the ground-resolution tripwire. */
+.agenda > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.agenda h3 {
+  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+     section heading is the base Bodoni cut, so only the size and rhythm are stated. This is
+     the SMALL section size (agenda, comparison, chart, bar-ranking), not the 4.75rem cut. */
+  font-size: 4.375rem;
+  margin: 1.625rem 0 2.875rem;
+}
+.agenda .alist {
+  display: flex;
+  flex-direction: column;
+}

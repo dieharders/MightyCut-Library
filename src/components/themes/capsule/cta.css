@@ -1,0 +1,23 @@
+/* Capsule CTA: the standalone call-to-action capsule — a yellow pill carrying the theme's
+   one outline weight and a soft (never blurred) offset shadow, with a wide-tracked
+   uppercase grotesk label and the optional trailing arrow. Same recipe as closing-plate's
+   own .cta node, one shadow rung heavier because this one stands alone rather than sitting
+   under a headline. Ported from the legacy .pill / cta capsule family. */
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  border: 0.25rem solid var(--dark);
+  border-radius: 9999px;
+  background: var(--accent-1);
+  box-shadow: 0.75rem 0.75rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  padding: 1.5rem 3.625rem;
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 2.375rem;
+  color: var(--dark);
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

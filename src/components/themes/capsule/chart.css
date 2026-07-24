@@ -1,0 +1,41 @@
+/* 8 · Chart — candy columns standing on an ink baseline. The plot rule is the only
+   structural line capsule draws; every column is a top-capped outlined pill (bar.css).
+   Ported from legacy .bf-chart (cqw x 1.2, cqh x 0.675, rounded to the 0.125rem grid).
+   Canonical ground is muted-1 (cream) — never authored here, the emitter stamps it. */
+.chart > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.chart h3 {
+  font-size: 4.375rem;
+  margin: 1.625rem 0 2.875rem;
+}
+/* The plot. The ink baseline lives HERE, not in bar.css: the standalone Bar in the
+   showcase has no plot to stand on, so a rule drawn by the column itself would float. */
+.chart .bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 2.875rem;
+  height: 27rem;
+  padding: 0 2.375rem;
+  border-bottom: 0.25rem solid var(--dark);
+}
+/* The Bar primitive is a fixed 28.25rem x 9.625rem box by default (so it reads correctly
+   bare in the showcase); inside the plot it fills the height and shares the row equally.
+   Its column is --fill% of the track in both cases (bar.css), so no override there. */
+.chart .bars .bar {
+  flex: 1;
+  height: 100%;
+}
+/* The leader column is NOT styled here — bar.css resolves its fill from --col/--lead
+   (the `leader` PARAM). The legacy `:last-child` accent is deliberately not ported. */
+/* Qualified: `.caption` is also the caption primitive's root class. */
+.chart .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: color-mix(in srgb, var(--dark) 60%, transparent);
+  margin-top: 3.625rem;
+  text-align: center;
+}

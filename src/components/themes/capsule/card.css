@@ -1,0 +1,44 @@
+/* Feature-card = a white candy card: fully-ink-outlined, generously rounded, lifted on a
+   soft (never blurred) offset shadow. The instance's accent (--ic) fills the circular icon
+   DISC and nothing else — the card body, outline and shadow stay theme chrome, so a slide
+   of four cards reads as one family with four accents. Unset ⇒ capsule's coral primary.
+   Ported from legacy .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2). */
+.card {
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  border-radius: 2.125rem;
+  box-shadow: 0.75rem 0.75rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  padding: 2.375rem 2.125rem;
+  display: flex;
+  flex-direction: column;
+}
+.card-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  border: 0.25rem solid var(--dark);
+  background: var(--ic, var(--primary));
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.125rem;
+  /* The glyph is INK on the coloured disc, never reversed — stated rather than inherited
+     because this is the one element whose ground is the instance accent. */
+  color: var(--dark);
+  margin-bottom: 1.625rem;
+}
+.card-title {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+.card-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--dark) 65%, transparent);
+  margin-top: 1rem;
+}
