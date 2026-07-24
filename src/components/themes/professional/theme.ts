@@ -55,11 +55,21 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // (primary→secondary→accent-1→accent-2), which 3-item rows never reach — so auto-cycled card
   // icons / stat figures stay cobalt, and ice only appears where a scene asks for it (a quiet
   // panel or an alternate slide ground). A light surface, not an icon-fill accent.
-  { name: "Ice", hex: "#C9CAEA", note: "soft cool surface", varName: "accent-2" },
+  {
+    name: "Ice",
+    hex: "#C9CAEA",
+    note: "soft cool surface",
+    varName: "accent-2",
+  },
   // Emerald — the one saturated non-cobalt hue: reserved for the LEADING value (chart/rank leader)
   // and any deliberate "positive". accent-3 is OUTSIDE the accent cycle, so the green only appears
   // where a skin/scene asks for it.
-  { name: "Emerald", hex: "#059669", note: "leader / positive", varName: "accent-3" },
+  {
+    name: "Emerald",
+    hex: "#059669",
+    note: "leader / positive",
+    varName: "accent-3",
+  },
   { name: "Cream", hex: "#FDFAE7", note: "canvas", varName: "muted-1" },
   // Tint — a warm neutral-gray surface (alternate slide ground / panel fill). muted-1 stays the
   // cream canvas; nothing in the skins pins muted-2, so this is a free surface a scene can pick.
@@ -85,7 +95,9 @@ const fontTokens: Record<string, string> = {
  *  block, future and capsule). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(([name, value]) => `  --${name}: ${value};`),
+  ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
 ].join("\n")}\n}\n`;
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
@@ -158,9 +170,10 @@ const rules: ThemeTokens["rules"] = {
 const examples: NonNullable<ThemeTokens["examples"]> = {
   cover: {
     params: {
-      headline: "Strong, professional commitment.",
-      subtitle: "A consulting-grade frame system — warm cream, one saturated cobalt, soft tinted cards that never shout.",
-      eyebrow: "Frame System",
+      headline: "Strong, committed, consultation.",
+      subtitle:
+        "A consulting-grade theme — one saturated cobalt, soft tinted cards that never shout.",
+      eyebrow: "Professional",
     },
   },
   quote: {
@@ -170,20 +183,48 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       eyebrow: "In Their Words",
     },
   },
-  "closing-plate": { params: { headline: "Let's talk.", cta: "Book a Briefing" } },
+  "closing-plate": {
+    params: { headline: "Let's talk.", cta: "Book a Briefing" },
+  },
   "feature-cards": {
     params: { headline: "What you get" },
     children: [
-      { title: "Single Accent", body: "One cobalt carries every emphasis across the deck.", icon: "I", accent: "primary" },
-      { title: "Soft Tints", body: "Cards lift on a faint cobalt fill — no borders that shout, no shadows.", icon: "II", accent: "secondary" },
-      { title: "Quiet Density", body: "Substance over noise: measured type, generous margins.", icon: "III", accent: "accent-1" },
+      {
+        title: "Single Accent",
+        body: "One cobalt carries every emphasis across the deck.",
+        icon: "I",
+        accent: "primary",
+      },
+      {
+        title: "Soft Tints",
+        body: "Cards lift on a faint cobalt fill — no borders that shout, no shadows.",
+        icon: "II",
+        accent: "secondary",
+      },
+      {
+        title: "Quiet Density",
+        body: "Substance over noise: measured type, generous margins.",
+        icon: "III",
+        accent: "accent-1",
+      },
     ],
   },
   "stat-grid": {
     params: { headline: "Q3 at a glance" },
     children: [
-      { value: 24.3, label: "Annual revenue", unitSuffix: "M", decimals: 1, accent: "primary" },
-      { value: 94, label: "Net retention", unitSuffix: "%", accent: "secondary" },
+      {
+        value: 24.3,
+        label: "Annual revenue",
+        unitSuffix: "M",
+        decimals: 1,
+        accent: "primary",
+      },
+      {
+        value: 94,
+        label: "Net retention",
+        unitSuffix: "%",
+        accent: "secondary",
+      },
       { value: 18, label: "Growth YoY", unitSuffix: "%", accent: "accent-1" },
     ],
   },
@@ -197,7 +238,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     ],
   },
   comparison: {
-    params: { headline: "What moves the number", columns: ["Status Quo", "Our Approach"] },
+    params: {
+      headline: "What moves the number",
+      columns: ["Status Quo", "Our Approach"],
+    },
     children: [
       { label: "Speed", a: "Weeks", b: "Days" },
       { label: "Cost", a: "Opaque", b: "Fixed" },
@@ -214,9 +258,18 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     ],
   },
   "bar-ranking": {
-    params: { headline: "What moves the number", caption: "Ranked by contribution." },
+    params: {
+      headline: "What moves the number",
+      caption: "Ranked by contribution.",
+    },
     children: [
-      { value: 88, label: "Expansion", max: 100, unitSuffix: "%", leader: true },
+      {
+        value: 88,
+        label: "Expansion",
+        max: 100,
+        unitSuffix: "%",
+        leader: true,
+      },
       { value: 62, label: "New Logos", max: 100, unitSuffix: "%" },
       { value: 41, label: "Pricing", max: 100, unitSuffix: "%" },
     ],
@@ -234,7 +287,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 
 export const professionalTheme: ThemeTokens = {
   name: "professional",
-  title: "ProfessionalFrame",
+  title: "Professional",
   description:
     "A consulting-grade theme on a warm cream canvas: a single saturated cobalt carries every accent — with one complementary emerald reserved for the leading/positive value — near-black Space Grotesk headlines against muted-gray Inter body, and content lifting on soft cobalt-tinted cards; no drop shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,

@@ -67,8 +67,9 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   /** Own animations (e.g. the headline reveal). */
   anim?: (p: z.infer<S>, childCount: number) => AnimDescriptor[];
   /** Seconds between consecutive cascade slots (decorations → title → child → child …).
-   *  Default 0.5. The runtime tightens it by the slide's caption count; a UI knob may
-   *  override it later. Each element still performs its own entrance + internal timing. */
+   *  Default 0.6. The runtime tightens it by the slide's caption count (base − 0.1×captions,
+   *  floored at 0.15), so a typical 1-caption scene lands ~0.5s between rows/cards. A UI knob
+   *  may override it later. Each element still performs its own entrance + internal timing. */
   revealDelay?: number;
   /** Whole-scene page IN transition (catalog name). Unset ⇒ the legacy DEFAULT_ENTRANCE. */
   animIn?: TransitionName;
@@ -88,7 +89,7 @@ export const groundFor = (ctx: BuildContext, canonical: FrameGround): FrameGroun
   ctx.ground ?? (ctx.theme.groundDefault as FrameGround | undefined) ?? canonical;
 
 export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): TreatmentFactory<S> {
-  const delay = def.revealDelay ?? 0.5;
+  const delay = def.revealDelay ?? 0.6;
   let cachedJson: object | null = null;
   const jsonSchema = (): object => (cachedJson ??= z.toJSONSchema(def.schema, { io: "input" }) as object);
   // Explicit params validated exactly (fail-loud); no-arg falls back to the example.
