@@ -26,45 +26,24 @@ body {
   padding: 0;
 }
 
-/* ---------------------------------------------------------- backdrops --- */
-/* The deck-wide backdrop clip (#backdrop) + the per-scene background overrides. */
+/* ------------------------------------------------------- deck ground --- */
+/* The deck-wide ground clip (#backdrop) — a single flat fill behind every scene, seen
+ * only where a scene is mid-transition (scene grounds are opaque). It is NOT a design
+ * surface: every pattern, texture and particle field is a per-scene BACKDROP MASK owned
+ * by the component library (primitives/backdrops.ts), recoloured by the theme.
+ *
+ * The old `.mc-bg--gradient/solid/grid/pattern/particles` modifiers lived here and painted
+ * with the retired theme-css tokens (--grad-page / --bg / --grid), which no palette role
+ * could address — a second, parallel backdrop system. They are registry designs now
+ * (`gradient`, `grid`, `hatch`; `plain` replaces solid, `constellation` replaces particles).
+ *
+ * `--deck-ground` lets the root pick the fill from the theme's palette; the harness also
+ * stamps the resolved role inline, so this fallback only matters if it ever stops. */
 
 .mc-bg {
   position: absolute;
   inset: 0;
-}
-.mc-bg--gradient {
-  background: var(--grad-page);
-}
-.mc-bg--solid {
-  background: var(--bg);
-}
-.mc-bg--grid {
-  background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 4rem 4rem;
-}
-.mc-bg--pattern {
-  background-color: var(--bg);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--grid) 0,
-    var(--grid) 0.125rem,
-    transparent 0.125rem,
-    transparent 1.125rem
-  );
-}
-/* particles = gradient base + a <canvas> driven by MC.particleBg */
-.mc-bg--particles {
-  background: var(--grad-page);
-}
-.mc-bg canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  background: var(--deck-ground, var(--muted-2));
 }
 
 /* --------------------------------------------------------------- hud --- */

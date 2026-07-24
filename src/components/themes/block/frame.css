@@ -9,6 +9,15 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* Backdrop ink hooks — how this theme restyles the SHARED mask designs (backdrops are a
+     pool every theme draws from; see primitives/backdrops.ts). Block wants flat black ink
+     on its pale grounds, which is also each design's fallback, so these are stated rather
+     than inherited: the hook is the knob a theme turns, and a reference theme that leaves it
+     implicit teaches the next theme nothing. Future re-points the same four to cyan. */
+  --dot-ink: var(--dark);
+  --grid-ink: var(--dark);
+  --hatch-ink: var(--dark);
+  --wash-ink: var(--dark);
   container-type: size;
   font-family: var(--disp);
   color: var(--dark);

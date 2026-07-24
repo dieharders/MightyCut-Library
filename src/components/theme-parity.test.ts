@@ -10,11 +10,12 @@
 import { describe, expect, test } from "bun:test";
 import { TREATMENT_NAMES } from "../types/components";
 import { PALETTE_VARS } from "../types/palette";
+import { BACKDROP_NAMES } from "../types/storyboard";
 import "./registry"; // populate the registry
 import { scrubDeterminism } from "./runtime/determinism";
 import { renderScene } from "./runtime/emit";
 import { rootContext } from "./runtime";
-import { allComponents, allTreatments, getComponent, getTreatment, hasTreatment } from "./runtime/registry";
+import { allComponents, allTreatments, getComponent, getTreatment, hasComponent, hasTreatment } from "./runtime/registry";
 import type { ComponentFactory, ThemeTokens, TreatmentFactory } from "./runtime/types";
 import { ALL_THEMES } from "./themes/all";
 import { blockTheme } from "./themes/block/theme";
@@ -157,6 +158,75 @@ describe("canonical backdrop renders (tripwire)", () => {
     expect(html, `${theme.name} declares backdrop '${theme.backdrop}' but no scene painted it`).toContain(
       `mc-backdrop--${theme.backdrop}`,
     );
+  });
+});
+
+// --------------------------------------------------------- shared backdrop pool ---
+// Backdrops are SHARED, unlike decorations: each theme contributes one signature design to
+// the pool (block → dots, future → constellation) and EVERY theme may then use EVERY design.
+// That only holds if no design depends on the theme that authored it — so sweep the full
+// cross-product (every BACKDROP_NAMES design × every theme) and assert each one paints, and
+// paints deterministically. A design that reads a theme-specific token fails here rather
+// than rendering invisibly in someone else's deck.
+describe("shared backdrop pool (tripwire)", () => {
+  const DESIGNS = BACKDROP_NAMES.filter((b) => b !== "plain");
+
+  for (const theme of ALL_THEMES) {
+    test.each(DESIGNS.map((d) => [d]))(`${theme.name} can paint the shared '%s' design`, (name) => {
+      const compId = `bd-${theme.name}-${name}`;
+      const html = renderScene(getTreatment("cover")(), pctx(theme, compId), { backdrop: name });
+      expect(html, `${theme.name} could not paint shared design '${name}'`).toContain(`mc-backdrop--${name}`);
+      // seeded/animated designs included: same compId ⇒ byte-identical rebuild
+      expect(renderScene(getTreatment("cover")(), pctx(theme, compId), { backdrop: name })).toBe(html);
+    });
+  }
+
+  test.each(ALL_THEMES)("$name's default backdrop is a design in the shared pool", (theme) => {
+    const canonical = theme.backdrop ?? "plain";
+    expect(
+      (BACKDROP_NAMES as readonly string[]).includes(canonical),
+      `${theme.name}'s default backdrop '${canonical}' is not a registered design`,
+    ).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------- decoration ownership ---
+// Decorations are the ONE element family a theme owns outright: block's neobrutalist
+// starburst/slab/stripe/badge, future's luminous node/reticle/glyph/signal. Two mechanisms
+// keep them apart — the intrinsic `decoration` flag (holds every family out of the showcase
+// Components grid under EVERY theme) and the per-theme roster (what this theme offers). The
+// sweep below is the generic version of registry.test.ts's block-only/future-only checks: a
+// newly ported theme must bring its OWN four families, not roster someone else's.
+describe("decoration ownership (tripwire)", () => {
+  test.each(ALL_THEMES)("$name rosters decorations, and only registered decoration components", (theme) => {
+    expect(theme.decorations?.length, `${theme.name} rosters no decorations`).toBeGreaterThan(0);
+    const bad = (theme.decorations ?? []).filter((n) => {
+      if (!hasComponent(n)) return true;
+      return !getComponent(n).decoration; // a non-decoration component can't be rostered as one
+    });
+    expect(bad, `${theme.name} rosters non-decoration or unregistered element(s): ${bad.join(", ")}`).toEqual([]);
+  });
+
+  test("no two themes roster the same decoration family", () => {
+    const owner = new Map<string, string>();
+    const shared: string[] = [];
+    for (const theme of ALL_THEMES) {
+      for (const name of theme.decorations ?? []) {
+        const prev = owner.get(name);
+        if (prev) shared.push(`${name} (${prev} + ${theme.name})`);
+        else owner.set(name, theme.name);
+      }
+    }
+    expect(shared, `decoration families rostered by more than one theme: ${shared.join(", ")}`).toEqual([]);
+  });
+
+  test("every decoration component is rostered by exactly one theme (no orphans)", () => {
+    const rostered = new Set(ALL_THEMES.flatMap((t) => t.decorations ?? []));
+    const orphans = allComponents()
+      .filter((c) => c.decoration)
+      .map((c) => c.componentName)
+      .filter((n) => !rostered.has(n));
+    expect(orphans, `decoration component(s) no theme offers: ${orphans.join(", ")}`).toEqual([]);
   });
 });
 

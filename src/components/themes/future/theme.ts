@@ -239,8 +239,11 @@ export const futureTheme: ThemeTokens = {
   // explicitly picks a background still gets it. Formerly a `!important` in frame.css,
   // which made an explicit ground impossible to apply.
   groundDefault: "muted-2",
-  // Future's canonical backdrop: the animated cyan constellation (a per-scene seeded
-  // particle network) painted over the navy ground. See primitives/backdrops.ts.
+  // Future's DEFAULT backdrop: the animated cyan constellation (a per-scene seeded particle
+  // network) painted over the navy ground — the signature design future contributes to the
+  // SHARED pool. It is not future-only: another theme can set it as its own default or pick
+  // it per scene, and the particles take THAT theme's --primary (particleRgb resolves the
+  // colour from the active theme's palette at build time). See primitives/backdrops.ts.
   backdrop: "constellation",
   // Showcase/editor preview surface — the navy ground future's components are designed
   // against, so glass panels + light-on-dark text read (a light card would wash them out).

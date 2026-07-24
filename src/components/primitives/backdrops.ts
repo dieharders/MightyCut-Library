@@ -66,6 +66,78 @@ const dots: BackdropDesign = {
   }),
 };
 
+// --- The three masks ported off the root chrome ------------------------------
+// `gradient`, `grid` and `hatch` were `.mc-bg--gradient` / `.mc-bg--grid` /
+// `.mc-bg--pattern` in root/chrome.css: a SECOND, deck-wide backdrop system painted with
+// the retired theme-css tokens (--grad-page / --bg / --grid), which no palette role could
+// address. They are per-scene designs now, recoloured like every other mask through an
+// `--<design>-ink` hook (the `dots` convention above) so a theme repaints them from its own
+// frame.css without forking the design.
+//
+// The two root kinds with no entry here are deliberate: `.mc-bg--solid` IS `plain` (a bare
+// ground, no overlay), and `.mc-bg--particles` IS `constellation` — the same MC.particleBg
+// FX, already animated and already tinted from the theme's --primary.
+
+/** gradient — a soft vertical wash over the ground (the old `.mc-bg--gradient`, minus the
+ *  hardcoded --grad-page). Darkens toward the bottom so content keeps its footing. Static. */
+const gradient: BackdropDesign = {
+  name: "gradient",
+  build: () => ({
+    node: rootElement(`<div class="mc-backdrop mc-backdrop--gradient"></div>`),
+    css: `${BACKDROP_BASE}
+.mc-backdrop--gradient {
+  /* --wash-ink is the shade the wash pulls toward; a dark theme re-points it at an accent
+     so the vignette reads as light rather than sludge. */
+  background-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--wash-ink, var(--dark)) 10%, transparent) 55%,
+    color-mix(in srgb, var(--wash-ink, var(--dark)) 26%, transparent) 100%
+  );
+}`,
+    anims: [],
+  }),
+};
+
+/** grid — a 4rem ruled line grid (the old `.mc-bg--grid`). Static. */
+const grid: BackdropDesign = {
+  name: "grid",
+  build: () => ({
+    node: rootElement(`<div class="mc-backdrop mc-backdrop--grid"></div>`),
+    css: `${BACKDROP_BASE}
+.mc-backdrop--grid {
+  opacity: 0.14;
+  /* --grid-ink: the rule colour. 0.125rem keeps the hairline on the authoring grid. */
+  background-image:
+    linear-gradient(var(--grid-ink, var(--dark)) 0.125rem, transparent 0.125rem),
+    linear-gradient(90deg, var(--grid-ink, var(--dark)) 0.125rem, transparent 0.125rem);
+  background-size: 4rem 4rem;
+}`,
+    anims: [],
+  }),
+};
+
+/** hatch — 45° repeating stripes (the old `.mc-bg--pattern`). Static. */
+const hatch: BackdropDesign = {
+  name: "hatch",
+  build: () => ({
+    node: rootElement(`<div class="mc-backdrop mc-backdrop--hatch"></div>`),
+    css: `${BACKDROP_BASE}
+.mc-backdrop--hatch {
+  opacity: 0.16;
+  /* --hatch-ink: the stripe colour. */
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--hatch-ink, var(--dark)) 0,
+    var(--hatch-ink, var(--dark)) 0.125rem,
+    transparent 0.125rem,
+    transparent 1.125rem
+  );
+}`,
+    anims: [],
+  }),
+};
+
 // --- The one colour outside the CSS custom-property system ------------------
 // Every other colour in this library is a role var (`var(--primary)`) and anything
 // lighter/darker/translucent is derived with color-mix(). The constellation mask
@@ -135,8 +207,10 @@ const constellation: BackdropDesign = {
 };
 
 /** The mask designs, keyed by name. `plain` is intentionally absent — it means "no
- *  mask" and `buildBackdrop` returns null for it (byte-identical to a bare ground). */
-export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation };
+ *  mask" and `buildBackdrop` returns null for it (byte-identical to a bare ground).
+ *  Designs are SHARED (any theme may roster any of them); which ones a theme actually
+ *  offers is `ThemeTokens.backdrops`, and its canonical one `ThemeTokens.backdrop`. */
+export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation, gradient, grid, hatch };
 
 /**
  * Resolve a backdrop design to its built parts, or null when there is no mask to
