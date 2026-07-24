@@ -1,0 +1,47 @@
+/* Timeline step = a cobalt numeral disc over a title and muted body, bridged to the next step by
+   a hairline cobalt-tinted connector across the grid gap. No card, no shadow — professional's
+   timeline is open, not boxed (the "fade into future" dimming of the discs is set per-step in
+   timeline.css). Ported from the showcase .bf-timeline .step / .num / .t / .d (cqw × 1.2). */
+.step {
+  position: relative;
+}
+.step-num {
+  display: grid;
+  place-items: center;
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--light);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 1.75rem;
+}
+/* The connector: a hairline from the disc's right edge across the gap to the next step. Positioned
+   at the disc's vertical centre (half of 4.75rem); measured from the padding box. Not drawn after
+   the last step. */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 2.375rem;
+  left: 4.75rem;
+  width: calc(100% - 2rem);
+  height: 0.125rem;
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+.step-title {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 2.375rem;
+  line-height: 1.2;
+  color: var(--dark);
+}
+.step-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.625rem;
+  line-height: 1.5;
+  color: var(--muted-3);
+  margin-top: 1rem;
+}

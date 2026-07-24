@@ -83,7 +83,9 @@ const fontTokens: Record<string, string> = {
  */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(([name, value]) => `  --${name}: ${value};`),
+  ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
 ].join("\n")}\n}\n`;
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
@@ -154,9 +156,9 @@ const rules: ThemeTokens["rules"] = {
 const examples: NonNullable<ThemeTokens["examples"]> = {
   cover: {
     params: {
-      headline: "Block, bordered, crooked.",
-      subtitle: "A maximalist neobrutalist frame system.",
-      eyebrow: "MightyCut",
+      headline: "Blocky, bordered, crooked.",
+      subtitle: "A maximalist, neobrutalist theme.",
+      eyebrow: "Block",
     },
   },
   quote: {
@@ -166,21 +168,53 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       eyebrow: "In their words",
     },
   },
-  "closing-plate": { params: { headline: "Stay loud.", cta: "Start building" } },
+  "closing-plate": {
+    params: { headline: "Stay loud.", cta: "Start building" },
+  },
   "feature-cards": {
     params: { headline: "Built for the whole workflow" },
     children: [
-      { title: "Prompt to preview", body: "Describe the video; get a preview-ready deck back in one pass.", icon: "I", accent: "primary" },
-      { title: "On-brand by default", body: "Themed frames, captions, and motion — no timeline surgery.", icon: "II", accent: "secondary" },
-      { title: "Render on demand", body: "Publish the preview now; render the final MP4 whenever you like.", icon: "III", accent: "accent-2" },
+      {
+        title: "Prompt to preview",
+        body: "Describe the video; get a preview-ready deck back in one pass.",
+        icon: "I",
+        accent: "primary",
+      },
+      {
+        title: "On-brand by default",
+        body: "Themed frames, captions, and motion — no timeline surgery.",
+        icon: "II",
+        accent: "secondary",
+      },
+      {
+        title: "Render on demand",
+        body: "Publish the preview now; render the final MP4 whenever you like.",
+        icon: "III",
+        accent: "accent-2",
+      },
     ],
   },
   "stat-grid": {
     params: { headline: "Numbers that moved" },
     children: [
-      { value: 92, label: "Detection rate", unitSuffix: "%", accent: "primary" },
-      { value: 3, label: "Faster triage", unitSuffix: "x", accent: "secondary" },
-      { value: 40, label: "Cost reduction", unitSuffix: "%", accent: "accent-1" },
+      {
+        value: 92,
+        label: "Detection rate",
+        unitSuffix: "%",
+        accent: "primary",
+      },
+      {
+        value: 3,
+        label: "Faster triage",
+        unitSuffix: "x",
+        accent: "secondary",
+      },
+      {
+        value: 40,
+        label: "Cost reduction",
+        unitSuffix: "%",
+        accent: "accent-1",
+      },
     ],
   },
   timeline: {
@@ -207,11 +241,21 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { value: 42, label: "Q1", max: 96, unitPrefix: "$", unitSuffix: "M" },
       { value: 68, label: "Q2", max: 96, unitPrefix: "$", unitSuffix: "M" },
       { value: 79, label: "Q3", max: 96, unitPrefix: "$", unitSuffix: "M" },
-      { value: 96, label: "Q4", max: 96, unitPrefix: "$", unitSuffix: "M", leader: true },
+      {
+        value: 96,
+        label: "Q4",
+        max: 96,
+        unitPrefix: "$",
+        unitSuffix: "M",
+        leader: true,
+      },
     ],
   },
   "bar-ranking": {
-    params: { headline: "Market share by vendor", caption: "Share of new installs, 2026" },
+    params: {
+      headline: "Market share by vendor",
+      caption: "Share of new installs, 2026",
+    },
     children: [
       { value: 38, label: "Acme", max: 38, unitSuffix: "%", leader: true },
       { value: 27, label: "Globex", max: 38, unitSuffix: "%" },
@@ -232,7 +276,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 
 export const blockTheme: ThemeTokens = {
   name: "block",
-  title: "BlockFrame",
+  title: "Block",
   description:
     "A maximalist neobrutalist theme: black borders, hard offset shadows, square corners, tilted decorations, saturated pastel accents, shadows stacking comfortably dense. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,

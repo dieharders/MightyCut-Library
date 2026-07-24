@@ -32,10 +32,19 @@ export type TransitionName = (typeof TRANSITION_NAMES)[number];
 const nameSchema = z.enum(TRANSITION_NAMES);
 const timeSchema = z.enum(TIMING_PRESETS);
 
-/** Scene (treatment) transition: whole-page IN at scene start + OUT at scene end. */
+/** Scene (treatment) transition: whole-page IN at scene start + OUT at scene end.
+ *
+ *  The two halves are emitted in DIFFERENT places: the IN rides the scene's own
+ *  sub-composition timeline, the OUT rides the ROOT/master timeline as a clip-level tween
+ *  (a nested exit toward a hidden end-state leaks backward under the seek render — see
+ *  runtime/treatment.ts). Both are still declared here, together, as one scene-level spec. */
 export const TransitionSpecSchema = z.object({
   animIn: nameSchema.optional().describe("Effect the scene page enters with (default a soft fade)"),
-  animOut: nameSchema.optional().describe("Effect the scene page exits with (default none / hard cut)"),
+  animOut: nameSchema
+    .optional()
+    .describe(
+      "Effect the scene page exits with, played at scene end on the root timeline (default none / hard cut)",
+    ),
   timeIn: timeSchema.optional().describe("IN duration: short=1s, medium=3s, long=5s"),
   timeOut: timeSchema.optional().describe("OUT duration: short=1s, medium=3s, long=5s"),
 });

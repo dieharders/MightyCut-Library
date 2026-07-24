@@ -1,0 +1,24 @@
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css): a label, a faint cobalt-tinted track and a
+   cobalt fill, under a near-black headline, closed by a muted caption. Ported from the showcase
+   .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
+.bar-ranking > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.bar-ranking h3 {
+  font-size: 3.875rem;
+  margin: 1.25rem 0 3.125rem;
+}
+.bar-ranking .bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+/* Qualified: `.caption` is also the caption primitive's root class. */
+.bar-ranking .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+  margin-top: 2.125rem;
+}

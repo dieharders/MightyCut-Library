@@ -19,7 +19,7 @@ import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/t
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
 import { collectCss, scopeCss } from "./css";
 import { scrubDeterminism } from "./determinism";
-import { DEFAULT_ENTRANCE, sceneEntranceJs, sceneExitJs } from "./transitions";
+import { DEFAULT_ENTRANCE, sceneEntranceJs } from "./transitions";
 import {
   childrenContainer,
   fillSlots,
@@ -67,12 +67,15 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   /** Own animations (e.g. the headline reveal). */
   anim?: (p: z.infer<S>, childCount: number) => AnimDescriptor[];
   /** Seconds between consecutive cascade slots (decorations → title → child → child …).
-   *  Default 0.5. The runtime tightens it by the slide's caption count; a UI knob may
-   *  override it later. Each element still performs its own entrance + internal timing. */
+   *  Default 0.6. The runtime tightens it by the slide's caption count (base − 0.1×captions,
+   *  floored at 0.15), so a typical 1-caption scene lands ~0.5s between rows/cards. A UI knob
+   *  may override it later. Each element still performs its own entrance + internal timing. */
   revealDelay?: number;
   /** Whole-scene page IN transition (catalog name). Unset ⇒ the legacy DEFAULT_ENTRANCE. */
   animIn?: TransitionName;
-  /** Whole-scene page OUT transition (catalog name). Unset/`none` ⇒ no exit (hard cut). */
+  /** Whole-scene page OUT transition (catalog name). Unset/`none` ⇒ no exit (hard cut).
+   *  NOT emitted into this sub-composition (see buildScene) — it is resolved via `pageOutFor`
+   *  and played on the ROOT/master timeline at the clip level by the render pipeline. */
   animOut?: TransitionName;
   /** IN duration preset (short/medium/long). Default short when animIn is set. */
   timeIn?: TimingPreset;
@@ -88,7 +91,7 @@ export const groundFor = (ctx: BuildContext, canonical: FrameGround): FrameGroun
   ctx.ground ?? (ctx.theme.groundDefault as FrameGround | undefined) ?? canonical;
 
 export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): TreatmentFactory<S> {
-  const delay = def.revealDelay ?? 0.5;
+  const delay = def.revealDelay ?? 0.6;
   let cachedJson: object | null = null;
   const jsonSchema = (): object => (cachedJson ??= z.toJSONSchema(def.schema, { io: "input" }) as object);
   // Explicit params validated exactly (fail-loud); no-arg falls back to the example.
@@ -251,13 +254,30 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const ground = `background: var(--${groundFor(ctx, def.ground)})`;
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
-        // Whole-page transition: an assigned animIn/animOut wins over the legacy
-        // def.entrance; unset ⇒ the byte-identical DEFAULT_ENTRANCE + no exit.
-        const { animIn, animOut, timeIn, timeOut } = this.pageTransition();
+        // Whole-page ENTRANCE: an assigned animIn wins over the legacy def.entrance;
+        // unset ⇒ the byte-identical DEFAULT_ENTRANCE.
+        const { animIn, timeIn } = this.pageTransition();
         const entranceJs =
           animIn && animIn !== "none" ? sceneEntranceJs(animIn, timeIn) : (def.entrance ?? DEFAULT_ENTRANCE);
-        const exitJs = animOut && animOut !== "none" ? sceneExitJs(animOut, timeIn, timeOut) : "";
-        scrubDeterminism(`${entranceJs}\n${bodyJs}\n${exitJs}`, def.name);
+        // Whole-page EXIT is deliberately NOT emitted into the sub-composition. Under
+        // HyperFrames' seek-based render, a tween INSIDE a nested sub-composition that drives
+        // an element toward a HIDDEN end-state (opacity 0 / off-canvas) leaks that end-state
+        // BACKWARD across the scene: the content blanks partway through while the scene's
+        // narration and caption are still on screen (the "transitioned too early" bug). An
+        // entrance ends VISIBLE, so the identical leak is invisible — only exits show it,
+        // which is why only slides carrying an animOut broke. Verified by rendering a scene
+        // with vs without the exit: without it the content holds for the whole scene; with it
+        // the content vanishes ~mid-scene regardless of the exit's shape (opacity, transform)
+        // or which element it targets (page root or an inner wrapper). The correct home for a
+        // scene exit is the ROOT/master timeline, tweening the CLIP element — root-level
+        // tweens do NOT leak (captions, HUD and the progress bar animate there cleanly), and a
+        // clip-level `tl.to(#clip, {autoAlpha:0, …})` was verified to hold the content for the
+        // whole scene and slide out only in its own window. That IS where the animated exit now
+        // lives: the harness resolves each scene's animOut through `pageOutFor` into a
+        // page-exits.json sidecar and pipeline/root-html.ts emits `MC.<fn>(tl, "#<clip>", …)`,
+        // clamped so the exit never begins before the scene's narration ends. A scene with no
+        // animOut (or a consumer with no sidecar) hard-cuts via the root's autoAlpha set.
+        scrubDeterminism(`${entranceJs}\n${bodyJs}`, def.name);
         return {
           compId: ctx.compId,
           voIds: ctx.voIds ?? [],
@@ -266,7 +286,7 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
           bodyHtml: `\n          ${serialize(root.children)}`,
           bodyCss: `\n${scopeCss(bn.css, ctx.compId)}`,
           entranceJs,
-          exitJs,
+          // no `exitJs` — the optional field is left unset (sub-composition defaults it to "")
           bodyJs,
         };
       },

@@ -52,9 +52,24 @@ import coverTemplate from "./templates/cover.html" with { type: "text" };
 const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Coral", hex: "#E85D4E", note: "leading accent", varName: "primary" },
   { name: "Sky", hex: "#8BB4F7", note: "quiet accent", varName: "secondary" },
-  { name: "Yellow", hex: "#F2D160", note: "CTA / eyebrow pills", varName: "accent-1" },
-  { name: "Mint", hex: "#A8E6CF", note: "highlighted cell", varName: "accent-2" },
-  { name: "Lavender", hex: "#C5B5E0", note: "closing rule", varName: "accent-3" },
+  {
+    name: "Yellow",
+    hex: "#F2D160",
+    note: "CTA / eyebrow pills",
+    varName: "accent-1",
+  },
+  {
+    name: "Mint",
+    hex: "#A8E6CF",
+    note: "highlighted cell",
+    varName: "accent-2",
+  },
+  {
+    name: "Lavender",
+    hex: "#C5B5E0",
+    note: "closing rule",
+    varName: "accent-3",
+  },
   { name: "Cream", hex: "#F5F5F0", note: "canvas", varName: "muted-1" },
   { name: "Shell", hex: "#FBF7EF", note: "quiet ground", varName: "muted-2" },
   { name: "Shell", hex: "#FBF7EF", note: "quiet ground", varName: "muted-3" },
@@ -79,7 +94,9 @@ const fontTokens: Record<string, string> = {
  */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(([name, value]) => `  --${name}: ${value};`),
+  ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
 ].join("\n")}\n}\n`;
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
@@ -154,8 +171,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   cover: {
     params: {
       headline: "Everything's a capsule.",
-      subtitle: "A soft, rounded frame system for calm and friendly stories.",
-      eyebrow: "Frame System",
+      subtitle: "A soft, rounded theme for calm and friendly stories.",
+      eyebrow: "Relaxed",
     },
   },
   quote: {
@@ -169,17 +186,48 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   "feature-cards": {
     params: { headline: "Cards on candy grounds" },
     children: [
-      { title: "Pill Geometry", body: "Every container is fully rounded — chips, cards, tracks and discs.", icon: "I", accent: "primary" },
-      { title: "Soft Outline", body: "One ink stroke wraps every shape, at one weight, everywhere.", icon: "II", accent: "secondary" },
-      { title: "Gentle Lift", body: "Offset shadows sit under each card — never blurred, never heavy.", icon: "III", accent: "accent-2" },
+      {
+        title: "Pill Geometry",
+        body: "Every container is fully rounded — chips, cards, tracks and discs.",
+        icon: "I",
+        accent: "primary",
+      },
+      {
+        title: "Soft Outline",
+        body: "One ink stroke wraps every shape, at one weight, everywhere.",
+        icon: "II",
+        accent: "secondary",
+      },
+      {
+        title: "Gentle Lift",
+        body: "Offset shadows sit under each card — never blurred, never heavy.",
+        icon: "III",
+        accent: "accent-2",
+      },
     ],
   },
   "stat-grid": {
     params: { headline: "A quiet tally" },
     children: [
-      { value: 2.4, label: "Times more replies", unitSuffix: "x", decimals: 1, accent: "primary" },
-      { value: 240, label: "Output this quarter", unitSuffix: "%", accent: "secondary" },
-      { value: 96, label: "Frames shipped on time", unitSuffix: "%", accent: "accent-3" },
+      {
+        value: 2.4,
+        label: "Times more replies",
+        unitSuffix: "x",
+        decimals: 1,
+        accent: "primary",
+      },
+      {
+        value: 240,
+        label: "Output this quarter",
+        unitSuffix: "%",
+        accent: "secondary",
+      },
+      {
+        value: 96,
+        label: "Frames shipped on time",
+        unitSuffix: "%",
+        accent: "accent-3",
+      },
     ],
   },
   timeline: {
@@ -192,7 +240,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     ],
   },
   comparison: {
-    params: { headline: "The friendlier path", columns: ["The Old Way", "The Capsule Way"] },
+    params: {
+      headline: "The friendlier path",
+      columns: ["The Old Way", "The Capsule Way"],
+    },
     children: [
       { label: "Onboarding", a: "A week of setup", b: "Ready in an hour" },
       { label: "Tone", a: "Corporate and cold", b: "Warm and plain-spoken" },
@@ -200,7 +251,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     ],
   },
   chart: {
-    params: { headline: "Signups by quarter", caption: "Measured across the whole programme." },
+    params: {
+      headline: "Signups by quarter",
+      caption: "Measured across the whole programme.",
+    },
     children: [
       { value: 24, label: "Q1", max: 96, unitSuffix: "k" },
       { value: 41, label: "Q2", max: 96, unitSuffix: "k" },
@@ -209,9 +263,18 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     ],
   },
   "bar-ranking": {
-    params: { headline: "What moves it", caption: "Ranked by contribution to the quarter." },
+    params: {
+      headline: "What moves it",
+      caption: "Ranked by contribution to the quarter.",
+    },
     children: [
-      { value: 88, label: "Expansion", max: 100, unitSuffix: "%", leader: true },
+      {
+        value: 88,
+        label: "Expansion",
+        max: 100,
+        unitSuffix: "%",
+        leader: true,
+      },
       { value: 62, label: "New Logos", max: 100, unitSuffix: "%" },
       { value: 41, label: "Pricing", max: 100, unitSuffix: "%" },
     ],
@@ -229,9 +292,9 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 
 export const capsuleTheme: ThemeTokens = {
   name: "capsule",
-  title: "CapsuleFrame",
+  title: "Capsule",
   description:
-    "A soft candy theme on a cream canvas: every container is a fully rounded pill wrapped in one ink outline and lifted by a soft offset shadow that is never blurred. Bodoni Moda carries the display in ink, sentence case; Space Grotesk carries every label in wide-tracked uppercase. Colour lives on stat figures, bar fills, icon discs and pill fills — never on a headline. Frame unit: 1920×1080, 16:9.",
+    "A soft candy theme on a cream canvas. Every container a rounded pill outlined in ink and lifted by soft shadow. Wide-tracked uppercase. Color never lives on a headline. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every capsule frame lands on the cream canvas: this REPLACES the shared per-treatment

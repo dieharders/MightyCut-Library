@@ -1,0 +1,18 @@
+/* 3 · Stat Grid — soft cobalt-tinted metric cards in a responsive grid, under a near-black
+   headline. The card + cobalt figure live in stat.css; this file owns the body padding, the
+   headline rhythm and the grid. --cols is emitted by the treatment's layout(); --dense/-scale are
+   answered by the figure in stat.css, so there is no selector to write here. Ported from the
+   showcase .bf-stat-grid (cqw × 1.2, cqh × 0.675). */
+.stat-grid > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.stat-grid h3 {
+  font-size: 4.125rem;
+  margin: 1.25rem 0 2.875rem;
+}
+.stat-grid .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 1.875rem;
+}

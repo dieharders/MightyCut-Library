@@ -10,11 +10,7 @@
 import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
-import {
-  pageInFor,
-  pageOutFor,
-  type PageSpec,
-} from "../components/runtime/transitions";
+import { pageInFor, pageOutFor, type PageSpec } from "../components/runtime/transitions";
 import type {
   ComponentInstance,
   ThemeTokens,
@@ -207,7 +203,7 @@ export const mountPreview = (
     root.style.transform = `scale(${k})`;
   };
   let tl: Timeline | null = null;
-  const HOLD = 0.5; // preview beat between the last reveal and the page exit
+  const HOLD = 0.5; // preview beat between the last reveal and the page exit replay
   // The resolved whole-scene page transition (treatments only) — replayed live below.
   const pageTx =
     instance.kind === "treatment"
@@ -217,37 +213,29 @@ export const mountPreview = (
     if (!gsap || !MC) return;
     const timeline = (tl = gsap.timeline({ paused: true }));
     MC.applyAnims(timeline, anims, MC.showcaseCtx(inner));
-    // Replay the whole-PAGE transition the render emits (buildScene's entranceJs /
-    // exitJs): page IN over the reveals at t=0, page OUT after a hold. buildNode omits
-    // these (the render adds them separately), so the preview reconstructs them here
-    // from the pageInFor / pageOutFor data — otherwise the OUT is never visible.
+    // Replay the whole-PAGE transition so the hover preview is WYSIWYG with the render. The
+    // render emits the ENTRANCE inside the sub-composition (buildScene's entranceJs) and the
+    // EXIT on the ROOT/master timeline (a clip-level tween — root-level tweens don't leak like a
+    // nested sub-comp exit, which is why buildScene no longer emits one; see runtime/treatment.ts
+    // + the harness's root-html). buildNode omits BOTH (each pipeline adds its own), so the
+    // preview reconstructs them here from pageInFor / pageOutFor. This preview is a SINGLE scene,
+    // not nested, so replaying the exit on the scene root is safe and matches the final video —
+    // otherwise the hover would show the entrance but never the exit.
     let holdAt = timeline.duration();
     if (pageTx && (pageTx.animIn || pageTx.animOut)) {
       const pageEl =
         (inner.querySelector(`.${compId}-root`) as Element | null) ?? inner;
-      const play = (
-        spec: PageSpec | null,
-        at: number,
-        durSec: number,
-      ): void => {
+      const play = (spec: PageSpec | null, at: number, durSec: number): void => {
         if (!spec) return;
         const fn = (MC as unknown as Record<string, PageFactory>)[spec.fn];
         if (fn) fn(timeline, pageEl, at, { dur: durSec, ...spec.opts });
       };
       if (pageTx.animIn && pageTx.animIn !== "none")
-        play(
-          pageInFor(pageTx.animIn),
-          0,
-          TIMING_SECONDS[pageTx.timeIn ?? "short"],
-        );
+        play(pageInFor(pageTx.animIn), 0, TIMING_SECONDS[pageTx.timeIn ?? "short"]);
       holdAt = timeline.duration(); // the composed frame: after reveals + page-in settle
       if (pageTx.animOut && pageTx.animOut !== "none") {
-        play(
-          pageOutFor(pageTx.animOut),
-          holdAt + HOLD,
-          TIMING_SECONDS[pageTx.timeOut ?? "short"],
-        );
-        timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause()); // rest revealed, not faded-out
+        play(pageOutFor(pageTx.animOut), holdAt + HOLD, TIMING_SECONDS[pageTx.timeOut ?? "short"]);
+        timeline.eventCallback("onComplete", () => tl?.time(holdAt).pause()); // rest revealed, not exited
       }
     }
     timeline.time(holdAt).pause(); // settle to the composed frame so content is visible at rest

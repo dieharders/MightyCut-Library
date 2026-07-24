@@ -171,12 +171,12 @@ describe("treatment composition", () => {
     const headline = r.anims.find((a) => a.target === "s03-metrics-headline")!;
     const c0 = r.anims.find((a) => a.target === "s03-metrics__c0-item")!;
     const c1 = r.anims.find((a) => a.target === "s03-metrics__c1-item")!;
-    expect(headline.time).toEqual({ at: "slot", n: 0, plus: 0.1, d: 0.5 });
-    expect(c0.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.5 });
-    expect(c1.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
+    expect(headline.time).toEqual({ at: "slot", n: 0, plus: 0.1, d: 0.6 });
+    expect(c0.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.6 });
+    expect(c1.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.6 });
     // the child's own internal reveal (countUp) rides the SAME slot, keeping its own +0.1
     const c0num = r.anims.find((a) => a.target === "s03-metrics__c0-number")!;
-    expect(c0num.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.5 });
+    expect(c0num.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.6 });
   });
 
   test("decorations reveal first (slot 0), pushing the title and children back a slot", () => {
@@ -184,16 +184,16 @@ describe("treatment composition", () => {
     const deco = r.anims.find((a) => a.target === "s04-deco__d0-shape")!;
     const headline = r.anims.find((a) => a.target === "s04-deco-headline")!;
     const c0 = r.anims.find((a) => a.target === "s04-deco__c0-item")!;
-    expect(deco.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.5 });
-    expect(headline.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.5 });
-    expect(c0.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
+    expect(deco.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.6 });
+    expect(headline.time).toEqual({ at: "slot", n: 1, plus: 0.1, d: 0.6 });
+    expect(c0.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.6 });
   });
 
   test("a trailing caption (line n≥1) lands just after the last child", () => {
     const r = Captioned().build(ctx("s05-cap"));
     const caption = r.anims.find((a) => a.target === "s05-cap-caption")!;
     // 2 children at slots 1,2 → caption at slot 3 (childBase 1 + childCount 2)
-    expect(caption.time).toEqual({ at: "slot", n: 3, plus: 0.2, d: 0.5 });
+    expect(caption.time).toEqual({ at: "slot", n: 3, plus: 0.2, d: 0.6 });
   });
 
   test("a leadIn frame (eyebrow) leads; the title + its index secondary fall to later slots", () => {
@@ -202,9 +202,9 @@ describe("treatment composition", () => {
     const title = r.anims.find((a) => a.target === "s06-fr-title")!;
     const sub = r.anims.find((a) => a.target === "s06-fr-sub")!;
     // eyebrow frame at slot 0; title bumped to slot 1; index secondary to slot 2 (no collision)
-    expect(eyebrow.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.5 });
-    expect(title.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.5 });
-    expect(sub.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.5 });
+    expect(eyebrow.time).toEqual({ at: "slot", n: 0, plus: 0, d: 0.6 });
+    expect(title.time).toEqual({ at: "slot", n: 1, plus: 0, d: 0.6 });
+    expect(sub.time).toEqual({ at: "slot", n: 2, plus: 0, d: 0.6 });
   });
 
   test("addChildren overrides defaults and >3 triggers dense layout", () => {
