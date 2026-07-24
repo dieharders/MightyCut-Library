@@ -294,7 +294,7 @@ export const capsuleTheme: ThemeTokens = {
   name: "capsule",
   title: "Capsule",
   description:
-    "A soft candy theme on a cream canvas: every container is a fully rounded pill wrapped in one ink outline and lifted by a soft offset shadow that is never blurred. Bodoni Moda carries the display in ink, sentence case; Space Grotesk carries every label in wide-tracked uppercase. Colour lives on stat figures, bar fills, icon discs and pill fills — never on a headline. Frame unit: 1920×1080, 16:9.",
+    "A soft candy theme on a cream canvas. Every container a rounded pill wrapped in ink outline and lifted by soft offset shadow, never blurred. Wide-tracked uppercase. Color never lives on a headline. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every capsule frame lands on the cream canvas: this REPLACES the shared per-treatment

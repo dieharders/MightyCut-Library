@@ -289,7 +289,7 @@ export const professionalTheme: ThemeTokens = {
   name: "professional",
   title: "Professional",
   description:
-    "A consulting-grade theme on a warm cream canvas: a single saturated cobalt carries every accent — with one complementary emerald reserved for the leading/positive value — near-black Space Grotesk headlines against muted-gray Inter body, and content lifting on soft cobalt-tinted cards; no drop shadows. Frame unit: 1920×1080, 16:9.",
+    "A consulting-grade theme on a warm canvas. A single saturated cobalt carries every accent. Soft tinted cards that never shout; no drop shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every professional frame lands on the cream canvas: groundDefault REPLACES the shared
