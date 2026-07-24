@@ -26,10 +26,13 @@
 //   SHADOW_UNIT — the soft offset shadow's OFFSET, as a fraction of `size`. This one
 //                 SCALES so the lift stays proportional: 0.375rem at the default size 17,
 //                 which is rung 1 of the theme's shadow ladder AND exactly the legacy
-//                 `.ffp` floating-pill shadow (0.35cqw in themes/capsule/frame.css). Set it
-//                 to 0 for the FLAT atmosphere reading FRAME.md prescribes instead ("no
-//                 shadows on decorative floating pills") — the lift is authored in exactly
-//                 this one place, and frame.css is the named visual source of truth.
+//                 `.ffp` floating-pill shadow (0.35cqw in themes/capsule/frame.css). A
+//                 decoration wears the same soft offset lift as any capsule (theme.ts
+//                 rules) — that is what reads it as the same candy object as a card or pill.
+//                 The lift is authored in exactly this one place. Note you can't flatten a
+//                 decoration by zeroing this: remGrid floors the offset at the 0.125rem grid,
+//                 so a truly flat decoration would mean not emitting `--cd-shadow` at all
+//                 (the CSS defaults it to `none`).
 import { component } from "../runtime/component";
 import { remGrid } from "../runtime/css";
 import { decorationSchema, type DecoParams } from "./decoration-placement";

@@ -134,12 +134,12 @@ const rules: ThemeTokens["rules"] = {
     "Wrap every pill, card, cell, disc and track in the ONE 0.25rem ink outline.",
     "Set Bodoni headlines in ink, sentence case; colour lives on stat figures, bar fills and pill fills.",
     "Lift content with soft offset shadows (0.375–0.75rem, 12% ink) — offset only, never blurred.",
-    "Float 5–8 tilted candy pills as flat wallpaper on the declarative frames (cover, closing).",
+    "Float 5–8 tilted candy pills as wallpaper on the declarative frames (cover, closing) — each on the same soft offset shadow every capsule carries, scaled with its size.",
   ],
   dont: [
     "No sharp-cornered text container, and no unstroked pill.",
     "No coloured Bodoni headline, and never uppercase Bodoni.",
-    "No blurred shadow, and no shadow at all on a floating decoration — atmosphere stays flat.",
+    "No blurred shadow anywhere — every lift, decorations included, is a hard offset only.",
     "No second outline weight, and no colour outside the ten palette roles.",
     "Don't blow a headline edge-to-edge — fit it to measure.",
   ],
@@ -293,8 +293,8 @@ export const capsuleTheme: ThemeTokens = {
   // id "rule" that no-ops wherever no node stamps it (mc.js skips a missing target) — so adding
   // the node is the whole cost of capsule's signature coral accent bar drawing itself in under
   // the just-arrived headline. Every shared data-slot and every TARGETED data-anim id survives;
-  // the node carries BOTH class names (`rule al`) so it answers to either idiom — future's
-  // `.rule` and the legacy capsule showcase's `.al`. closing-plate, quote and stat need no
+  // the node carries the `rule` class cover.css styles (`.cover .rule`), and its `data-anim="rule"`
+  // stamps the id the shared coverAnim descriptor targets. closing-plate, quote and stat need no
   // override: their capsule look is reachable in CSS alone (a pseudo-element rule, a transparent
   // max-width quote wrapper, and flex `order` on the existing — untargeted — .stat-dot).
   templates: {
@@ -312,9 +312,10 @@ export const capsuleTheme: ThemeTokens = {
   rules,
   // Capsule's own showcase sample copy — see `examples` above.
   examples,
-  // Capsule's OWN candy decoration families (blob · lozenge · arch · confetti) — flat, tilted,
-  // ink-outlined shapes with NO shadow, which is what separates atmosphere from content at a
-  // glance here. Themes don't share decorations: this roster lists only capsule's, and every
+  // Capsule's OWN candy decoration families (blob · lozenge · arch · confetti) — tilted,
+  // ink-outlined shapes lifted on the same soft offset shadow every capsule carries (scaled with
+  // size; see SHADOW_UNIT in capsule-decoration-shapes.ts), so a decoration reads as the same
+  // candy object as a card or pill. Themes don't share decorations: this roster lists only capsule's, and every
   // decoration is held out of the Components grid globally (ComponentFactory.decoration), so
   // block's and future's shapes never appear under capsule. Opt-in per scene via
   // addDecorations() / the editor's decoration picker.
