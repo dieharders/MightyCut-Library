@@ -436,14 +436,20 @@ describe("backdrop registry (tripwire)", () => {
     }
   });
 
-  // THREE designs are animated, and each drives a DIFFERENT mc.js FX: constellation paints a
-  // seeded particle canvas (particleBg), gradient turns its two-tone corner wash a few degrees
-  // over the scene (washSpin), and hatch drifts the hue of its vanishing stripes across the scene
-  // (hueShift). Everything else is pure CSS. Adding a fourth animated design is a deliberate
-  // change to this list.
-  const ANIMATED_DESIGNS: Record<string, string> = { constellation: "particleBg", gradient: "washSpin", hatch: "hueShift" };
+  // FOUR designs are animated: constellation paints a seeded particle canvas (particleBg),
+  // gradient turns its two-tone corner wash a few degrees over the scene (washSpin), hatch drifts
+  // the hue of its vanishing stripes (hueShift), and sunburst turns its spiral-arm field
+  // (washSpin again — a new design does NOT imply a new FX, and reusing one keeps mc.js's
+  // BACKDROP_FX allowlist untouched). Everything else is pure CSS. Adding a fifth animated design
+  // is a deliberate change to this list.
+  const ANIMATED_DESIGNS: Record<string, string> = {
+    constellation: "particleBg",
+    gradient: "washSpin",
+    hatch: "hueShift",
+    sunburst: "washSpin",
+  };
 
-  test("constellation + gradient + hatch are animated (a backdrop anim); every other design is static", () => {
+  test("the animated designs each emit one backdrop anim; every other design is static", () => {
     for (const [name, fn] of Object.entries(ANIMATED_DESIGNS)) {
       const r = BACKDROPS[name].build(input);
       expect(r.anims.length, `design '${name}' should emit exactly one backdrop anim`).toBe(1);
@@ -467,10 +473,21 @@ describe("backdrop registry (tripwire)", () => {
   // --primary resolved at build time (particleRgb), not from CSS.
   const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => n !== "constellation");
 
+  // The assertion is on the CONTRACT, not on one literal spelling: the theme hook must be read
+  // FIRST (so frame.css always wins) and the chain must bottom out at `var(--dark)` (so an
+  // unstyled theme still paints something). Most designs express that as the direct
+  // `var(--X-ink, var(--dark))`; `sunburst` inserts its per-scene computed complement as a middle
+  // fallback — `var(--sunburst-ink, var(--sunburst-auto, var(--dark)))` — which satisfies the
+  // contract more completely, not less, and which an exact-string match would have rejected.
   test.each(CSS_PAINTED)("%s paints through its --<design>-ink hook (theme-recolourable)", (name) => {
     const hook = `--${name}-ink`;
     const css = BACKDROPS[name].build(input).css;
-    expect(css, `design '${name}' must paint via var(${hook}, …)`).toContain(`var(${hook}, var(--dark))`);
+    expect(css, `design '${name}' must read var(${hook}, …) — the theme's override comes first`).toContain(
+      `var(${hook},`,
+    );
+    expect(css, `design '${name}' must bottom out at var(--dark) so an unstyled theme still paints`).toContain(
+      "var(--dark)",
+    );
   });
 
   // No design may reintroduce a raw colour or a retired theme-css token — the reason the
@@ -932,8 +949,8 @@ describe("creative theme (tripwire)", () => {
       expect(html, `${name} did not land on its canonical ground --${GROUND[name]}`).toContain(
         `background: var(--${GROUND[name]})`,
       );
-      // …and carries the ruled line grid as its default backdrop.
-      expect(html).toContain("mc-backdrop--grid");
+      // …and carries the turning sunburst as its default backdrop.
+      expect(html).toContain("mc-backdrop--sunburst");
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");
@@ -956,12 +973,31 @@ describe("creative theme (tripwire)", () => {
     expect(html).not.toContain("background: var(--muted-1)");
   });
 
-  test("creative's default backdrop is the STATIC grid (no backdrop anim to seed)", () => {
+  test("the sunburst backdrop emits a valid, compId-scoped rotation descriptor", () => {
     const built = getTreatment("cover")().build(crctx("c01-cover-a"));
-    expect(built.anims.find((a) => a.kind === "backdrop")).toBeUndefined();
-    // The ruled grid paints through --grid-ink, which frame.css re-points at the ink so the rules
-    // read on every one of the six grounds above.
-    expect(built.css).toContain("--grid-ink");
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "creative scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("washSpin"); // it turns; it is not a canvas FX
+    expect(bd?.target).toBe("c01-cover-a-spin"); // the turning layer is compId-scoped
+    // It paints through its one themeable hook, which frame.css re-points at the ink.
+    expect(built.css).toContain("--sunburst-ink");
+    // The turning element must be the inner SQUARE, not the full-bleed layer — the square is
+    // centred on the burst's corner anchor so the spin is concentric and no edge sweeps in.
+    expect(built.css).toContain("width: 280rem");
+    expect(built.html).toContain("c01-cover-a-spin");
+  });
+
+  test("the sunburst's SVG ids are compId-scoped (sub-comps share ONE DOM)", () => {
+    // Unscoped `#s` / `#g` / gradient ids would collide across scenes and every scene would
+    // resolve to whichever parsed first.
+    const a = getTreatment("cover")().build(crctx("c01-a")).html;
+    const b = getTreatment("cover")().build(crctx("c01-b")).html;
+    expect(a).toContain('id="c01-a-s"');
+    expect(b).toContain('id="c01-b-s"');
+    expect(a).not.toContain('id="c01-b-s"');
+    // …and the artwork carries no colour of its own — the stops are opacity-only.
+    expect(a).not.toMatch(/stop-color="#/);
   });
 
   test("creative ships NO template overrides (the whole look is CSS alone)", () => {

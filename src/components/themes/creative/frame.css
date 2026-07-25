@@ -21,12 +21,15 @@
   inset: 0;
   overflow: hidden;
   /* Backdrop ink hooks — how creative restyles the SHARED mask designs (backdrops are a pool
-     every theme draws from; see primitives/backdrops.ts). Creative's signature default is `grid`:
-     the 4rem ruled line grid, painted in INK, which reads as the ruled sheet a zine is pasted up
-     on — and ink is legible on EVERY ground creative rotates through (cream, oat, yellow, pink,
-     orange, green are all mid-to-light saturated), which is why the three line-work designs all
-     run on --dark rather than an accent. The wash is the one two-tone design, so it takes a
-     genuine second hue: pink leading, yellow counter-glow in the opposite corner. */
+     every theme draws from; see primitives/backdrops.ts). The line-work designs run on --dark:
+     ink is legible on EVERY ground creative rotates through (cream, oat, yellow, pink, orange
+     and green are all mid-to-light saturated). The wash is two-tone, so it takes a genuine
+     second hue: pink leading, yellow counter-glow in the opposite corner.
+
+     NOTHING IS STATED FOR `sunburst`, creative's signature default, and that is deliberate: that
+     design COMPUTES its own two tones from the scene's ground (the complement of whatever plane
+     the frame lands on), which is the only way one field reads on all six of them. Stating
+     --sunburst-ink here would opt creative out of that and pin one colour across the rotation. */
   --dots-ink: var(--dark);
   --grid-ink: var(--dark);
   --hatch-ink: var(--dark);
