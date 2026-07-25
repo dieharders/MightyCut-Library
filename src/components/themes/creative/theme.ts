@@ -67,9 +67,18 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // Two roles differ from the reference frame.css, which spent them on duplicates (accent-3 = the
 // same green as accent-2, muted-3 = the same oat as muted-2). Both are wasted slots: accent-3
 // sits OUTSIDE the accent cycle and muted-3 is nobody's canonical ground, so each is a free
-// surface. They take the two creative colours the reference documented but never bound to a role
-// — the deep green and the secondary ink — giving the theme ten distinct swatches rather than
-// eight and a repeat.
+// surface. accent-3 carries a VIOLET — the one cool hue in an otherwise entirely warm palette,
+// and safe to be that precisely BECAUSE it is off-cycle: no auto-coloured badge, dot or bar can
+// reach it, so it appears only where a scene or a decoration asks for it by name.
+//
+// THE ONE INVARIANT IN THIS PALETTE, and the one that has already been broken once: muted-1 and
+// muted-2 are a RAISED/RECESSED PAIR, and muted-1 must stay the lighter of the two. Every plate
+// in the theme (card, stat, step) fills with muted-1 while the timeline and agenda GROUND on
+// muted-2 — so if the two converge, those plates stop reading as objects and the deck flattens to
+// its ink borders. Nothing enforced it, and setting muted-1 to the oat's own hex collapsed it to
+// 1.00:1. There is now a tripwire (registry.test.ts, "no plate fill matches the ground it sits
+// on") that fails on the exact-match case; keeping real daylight between them is still a design
+// call, not a test's.
 const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "Pink",
@@ -105,9 +114,16 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
     note: "canvas + the light ink",
     varName: "muted-1",
   },
+  // Oat — the RECESSED surface: the timeline/agenda ground, the rank track, the ledger fill, the
+  // HUD well. It must stay DARKER than muted-1, because every plate in the theme (card, stat,
+  // step) fills with muted-1 and has to read as sitting ON this, not in it. When muted-1 became
+  // Concrete this was left at the same hex, which collapsed that separation to 1.00:1 — the
+  // timeline's step plates and the whole showcase Components grid went flat, visible only by their
+  // ink borders. Deepened to restore the raised/recessed pair (now ~1.16:1, a touch clearer than
+  // the cream/oat it replaces).
   {
     name: "Oat",
-    hex: "#E4DCC4",
+    hex: "#D8CDAE",
     note: "recessed ground + track fill",
     varName: "muted-2",
   },
@@ -222,7 +238,7 @@ const rules: ThemeTokens["rules"] = {
     "No rounded corners — 0 radius on every structural element; 50% is reserved for the stat's corner dot and the decorative discs.",
     "No gradients, no blurred shadows, no glow.",
     "No sentence-case Archivo Black, and never a declared bold weight — the face ships exactly one.",
-    "No fifth accent, and no pure-white ground.",
+    "No fifth accent in the cycle — the violet is off-cycle depth, reached only by name, never auto-assigned. And no pure-white ground.",
     "Don't blow a headline edge-to-edge — size it to the line.",
   ],
 };
@@ -369,9 +385,19 @@ export const creativeTheme: ThemeTokens = {
   // creative CONTRIBUTES to the shared pool; a default is not ownership, so a scene may pick any
   // other design and any theme may set this one (all five now state a --sunburst-ink).
   backdrop: "sunburst",
-  // Showcase/editor preview surface — the warm cream canvas creative's components are designed
-  // against. Taken off the palette (--muted-1) rather than repeated as a literal.
-  previewBg: palette.find((p) => p.varName === "muted-1")!.hex.toLowerCase(),
+  // Showcase/editor preview surface — the RECESSED oat (--muted-2), NOT the canvas.
+  //
+  // Capsule and professional both take muted-1 here, and for them that is right: their plates are
+  // white or a translucent tint, so they still read against it. Creative's plates fill muted-1
+  // ITSELF (card, stat, step are all Concrete boxes), so deriving the preview surface from the same
+  // role made every component in the Components grid exactly the colour of the panel behind it —
+  // the cards looked like they had lost their background, visible only by their ink borders. It was
+  // wrong from the start and merely got more obvious when Concrete and Oat converged.
+  //
+  // Pointing it at the recessed oat instead reproduces the real deck: a raised Concrete plate on a
+  // recessed ground, which is precisely what the timeline and agenda frames show. Pinned by the
+  // "no plate fill matches previewBg" tripwire in theme-parity.test.ts.
+  previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
   // …and creative is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
   // The treatments' DEFAULT decorations are BLOCK's own families (cover's star, closing's slab).

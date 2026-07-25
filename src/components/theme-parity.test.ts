@@ -412,6 +412,69 @@ describe("font coverage (tripwire)", () => {
   });
 });
 
+// ------------------------------------------------------- plate / ground separation ---
+// A treatment's child component is usually a PLATE — a filled box (block's card, creative's stat)
+// sitting on the treatment's ground. If the plate's fill role and the ground role resolve to the
+// SAME hex, the plate stops being an object: it renders as its border alone, and on a theme whose
+// plates have no border it vanishes outright. Every existing sweep passes in that state, because
+// the scene still builds, still has all ten roles, and still names a registered ground — which is
+// exactly how creative shipped a palette edit that set muted-1 (every plate's fill) to muted-2's
+// hex (the timeline + agenda ground) and flattened both frames plus the whole showcase grid.
+//
+// The assertion is deliberately EXACT-MATCH, not a contrast ratio. Near-tone plates are a real and
+// intentional idiom here — block fills a white card on a #FFFDF5 oat canvas (1.02:1) and capsule
+// does the same, letting the ink border do the separating — so a ratio threshold would either fail
+// those legitimately or be set so low it caught nothing. "The two roles are literally the same
+// colour" is unambiguous breakage and is what this pins.
+describe("plate / ground separation (tripwire)", () => {
+  /** The `background: var(--role)` of a component's own ROOT rule, if it fills one. */
+  const plateRole = (css: string, cls: string): string | undefined => {
+    const i = css.indexOf(`.${cls} {`);
+    if (i < 0) return undefined;
+    const body = css.slice(i, css.indexOf("}", i));
+    return body.match(/background:\s*var\(--([a-z0-9-]+)\)/)?.[1];
+  };
+
+  test.each(ALL_THEMES)("$name: no child plate is the same colour as the ground it sits on", (theme) => {
+    const hexOf = (role: string) =>
+      theme.palette?.find((p) => p.varName === role)?.hex.toLowerCase();
+    const clashes: string[] = [];
+    for (const tname of TREATMENT_NAMES) {
+      const factory = getTreatment(tname);
+      const child = factory.childComponent;
+      if (!child) continue; // childless treatment (cover/quote/closing) has no plate
+      const ground = String(theme.groundDefault ?? factory().ground);
+      const fill = plateRole(theme.skins?.[child] ?? "", child);
+      if (!fill) continue; // an unfilled child (a ruled agenda row, a display:contents ledger row)
+      const [gh, fh] = [hexOf(ground), hexOf(fill)];
+      if (gh && fh && gh === fh) {
+        clashes.push(`${tname}: .${child} fills --${fill} (${fh}) on ground --${ground} (${gh})`);
+      }
+    }
+    expect(
+      clashes,
+      `${theme.name}: plate and ground resolve to the same colour, so the plate renders as its border alone — ${clashes.join("; ")}`,
+    ).toEqual([]);
+  });
+
+  // The showcase Components grid renders every leaf on `previewBg`. Same failure, different
+  // surface: a plate whose fill IS the preview surface reads as a missing background in the
+  // theme browser even when the deck itself is fine.
+  test.each(ALL_THEMES)("$name: no plate fill matches previewBg (the showcase grid surface)", (theme) => {
+    const pv = theme.previewBg?.toLowerCase();
+    if (!pv) return;
+    const bad = ["card", "stat", "step"].filter((c) => {
+      const fill = plateRole(theme.skins?.[c] ?? "", c);
+      const fh = fill && theme.palette?.find((p) => p.varName === fill)?.hex.toLowerCase();
+      return !!fh && fh === pv;
+    });
+    expect(
+      bad,
+      `${theme.name}: ${bad.join(", ")} fill exactly previewBg (${pv}) — they render backgroundless in the Components grid`,
+    ).toEqual([]);
+  });
+});
+
 // ------------------------------------------------------------------ palette sanity ---
 // A light check that every theme fills the 10 roles (registry.test.ts asserts order + :root
 // emission + de-dupe in depth; this keeps the parity file self-contained for the invariant it
