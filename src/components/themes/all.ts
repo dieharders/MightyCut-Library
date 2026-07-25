@@ -14,6 +14,7 @@ import { capsuleTheme } from "./capsule/theme";
 import { creativeTheme } from "./creative/theme";
 import { futureTheme } from "./future/theme";
 import { professionalTheme } from "./professional/theme";
+import { standardTheme } from "./standard/theme";
 
 /** All live themes, in conversion order (block is the reference implementation). */
-export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme, capsuleTheme, professionalTheme, creativeTheme];
+export const ALL_THEMES: ThemeTokens[] = [blockTheme, futureTheme, capsuleTheme, professionalTheme, creativeTheme, standardTheme];

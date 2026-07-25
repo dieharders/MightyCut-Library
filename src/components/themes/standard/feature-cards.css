@@ -1,0 +1,35 @@
+/* 2 · Feature Cards — a row of tracing-paper cards ruled onto the stone, under a Playfair headline
+   in ink. The card itself (the hairline border, the 30%-white wash, the outlined glyph circle)
+   lives entirely in card.css; this file owns the body padding, the headline size/rhythm and the
+   grid, and nothing else.
+
+   The reference hangs a 1.4cqw gap off this frame's eyebrow (`.bf-feature-cards .pill`), but the
+   shared template carries no eyebrow slot on any treatment except cover and quote — so that rule
+   has no target here and is dropped rather than written as CSS that styles nothing. The headline
+   therefore leads the block and takes no top margin; the body is vertically centred, so the
+   generous top/bottom padding is what gives it room, not a lead-in gap.
+
+   Ported from the showcase .bf-feature-cards (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
+   authoring grid — runtime/css.ts). */
+.feature-cards > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* Family, weight, sentence case, leading and ink all come from `.block-frame h3` (frame.css); only
+   size, rhythm and MEASURE are this treatment's business. The 84rem cap is the reference's 70cqw
+   and it earns its place: a headline running the full content width would out-measure the three
+   columns beneath it, and a frame here is allowed — expected — to be mostly empty. */
+.feature-cards h3 {
+  font-size: 4.75rem;
+  margin: 0 0 1.875rem;
+  max-width: 84rem;
+}
+/* --cols is emitted by the treatment's layout() (min(childCount, 4)); the reference's hardcoded
+   repeat(3, 1fr) breaks a 2- or 4-card slide, so the fallback here IS standard's default and the
+   var is what the author's card count actually drives. `.row` must stay qualified: the bare class
+   is also the root of the comparison `row` primitive. */
+.feature-cards .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.875rem;
+}

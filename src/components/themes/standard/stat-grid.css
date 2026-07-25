@@ -1,0 +1,46 @@
+/* 3 · Stat Grid — a row of bare Playfair figures ruled off from the headline by ONE hairline.
+   Standard's stat is not a card: no fill, no border, no shadow, nothing boxing the cell (see
+   stat.css). What holds the row together is the rule ABOVE it — `border-top` on `.row` plus the
+   matching `padding-top` that pushes the figures clear of it — and that rule is this frame's only
+   piece of drawn geometry. It is doing the work three borders do in every other theme, so keep it
+   if the sizes ever move; without it the treatment reads as loose numbers rather than as a
+   catalogue ledger.
+
+   Two source rules are deliberately NOT restated here:
+     · `.bf-stat-grid { background: var(--accent-2) }` — the reference made this its one
+       deeper-stone data frame by painting the treatment root. Skins never paint a root in this
+       library (the emitter stamps the ground, and pinning it makes an explicit scene ground
+       silently do nothing), so a deck that wants the deeper stone asks for it by name with
+       `ground: "muted-2"` — the case frame.css already anticipates.
+     · `.bf-stat-grid .pill` — the shared stat-grid template carries no eyebrow slot (only cover
+       and quote do), so there is no label to space.
+
+   The figures live in stat.css; this file owns the body padding, the headline rhythm and the
+   grid. Ported from the showcase .bf-stat-grid (cqw × 1.2, cqh × 0.675). */
+.stat-grid > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.stat-grid h3 {
+  /* Family, weight, tracking, leading and the ink colour all arrive from `.block-frame h3`
+     (frame.css) — standard's section headline IS the base Playfair cut, so only the size and the
+     rhythm down to the rule are stated. */
+  font-size: 4.75rem;
+  margin: 0 0 1.875rem;
+}
+/* --cols is emitted by the treatment's layout() (min(childCount, 4)); the source's hardcoded
+   repeat(3, 1fr) breaks a 2- or 4-stat slide. `.row` stays qualified — the bare class is also the
+   comparison `row` primitive's root. The rule takes the universal Line brownstone (--accent-3) at the
+   grid floor, 0.125rem: the same single weight every border, track and compass ring in the theme
+   is drawn at, which is the point of having only one. */
+.stat-grid .row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 2.875rem;
+  border-top: 0.125rem solid var(--accent-3);
+  padding-top: 2.875rem;
+}
+/* The other half of layout()'s density pair — --dense, the boolean hook at 4+ stats — is
+   deliberately UNUSED here, as in block, capsule, professional and creative: standard answers
+   density with the ratio alone (--dense-scale, multiplied into the figure in stat.css). Nothing
+   about the grid tightens, so there is no selector to write. */

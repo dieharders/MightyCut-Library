@@ -1,0 +1,48 @@
+/* 7 · Comparison — the HAIRLINE LEDGER (1.4fr 1fr 1fr): a row-label column plus a "status
+   quo"/"our approach" pair. The empty .corner and the two .ch heads are the treatment's own markup
+   on the grid's first row; each Row child flows into the SAME grid (its .rows wrapper and each .row
+   are display:contents). Row cells — and the rule that IS the ledger — live in row.css. Ported from
+   the showcase .bf-comparison (cqw × 1.2, cqh × 0.675).
+
+   The reference grounds this one frame on the deeper stone (`background: var(--accent-1)`, the role
+   its palette reserved for exactly this). A skin can't say that here: the emitter stamps the ground
+   and a treatment root must never paint one. A deck that wants the deeper-stone ledger asks for it
+   by name — `ground: "muted-2"` on the scene — and otherwise the frame sits on the sandstone canvas
+   like every other, which costs the ledger nothing because its structure is drawn, not filled. */
+.comparison > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.comparison h3 {
+  font-size: 4.75rem;
+  margin: 0 0 1.875rem;
+}
+/* NO GAP in either axis — the departure from professional's gapped chip ledger, and the reason this
+   reads as a ruled table at all. Each cell opens with its own hairline (row.css); the tracks have to
+   butt up so those three border-tops meet and cross the frame as ONE line. A column gap would break
+   every rule into three stubs, and a row gap would float it off the copy it belongs to. */
+.comparison .ledger {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  align-content: center;
+}
+/* Structural, not decorative: without it every Row lands in ONE grid cell instead of spreading its
+   label + two cells across the three tracks. */
+.comparison .rows {
+  display: contents;
+}
+/* Column heads are standard's plain brownstone label and nothing more: no chip, no fill, no border, no
+   radius — and deliberately NO `.ch.a` / `.ch.b` rules at all, where professional splits them into a
+   faint pill and a solid cobalt one. Standard has no saturated hue to spend on "the answer", so both
+   heads are typographically identical and the emphasis is deferred to row.css, where the .b cells go
+   ink against warm gray. Tracking is 0.12em rather than the frame eyebrow's 0.22em: the reference
+   tightens its small in-frame labels so a two-word head still reads as one word at this size. */
+.comparison .ch {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1.25rem;
+  padding: 1.5rem 1.625rem;
+  color: var(--primary);
+}

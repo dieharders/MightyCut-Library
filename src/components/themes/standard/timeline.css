@@ -1,0 +1,32 @@
+/* 6 · Timeline — the movements read left to right beneath ONE hairline. Standard's timeline has no
+   nodes, no discs and no connectors (the reference titles the frame "1px rule, no nodes" for
+   exactly that reason): the rule across the top of the row IS the timeline, and the steps hang
+   under it the way entries hang under a catalogue heading. The step's brownstone label, serif title and
+   gray copy live in step.css; this file owns the body padding, the headline rhythm, the grid and
+   that rule. Ported from the showcase .bf-timeline (cqw × 1.2, cqh × 0.675). */
+.timeline > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* The base h3 already carries the family, the 600 weight, the ink and `margin: 0` — all this adds
+   is scale and the space down to the rule. No TOP margin: the shared timeline template has no
+   eyebrow, so the headline is the first thing in a vertically centred body and has nothing to
+   clear. */
+.timeline h3 {
+  font-size: 4.75rem;
+  margin-bottom: 1.875rem;
+}
+.timeline .row {
+  display: grid;
+  /* --cols is emitted by the treatment's layout() (min(childCount, 4)). Unlike every sibling
+     theme, nothing is drawn INTO this gap — standard's step has no connector to keep in sync with
+     it — so the gap is pure negative space and can be changed on its own. */
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 2.875rem;
+  /* THE timeline: a single hairline in the Line brownstone, the same 0.125rem weight every border, rule
+     and ring in the theme wears, with the row breathing below it. It spans the whole row rather
+     than each column, and that continuity is what makes four separate steps read as one sequence
+     without a mark, a disc or a bridge anywhere. */
+  border-top: 0.125rem solid var(--accent-3);
+  padding-top: 2.375rem;
+}

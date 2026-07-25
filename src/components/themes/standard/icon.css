@@ -1,0 +1,31 @@
+/* Standard's icon is the SAME OBJECT a feature card wears, standalone: an inline-SVG glyph inside
+   an outlined circle drawn at the theme's single hairline weight. No fill, no shadow, no rounded
+   square — 50% is the only radius standard uses, and a compass-drawn ring is exactly what it is for.
+
+   THE ACCENT IS THE LINE, NOT A FLOOD. --icol (emitted only when an author picks an accent — see
+   primitives/icon/index.ts, so the fallback in each var() IS standard's default) paints the glyph
+   through currentColor and the ring with it; unset ⇒ the ring falls back to the Line brownstone every
+   other border in the deck is drawn in, with the glyph on the brownstone accent. That is the same
+   reading card.css takes for --ic, deliberately: the badge and the standalone icon have to look
+   like one component. It is also why the glyph is NOT pinned to ink or cream the way capsule,
+   creative and professional pin theirs — those pin because the accent floods the fill and the glyph
+   needs to survive it. With nothing filled, the accent is free to BE the glyph.
+
+   The ring is 1.35× the glyph (professional's proportion) so the circle stays right at any --isize,
+   which the component always emits — already a rem value, quantized upstream by remGrid. box-sizing
+   keeps the hairline inside that computed circle instead of inflating it. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: calc(var(--isize, 12rem) * 1.35);
+  height: calc(var(--isize, 12rem) * 1.35);
+  border: 0.125rem solid var(--icol, var(--accent-3));
+  border-radius: 50%;
+  color: var(--icol, var(--primary));
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

@@ -16,8 +16,7 @@
 //
 // Adding a theme add-on is one ADDONS row + a register-<theme>.ts that injects it (and the
 // theme-parity "font coverage" tripwire's ADDON_FONT_CSS map, which reads the module emitted
-// here — the same bytes the browser injects). standard → Playfair is staged in assets/fonts/
-// but NOT wired here: it is not a live component theme yet.
+// here — the same bytes the browser injects).
 //
 // Re-run by `build:engine`/`test`/`typecheck`'s pre-step (`pnpm gen:fonts`).
 import fs from "node:fs";
@@ -81,6 +80,8 @@ emit(
 const ADDONS = [
   { theme: "capsule", css: "capsule-fonts.css" },
   { theme: "professional", css: "professional-fonts.css" },
+  // standard → Playfair Display (upright + italic); its Inter comes from core.
+  { theme: "standard", css: "standard-fonts.css" },
 ];
 
 for (const { theme, css } of ADDONS) {

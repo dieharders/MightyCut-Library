@@ -1,0 +1,73 @@
+/* Chart column — an OUTLINED box, not a solid one: recessed stone (--muted-2) inside a single
+   0.125rem Line-brownstone border, square-cornered, standing on the plot's baseline (chart.css draws
+   that rule). A Playfair value floats above in ink, a tracked brownstone label sits below. No shadow, no
+   radius — a rounded column would be the loudest thing in the theme.
+   Ported from the showcase .bf-chart .bar (cqw × 1.2). */
+.bar {
+  /* Emphasis by FILL, not by hue: the leading column takes solid brownstone (--lead-col) while every
+     other stays the recessed stone (--base-col), so the winner reads as filled-in rather than
+     coloured-in. The shared bar component sets --col to one or the other from the `leader` param —
+     the library's replacement for the reference's `.bar:last-child`, which assumed the last column
+     was always the tall one. The outline is the same Line brownstone on all of them either way. */
+  --lead-col: var(--primary);
+  --base-col: var(--muted-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  /* Standalone plot height (chart.css's .bars overrides flex/height so bars share the real plot);
+     fixed width so the column stays constant as the value label's text width changes. */
+  height: 25.625rem;
+  width: 7.25rem;
+}
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 3.5rem; /* headroom the floating value label occupies when the column is full */
+  box-sizing: border-box;
+}
+/* Playfair 400 — the reference's own weight, kept rather than stepped up to the 600 frame.css gives
+   the headline. A value is a fifth of the headline's size and reads as a quiet annotation of the
+   column; at 600 it would start competing with the h3 for the frame's one moment of emphasis.
+   tabular-nums holds the width steady while MC counts the figure up (inert if the face lacks it). */
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 1rem;
+  font-family: var(--disp);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  font-size: 2.375rem;
+  line-height: 1;
+  color: var(--dark);
+}
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(
+    --fill
+  ); /* % of the track below the padding — 0% empty, 100% full */
+  width: 100%;
+  max-width: 7.25rem;
+  background: var(--col, var(--muted-2));
+  border: 0.125rem solid var(--accent-3);
+  box-sizing: border-box;
+  /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
+  transform-origin: bottom;
+}
+/* The label is the theme's small in-frame label: brownstone, uppercase, tracked 0.12em rather than the
+   eyebrow's 0.22em — at this size the wider tracking would break a two-word category apart. */
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1.5rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1.5rem;
+  color: var(--primary);
+  text-align: center;
+}

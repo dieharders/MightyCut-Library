@@ -1,7 +1,7 @@
-/* Stat = a CREAM plate cut out of the green ground — the inverse of the reference's accent-filled
+/* Stat = a WHITE plate cut out of the green ground — the inverse of the reference's accent-filled
    cell (see the long note in stat-grid.css for why the port swapped which side carries the
-   colour). Same atoms as the feature card: 0 radius, the 0.5rem structural ink outline, the quiet
-   ink-only 0-blur offset. The signature orange+ink shadow is reserved for the ONE featured block
+   colour). Same atoms as the feature card, fill included: --light, the shared plate surface (see
+   card.css) — 0 radius, the 0.5rem structural ink outline, the quiet ink-only 0-blur offset. The signature orange+ink shadow is reserved for the ONE featured block
    in a frame, and a row of repeated cells is never that.
 
    The per-instance accent survives the inversion as exactly one object: the dot. --dot is emitted
@@ -13,7 +13,7 @@
 .stat {
   display: flex;
   flex-direction: column;
-  background: var(--muted-1);
+  background: var(--light);
   border: 0.5rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.625rem 2.375rem;
@@ -37,7 +37,7 @@
   background: var(--dot, var(--primary));
   margin-bottom: 1.25rem;
 }
-/* The figure is INK, not the accent: on a cream plate the accent already speaks through the dot,
+/* The figure is INK, not the accent: on a white plate the accent already speaks through the dot,
    and Archivo Black at this size wants the full contrast. No font-weight — the face has one
    weight and a synthetic bold would smear the counter as it ticks. --dense-scale (emitted by
    stat-grid at 4+ stats) shrinks the figure so a dense row doesn't crowd; unset ⇒ 1, i.e. the

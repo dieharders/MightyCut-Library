@@ -1,0 +1,32 @@
+/* Standard CTA: the standalone call to action — an UNDERSCORED LABEL, not a button. Standard has no
+   pill, no fill and no radius to spend on one (50% on a true circle is the theme's only radius), so
+   the action is set the way every other piece of chrome here is set: Inter 500, uppercase, tracked
+   0.2em, in the brownstone accent. It earns its "this is the thing to do" from a single 0.125rem hairline
+   ruled underneath, in the Line brownstone (--accent-3) that draws every border, track and ring in the
+   theme — the same weight as the rule under a comparison column head, because there is only one.
+
+   Same recipe as closing-plate's own .cta node, one rung larger. That one sits under an 8.375rem
+   Playfair headline which lends it scale and context; a dropped .cta-c stands alone with neither, so
+   it goes to 1.75rem — the only place standard's label ramp climbs past the 1.25rem eyebrow.
+
+   The rule is a BOTTOM BORDER rather than text-decoration: an underline is bound to the face's own
+   baseline metrics, can't be held off the descenders, and can't be pinned to the hairline weight —
+   and the hairline is the identity. Horizontal padding is deliberately absent so the rule measures
+   the words exactly. .cta-arrow's text is a leading space plus the glyph, so it needs white-space:pre
+   or the gap collapses. Ported from the showcase .bf-closing-plate .cta (cqw × 1.2, snapped to the
+   0.125rem grid); the reference ships no standalone CTA, so the underscore is this port's own. */
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  border-bottom: 0.125rem solid var(--accent-3);
+  padding-bottom: 0.75rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 1.75rem;
+  color: var(--primary);
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

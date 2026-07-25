@@ -1,0 +1,59 @@
+/* Ranked row — a fixed-width brownstone label, an OUTLINED stone track (the same recessed stone and the
+   same 0.125rem Line-brownstone hairline the chart column wears), a solid brownstone fill, and an ink Playfair
+   value closing the row. Square-cornered: standard's tracks are ruled channels, not pills.
+   Ported from the showcase .bf-bar-ranking .bar (cqw × 1.2). */
+.rank {
+  /* Both ends of the shared leader hook resolve to the SAME brownstone, because standard has no second
+     hue to spend on a winner — all four accent-cycle slots are the one stone (theme.ts). Ranking
+     rows are already sorted, so length alone says which row leads; tinting the top one would be the
+     populist accent the theme's rules rule out. The pair is still declared rather than dropped: the
+     shared rank component reads --lead-col/--base-col to set --col, and a theme that leaves them
+     unset inherits whatever the previous skin left behind. */
+  --lead-col: var(--primary);
+  --base-col: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  /* Span the row so the flex:1 track has a definite width to fill (a no-op inside bar-ranking's
+     full-width column; stops the track collapsing when shown bare in the showcase). */
+  width: 100%;
+}
+/* Fixed label column so every track starts on the same vertical — the ledger reading the frame is
+   built on. Tracked 0.12em, not the eyebrow's 0.22em: these are multi-word row names. */
+.rank .bl {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1.5rem;
+  color: var(--primary);
+  width: 21.625rem;
+  flex-shrink: 0;
+}
+.rank .track {
+  flex: 1;
+  height: 1.625rem;
+  background: var(--muted-2);
+  border: 0.125rem solid var(--accent-3);
+  box-sizing: border-box; /* the hairline sits inside the 1.625rem, so rows stay on the grid */
+  overflow: hidden;
+}
+.rank .bcol {
+  height: 100%;
+  width: var(--fill, 4%);
+  background: var(--col, var(--primary));
+  /* MC.growBar scales this from scaleX 0 on a static-width element; the skin owns the origin. */
+  transform-origin: left center;
+}
+/* Playfair 400 in ink, right-aligned in a fixed column so the figures rag on their units rather
+   than on the track that fed them. tabular-nums holds the width while MC counts the figure up. */
+.rank .bv {
+  font-family: var(--disp);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  font-size: 2.125rem;
+  color: var(--dark);
+  width: 6rem;
+  text-align: right;
+  flex-shrink: 0;
+}

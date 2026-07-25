@@ -1,0 +1,35 @@
+/* Standard label pill: the bare brownstone label as a standalone atom — the exact recipe frame.css
+   gives .eyebrow, so a pill dropped loose on a frame is indistinguishable from the eyebrow slot of
+   the treatment beside it. Inter 500, uppercase, tracked 0.22em, in the brownstone accent. NO chip, NO
+   border, NO shadow and NO radius: standard rounds nothing (50% is reserved for true circles) and
+   the theme's position on labels is that they are type, not chrome. The name is historical (the
+   shared primitive is called `pill`); read it as "label".
+
+   ACCENT PARAM: --pillbg is the OPTIONAL fill, and its default is `transparent` — the bare label —
+   rather than the tint block, capsule, professional and future all fall back to. Every one of
+   those themes has a chip in the first place; standard's has none, so a default fill would invent
+   a piece of chrome the theme doesn't own and put a plate under a label that is meant to sit
+   directly on the stone. Naming a variant still floods the fill, which is the escape hatch for an
+   author who wants a tag rather than a label — with one caveat worth knowing: standard's four
+   accent-cycle roles are all the SAME brownstone as the label, so a `primary`/`secondary`/`accent-1`/
+   `accent-2` pick reads brownstone-on-brownstone. The picks that work are the stones — `muted-2` (the
+   recessed stone this theme fills with everywhere else) and `light` (tracing paper) — which is
+   also the only kind of fill standard's palette rules allow. Deriving the label colour from the
+   fill would need a literal or a per-variant rule, so the caveat is documented rather than coded.
+
+   The padding is half professional's chip inset: enough that an opted-in fill isn't cropped to the
+   letterforms, little enough that the bare default — the normal case — still sits essentially
+   flush with the column it labels. Ported from the showcase .bframe .pill base (cqw × 1.2, snapped
+   to the 0.125rem grid). */
+.pill-c {
+  display: inline-block;
+  background: var(--pillbg, transparent);
+  padding: 0.5rem 1rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  color: var(--primary);
+}

@@ -12,9 +12,9 @@
        reordering and an author's explicit pick.
 
    Inverted, the frame lands in the same place by the opposite route: the GROUND carries the
-   saturated colour and the CELLS become the cream plates (stat.css), with the per-instance accent
+   saturated colour and the CELLS become the white plates (stat.css), with the per-instance accent
    reduced to the one dot each cell wears. Cream figures on green cells becomes ink figures on
-   cream cells — more legible at 7.25rem, and it keeps the green reading as a plane rather than as
+   white cells — more legible at 7.25rem, and it keeps the green reading as a plane rather than as
    nine small patches.
 
    Consequence for this file: the headline goes CREAM (--muted-1), exactly as on feature-cards'
@@ -43,7 +43,7 @@
 }
 /* --cols is emitted by layout() (min(childCount, 4)); the reference's hardcoded repeat(3, 1fr)
    breaks a 2- or 4-stat slide. `.row` stays qualified — the bare class is also the comparison
-   `row` primitive's root. The gap is wide on purpose: the cream plates each carry a 0.75rem ink
+   `row` primitive's root. The gap is wide on purpose: the white plates each carry a 0.75rem ink
    offset, so the gutter has to clear the shadow before it reads as a gutter. */
 .stat-grid .row {
   display: grid;

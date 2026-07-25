@@ -1,0 +1,31 @@
+/* 10 · Agenda — a bare numbered index, optically centred under a Playfair headline. Ported from the
+   showcase .bf-agenda (cqw × 1.2, cqh × 0.675). The treatment itself is three declarations because
+   standard's index carries no chrome at all: no card, no track, no leading rule. Every column it
+   has is bare type on the stone (agenda-item.css owns all three), and the detail one recedes by
+   FACE rather than by a divider or a fill — this file adds nothing to separate them. Every hairline
+   on this frame belongs to a ROW, and each row rules itself BOTTOM-only
+   (agenda-item.css), so this file deliberately adds nothing below the last item — the list stops on
+   the last row's rule and the deep bottom padding carries the eye off the frame rather than a
+   closing border doing it.
+
+   The asymmetric padding is the showcase's own (13cqh top against 20cqh bottom): with the body
+   centred, the heavier foot lifts the index above the true middle, which is where a catalogue page
+   sets its list. The showcase's `.bf-agenda { background: var(--muted-2) }` is dropped — the
+   emitter stamps the resolved scene ground onto .block-frame, and painting a background in a skin
+   breaks the ground-resolution tripwire. A deck that wants the reference's deeper-stone index asks
+   for it by name with `ground: "muted-2"` on the scene (see theme.ts). Its `.pill` rule is dropped
+   too: the shared agenda template has no eyebrow node to space. */
+.agenda > .body {
+  justify-content: center;
+  padding: 8.75rem 8.375rem 13.5rem;
+}
+.agenda h3 {
+  /* The base h3 (frame.css) zeroes its margins; the index needs one gap beneath the headline and
+     none above it, because the body is centred and the top space is the padding's job. */
+  font-size: 4.75rem;
+  margin: 0 0 1.875rem;
+}
+.agenda .alist {
+  display: flex;
+  flex-direction: column;
+}

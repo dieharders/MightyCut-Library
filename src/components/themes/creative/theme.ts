@@ -71,14 +71,15 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // and safe to be that precisely BECAUSE it is off-cycle: no auto-coloured badge, dot or bar can
 // reach it, so it appears only where a scene or a decoration asks for it by name.
 //
-// THE ONE INVARIANT IN THIS PALETTE, and the one that has already been broken once: muted-1 and
-// muted-2 are a RAISED/RECESSED PAIR, and muted-1 must stay the lighter of the two. Every plate
-// in the theme (card, stat, step) fills with muted-1 while the timeline and agenda GROUND on
-// muted-2 — so if the two converge, those plates stop reading as objects and the deck flattens to
-// its ink borders. Nothing enforced it, and setting muted-1 to the oat's own hex collapsed it to
-// 1.00:1. There is now a tripwire (registry.test.ts, "no plate fill matches the ground it sits
-// on") that fails on the exact-match case; keeping real daylight between them is still a design
-// call, not a test's.
+// muted-1 and muted-2 are a RAISED/RECESSED PAIR, and muted-1 must stay the lighter of the two:
+// cover, chart and bar-ranking ground on the cream while timeline and agenda ground on the oat, so
+// if the two converge the deck loses one of its six planes. They were once set to the same hex,
+// which collapsed the pair to 1.00:1 — and back when the plates also filled muted-1, that flattened
+// every card, stat and step into the ground it sat on, visible only by its ink border. THE PLATES
+// NO LONGER DEPEND ON THAT GAP: card, stat and step fill --light (white), one clear step above both
+// surfaces, which is what keeps them reading as objects on the oat and on the saturated planes
+// alike. Keeping real daylight between cream and oat is now a plane-rotation call, not a
+// legibility one.
 const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "Pink",
@@ -135,13 +136,15 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
     note: "secondary body text",
     varName: "muted-3",
   },
-  // White exists for completeness and is deliberately rare: creative's "light ink" is the CREAM
-  // (--muted-1), which is what every cream-on-accent line in the skins names. The design rule is
-  // explicit that a frame never grounds on pure white.
+  // White is THE PLATE FILL: card, stat and step — the theme's three plates — all fill --light,
+  // so a plate reads as raised on every ground the rotation puts it on (orange, green, oat) rather
+  // than nearly matching the cream/oat pair. It does NOT become a ground: the design rule that a
+  // frame never grounds on pure white still stands (see `rules.dont`), and cream (--muted-1) is
+  // still creative's "light ink" — the type colour every cream-on-accent line in the skins names.
   {
     name: "White",
     hex: "#FFFFFF",
-    note: "rare — cream is the light ink",
+    note: "plate fill — card · stat · step",
     varName: "light",
   },
   {
@@ -374,7 +377,7 @@ export const creativeTheme: ThemeTokens = {
   // reference frame.css reached the same rotation with two `background: … !important` overrides,
   // which the ground-resolution tripwire (rightly) bans because they make an explicit scene
   // ground impossible; the two frames those overrides touched are re-designed for the ground
-  // they actually land on (stat-grid's plates go cream on green; the closer is a cream card on
+  // they actually land on (stat-grid's plates go white on green; the closer is a cream card on
   // pink).
   //
   // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with three
@@ -388,15 +391,15 @@ export const creativeTheme: ThemeTokens = {
   // Showcase/editor preview surface — the RECESSED oat (--muted-2), NOT the canvas.
   //
   // Capsule and professional both take muted-1 here, and for them that is right: their plates are
-  // white or a translucent tint, so they still read against it. Creative's plates fill muted-1
-  // ITSELF (card, stat, step are all Concrete boxes), so deriving the preview surface from the same
-  // role made every component in the Components grid exactly the colour of the panel behind it —
-  // the cards looked like they had lost their background, visible only by their ink borders. It was
-  // wrong from the start and merely got more obvious when Concrete and Oat converged.
+  // white or a translucent tint, so they still read against it. Creative's plates once filled
+  // muted-1 ITSELF, so deriving the preview surface from the same role made every component in the
+  // Components grid exactly the colour of the panel behind it — the cards looked like they had lost
+  // their background, visible only by their ink borders.
   //
-  // Pointing it at the recessed oat instead reproduces the real deck: a raised Concrete plate on a
-  // recessed ground, which is precisely what the timeline and agenda frames show. Pinned by the
-  // "no plate fill matches previewBg" tripwire in theme-parity.test.ts.
+  // The plates are white now, so that particular collision is gone either way; the oat stays
+  // because it reproduces the real deck — a raised plate on a recessed ground, which is precisely
+  // what the timeline and agenda frames show — and because muted-1 would put the Components grid on
+  // a canvas no component in it actually lands on.
   previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
   // …and creative is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
