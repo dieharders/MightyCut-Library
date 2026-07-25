@@ -1,0 +1,39 @@
+/* Timeline step = a taupe label, a serif title and a gray paragraph, sitting directly on the stone.
+   THERE IS NO DISC. Every sibling theme opens this object with a filled numeral circle or chip —
+   block's outlined square, capsule's yellow disc, professional's cobalt disc, future's cyan chip —
+   and bridges the grid gap to the next step with a connector. Standard has neither, and the
+   omission is the design: the sequence is already drawn by the single hairline the row hangs from
+   (timeline.css), so the numeral is set as a LABEL in the theme's one label voice (Inter 500,
+   uppercase, taupe) rather than as a mark. A filled disc here would also be the only solid circle
+   in the deck, on the one theme whose rules reserve 50% for true circles and fill almost nothing.
+
+   Hence there is deliberately no `.step` rule at all: no background, no border, no padding, no
+   ::after connector. The step IS its three lines of type, and the space around them is the frame's.
+   Ported from the showcase .bf-timeline .step .num / .t / .d (cqw × 1.2). */
+.step-num {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  /* 0.15em, not the eyebrow's 0.22em: standard's SMALL in-frame labels (this numeral, the stat
+     caption, the ledger's column heads) track tighter than the frame-level eyebrow so a two-digit
+     pair still reads as one word at step scale. The reference draws the same distinction. */
+  letter-spacing: 0.15em;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+.step-title {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.625rem;
+  line-height: 1.15;
+  color: var(--dark);
+  margin-top: 1.25rem;
+}
+.step-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.625rem;
+  line-height: 1.5;
+  color: var(--muted-3);
+  margin-top: 1.25rem;
+}

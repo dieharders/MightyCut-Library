@@ -14,9 +14,12 @@ import { Badge } from "./primitives/badge";
 import { Blob } from "./primitives/blob";
 import { Caption } from "./primitives/caption";
 import { Card } from "./primitives/card";
+import { Compass } from "./primitives/compass";
 import { Confetti } from "./primitives/confetti";
 import { Cta } from "./primitives/cta";
 import { Glyph } from "./primitives/glyph";
+// `Hairline` is standard's ruled decoration family — not the CSS concept its skins talk about.
+import { Hairline } from "./primitives/hairline";
 import { Hud } from "./primitives/hud";
 import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
@@ -40,6 +43,8 @@ import { Starburst } from "./primitives/starburst";
 import { Stat } from "./primitives/stat";
 import { Step } from "./primitives/step";
 import { Stripe } from "./primitives/stripe";
+import { Sweep } from "./primitives/sweep";
+import { Vellum } from "./primitives/vellum";
 import { Zag } from "./primitives/zag";
 
 // treatments (whole-slide archetypes)
@@ -54,7 +59,7 @@ import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Compass, Sweep, Hairline, Vellum, Icon, Hud]) {
   registerComponent(c);
 }
 for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
@@ -69,12 +74,14 @@ export {
   Blob,
   Caption,
   Card,
+  Compass,
   Confetti,
   Corner,
   Cta,
   Cutout,
   Glyph,
   Grille,
+  Hairline,
   Hud,
   Icon,
   Keyline,
@@ -94,6 +101,8 @@ export {
   Stat,
   Step,
   Stripe,
+  Sweep,
+  Vellum,
   Zag,
   Agenda,
   BarRanking,

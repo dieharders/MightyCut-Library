@@ -1,0 +1,32 @@
+/* Standard's numbered bullet: a bare Playfair numeral in taupe beside ink Inter copy — the agenda
+   numeral at bullet scale, and deliberately the SAME object, so a numbered list dropped anywhere in
+   a deck reads as a fragment of the index. No disc, no fill, no border, no radius: standard's
+   numbers are typographic marks, and enclosing one would put the first filled shape in the theme on
+   its smallest element. No showcase counterpart — built from standard vocabulary (agenda-item.css
+   is the reference).
+
+   `.ln-chip` keeps the shared template's class name but is not a chip here, and the min-width is
+   what does the chip's real job: it holds a stacked column of bullets to one left edge so the copy
+   starts on a common margin, the same trick the agenda row's `.num` uses one size up. */
+.listnum-c {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+.listnum-c .ln-chip {
+  min-width: 3.5rem;
+  flex-shrink: 0;
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--primary);
+}
+/* Ink, not the frame's warm gray: a bullet is a short statement, not a paragraph, and the gray body
+   default would sink it under the numeral it is meant to answer. */
+.listnum-c .ln-text {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 2.25rem;
+  line-height: 1.5;
+  color: var(--dark);
+}

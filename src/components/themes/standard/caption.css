@@ -1,0 +1,45 @@
+/* Standard caption skin (the reference's CAPTION section): the tracing-paper chip — a 30% white
+   wash over whatever the frame is showing, closed by the theme's single hairline in the Line taupe
+   and led by a taupe accent bar, carrying ink VO-transcript copy. No radius, no shadow; the wash
+   and the rule are the entire chrome. Ported from the showcase .bf-cap / .bf-cap-bar /
+   .bf-cap-text. The harness owns the root rail placement + the master-timeline autoAlpha hook, and
+   the bar follows the instance's accent (--capbar); unset ⇒ taupe, which IS standard's default.
+
+   The wash is one of the only two fills the theme permits, and it is why this chip works where a
+   solid white card would not: at 30% the stone ground reads through it, so the caption sits ON the
+   frame rather than punched out of it — the tracing-paper sheet the decorations are named for.
+
+   UNITS. The reference authored this block in px (the rail lives outside the cqw frame), so it is
+   not converted literally: .cap-text is pinned to 3.625rem, the cross-theme caption convention, so
+   the BOX scales with the text and lands on the shared caption geometry rather than on the px
+   divisor. The BORDER is the exception that proves it — 0.125rem is the theme's one line weight, a
+   constant rather than a proportion, so it stays put while everything around it grows. */
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1.75rem 3.25rem;
+  background: color-mix(in srgb, var(--light) 30%, transparent);
+  border: 0.125rem solid var(--accent-3);
+}
+/* align-self: stretch makes the bar a full-height rule down the leading edge rather than a dash,
+   which is how the reference stages it. 0.5rem is the scaled 3px — four hairlines, the one thing
+   in the chip deliberately heavier than the line around it. */
+.caption .cap-bar {
+  align-self: stretch;
+  width: 0.5rem;
+  flex-shrink: 0;
+  background: var(--capbar, var(--primary));
+}
+/* Deliberately no alignment declaration: theme-parity's "cap-text alignment matches block" sweep
+   reads block's rule, which declares none. Keep this note OUTSIDE the rule — the extractor regex
+   is not comment-aware. Inter 400 is the theme's body voice (transcript prose is neither display
+   nor label), and 3.625rem is the cross-theme caption convention, not a conversion of the
+   reference's 24px. */
+.caption .cap-text {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 3.625rem;
+  line-height: 1.4;
+  color: var(--dark);
+}

@@ -1,0 +1,46 @@
+/* Stat = BARE TYPE ON THE STONE — a Playfair figure over a taupe uppercase label, and nothing
+   else. Every other theme makes this cell an object (block's shadowed tile, capsule's candy card,
+   professional's tinted plate); standard's is deliberately not one. Its structure is borrowed
+   from the single hairline drawn above the whole row in stat-grid.css, so giving the cell a fill
+   or a border here would double-draw the frame's one rule and cost the theme its restraint.
+   Ported from the showcase .bf-stat-grid .sc / .n / .l (cqw × 1.2). */
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+/* Standard has no corner dot. The shared template's node is hidden rather than removed by a
+   templates/stat.html override, because nothing animates it — statAnim only counts up `number` —
+   so `display: none` costs the reveal cascade nothing and keeps standard free of the template
+   overrides it otherwise doesn't need. */
+.stat-dot {
+  display: none;
+}
+/* The figure is INK by default, not the accent. Taupe is standard's LABEL colour — the source
+   sets .n on the ink and .l on the taupe — so a tinted numeral would read as a demoted caption
+   rather than as emphasis, and emphasis is carried by type contrast here, never by hue. --dot is
+   emitted only when a stat carries an explicit accent (primitives/stat/index.ts layout()), which
+   makes the fallback the honest default for content that doesn't pick one; when an author does
+   pick, all four cycle slots resolve to the one taupe, so the row tints together or not at all.
+   --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
+   crowd; unset ⇒ 1, i.e. the base size everywhere else. */
+.stat-number {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: calc(6rem * var(--dense-scale, 1));
+  line-height: 1;
+  color: var(--dot, var(--dark));
+}
+/* The taupe label voice at the tighter IN-FRAME tracking: 0.15em rather than the eyebrow's
+   0.22em, which is the source's own distinction. A caption sitting directly under a 6rem numeral
+   has to stay a caption, and the wide eyebrow tracking at this size starts to read as a second
+   display line competing with the figure. */
+.stat-label {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: var(--primary);
+  margin-top: 1.25rem;
+}

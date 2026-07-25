@@ -1,0 +1,29 @@
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css): a tracked taupe label, an outlined stone
+   track, a taupe fill and an ink Playfair value, under the same headline rhythm as the chart. This
+   file owns only the frame: body padding, headline, the row stack and the caption. Ported from the
+   showcase .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
+.bar-ranking > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.bar-ranking h3 {
+  font-size: 4.75rem;
+  margin: 0 0 1.875rem;
+}
+.bar-ranking .bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2.125rem;
+}
+/* Qualified: `.caption` is also the caption primitive's root class, so the family and colour are
+   restated here to win over that skin rather than inherited from the frame. Left-aligned, unlike
+   the chart's — the rows below it are a left-aligned ledger, and a centred line would float free of
+   them. Sized to match the chart's caption: the reference sets this one 0.3cqw smaller, which reads
+   as drift rather than a decision, and the two data frames are meant to be read as a pair. */
+.bar-ranking .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.625rem;
+  color: var(--muted-3);
+  margin-top: 1.875rem;
+}

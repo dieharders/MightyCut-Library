@@ -1,0 +1,49 @@
+/* A ledger row: a row label plus a "status quo"/"our approach" cell pair. The root is
+   display:contents so its three cells participate directly in the parent .ledger grid (comparison's
+   .rows wrapper is display:contents too — the pair is structural; drop either and a whole row
+   collapses into one cell). A display:contents element generates NO box, so never give .row padding,
+   background, border or a shadow — every one would be silently dropped. All of it lives on .rl /
+   .cell. Ported from the showcase .bf-comparison .rl / .cell / .cell.b (cqw × 1.2). */
+.row {
+  display: contents;
+}
+/* THE LEDGER ITSELF, and the treatment's only structure. Every label and cell opens with the
+   theme's one hairline across its full track; because comparison's grid has no gaps, the three meet
+   and read as a single rule ruled across the frame, once per row. The first row's rule doubles as
+   the underline of the column heads above it, which is why comparison.css gives them none. No
+   capsule, no fill, no radius — professional's tinted-chip ledger is the thing this must not be. */
+.row .rl,
+.row .cell {
+  display: flex;
+  align-items: center;
+  border-top: 0.125rem solid var(--accent-3);
+  padding: 1.5rem 1.625rem;
+}
+/* The row label is the stub of the table, not a third answer: Inter in warm gray, a size down from
+   the values it introduces. Sans against the cells' serif is the whole reason the first column
+   recedes — standard separates these voices by face, never by weight or hue. */
+.row .rl {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--muted-3);
+}
+/* The value cells take Playfair, and they keep the reference's 400 rather than stepping to the
+   frame headline's 600: a cell states a value, it doesn't declare, and adding weight would make the
+   ledger shout where it only needs to differ from the label beside it.
+
+   POLARITY, INVERTED FROM THE SOURCE. The reference marks its status-quo cell `.cell.a` and paints
+   ink on the shared rule, then walks that one back to gray. The shared template gives cell-a no
+   class of its own, so the base .cell IS the status quo and stays warm gray, and .cell.b earns the
+   ink. Same result, one rule fewer — and it puts the whole comparison device in a single
+   declaration below, which is the only device standard has: no accent colour is spent here, so the
+   answer column is distinguished purely by tonal value. */
+.row .cell {
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: 1.875rem;
+  color: var(--muted-3);
+}
+.row .cell.b {
+  color: var(--dark);
+}

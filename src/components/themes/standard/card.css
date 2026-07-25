@@ -1,0 +1,66 @@
+/* Feature-card = a sheet of TRACING PAPER laid on the stone: one 0.125rem hairline in the Line
+   taupe (--accent-3) and a 30%-white wash, which with the recessed stone is the only fill standard
+   permits. No radius, no shadow, no tint. The card is not raised off the ground the way block's
+   shadowed tile or capsule's candy plate is — it is drawn ON it, and the wash is the whole device
+   that separates the two on a warm canvas (professional reaches the same separation with a 5%
+   cobalt tint; standard has no hue to spend, so it lightens instead).
+
+   THE BADGE IS AN OUTLINED CIRCLE, never a filled one — 50% is the only radius in this theme and a
+   true circle is what it is reserved for. It is also where the per-instance accent lands: --ic
+   paints the GLYPH and the RING and nothing else, so an author's colour picker reads as a change of
+   LINE rather than a change of surface. Unset ⇒ the ring falls back to --accent-3, the reference's
+   own ring colour and the colour of every other border in the deck, with the glyph on the taupe
+   accent; naming an accent pulls both onto it. Since standard's four cycle slots are all the one
+   taupe, a three-card row stays monochrome either way — the accent is a half-step of stone, never a
+   hue.
+
+   Ported from the showcase .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2, snapped to the
+   0.125rem grid). The reference's `background: transparent !important` on the badge existed to beat
+   a showcase base that fills it; nothing in this library styles .card-icon, so the badge is simply
+   left unfilled and the override is dropped. */
+.card {
+  background: color-mix(in srgb, var(--light) 30%, transparent);
+  border: 0.125rem solid var(--accent-3);
+  padding: 2.625rem 2.375rem;
+  display: flex;
+  flex-direction: column;
+}
+/* A fixed square in a flex column, so flex-shrink is pinned: a long body squeezing this box would
+   turn the theme's one true circle into an ellipse. box-sizing keeps the hairline inside the
+   4.125rem square rather than growing it. The glyph is Playfair — the reference sets roman numerals
+   here, and the serif is what makes a bare ring read as a plate mark instead of a bullet. */
+.card-icon {
+  box-sizing: border-box;
+  width: 4.125rem;
+  height: 4.125rem;
+  flex-shrink: 0;
+  border: 0.125rem solid var(--ic, var(--accent-3));
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-size: 1.875rem;
+  color: var(--ic, var(--primary));
+  margin-bottom: 1.625rem;
+}
+/* Playfair 600 in ink — the headline voice, two steps down. `.block-frame h3` can't reach it (this
+   is a div, not a heading), so family, weight and colour are stated rather than inherited. */
+.card-title {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  color: var(--dark);
+}
+/* Inter in the warm gray: the paragraph voice, recessive against the serif title above it. The
+   reference hung this gap off the title (`.t { margin-bottom }`); it is stated as the body's
+   margin-TOP instead, matching every other skin in the library — so a card with no body copy leaves
+   no dangling space under its title. */
+.card-body {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.625rem;
+  line-height: 1.5;
+  color: var(--muted-3);
+  margin-top: 1rem;
+}

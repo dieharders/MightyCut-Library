@@ -355,6 +355,7 @@ describe("font coverage (tripwire)", () => {
   const ADDON_FONT_CSS: Record<string, () => Promise<string>> = {
     capsule: async () => (await import("../engine/capsule-fonts.generated")).CAPSULE_FONTS_CSS,
     professional: async () => (await import("../engine/professional-fonts.generated")).PROFESSIONAL_FONTS_CSS,
+    standard: async () => (await import("../engine/standard-fonts.generated")).STANDARD_FONTS_CSS,
   };
 
   const addonFamilies = async (themeName: string): Promise<Set<string>> => {

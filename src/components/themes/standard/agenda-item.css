@@ -1,0 +1,46 @@
+/* Agenda index row: a taupe Playfair numeral, an ink Playfair title, and one hairline under the
+   pair. Ported from the showcase .bf-agenda .arow / .num / .t / .d (cqw × 1.2). Both columns are
+   the SERIF — standard is the theme whose numbers are set in the display face rather than a mono or
+   a tracked sans, which is exactly why the numeral needs no disc, chip or leading rule to read as a
+   numeral. Taupe against ink, serif against serif at two sizes, is the entire hierarchy.
+
+   The rule is bottom-only and belongs to the ROW, not the list: agenda.css therefore adds nothing
+   below the last item, and a row added or dropped at runtime takes its rule with it. It is the
+   theme's one hairline — 0.125rem of --accent-3, the same weight and colour as every other border,
+   track and ring in the deck.
+
+   Playfair 600, not the showcase's 400: a didone's hairlines thin out to nothing at frame scale on
+   a warm ground (frame.css makes the same departure for the base h3), and theme.ts's `figure` type
+   token names the agenda numeral outright as a 600 figure. Baseline alignment, not centre, so the
+   small numeral sits on the title's baseline the way a printed index sets it. */
+.agenda-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2.875rem;
+  padding: 1.875rem 0;
+  border-bottom: 0.125rem solid var(--accent-3);
+}
+.agenda-item .num {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.375rem;
+  color: var(--primary);
+  /* The numeral column is fixed rather than shrink-to-fit so 01…04 hold one left edge and the
+     titles start on a common margin — the alignment a rule-per-row layout lives or dies on. */
+  min-width: 4.75rem;
+}
+.agenda-item .t {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 2.875rem;
+  color: var(--dark);
+}
+/* The detail column is HIDDEN, exactly as the showcase hides it. Standard's index states a number
+   and a title and stops; a third column of gray sans on the same baseline is the one addition that
+   would make this frame read as crowded, which the theme's rules call out by name. The step body
+   stays in the scene DATA and is simply not shown — so the same children can drive a timeline or a
+   step list with no edit to the content, and turning the column back on is a one-line skin change
+   rather than a re-author. */
+.agenda-item .d {
+  display: none;
+}

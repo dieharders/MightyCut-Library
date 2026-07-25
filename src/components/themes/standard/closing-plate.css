@@ -1,0 +1,65 @@
+/* 4 · Closing Plate — standard's sign-off, and the second (and last) frame allowed the display
+   voice: Playfair Display 700 in ink, sentence case, centred in space with NO CARD AROUND IT. Every
+   other theme in the library hands the closer an object — block's shadowed slab, professional's
+   white plate, creative's outlined stamp — and standard hands it nothing. The reference's .cardf is
+   a bare flex column and it stays one here: no background, no border, no padding, no shadow. What
+   lands on the sandstone the emitter stamps is a sentence, a taupe label and one ink rule.
+
+   The reference also centres a 46cqw compass ring behind all of this at 0.32 opacity. Rings are
+   DECORATION COMPONENTS here (the compass family, standard-decoration-shapes), opt-in per scene, so
+   no ring rule is written below — a skin drawing its own would fight the one the scene places.
+
+   Ported from the showcase .bf-closing-plate (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
+   grid). */
+.closing-plate > .body {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* The reference left the closer's body padding implicit — it had no card and a headline that
+     never reached an edge. It is stated here so the treatment keeps the vertical rhythm its library
+     siblings share (8.125rem over, 13.5rem under, clearing the caption/HUD band), over standard's
+     OWN side gutter: 8.375rem, the cover's 7cqw, rather than professional's wider inset. */
+  padding: 8.125rem 8.375rem 13.5rem;
+}
+/* A stack, not a plate: nothing fills, borders or lifts it. position:relative is what the ink rule
+   below hangs off, and it also keeps the stack above the backdrop layer sharing this context. */
+.closing-plate .cardf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* 700, one weight above the frame base's 600 — the cover and the closer are the only two places
+   standard sets Playfair that heavy, and the tighter 1.04 leading goes with it. */
+.closing-plate h3 {
+  font-size: 8.375rem;
+  font-weight: 700;
+  line-height: 1.04;
+}
+/* The call to action is NOT A BUTTON. Standard has no pill, no fill and no radius to spend on one,
+   so the action is set as one more taupe label — Inter 500, uppercase, tracked 0.2em — and the rule
+   beneath it does the pointing. This .cta is closing-plate's own node (a plain div in the shared
+   template), not the cta component; cta.css carries the same voice as a droppable atom, underscored
+   there because a standalone CTA has no headline above it to say what it belongs to. */
+.closing-plate .cta {
+  margin-top: 2.875rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 1.375rem;
+  color: var(--primary);
+}
+/* THE ONE INK RULE. The reference draws it as a separate .ha node — its "horizontal accent"
+   decoration, parked inside the card — but standard's decoration roster has no such family, and
+   closingPlateAnim only targets card / headline / cta, so a real node would be inert markup that
+   also cost a template override the theme does not otherwise need. It is a pseudo-element instead.
+   0.125rem, the theme's single hairline weight, but drawn in --dark rather than the Line taupe:
+   this is the one rule in the deck that is ink, which is exactly why the closer gets it. */
+.closing-plate .cardf::after {
+  content: "";
+  width: 16.75rem;
+  height: 0.125rem;
+  margin-top: 3.125rem;
+  background: var(--dark);
+}

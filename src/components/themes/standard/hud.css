@@ -1,0 +1,112 @@
+/* Standard HUD skin (the reference's HUD COMPONENTS section): a small taupe dot, a Playfair
+   wordmark in ink, an uppercase warm-gray tagline, a BARE taupe label top-right, a warm-gray
+   counter bottom-right, and a hairline progress rail edge to edge along the bottom. No chip, no
+   border, no radius except the dot's, no shadow — the HUD is the theme's design rules applied to
+   chrome. Ported from the showcase .bf-hud* (cqw × 1.2).
+
+   This is ROOT CHROME: the harness stamps the HUD into the root overlay, OUTSIDE .block-frame, so
+   nothing in frame.css reaches it — the body font and the ink/gray colour roles are restated on
+   .hud below rather than inherited. The harness also owns placement and the #hud-progress / #ctr-N
+   ids in the render; this file is only the look.
+
+   Two things read as departures and are not. The wordmark stays at Playfair 400, where frame.css
+   bumps every headline to 600: the HUD sits over a live frame and has to stay UNDER the content it
+   labels, and a 600 wordmark in the corner reads as a second headline competing with the real one.
+   And the labels track at 0.15em rather than the eyebrow's 0.22em — the reference's own tracking
+   for small chrome, which at 1.375rem would otherwise fall apart into loose letters. */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--mono);
+  color: var(--dark);
+  container-type: size;
+}
+.hud .hud-brand {
+  position: absolute;
+  top: 5rem;
+  left: 9.125rem;
+  display: flex;
+  align-items: center;
+  gap: 1.625rem;
+}
+/* The one true circle in the theme's chrome, and therefore the one place 50% is allowed: a solid
+   taupe dot barely wider than the hairline is tall. Every other theme's brand mark is a plate, a
+   disc or a diamond with an outline; standard's is a mark, not an object. */
+.hud .hud-brand-mark {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.hud .hud-brand-name {
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: 2.75rem;
+  color: var(--dark);
+}
+.hud .hud-tagline {
+  font-family: var(--mono);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+}
+/* The title is a bare taupe LABEL — no pill, no border, no fill, exactly the treatment frame.css
+   gives the eyebrow. It hangs 0.5rem lower than the brand row (5.5rem against 5rem) because it has
+   no box to align: an uppercase 1.375rem label optically sits high against a 2.75rem Playfair
+   wordmark, and the reference drops it to bring the two baselines together. */
+.hud .hud-title {
+  position: absolute;
+  top: 5.5rem;
+  right: 9.125rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 1.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--primary);
+}
+.hud .hud-counter {
+  position: absolute;
+  bottom: 5.25rem;
+  right: 9.125rem;
+}
+/* The shared template nests the item INSIDE .hud-counter, which is already the bottom-right
+   anchor, so the item only has to refuse to wrap — the reference positioned it absolutely because
+   its own markup did not nest it. tabular-nums is the one addition to the reference: the counter
+   ticks slide to slide, and Inter's proportional figures would shuffle the whole string sideways
+   on every change. */
+.hud .hud-counter-item {
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-size: 1.875rem;
+  letter-spacing: 0.05em;
+  color: var(--muted-3);
+}
+/* The rail is the theme's hairline given a hair of thickness: the Line taupe used as a FILL rather
+   than as a border, 0.25rem tall, running the full content measure. Square ends, no border and no
+   well tint — it should read as the rule that closes the frame, which happens to fill with taupe
+   as the deck advances. */
+.hud .hud-track {
+  position: absolute;
+  bottom: 4.625rem;
+  left: 9.125rem;
+  right: 9.125rem;
+  height: 0.25rem;
+  background: var(--accent-3);
+  overflow: hidden;
+}
+.hud .hud-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  /* GSAP drives the scale (growBar, prop scaleX); the skin states the origin + the resting factor
+     the hud layout() emits as --pfill (unitless 0..1). */
+  transform-origin: left center;
+  transform: scaleX(var(--pfill, 0));
+}

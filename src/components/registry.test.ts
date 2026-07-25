@@ -25,6 +25,10 @@ import {
   CREATIVE_DECORATION_COMPONENTS,
   CREATIVE_DECORATION_VARIANTS,
 } from "./primitives/creative-decoration-shapes";
+import {
+  STANDARD_DECORATION_COMPONENTS,
+  STANDARD_DECORATION_VARIANTS,
+} from "./primitives/standard-decoration-shapes";
 import { iconSvg } from "./icons";
 import "./registry";
 import { AnimDescriptorSchema } from "./runtime/anim";
@@ -46,6 +50,7 @@ import { capsuleTheme } from "./themes/capsule/theme";
 import { creativeTheme } from "./themes/creative/theme";
 import { futureTheme } from "./themes/future/theme";
 import { professionalTheme } from "./themes/professional/theme";
+import { standardTheme } from "./themes/standard/theme";
 // The live-theme barrel — every theme-generic sweep iterates THIS, not a hand-written
 // [blockTheme, futureTheme] literal, so a newly converted theme (added to ALL_THEMES +
 // engine THEMES) inherits every parity tripwire below automatically. The pin test
@@ -248,6 +253,7 @@ describe("decoration variant maps are the single source of truth", () => {
     ["capsule", CAPSULE_DECORATION_VARIANTS],
     ["professional", PROFESSIONAL_DECORATION_VARIANTS],
     ["creative", CREATIVE_DECORATION_VARIANTS],
+    ["standard", STANDARD_DECORATION_VARIANTS],
   ];
 
   test.each(MAPS)("%s: each family's schema enum IS its map entry", (_engine, map) => {
@@ -1125,6 +1131,248 @@ describe("creative theme (tripwire)", () => {
       expect(creativeTheme.css, `creative must name ${fam} in :root`).toContain(`"${fam}"`);
       expect(CORE_FONTS_CSS, `${fam} must be a core face`).toContain(`font-family: "${fam}"`);
     }
+  });
+});
+
+// STANDARD theme (tripwire) — the sixth live component theme: a monochrome museum catalogue on warm
+// stone. Two things about it are structurally unlike every theme before it, and both are the kind of
+// property that a later edit could erase without failing any generic sweep, so both are pinned here:
+//
+//   1. IT IS THE FIRST THEME WHOSE DEFAULT BACKDROP IS `plain`. Block/future/capsule/professional/
+//      creative all ground their decks on a mask; standard's design rules say the frame should
+//      breathe, so it ships none. theme-parity's "canonical backdrop renders" sweep EXITS EARLY on
+//      `plain` (a theme is allowed to opt out), which means nothing generic would notice a default
+//      quietly appearing here — nor that standard still re-tints every shared design through its ink
+//      hooks so a scene CAN name one. Both halves are asserted below.
+//   2. THERE IS ONE LINE WEIGHT AND ONE RADIUS, and they are the whole structural vocabulary. Every
+//      other theme spends fills, tints, shadows or corner radii; standard spends a 0.125rem hairline
+//      and 50% on true circles. A skin that adds a 0.25rem border or a 1rem corner would still
+//      compose, still pass parity, and still look plausible in isolation — and would cost the theme
+//      its identity. The sweeps over `skins` below are what make that a build failure.
+describe("standard theme (tripwire)", () => {
+  const sctx = (compId: string): BuildContext =>
+    rootContext(compId, standardTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
+  /** A skin's declarations with its prose stripped — the comments legitimately discuss the very
+   *  patterns these sweeps ban ("no shadow", "no radius"), and the scanners are regexes. */
+  const declsOf = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  for (const factory of allTreatments()) {
+    test(`${factory.treatmentName}: standard scene is well-formed + deterministic`, () => {
+      const name = factory.treatmentName;
+      const compId = `st01-${name}`;
+      const html = renderScene(factory(), sctx(compId));
+      expect(html).toContain(`data-composition-id="${compId}"`);
+      expect(html).toContain(`.${compId}-root .block-frame`);
+      // Standard is monochrome: groundDefault REPLACES every treatment's canonical (block-flavoured)
+      // ground with the one sandstone canvas, without an `!important` that would make an explicit
+      // scene ground impossible.
+      expect(html, `${name} did not land on standard's stone canvas`).toContain(
+        "background: var(--muted-1)",
+      );
+      expect(html).not.toContain("data-slot");
+      expect(html).not.toContain("data-anim");
+      expect(html).not.toContain("data-children");
+      expect(() => scrubDeterminism(html)).not.toThrow();
+      expect(renderScene(factory(), sctx(compId))).toBe(html);
+    });
+  }
+
+  test("an explicit scene ground still beats standard's stone pin", () => {
+    const html = renderScene(getTreatment("cover")(), sctx("st01-g"), { ground: "muted-2" });
+    // --muted-2 is the deeper stone the reference grounded its stat-grid and comparison on; under
+    // the shared contract that is a per-scene decision, not something a skin paints.
+    expect(html).toContain("background: var(--muted-2)");
+    expect(html).not.toContain("background: var(--muted-1)");
+  });
+
+  test("standard's default backdrop is `plain` — no mask node and no backdrop anim", () => {
+    expect(standardTheme.backdrop).toBe("plain");
+    const built = getTreatment("cover")().build(sctx("st01-bd"));
+    expect(built.html, "a plain-backdrop scene must paint no mask at all").not.toContain("mc-backdrop");
+    expect(
+      built.anims.filter((a) => a.kind === "backdrop"),
+      "a static, mask-less scene must emit no backdrop FX descriptor",
+    ).toEqual([]);
+  });
+
+  test("…but standard still re-tints every shared design, so a scene can name one", () => {
+    // The pool is shared and a default is not a refusal: a slide may pick any design. Each paints
+    // through `var(--<design>-ink, var(--dark))`, whose near-black fallback would read as a smudge
+    // on stone — so frame.css must state a hook for every CSS-painted design, not just the ones
+    // standard happens to use (which is none of them).
+    const missing = BACKDROP_NAMES.filter((n) => n !== "plain" && n !== "constellation").filter(
+      (n) => !(standardTheme.frameCss ?? "").includes(`--${n}-ink:`),
+    );
+    expect(
+      missing,
+      `standard's frame.css states no ink hook for: ${missing.join(", ")} — those masks would paint near-black on stone`,
+    ).toEqual([]);
+    const html = renderScene(getTreatment("cover")(), sctx("st01-bd2"), { backdrop: "grid" });
+    expect(html).toContain("mc-backdrop--grid");
+  });
+
+  test("standard ships NO template overrides (the whole look is CSS alone)", () => {
+    // The reference's compass rings are decoration COMPONENTS here, its quote mark is a
+    // pseudo-element, and its stat has no dot — so the shared node is styled away, not removed.
+    expect(Object.keys(standardTheme.templates ?? {})).toEqual([]);
+  });
+
+  test("ONE line weight: every border in every standard skin is the 0.125rem hairline", () => {
+    const offenders: string[] = [];
+    for (const [name, css] of Object.entries(standardTheme.skins ?? {})) {
+      for (const m of declsOf(css).matchAll(/border(?:-top|-bottom|-left|-right)?:\s*([\d.]+)rem/g)) {
+        if (m[1] !== "0.125") offenders.push(`${name}: ${m[1]}rem`);
+      }
+    }
+    expect(
+      offenders,
+      `standard draws exactly one line weight — these borders diverge from the 0.125rem hairline: ${offenders.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  test("ONE radius (50%, for true circles) and NO shadows anywhere", () => {
+    const radii: string[] = [];
+    const shadows: string[] = [];
+    for (const [name, css] of Object.entries({ frame: standardTheme.frameCss ?? "", ...standardTheme.skins })) {
+      const decls = declsOf(css);
+      for (const m of decls.matchAll(/border-radius:\s*([^;]+);/g)) {
+        if (m[1].trim() !== "50%") radii.push(`${name}: ${m[1].trim()}`);
+      }
+      for (const m of decls.matchAll(/box-shadow|text-shadow|drop-shadow/g)) shadows.push(`${name}: ${m[0]}`);
+    }
+    expect(radii, `standard rounds nothing but true circles — found: ${radii.join(", ")}`).toEqual([]);
+    expect(shadows, `standard casts no shadow — found: ${shadows.join(", ")}`).toEqual([]);
+  });
+
+  test("treatment skin: stat-grid renders standard's skin, not professional's or creative's", () => {
+    const html = renderScene(getTreatment("stat-grid")(), sctx("st01-sg"));
+    expect(html).toContain("var(--dense-scale"); // the density hook is honoured
+    expect(html).toContain("border-top: 0.125rem solid var(--accent-3)"); // the row's one rule
+    expect(html).not.toContain("color-mix(in srgb, var(--primary) 5%, transparent)"); // professional's tint
+    expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat shadow
+  });
+
+  test("standard families render the selected shape (inline SVG) + placement + accent, no shadow", () => {
+    const build = (name: string, params?: Record<string, unknown>) =>
+      getComponent(name)(params as never).build(sctx(`sc-${name}`)).html;
+    const dial = build("compass", { variant: "dial", x: 80, y: 20, size: 20, accent: "accent-3" });
+    expect(dial).toContain("<svg");
+    expect(dial).toContain("<circle"); // the drafted ring pair
+    expect(dial).toContain("--sd-x: 80%"); // placement is var-driven
+    expect(dial).toContain("var(--accent-3)"); // accent role → stroke
+    expect(dial).toContain("stroke-dasharray"); // the dashed inner — standard's alone
+    // Standard casts NO depth of any kind: no glow filter (future), no hard offset (block/creative),
+    // no soft lift (capsule). Professional is the only sibling that also casts none, which is why
+    // the namespace check below matters more here than anywhere else.
+    expect(dial).not.toContain("drop-shadow");
+    expect(dial).not.toContain("box-shadow");
+    // Each engine owns a DISTINCT class + var prefix, because addDecorations() will happily put two
+    // engines' marks in one scene and a shared prefix silently breaks one of them.
+    expect(dial).toContain("sd-deco");
+    expect(dial).not.toContain("pd-deco"); // professional's namespace, not standard's
+    expect(build("compass", { variant: "lens", layer: "front" })).toContain("--sd-z: 5");
+    expect(build("sweep", { variant: "bow" })).toContain("<path"); // open arcs, never closed
+    expect(build("hairline", { variant: "ladder", accent: "primary" })).toContain("var(--primary)");
+    // vellum is the ONE filled family — the tracing-paper wash, derived from a role, never a literal.
+    expect(build("vellum", { variant: "sheet" })).toContain(
+      "color-mix(in srgb, var(--light) 30%, transparent)",
+    );
+  });
+
+  test("CONSTANT INK: a mark renders at the 0.125rem hairline at every size", () => {
+    // The stroke is authored in viewBox units, so it must scale INVERSELY with the box or a large
+    // compass ring would render as a fat band. The box is `size × 1.2` rem across a 100-unit
+    // viewBox, so the rendered weight is strokeWidth × (size × 1.2 / 100) — and it must land on the
+    // theme's ONE hairline whatever the size. Asserting the absolute rem, not just consistency,
+    // also pins the decorations to the same weight the skins draw every border at.
+    const renderedRem = (size: number): number => {
+      const html = getComponent("compass")({ variant: "lens", size } as never).build(sctx(`ci-${size}`)).html;
+      return Number(html.match(/stroke-width="([\d.]+)"/)![1]) * ((size * 1.2) / 100);
+    };
+    for (const size of [8, 20, 36, 50]) {
+      // 3dp: the only drift is the 3dp rounding of the viewBox-unit stroke width itself.
+      expect(renderedRem(size), `a compass at size ${size} must still draw the 0.125rem hairline`).toBeCloseTo(
+        0.125,
+        3,
+      );
+    }
+  });
+
+  test("the 4 standard families have DISJOINT variant lists (no shared shapes)", () => {
+    const seen = new Map<string, string>();
+    for (const fam of STANDARD_DECORATION_COMPONENTS) {
+      const variants = schemaVariants(fam);
+      expect(variants.length).toBeGreaterThan(0);
+      for (const v of variants) {
+        expect(seen.has(v), `shape '${v}' appears in both '${seen.get(v)}' and '${fam}'`).toBe(false);
+        seen.set(v, fam);
+      }
+    }
+  });
+
+  test("standard's shape vocabulary is disjoint from every other theme's", () => {
+    const namesOf = (map: Record<string, readonly string[]>) => Object.values(map).flat();
+    const others = new Set([
+      ...namesOf(DECORATION_VARIANTS),
+      ...namesOf(FUTURE_DECORATION_VARIANTS),
+      ...namesOf(CAPSULE_DECORATION_VARIANTS),
+      ...namesOf(PROFESSIONAL_DECORATION_VARIANTS),
+      ...namesOf(CREATIVE_DECORATION_VARIANTS),
+    ]);
+    for (const v of namesOf(STANDARD_DECORATION_VARIANTS)) {
+      expect(others.has(v), `standard's shape '${v}' collides with another theme's`).toBe(false);
+    }
+    for (const fam of STANDARD_DECORATION_COMPONENTS) {
+      expect(Object.keys(DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(FUTURE_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(CAPSULE_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(PROFESSIONAL_DECORATION_VARIANTS)).not.toContain(fam);
+      expect(Object.keys(CREATIVE_DECORATION_VARIANTS)).not.toContain(fam);
+    }
+  });
+
+  test("standard's decoration roster matches its own families (and only those)", () => {
+    expect([...(standardTheme.decorations ?? [])].sort()).toEqual([...STANDARD_DECORATION_COMPONENTS].sort());
+    for (const d of STANDARD_DECORATION_COMPONENTS) {
+      expect(getComponent(d).decoration, `${d} must be flagged a decoration`).toBe(true);
+    }
+  });
+
+  test("standard's examples compose + seed every treatment", () => {
+    const seen: string[] = [];
+    for (const [tname, ex] of Object.entries(standardTheme.examples ?? {})) {
+      const factory = getTreatment(tname);
+      let inst = factory((ex.params ?? {}) as never);
+      if (ex.children?.length) {
+        const childName = factory.childComponent!;
+        inst = inst.addChildren(...ex.children.map((p) => getComponent(childName)(p as never)));
+      }
+      const exCtx = rootContext(`ex-standard-${tname}`, standardTheme, { voIds: ["l1", "l2", "l3"] });
+      expect(() => renderScene(inst, exCtx), `standard example '${tname}' failed to compose`).not.toThrow();
+      seen.push(tname);
+    }
+    expect(seen.sort()).toEqual([...TREATMENT_NAMES].sort());
+  });
+
+  test("standard's faces straddle the two tiers: Inter is core, Playfair is its add-on", async () => {
+    // Neither capsule's shape (core + one add-on the core set has no answer for) nor professional's
+    // (no core face at all): standard's body/label face IS core and only its display face is extra,
+    // so register-standard.ts must inject BOTH sheets. Reading the generated modules rather than an
+    // allowlist means a broken `pnpm gen:fonts` fails here instead of shipping a system fallback.
+    const { CORE_FONTS_CSS } = await import("../engine/block-fonts.generated");
+    const { STANDARD_FONTS_CSS } = await import("../engine/standard-fonts.generated");
+    expect(standardTheme.css).toContain('"Playfair Display"');
+    expect(standardTheme.css).toContain('"Inter"');
+    expect(CORE_FONTS_CSS, "Inter is a core chrome face").toContain('font-family: "Inter"');
+    expect(CORE_FONTS_CSS, "Playfair must NOT be widened into core — every deck would pay for it").not.toContain(
+      'font-family: "Playfair Display"',
+    );
+    expect(STANDARD_FONTS_CSS).toContain('font-family: "Playfair Display"');
+    // The italic is a real FILE, not a synthetic oblique: standard's cover and closing headlines
+    // carry an emphasised clause, and a sheared didone reads as a mistake.
+    expect(STANDARD_FONTS_CSS, "standard needs a drawn italic, not a synthesised one").toContain(
+      "font-style: italic",
+    );
   });
 });
 
