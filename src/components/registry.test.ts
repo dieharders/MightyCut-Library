@@ -1272,11 +1272,106 @@ describe("standard theme (tripwire)", () => {
     expect(dial).not.toContain("pd-deco"); // professional's namespace, not standard's
     expect(build("compass", { variant: "lens", layer: "front" })).toContain("--sd-z: 5");
     expect(build("sweep", { variant: "bow" })).toContain("<path"); // open arcs, never closed
-    expect(build("hairline", { variant: "ladder", accent: "primary" })).toContain("var(--primary)");
-    // vellum is the ONE filled family — the tracing-paper wash, derived from a role, never a literal.
-    expect(build("vellum", { variant: "sheet" })).toContain(
-      "color-mix(in srgb, var(--light) 30%, transparent)",
-    );
+    expect(build("azimuth", { variant: "rose", accent: "primary" })).toContain("var(--primary)");
+    // sorts is SET, not drawn — a real Playfair glyph, addressed through the theme's own --disp
+    // token so it is literally the face the headlines use.
+    const quotation = build("sorts", { variant: "quotation" });
+    expect(quotation).toContain("<text");
+    expect(quotation).toContain("font-family: var(--disp)");
+    expect(quotation).toContain("“");
+  });
+
+  test("the four families split on KIND: closed curve · open curve · straight radii · set type", () => {
+    // The taxonomy is what keeps the set legible at decoration scale, and it is the reason two
+    // earlier families were replaced: plain ruled lines read as a stray mark rather than an object,
+    // and plain washed rectangles say nothing a feature card doesn't. Each assertion below is one
+    // family's signature, so a variant edited into another family's kind fails here rather than
+    // shipping as a near-duplicate.
+    const svg = (name: string, variant: string): string =>
+      getComponent(name)({ variant, size: 24 } as never).build(sctx(`form-${name}-${variant}`)).html;
+    // compass CLOSES: <circle>, and no straight-line path.
+    expect(svg("compass", "lens")).toContain("<circle");
+    expect(svg("compass", "lens")).not.toContain(" L");
+    // sweep leaves it OPEN: an elliptical-arc path command, never a <circle>.
+    expect(svg("sweep", "crescent")).toContain(" A46 46 ");
+    expect(svg("sweep", "crescent")).not.toContain("<circle");
+    // azimuth strikes STRAIGHT radii: line-to paths only, no curve of any kind…
+    const rose = svg("azimuth", "rose");
+    expect(rose).toContain(" L");
+    expect(rose).not.toContain("<circle");
+    expect(rose).not.toMatch(/[AC]\d/); // no arc, no bezier
+    // …and it is the ONLY family that carries two stroke weights — the heavy cardinals are what
+    // give a radial figure an orientation (see RULE_REM in standard-decoration-shapes).
+    expect(new Set([...rose.matchAll(/stroke-width="([\d.]+)"/g)].map((m) => m[1])).size).toBe(2);
+    // sorts SETS: every variant is a <text> in the theme's display face, centred on both axes, and
+    // draws no geometry at all.
+    for (const v of ["query", "semicolon", "brace", "quotation"]) {
+      const s = svg("sorts", v);
+      expect(s, `sorts/${v} must be set type, not a drawing`).toContain("font-family: var(--disp)");
+      expect(s).toContain('text-anchor="middle"');
+      expect(s, `sorts/${v} must draw no geometry`).not.toMatch(/<path|<circle|<rect/);
+      // The alphabetic baseline placed by a MEASURED dy is the whole centring mechanism. Reaching
+      // for `dominant-baseline: central` instead centres the em box — which for punctuation is
+      // nowhere near the ink — so its return would silently un-centre all four.
+      expect(s, `sorts/${v} must not delegate centring to dominant-baseline`).not.toContain(
+        "dominant-baseline",
+      );
+    }
+  });
+
+  test("every sort's INK fits its box and straddles the centre (the measured em/dy)", () => {
+    // `em` and `dy` are read off Playfair's real ink extents, and nothing in the type system stops
+    // a later edit from nudging one by hand until a glyph hangs out of frame or drifts off centre.
+    // Recompute the ink box here from the SAME per-em metrics the measurement produced (ascent and
+    // descent per font-size 1, descent NEGATIVE where the ink never reaches the baseline) and
+    // assert what the numbers were chosen to guarantee.
+    // Playfair Display's ink extents per font-size 1, from canvas measureText. Note quotation's
+    // NEGATIVE descent: its ink stops well above the baseline, which is the case that makes a
+    // guessed offset hopeless and a measured one exact.
+    const INK: Record<string, { asc: number; desc: number; w: number }> = {
+      query: { asc: 0.7813, desc: 0.0156, w: 0.4063 },
+      semicolon: { asc: 0.5313, desc: 0.1406, w: 0.1563 },
+      brace: { asc: 0.7813, desc: 0.1875, w: 0.2656 },
+      quotation: { asc: 0.7344, desc: -0.4688, w: 0.3281 },
+    };
+    for (const [variant, m] of Object.entries(INK)) {
+      const html = getComponent("sorts")({ variant, size: 30 } as never).build(sctx(`ink-${variant}`)).html;
+      const fs = Number(html.match(/font-size="([\d.]+)"/)![1]); // viewBox units
+      const base = Number(html.match(/<text x="50" y="([-\d.]+)"/)![1]);
+      const [top, bottom] = [base - fs * m.asc, base + fs * m.desc];
+      const [left, right] = [50 - (fs * m.w) / 2, 50 + (fs * m.w) / 2];
+      // Inside the 100-unit box, with a little air — a decoration that overflows its own box lands
+      // somewhere the author's x/y did not put it.
+      for (const [edge, v] of [["top", top], ["bottom", bottom], ["left", left], ["right", right]] as const) {
+        expect(v, `sorts/${variant} ink ${edge} (${v.toFixed(1)}) escapes the box`).toBeGreaterThan(-2);
+        expect(v, `sorts/${variant} ink ${edge} (${v.toFixed(1)}) escapes the box`).toBeLessThan(102);
+      }
+      // …centred on both axes (1 unit of slack for the rounding in the stored values)…
+      expect((top + bottom) / 2, `sorts/${variant} is not vertically centred`).toBeCloseTo(50, 0);
+      // …and all four at the same optical size, so no sort reads as an accident beside another.
+      expect(
+        Math.max(bottom - top, right - left),
+        `sorts/${variant} does not fit the shared 78-unit optical square`,
+      ).toBeCloseTo(78, 0);
+    }
+  });
+
+  test("a sort scales as TYPE — its whole outline grows with the box, unlike a drawn mark", () => {
+    // Constant ink is right for a compass (shrink it, the edge stays crisp) and wrong for a
+    // letterform (shrink it, it must become a smaller letterform — hairlines and all). The two
+    // branches of standardDecoSvg therefore behave OPPOSITELY with `size`, and that is the point:
+    // a glyph's font-size is fixed in viewBox units, so it tracks the box exactly, while a drawn
+    // stroke's width is divided by the box so it does not.
+    const fontSizeOf = (size: number): string =>
+      getComponent("sorts")({ variant: "brace", size } as never)
+        .build(sctx(`ty-${size}`))
+        .html.match(/font-size="([\d.]+)"/)![1]!;
+    expect(fontSizeOf(12)).toBe(fontSizeOf(48)); // same viewBox units ⇒ scales with the box
+    const strokeOf = (size: number): string =>
+      getComponent("compass")({ variant: "lens", size } as never)
+        .build(sctx(`tk-${size}`))
+        .html.match(/stroke-width="([\d.]+)"/)![1]!;
+    expect(strokeOf(12)).not.toBe(strokeOf(48)); // inverse-scaled ⇒ constant rendered weight
   });
 
   test("CONSTANT INK: a mark renders at the 0.125rem hairline at every size", () => {

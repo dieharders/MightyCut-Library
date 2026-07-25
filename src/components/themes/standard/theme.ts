@@ -393,10 +393,15 @@ export const standardTheme: ThemeTokens = {
   typography,
   rules,
   examples,
-  // Standard's OWN decoration families (compass · sweep · hairline · vellum) — compass-drafted
-  // geometry at the theme's single hairline weight, casting no shadow: concentric ring pairs, open
-  // compass arcs, ruled marks, and translucent tracing-paper planes. Themes don't share
-  // decorations: this roster lists only standard's, and every one is held out of the Components
-  // grid globally. Opt-in per scene via addDecorations().
+  // Standard's OWN decoration families (compass · sweep · azimuth · sorts) — the drafting table and
+  // the type case, at the theme's single hairline weight, casting no shadow. The four are one page
+  // split on KIND so no two ever read alike: compass CLOSES a curve (concentric ring pairs), sweep
+  // leaves one OPEN (the arcs), azimuth strikes STRAIGHT radii (compass rose, protractor fan,
+  // graduated dial), and sorts SETS a character — a single Playfair punctuation mark blown up to
+  // watermark scale, which is the one decoration in the library made of a theme's own typography
+  // rather than of geometry. Themes don't share decorations: this roster lists only standard's, and
+  // every one is held out of the Components grid globally. Opt-in per scene via addDecorations() —
+  // and with a `plain` backdrop these are the theme's only atmosphere, which is why the rules cap
+  // them at two per frame.
   decorations: [...STANDARD_DECORATION_COMPONENTS],
 };

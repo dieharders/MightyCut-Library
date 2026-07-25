@@ -51,11 +51,11 @@ export const COMPONENT_NAMES = [
   "marker", // bolt · blade · caret (the bold editorial callout mark)
   "zag", // zigzag · sawtooth · wave (the zine rule band)
   "cutout", // torn · notch · sprocket (torn-paper collage shapes)
-  // standard's museum-catalog set (compass-drafted geometry, one hairline weight, no shadow):
-  "compass", // dial · lens · eclipse (the drafted ring pair)
+  // standard's museum-catalog set (drafted geometry + set type, one hairline weight, no shadow):
+  "compass", // dial · lens · eclipse (the closed ring pair)
   "sweep", // quadrant · crescent · bow (the open compass arc)
-  "hairline", // axis · ladder · margin (the ruled mark)
-  "vellum", // sheet · band · folio (the tracing-paper plane)
+  "azimuth", // rose · fan · pivot (the radial bearing)
+  "sorts", // query · semicolon · brace · quotation (a Playfair punctuation mark, set huge)
   "icon", // inline-SVG icon from the shared set
   "hud", // full-frame HUD overlay composite
 ] as const;
