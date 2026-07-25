@@ -1,8 +1,8 @@
 /* Standard CTA: the standalone call to action — an UNDERSCORED LABEL, not a button. Standard has no
    pill, no fill and no radius to spend on one (50% on a true circle is the theme's only radius), so
    the action is set the way every other piece of chrome here is set: Inter 500, uppercase, tracked
-   0.2em, in the taupe accent. It earns its "this is the thing to do" from a single 0.125rem hairline
-   ruled underneath, in the Line taupe (--accent-3) that draws every border, track and ring in the
+   0.2em, in the brownstone accent. It earns its "this is the thing to do" from a single 0.125rem hairline
+   ruled underneath, in the Line brownstone (--accent-3) that draws every border, track and ring in the
    theme — the same weight as the rule under a comparison column head, because there is only one.
 
    Same recipe as closing-plate's own .cta node, one rung larger. That one sits under an 8.375rem

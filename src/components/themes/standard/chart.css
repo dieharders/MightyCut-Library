@@ -1,8 +1,8 @@
-/* 8 · Chart — outlined stone columns standing on a single taupe hairline, under an ink Playfair
+/* 8 · Chart — outlined stone columns standing on a single brownstone hairline, under an ink Playfair
    headline, closed by a warm-gray centred caption. The plot rule lives HERE, not in bar.css: the
    Bar primitive is also shown bare in the showcase, where there is no plot for it to stand on, and
-   a baseline drawn per-column would double up at every gap. The column itself — stone fill, taupe
-   outline, taupe label — is bar.css. Ported from the showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
+   a baseline drawn per-column would double up at every gap. The column itself — stone fill, brownstone
+   outline, brownstone label — is bar.css. Ported from the showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
 .chart > .body {
   justify-content: center;
   padding: 8.75rem 7.25rem 13.5rem;
@@ -11,7 +11,7 @@
   font-size: 4.75rem;
   margin: 0 0 1.875rem;
 }
-/* The plot. One hairline in the Line taupe closes the bottom and nothing else is drawn: no y-axis,
+/* The plot. One hairline in the Line brownstone closes the bottom and nothing else is drawn: no y-axis,
    no gridlines, no ticks. That single rule is the whole chrome of the chart, which is the theme's
    position on data frames — the columns and their labels carry the reading. */
 .chart .bars {

@@ -1,5 +1,5 @@
 /* 5 · Quote — standard's centred statement: an oversized Playfair Display quotation mark in the
-   Line taupe, a large ink Playfair sentence set to a wide measure, and a small taupe uppercase
+   Line brownstone, a large ink Playfair sentence set to a wide measure, and a small brownstone uppercase
    attribution, all on the sandstone canvas the emitter stamps. There is no card, no rule and no
    fill on this frame — the statement floats in the middle of an otherwise empty stone plate, which
    is the treatment doing the theme's "let the frame breathe" rule at full strength.
@@ -32,8 +32,8 @@
 .quote .qcard {
   max-width: 86.375rem;
 }
-/* The quotation mark. Playfair's own “ at display scale in the Line taupe — the hairline colour,
-   not the accent taupe, so the mark reads as drawn punctuation rather than as a second label. The
+/* The quotation mark. Playfair's own “ at display scale in the Line brownstone — the hairline colour,
+   not the accent brownstone, so the mark reads as drawn punctuation rather than as a second label. The
    line-height 0.5 pulls the glyph's line box to half the em so the mark hangs close over the first
    line, and the explicit height reserves the source's box (5cqw) rather than the crushed line box,
    which is what keeps the spacing to .qt stable across quote lengths. */
@@ -58,7 +58,7 @@
   color: var(--dark);
 }
 /* Attribution: Inter 400 — the paragraph weight, not the label's 500. It is tracked to 0.2em
-   rather than the eyebrow's 0.22em and set in the accent taupe, so it reads as the quiet close of
+   rather than the eyebrow's 0.22em and set in the accent brownstone, so it reads as the quiet close of
    the statement instead of a second eyebrow answering the first. */
 .quote .attr {
   font-family: var(--mono);

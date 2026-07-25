@@ -1,5 +1,5 @@
 /* Feature-card = a sheet of TRACING PAPER laid on the stone: one 0.125rem hairline in the Line
-   taupe (--accent-3) and a 30%-white wash, which with the recessed stone is the only fill standard
+   brownstone (--accent-3) and a 30%-white wash, which with the recessed stone is the only fill standard
    permits. No radius, no shadow, no tint. The card is not raised off the ground the way block's
    shadowed tile or capsule's candy plate is — it is drawn ON it, and the wash is the whole device
    that separates the two on a warm canvas (professional reaches the same separation with a 5%
@@ -9,9 +9,9 @@
    true circle is what it is reserved for. It is also where the per-instance accent lands: --ic
    paints the GLYPH and the RING and nothing else, so an author's colour picker reads as a change of
    LINE rather than a change of surface. Unset ⇒ the ring falls back to --accent-3, the reference's
-   own ring colour and the colour of every other border in the deck, with the glyph on the taupe
+   own ring colour and the colour of every other border in the deck, with the glyph on the brownstone
    accent; naming an accent pulls both onto it. Since standard's four cycle slots are all the one
-   taupe, a three-card row stays monochrome either way — the accent is a half-step of stone, never a
+   brownstone, a three-card row stays monochrome either way — the accent is a half-step of stone, never a
    hue.
 
    Ported from the showcase .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2, snapped to the

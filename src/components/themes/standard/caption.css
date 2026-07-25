@@ -1,9 +1,9 @@
 /* Standard caption skin (the reference's CAPTION section): the tracing-paper chip — a 30% white
-   wash over whatever the frame is showing, closed by the theme's single hairline in the Line taupe
-   and led by a taupe accent bar, carrying ink VO-transcript copy. No radius, no shadow; the wash
+   wash over whatever the frame is showing, closed by the theme's single hairline in the Line brownstone
+   and led by a brownstone accent bar, carrying ink VO-transcript copy. No radius, no shadow; the wash
    and the rule are the entire chrome. Ported from the showcase .bf-cap / .bf-cap-bar /
    .bf-cap-text. The harness owns the root rail placement + the master-timeline autoAlpha hook, and
-   the bar follows the instance's accent (--capbar); unset ⇒ taupe, which IS standard's default.
+   the bar follows the instance's accent (--capbar); unset ⇒ brownstone, which IS standard's default.
 
    The wash is one of the only two fills the theme permits, and it is why this chip works where a
    solid white card would not: at 30% the stone ground reads through it, so the caption sits ON the

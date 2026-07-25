@@ -1,8 +1,8 @@
-/* Agenda index row: a taupe Playfair numeral, an ink Playfair title, and one hairline under the
+/* Agenda index row: a brownstone Playfair numeral, an ink Playfair title, and one hairline under the
    pair. Ported from the showcase .bf-agenda .arow / .num / .t / .d (cqw × 1.2). Both columns are
    the SERIF — standard is the theme whose numbers are set in the display face rather than a mono or
    a tracked sans, which is exactly why the numeral needs no disc, chip or leading rule to read as a
-   numeral. Taupe against ink, serif against serif at two sizes, is the entire hierarchy.
+   numeral. Brownstone against ink, serif against serif at two sizes, is the entire hierarchy.
 
    The rule is bottom-only and belongs to the ROW, not the list: agenda.css therefore adds nothing
    below the last item, and a row added or dropped at runtime takes its rule with it. It is the

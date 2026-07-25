@@ -1,4 +1,4 @@
-/* Stat = BARE TYPE ON THE STONE — a Playfair figure over a taupe uppercase label, and nothing
+/* Stat = BARE TYPE ON THE STONE — a Playfair figure over a brownstone uppercase label, and nothing
    else. Every other theme makes this cell an object (block's shadowed tile, capsule's candy card,
    professional's tinted plate); standard's is deliberately not one. Its structure is borrowed
    from the single hairline drawn above the whole row in stat-grid.css, so giving the cell a fill
@@ -15,12 +15,12 @@
 .stat-dot {
   display: none;
 }
-/* The figure is INK by default, not the accent. Taupe is standard's LABEL colour — the source
-   sets .n on the ink and .l on the taupe — so a tinted numeral would read as a demoted caption
+/* The figure is INK by default, not the accent. Brownstone is standard's LABEL colour — the source
+   sets .n on the ink and .l on the brownstone — so a tinted numeral would read as a demoted caption
    rather than as emphasis, and emphasis is carried by type contrast here, never by hue. --dot is
    emitted only when a stat carries an explicit accent (primitives/stat/index.ts layout()), which
    makes the fallback the honest default for content that doesn't pick one; when an author does
-   pick, all four cycle slots resolve to the one taupe, so the row tints together or not at all.
+   pick, all four cycle slots resolve to the one brownstone, so the row tints together or not at all.
    --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
    crowd; unset ⇒ 1, i.e. the base size everywhere else. */
 .stat-number {
@@ -30,7 +30,7 @@
   line-height: 1;
   color: var(--dot, var(--dark));
 }
-/* The taupe label voice at the tighter IN-FRAME tracking: 0.15em rather than the eyebrow's
+/* The brownstone label voice at the tighter IN-FRAME tracking: 0.15em rather than the eyebrow's
    0.22em, which is the source's own distinction. A caption sitting directly under a 6rem numeral
    has to stay a caption, and the wide eyebrow tracking at this size starts to read as a second
    display line competing with the figure. */

@@ -1,5 +1,5 @@
-/* 9 · Bar Ranking — ranked horizontal rows (rank.css): a tracked taupe label, an outlined stone
-   track, a taupe fill and an ink Playfair value, under the same headline rhythm as the chart. This
+/* 9 · Bar Ranking — ranked horizontal rows (rank.css): a tracked brownstone label, an outlined stone
+   track, a brownstone fill and an ink Playfair value, under the same headline rhythm as the chart. This
    file owns only the frame: body padding, headline, the row stack and the caption. Ported from the
    showcase .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
 .bar-ranking > .body {

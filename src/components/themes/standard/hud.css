@@ -1,5 +1,5 @@
-/* Standard HUD skin (the reference's HUD COMPONENTS section): a small taupe dot, a Playfair
-   wordmark in ink, an uppercase warm-gray tagline, a BARE taupe label top-right, a warm-gray
+/* Standard HUD skin (the reference's HUD COMPONENTS section): a small brownstone dot, a Playfair
+   wordmark in ink, an uppercase warm-gray tagline, a BARE brownstone label top-right, a warm-gray
    counter bottom-right, and a hairline progress rail edge to edge along the bottom. No chip, no
    border, no radius except the dot's, no shadow — the HUD is the theme's design rules applied to
    chrome. Ported from the showcase .bf-hud* (cqw × 1.2).
@@ -31,7 +31,7 @@
   gap: 1.625rem;
 }
 /* The one true circle in the theme's chrome, and therefore the one place 50% is allowed: a solid
-   taupe dot barely wider than the hairline is tall. Every other theme's brand mark is a plate, a
+   brownstone dot barely wider than the hairline is tall. Every other theme's brand mark is a plate, a
    disc or a diamond with an outline; standard's is a mark, not an object. */
 .hud .hud-brand-mark {
   width: 1.125rem;
@@ -54,7 +54,7 @@
   font-size: 1.375rem;
   color: var(--muted-3);
 }
-/* The title is a bare taupe LABEL — no pill, no border, no fill, exactly the treatment frame.css
+/* The title is a bare brownstone LABEL — no pill, no border, no fill, exactly the treatment frame.css
    gives the eyebrow. It hangs 0.5rem lower than the brand row (5.5rem against 5rem) because it has
    no box to align: an uppercase 1.375rem label optically sits high against a 2.75rem Playfair
    wordmark, and the reference drops it to bring the two baselines together. */
@@ -88,9 +88,9 @@
   letter-spacing: 0.05em;
   color: var(--muted-3);
 }
-/* The rail is the theme's hairline given a hair of thickness: the Line taupe used as a FILL rather
+/* The rail is the theme's hairline given a hair of thickness: the Line brownstone used as a FILL rather
    than as a border, 0.25rem tall, running the full content measure. Square ends, no border and no
-   well tint — it should read as the rule that closes the frame, which happens to fill with taupe
+   well tint — it should read as the rule that closes the frame, which happens to fill with brownstone
    as the deck advances. */
 .hud .hud-track {
   position: absolute;

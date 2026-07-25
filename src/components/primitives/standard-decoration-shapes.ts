@@ -152,7 +152,8 @@ const SHAPES: Record<StandardDecorationVariant, ShapeSpec> = {
   // `axis` is the drafting cross — a full-width baseline with a vertical raised on it.
   axis: {
     h: 0.5,
-    draw: (a) => `<path d="M0 38 L100 38" ${a.line}></path><path d="M50 0 L50 50" ${a.line}></path>`,
+    draw: (a) =>
+      `<path d="M0 38 L100 38" ${a.line}></path><path d="M50 0 L50 50" ${a.line}></path>`,
   },
   // A ruled LADDER of five hairlines, each shorter than the last — the catalogue's ranged index.
   ladder: {
@@ -172,7 +173,8 @@ const SHAPES: Record<StandardDecorationVariant, ShapeSpec> = {
   // Drawn at RULE_REM over a full-width hairline so the pair reads as "the rule and its margin".
   margin: {
     h: 0.125,
-    draw: (a) => `<path d="M0 4 L64 4" ${a.rule}></path><path d="M0 10 L100 10" ${a.line}></path>`,
+    draw: (a) =>
+      `<path d="M0 4 L64 4" ${a.rule}></path><path d="M0 10 L100 10" ${a.line}></path>`,
   },
 
   // vellum — the TRACING-PAPER plane: standard's one filled mark. A 30%-white wash under a
@@ -183,7 +185,8 @@ const SHAPES: Record<StandardDecorationVariant, ShapeSpec> = {
   },
   band: {
     h: 0.375,
-    draw: (a) => `<rect x="0" y="3" width="100" height="31.5" ${a.paper}></rect>`,
+    draw: (a) =>
+      `<rect x="0" y="3" width="100" height="31.5" ${a.paper}></rect>`,
   },
   // The turned page: a plane with its top-right corner cut away — the catalogue's folio mark.
   folio: {
@@ -285,11 +288,15 @@ const standardDecoSvg = (p: DecoParams): string => {
  *  `example.variant` is typed to that family's own list. `sizeDefault` differs per family (a ruled
  *  band needs far more width than a plane to read as a rule), and the accent default comes from
  *  the family's own `example` so the four carry distinct signature tints — compass/vellum the
- *  Line, sweep the Taupe, hairline the Ink — rather than collapsing onto one stone. */
-export const standardDecorationComponent = <N extends StandardDecorationComponentName>(
+ *  Line, sweep the Brownstone, hairline the Ink — rather than collapsing onto one stone. */
+export const standardDecorationComponent = <
+  N extends StandardDecorationComponentName,
+>(
   name: N,
   sizeDefault: number,
-  example: DecoParams & { variant: (typeof STANDARD_DECORATION_VARIANTS)[N][number] },
+  example: DecoParams & {
+    variant: (typeof STANDARD_DECORATION_VARIANTS)[N][number];
+  },
 ) => {
   const variants: readonly string[] = STANDARD_DECORATION_VARIANTS[name];
   return component({
@@ -300,7 +307,8 @@ export const standardDecorationComponent = <N extends StandardDecorationComponen
       variants,
       sizeDefault,
       accentDefault: example.accent,
-      accentDescription: "Hairline / wash colour — a palette role of the active theme",
+      accentDescription:
+        "Hairline / wash colour — a palette role of the active theme",
     }),
     template: SD_DECO_TEMPLATE,
     css: SD_DECO_CSS,

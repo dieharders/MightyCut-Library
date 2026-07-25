@@ -7,14 +7,14 @@
    `ground: "muted-2"` on those scenes.
 
    The whole identity is RESTRAINT AND ONE LINE WEIGHT: a warm stone canvas, near-black Playfair
-   Display headlines in sentence case, warm-gray Inter paragraphs, taupe uppercase labels, and a
+   Display headlines in sentence case, warm-gray Inter paragraphs, brownstone uppercase labels, and a
    single hairline (0.125rem — the grid floor, the reference's 1px) carrying EVERY border, rule and
    ring in the theme. No shadows, no elevated cards, no rounded rectangles: 50% is the only radius
    standard uses, and it is reserved for true circles.
 
    Every shade lighter/darker/translucent is derived per-use with color-mix() from the ten roles
    (there is no --st-* identity layer here — that was the standalone reference's device; the "Line"
-   taupe is a real palette role, --accent-3, deliberately OFF the accent cycle so nothing auto-
+   brownstone is a real palette role, --accent-3, deliberately OFF the accent cycle so nothing auto-
    assigns the theme's hairline colour to a numeral). Sizes are rem on a 0.125rem grid (see
    runtime/css.ts). Ported from video-assets/themes/standard/frame.css (cqw × 1.2, cqh × 0.675). */
 .block-frame {
@@ -24,10 +24,10 @@
   /* Backdrop ink hooks — how standard restyles the SHARED mask designs (backdrops are a pool every
      theme draws from; see primitives/backdrops.ts). Each line-work design paints through
      `var(--<design>-ink, var(--dark))`, whose default near-black would read as a smudge on stone.
-     Standard runs the three RULED designs (dots, grid, hatch) on the Line taupe (--accent-3), the
+     Standard runs the three RULED designs (dots, grid, hatch) on the Line brownstone (--accent-3), the
      exact colour of every hairline in the theme — so a ruled backdrop reads as drafting paper
      rather than as a second, louder grid. The wash is the theme's only TWO-TONE hook and takes its
-     two stone values (taupe leading, Line counter) so both corners stay inside the palette.
+     two stone values (brownstone leading, Line counter) so both corners stay inside the palette.
 
      Standard's OWN default is `plain` — no mask at all (theme.ts). These hooks are still stated in
      full, because a scene may pick any design per slide and the hook is the knob: a theme that
@@ -40,7 +40,7 @@
   --sunburst-ink: var(--accent-3);
   container-type: size;
   font-family: var(--body);
-  /* Body copy default: the warm gray (--muted-3). Headlines override to ink, labels to taupe. */
+  /* Body copy default: the warm gray (--muted-3). Headlines override to ink, labels to brownstone. */
   color: var(--muted-3);
 }
 .block-frame > .body {
@@ -51,7 +51,7 @@
   display: flex;
   flex-direction: column;
 }
-/* Headline: Playfair Display, ink, SENTENCE case, neutral tracking. Taupe never lands on a
+/* Headline: Playfair Display, ink, SENTENCE case, neutral tracking. Brownstone never lands on a
    headline — the accent is carried by labels, numerals, rules and small text.
 
    Weight 600, not the reference's 400: Playfair is a high-contrast didone whose 400 hairlines
@@ -65,9 +65,9 @@
   color: var(--dark);
   margin: 0;
 }
-/* Base eyebrow — standard's quiet TAUPE LABEL: no chip, no border, no fill. Just Inter 500,
-   uppercase, very widely tracked, in the taupe accent. That plainness is the theme's position on
-   labels ("render labels in taupe, uppercase, 2–3px tracked"), and it is why standard's eyebrow is
+/* Base eyebrow — standard's quiet BROWNSTONE LABEL: no chip, no border, no fill. Just Inter 500,
+   uppercase, very widely tracked, in the brownstone accent. That plainness is the theme's position on
+   labels ("render labels in brownstone, uppercase, 2–3px tracked"), and it is why standard's eyebrow is
    the one that looks unstyled next to block's plate and professional's pill. The shared fallback
    so ANY eyebrow-bearing treatment reads on-theme even without its own eyebrow skin; per-treatment
    skins (cover, quote) layer only scale + spacing over this. It self-removes when the slide sets

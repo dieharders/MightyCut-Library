@@ -1,14 +1,14 @@
 /* Chart column — an OUTLINED box, not a solid one: recessed stone (--muted-2) inside a single
-   0.125rem Line-taupe border, square-cornered, standing on the plot's baseline (chart.css draws
-   that rule). A Playfair value floats above in ink, a tracked taupe label sits below. No shadow, no
+   0.125rem Line-brownstone border, square-cornered, standing on the plot's baseline (chart.css draws
+   that rule). A Playfair value floats above in ink, a tracked brownstone label sits below. No shadow, no
    radius — a rounded column would be the loudest thing in the theme.
    Ported from the showcase .bf-chart .bar (cqw × 1.2). */
 .bar {
-  /* Emphasis by FILL, not by hue: the leading column takes solid taupe (--lead-col) while every
+  /* Emphasis by FILL, not by hue: the leading column takes solid brownstone (--lead-col) while every
      other stays the recessed stone (--base-col), so the winner reads as filled-in rather than
      coloured-in. The shared bar component sets --col to one or the other from the `leader` param —
      the library's replacement for the reference's `.bar:last-child`, which assumed the last column
-     was always the tall one. The outline is the same Line taupe on all of them either way. */
+     was always the tall one. The outline is the same Line brownstone on all of them either way. */
   --lead-col: var(--primary);
   --base-col: var(--muted-2);
   display: flex;
@@ -47,7 +47,9 @@
 }
 .bar .bcol {
   flex: 0 0 auto;
-  height: var(--fill); /* % of the track below the padding — 0% empty, 100% full */
+  height: var(
+    --fill
+  ); /* % of the track below the padding — 0% empty, 100% full */
   width: 100%;
   max-width: 7.25rem;
   background: var(--col, var(--muted-2));
@@ -56,7 +58,7 @@
   /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
   transform-origin: bottom;
 }
-/* The label is the theme's small in-frame label: taupe, uppercase, tracked 0.12em rather than the
+/* The label is the theme's small in-frame label: brownstone, uppercase, tracked 0.12em rather than the
    eyebrow's 0.22em — at this size the wider tracking would break a two-word category apart. */
 .bar .bl {
   flex: 0 0 auto;

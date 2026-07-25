@@ -1,9 +1,9 @@
-/* Ranked row — a fixed-width taupe label, an OUTLINED stone track (the same recessed stone and the
-   same 0.125rem Line-taupe hairline the chart column wears), a solid taupe fill, and an ink Playfair
+/* Ranked row — a fixed-width brownstone label, an OUTLINED stone track (the same recessed stone and the
+   same 0.125rem Line-brownstone hairline the chart column wears), a solid brownstone fill, and an ink Playfair
    value closing the row. Square-cornered: standard's tracks are ruled channels, not pills.
    Ported from the showcase .bf-bar-ranking .bar (cqw × 1.2). */
 .rank {
-  /* Both ends of the shared leader hook resolve to the SAME taupe, because standard has no second
+  /* Both ends of the shared leader hook resolve to the SAME brownstone, because standard has no second
      hue to spend on a winner — all four accent-cycle slots are the one stone (theme.ts). Ranking
      rows are already sorted, so length alone says which row leads; tinting the top one would be the
      populist accent the theme's rules rule out. The pair is still declared rather than dropped: the

@@ -4,8 +4,8 @@
 
    THE ACCENT IS THE LINE, NOT A FLOOD. --icol (emitted only when an author picks an accent — see
    primitives/icon/index.ts, so the fallback in each var() IS standard's default) paints the glyph
-   through currentColor and the ring with it; unset ⇒ the ring falls back to the Line taupe every
-   other border in the deck is drawn in, with the glyph on the taupe accent. That is the same
+   through currentColor and the ring with it; unset ⇒ the ring falls back to the Line brownstone every
+   other border in the deck is drawn in, with the glyph on the brownstone accent. That is the same
    reading card.css takes for --ic, deliberately: the badge and the standalone icon have to look
    like one component. It is also why the glyph is NOT pinned to ink or cream the way capsule,
    creative and professional pin theirs — those pin because the accent floods the fill and the glyph
