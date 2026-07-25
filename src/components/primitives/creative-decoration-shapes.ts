@@ -22,13 +22,17 @@
 // family out of the showcase Components grid under any theme, and only creativeTheme.decorations
 // lists them (themes never share decorations).
 //
-// THE OFFSET COLOUR IS AN ATOM, NOT A VARIABLE. The shadow always names --secondary (orange),
-// never the instance accent. Under creative "the hard shadow" is one specific colour the way the
-// outline is always --dark (FRAME.md: orange is THE hard-shadow colour); an accent-coloured offset
-// would read as a second copy of the mark rather than as the theme's depth device. Consequence
-// worth knowing: `cutout` defaults to --secondary itself, so an unparameterised cutout's offset
-// reads as a torn SECOND SHEET of the same paper rather than a cast shadow — the collage effect,
-// on purpose. Pick any other role for a contrasting offset.
+// THE OFFSET COLOUR IS AN ATOM, NOT A VARIABLE — it is fixed PER FAMILY and never follows the
+// instance accent. Under creative "the hard shadow" is a specific colour the way the outline is
+// always --dark (FRAME.md: orange is THE hard-shadow colour); an accent-coloured offset would read
+// as a second copy of the mark rather than as the theme's depth device.
+//
+// Three families take the signature ORANGE (--secondary). `cutout` is the ONE exception and takes
+// GREEN (--accent-2), because its own accentDefault IS --secondary: an orange scrap casting an
+// orange offset is the one combination where the shadow disappears into the shape and the mark
+// reads as nothing but a displaced outline. Green is the palette's other saturated plane, so the
+// torn scrap keeps a hard, legible offset on every ground creative rotates through. See
+// SHADOW_ROLE below — this is a per-family constant, not a knob a scene can turn.
 //
 // A NOTE ON RESTRAINT. FRAME.md rations the hard offset to ONE featured block per frame. A
 // decoration is a flourish, not a block, and the offset is precisely what identifies it as
@@ -65,6 +69,18 @@ export const CREATIVE_DECORATION_COMPONENTS = [
 ] as const;
 export type CreativeDecorationComponentName =
   (typeof CREATIVE_DECORATION_COMPONENTS)[number];
+
+/** The hard-offset colour, PER FAMILY — a palette role, fixed at authoring time and never the
+ *  instance accent (see the header note). Orange is creative's signature offset and carries three
+ *  of the four families; `cutout` takes green because its own accent default is that same orange,
+ *  and an orange-on-orange offset vanishes into the scrap. Exhaustively typed, so adding a family
+ *  without deciding its offset colour is a compile error rather than a silent fall-through. */
+const SHADOW_ROLE: Record<CreativeDecorationComponentName, string> = {
+  stamp: "secondary",
+  marker: "secondary",
+  zag: "secondary",
+  cutout: "accent-2",
+};
 
 /** Which shape variants belong to which family — the DISJOINT lists, declared once here and
  *  consumed by each family's `index.ts`, so the enum a component validates against and the list
@@ -314,7 +330,11 @@ export const CR_DECO_CSS = `.cr-deco {
 const specOf = (variant: string): ShapeSpec =>
   (SHAPES as Record<string, ShapeSpec | undefined>)[variant] ?? SHAPES.seal;
 
-const creativeDecorationLayout = (p: DecoParams): Record<string, string> => {
+/** Curried on the family's offset ROLE (SHADOW_ROLE), because `layout` only ever sees the
+ *  instance params — the family is known at build time, not at render time. */
+const creativeDecorationLayout =
+  (shadowRole: string) =>
+  (p: DecoParams): Record<string, string> => {
   const spec = specOf(p.variant);
   // The offset scales with size so it stays proportional (floored so a small mark still reads as
   // offset rather than flat on the ground).
@@ -328,7 +348,7 @@ const creativeDecorationLayout = (p: DecoParams): Record<string, string> => {
     "--cr-h": remGrid(p.size * (spec.h ?? 1) * 1.2),
     "--cr-rot": `${p.rotate}deg`,
     "--cr-z": p.layer === "front" ? "5" : "1",
-    "--cr-shadow": `${off} ${off} 0 var(--secondary)`,
+    "--cr-shadow": `${off} ${off} 0 var(--${shadowRole})`,
   };
 };
 
@@ -392,7 +412,7 @@ export const creativeDecorationComponent = <N extends CreativeDecorationComponen
     // Every creative variant is inline SVG (the outline has to be a stroke to stay constant across
     // sizes), so shape is always a string — the data-html slot is always filled.
     rawFill: (p) => ({ shape: creativeDecoSvg(p) }),
-    layout: creativeDecorationLayout,
+    layout: creativeDecorationLayout(SHADOW_ROLE[name]),
     // A POP is the entrance (an assigned animIn REPLACES it) — scaleIn on a `back.out(2)`
     // overshoot, so the mark lands like a stamp being pressed. Block scales, capsule scales
     // gently, future and professional fade; creative's mood is punchy, and the overshoot is the

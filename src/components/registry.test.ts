@@ -1007,6 +1007,23 @@ describe("creative theme (tripwire)", () => {
     expect(build("cutout", { variant: "sprocket", accent: "accent-2" })).toContain("var(--accent-2)");
   });
 
+  test("the hard offset is fixed PER FAMILY — orange, except cutout's green", () => {
+    const shadowOf = (name: string): string | undefined =>
+      getComponent(name)({ size: 20 } as never)
+        .build(crctx(`sh-${name}`))
+        .html.match(/--cr-shadow: [^;"]*0 var\(--([a-z0-9-]+)\)/)?.[1];
+    // Three families carry creative's signature orange offset…
+    for (const fam of ["stamp", "marker", "zag"]) expect(shadowOf(fam), fam).toBe("secondary");
+    // …and cutout carries GREEN, because its own accent default IS that orange: an orange scrap
+    // casting an orange shadow loses the offset entirely and reads as a displaced outline.
+    expect(shadowOf("cutout")).toBe("accent-2");
+    // The offset never follows the INSTANCE accent — it is an atom of the family, so asking for a
+    // different fill must not repaint the shadow.
+    const recoloured = getComponent("cutout")({ size: 20, accent: "primary" } as never)
+      .build(crctx("sh-cutout-accent")).html;
+    expect(recoloured).toContain("0 var(--accent-2)");
+  });
+
   test("the 4 creative families have DISJOINT variant lists (no shared shapes)", () => {
     const seen = new Map<string, string>();
     for (const fam of CREATIVE_DECORATION_COMPONENTS) {
