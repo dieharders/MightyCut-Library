@@ -325,7 +325,7 @@ export const standardTheme: ThemeTokens = {
   name: "standard",
   title: "Standard",
   description:
-    "A quiet museum-catalog theme on warm stone. Playfair Display headlines against Inter body copy, brownstone uppercase labels, and a single hairline carrying every border and compass ring. No colour, no shadows. Frame unit: 1920×1080, 16:9.",
+    "A quiet museum-catalog theme on warm stone. Brownstone uppercase labels. Single hairline border and compass ring. No colour, no shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
   // Every standard frame lands on the warm sandstone canvas: groundDefault REPLACES the shared
