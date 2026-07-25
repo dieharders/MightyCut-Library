@@ -98,10 +98,10 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // Green Dark — depth on decorative levers. accent-3 is the one accent OUTSIDE the cycle
   // (primary→secondary→accent-1→accent-2), so it never lands on an auto-cycled badge; it only
   // appears where a skin or a scene asks for it.
-  { name: "Green Dk", hex: "#136636", note: "depth", varName: "accent-3" },
+  { name: "Violet", hex: "#4c1f8a", note: "depth", varName: "accent-3" },
   {
-    name: "Cream",
-    hex: "#EFE9D9",
+    name: "Concrete",
+    hex: "#E4DCC4",
     note: "canvas + the light ink",
     varName: "muted-1",
   },
@@ -114,7 +114,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // Ink 2 — creative's secondary body text. Nothing pins muted-3 as a ground, so this role is
   // free to be a TYPE colour rather than a surface (the reference wasted it on a duplicate oat).
   {
-    name: "Ink 2",
+    name: "Dark",
     hex: "#2A2A2A",
     note: "secondary body text",
     varName: "muted-3",
@@ -361,11 +361,14 @@ export const creativeTheme: ThemeTokens = {
   // they actually land on (stat-grid's plates go cream on green; the closer is a cream card on
   // pink).
   //
-  // Creative's DEFAULT backdrop: the shared `grid` design — the 4rem ruled line grid, painted in
-  // ink through --grid-ink (frame.css), which reads as the ruled sheet a zine is pasted up on and
-  // stays legible on every one of the six grounds above. A default, not ownership: a scene may
-  // pick any other design, and any theme may set this one.
-  backdrop: "grid",
+  // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with three
+  // sets of long spiral arms sweeping out of it, turning continuously and very slowly across the
+  // scene (MC.washSpin, 24° total). Painted in ink through --sunburst-ink (frame.css) at 16%, so
+  // it reads as a poster's screen-printed sunray field behind the content rather than as a
+  // picture — and stays legible on every one of the six grounds above. This is the design
+  // creative CONTRIBUTES to the shared pool; a default is not ownership, so a scene may pick any
+  // other design and any theme may set this one (all five now state a --sunburst-ink).
+  backdrop: "sunburst",
   // Showcase/editor preview surface — the warm cream canvas creative's components are designed
   // against. Taken off the palette (--muted-1) rather than repeated as a literal.
   previewBg: palette.find((p) => p.varName === "muted-1")!.hex.toLowerCase(),
