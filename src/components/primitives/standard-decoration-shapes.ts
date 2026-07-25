@@ -165,7 +165,8 @@ type DrawnShape = { draw: ShapeFn; h?: number };
  *  ink never reaches the baseline (which is exactly how the quotation mark lands correctly).
  *
  *  No `dx`: measurement puts all four within half a unit of the advance's centre, so `text-anchor:
- *  middle` alone centres them horizontally. Nor `dominant-baseline` — its `central` value centres
+ *  middle` alone centres them horizontally — PROVIDED the glyph is set upright, since a slant moves
+ *  ink sideways by its height above the baseline (see SD_DECO_CSS's `font-style: normal`). Nor `dominant-baseline` — its `central` value centres
  *  the EM BOX, which is the thing that isn't where the ink is; the default alphabetic baseline plus
  *  a measured `dy` is fully determined by numbers in this file. */
 type GlyphShape = { char: string; em: number; dy: number };
@@ -297,6 +298,17 @@ const SHAPES: Record<StandardDecorationVariant, ShapeSpec> = {
  *  hairline, or the set character — and there is NO shadow layer at all, because standard's design
  *  rules ban shadows outright (as professional's do).
  *
+ *  `font-style: normal` ON THE SHAPE HOST IS LOAD-BEARING, not tidying. The host is an `<i>` (every
+ *  engine's shape slot is), so its UA default is italic — inherited straight into the `<text>` of a
+ *  `sorts` glyph, which then sets in Playfair ITALIC. Both faces are registered (assets/fonts/
+ *  standard-fonts.css), so this was a real oblique face rather than a missing-font fallback, and it
+ *  broke the family two ways: every `em`/`dy` in SHAPES is measured on the UPRIGHT face, and a slant
+ *  displaces ink horizontally in proportion to its height above the BASELINE — which for these
+ *  glyphs is `dy` below the box centre. On the quotation mark (dy 143, ink entirely above the
+ *  baseline) that threw the mark ~20 viewBox units — a fifth of the box — to the right, while the
+ *  three low-dy sorts drifted too little to notice. The drawn families never showed it at all: a
+ *  path has no font-style. Anything set rather than drawn in this engine needs this line.
+ *
  *  EVERY ENGINE OWNS ITS OWN CLASS + VAR NAMESPACE, and that is load-bearing rather than tidy:
  *  `.deco`/`--d-*` (block) · `.fx-deco`/`--fd-*` (future) · `.cd-deco`/`--cd-*` (capsule) ·
  *  `.pd-deco`/`--pd-*` (professional) · `.cr-deco`/`--cr-*` (creative) · `.sd-deco`/`--sd-*`
@@ -315,7 +327,7 @@ export const SD_DECO_CSS = `.sd-deco {
   z-index: var(--sd-z, 1);
   pointer-events: none;
 }
-.sd-deco-shape { position: absolute; inset: 0; }
+.sd-deco-shape { position: absolute; inset: 0; font-style: normal; }
 .sd-deco-shape svg { display: block; width: 100%; height: 100%; overflow: visible; }`;
 
 /** Look up a variant's spec, widening the read (`p.variant` is a plain string on the shared

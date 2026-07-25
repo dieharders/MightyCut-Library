@@ -26,6 +26,7 @@ import {
   CREATIVE_DECORATION_VARIANTS,
 } from "./primitives/creative-decoration-shapes";
 import {
+  SD_DECO_TEMPLATE,
   STANDARD_DECORATION_COMPONENTS,
   STANDARD_DECORATION_VARIANTS,
 } from "./primitives/standard-decoration-shapes";
@@ -1354,6 +1355,22 @@ describe("standard theme (tripwire)", () => {
         `sorts/${variant} does not fit the shared 78-unit optical square`,
       ).toBeCloseTo(78, 0);
     }
+  });
+
+  test("a sort is set UPRIGHT — the <i> shape host's italic is neutralised", () => {
+    // The measured em/dy above are only true of the UPRIGHT face, and the shape host is an `<i>`,
+    // whose UA default is italic. Both Playfair faces are registered (assets/fonts/standard-fonts
+    // .css), so the glyph inherited a REAL oblique — and because a slant displaces ink sideways in
+    // proportion to its height above the baseline, the quotation mark (dy 143, ink entirely above
+    // it) landed ~20 viewBox units right of centre while the three low-dy sorts drifted too little
+    // to notice. Nothing else catches it: this is a render-time inheritance, so the ink-geometry
+    // test above still passes with the mark visibly off-centre, and the drawn families never show
+    // it because a path has no font-style.
+    const built = getComponent("sorts")({ variant: "quotation" } as never).build(sctx("up-sorts"));
+    expect(built.css).toMatch(/\.sd-deco-shape\s*\{[^}]*font-style:\s*normal/);
+    // …and it has to be the SHAPE host that is fixed, since that is the element the italic comes
+    // from — a rule on `.sd-deco` alone would be overridden by the `<i>`'s own UA style.
+    expect(SD_DECO_TEMPLATE).toContain('<i class="sd-deco-shape"');
   });
 
   test("a sort scales as TYPE — its whole outline grows with the box, unlike a drawn mark", () => {
