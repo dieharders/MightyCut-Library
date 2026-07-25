@@ -247,7 +247,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "closing-plate": {
-    params: { headline: "That's the end.", cta: "Book a Call" },
+    params: { headline: "That's the end!", cta: "Book a Call" },
   },
   "feature-cards": {
     params: { headline: "What You Get" },
