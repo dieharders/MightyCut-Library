@@ -1,8 +1,10 @@
-/* Agenda index row: a brownstone Playfair numeral, an ink Playfair title, and one hairline under the
-   pair. Ported from the showcase .bf-agenda .arow / .num / .t / .d (cqw × 1.2). Both columns are
+/* Agenda index row: a brownstone Playfair numeral, an ink Playfair title, a warm-gray Inter detail
+   at the right margin, and one hairline under all three. Ported from the showcase .bf-agenda .arow
+   / .num / .t / .d (cqw × 1.2). Numeral and title are BOTH
    the SERIF — standard is the theme whose numbers are set in the display face rather than a mono or
    a tracked sans, which is exactly why the numeral needs no disc, chip or leading rule to read as a
-   numeral. Brownstone against ink, serif against serif at two sizes, is the entire hierarchy.
+   numeral. Brownstone against ink, serif against serif at two sizes, is the hierarchy; the sans
+   detail hangs off the end of it (see .d below).
 
    The rule is bottom-only and belongs to the ROW, not the list: agenda.css therefore adds nothing
    below the last item, and a row added or dropped at runtime takes its rule with it. It is the
@@ -35,12 +37,29 @@
   font-size: 2.875rem;
   color: var(--dark);
 }
-/* The detail column is HIDDEN, exactly as the showcase hides it. Standard's index states a number
-   and a title and stops; a third column of gray sans on the same baseline is the one addition that
-   would make this frame read as crowded, which the theme's rules call out by name. The step body
-   stays in the scene DATA and is simply not shown — so the same children can drive a timeline or a
-   step list with no edit to the content, and turning the column back on is a one-line skin change
-   rather than a re-author. */
+/* The detail column, pushed out to the right margin — the folio of a printed contents page. It was
+   `display: none` here to match the showcase, which states a number and a title and stops; but the
+   theme's own agenda example writes a detail for every row ("The unit of restraint", "Room to
+   breathe"), so the copy was being authored and then thrown away, and the column reads as missing
+   beside the same component under any other theme.
+
+   It is set in the BODY voice, not the label one. Standard's label token is brownstone Inter
+   uppercase at 0.22em, which is right for a counter ("5 min") and wrong for the sentence-case
+   phrases this slot actually carries — five tracked uppercase words on the title's baseline is the
+   crowding the theme's rules warn about. Warm-gray Inter against the title's ink Playfair is the
+   same device row.css uses to make a ledger stub recede: standard separates these voices by FACE,
+   never by weight or hue, so the detail can sit on the same rule as the title without competing
+   with it. A size down (1.5rem) is the in-frame body size every other quiet column in the theme
+   takes.
+
+   No `align-self`: the row is baseline-aligned and the detail stays on that baseline, where a
+   printed index sets its page number — capsule centres its detail instead, which is a different
+   idiom and not this one. The node carries no rule of its own; the row's bottom hairline runs under
+   all three columns as one line. */
 .agenda-item .d {
-  display: none;
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--muted-3);
+  margin-left: auto;
 }
