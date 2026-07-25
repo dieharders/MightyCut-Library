@@ -1,4 +1,8 @@
-/* Feature-card = a CREAM plate cut out of the orange ground, opened by a square accent badge.
+/* Feature-card = a WHITE plate cut out of the orange ground, opened by a square accent badge.
+   The plate fill is --light, not the cream canvas: card, stat and step are the theme's three
+   plates and they share one fill, which has to read as RAISED on every ground the rotation lands
+   them on (orange, green, oat) — white is the one surface that does on all three. Cream keeps its
+   other job untouched: it is still creative's light INK, the type colour on the saturated planes.
    Every atom of creative is in this one object: 0 radius, a constant INK outline, a hard 0-blur
    offset shadow, Archivo Black uppercase for the title, Space Grotesk for the body.
 
@@ -18,7 +22,7 @@
    0.125rem grid): the reference's 0.4cqw border lands exactly on creative's structural 0.5rem
    outline, its 0.3cqw badge border on the 0.375rem inner-chrome weight. */
 .card {
-  background: var(--muted-1);
+  background: var(--light);
   border: 0.5rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.375rem 2.125rem;

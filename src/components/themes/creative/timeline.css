@@ -1,14 +1,14 @@
-/* 6 · Timeline — a row of ink-outlined CREAM step cards (step.css) under a centred Archivo
+/* 6 · Timeline — a row of ink-outlined WHITE step cards (step.css) under a centred Archivo
    headline, on the OAT plane (--muted-2) the emitter stamps for this treatment. Oat is creative's
-   recessed ground: one step warmer and darker than the cream canvas, so the cream cards read as
-   paper laid ON a sheet rather than holes cut out of it. The card look lives entirely in step.css;
+   recessed ground: warmer and darker than both the cream canvas and the plates, so the white cards
+   read as paper laid ON a sheet rather than holes cut out of it. The card look lives entirely in step.css;
    this file owns the body padding, the headline rhythm, the grid — and the flip.
 
    THE LAST STEP FLIPS TO GREEN. This is creative's "swap the ground" move played at card scale: a
    sequence that ends on --accent-2 reads as a journey that ARRIVES somewhere, instead of four
    equal tiles in a row. It lives HERE and not in step.css because it is a property of the
    SEQUENCE, not of a step — a lone step rendered outside a timeline (the Components grid, a
-   one-step slide) must stay cream. And it is written with :last-child rather than
+   one-step slide) must stay white. And it is written with :last-child rather than
    :nth-child(4) so it holds at whatever child count layout() emits: 2 steps, 4, or 7.
 
    The reference's `.bf-timeline { background: var(--muted-2) }` is deliberately dropped — the
