@@ -1,0 +1,36 @@
+/* Creative's icon is the SAME OBJECT the feature cards wear, standalone: a square ink-outlined
+   plate flooded with the instance accent, carrying an ink glyph, lifted on the quiet ink-only
+   offset. There is no rounded-badge idiom in this theme to fall back on — square corners are the
+   atom, so a radius here would be the one wrong shape in the deck.
+
+   THE ACCENT FLOODS THE FILL, not the glyph. --icol is emitted only when the author picks an
+   accent (see primitives/icon/index.ts), so the fallback in the var() IS creative's default —
+   yellow (--accent-1), the same badge colour card.css defaults to, which keeps a standalone icon
+   and a card badge visually the same component. The glyph paints through currentColor pinned to
+   INK: creative's four accents (pink, orange, yellow, green) are all mid-to-light saturated, so
+   ink is the single glyph colour that survives every one of them, and cream would blow out on
+   yellow. This is the sanctioned re-reading of the shared param that professional and future also
+   take (the old shared default of `dark` on the glyph is what made the icon vanish on a dark
+   ground).
+
+   The plate is 1.35× the glyph so the proportion holds at ANY --isize, which the component always
+   emits (already a rem value, quantized upstream by remGrid). box-sizing keeps the 0.5rem outline
+   inside that computed square instead of inflating it. The outline takes the structural weight,
+   not the card badge's 0.375rem: standalone this object is a block in its own right, and at
+   ~16rem the thinner ring reads as a hairline. */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: calc(var(--isize, 12rem) * 1.35);
+  height: calc(var(--isize, 12rem) * 1.35);
+  border: 0.5rem solid var(--dark);
+  background: var(--icol, var(--accent-1));
+  color: var(--dark);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+}
+.icon svg {
+  display: block;
+  width: var(--isize, 12rem);
+  height: var(--isize, 12rem);
+}

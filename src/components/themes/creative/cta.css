@@ -1,0 +1,37 @@
+/* Creative CTA: the standalone call-to-action — the same sealed stamp the closing plate carries,
+   extracted as a droppable atom. Green fill, cream wide-tracked mono label, a 0.5rem ink outline,
+   SQUARE corners, and the quiet ink-only hard offset. Green is the theme's terminal colour (the
+   reference reserved a whole green frame for the closer), so an author placing a CTA anywhere in
+   the deck is placing the same "this is the end of the argument" mark.
+
+   Two atoms are stated explicitly because every other theme in the library does the opposite here:
+   border-radius:0, since a CTA is the one element that is a capsule everywhere else and squareness
+   is the whole point; and the shadow, which is the QUIET ink-only stack (0.75rem, zero blur), not
+   the orange signature — a component can be dropped many times on one frame, and the signature is
+   allowed once per frame, so it can never live in a repeatable atom.
+
+   The label is mono, not display: creative sends buttons through its taxonomy voice, which is what
+   separates it from `block` (Inter/display CTAs). No font-weight — JetBrains Mono's regular is the
+   tracked-label weight the theme uses throughout, and matching the closing plate's stamp exactly
+   matters more than a step in colour weight.
+
+   .cta-arrow's text is a leading space plus the arrow, so it needs white-space:pre or the gap
+   between label and glyph collapses. Ported from the showcase .bf-closing-plate .cta. */
+.cta-c {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-2);
+  color: var(--muted-1);
+  border: 0.5rem solid var(--dark);
+  border-radius: 0;
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+  padding: 1.5rem 3.125rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+.cta-c .cta-arrow {
+  white-space: pre;
+}

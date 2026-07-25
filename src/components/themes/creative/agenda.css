@@ -1,0 +1,39 @@
+/* 10 · Agenda — creative's index list: an ink-ruled contents page on the OAT plane (--muted-2),
+   the same recessed ground the timeline lands on. Agenda and timeline are siblings over the same
+   steps data, and the pair is the clearest statement of the theme's two modes: timeline BOXES each
+   step in a bordered card, agenda RULES each one as a line in a ledger. Nothing is boxed here —
+   the rules do all the structural work (agenda-item.css), which is why this file is three rules
+   long.
+
+   THE ONE ANCHOR EXCEPTION. Feature-cards, stat-grid, timeline, comparison, chart and bar-ranking
+   all centre their header block over a full-width grid. Agenda does not, and the reference doesn't
+   either: a contents page reads as a COLUMN of lines, and a centred headline over left-set ruled
+   rows reads as a mistake. So nothing here states text-align, and the eyebrow keeps frame.css's
+   base `align-self: flex-start` — left is already correct, and a rule restating it would only
+   invite someone to "fix" it to match the others.
+
+   Each row rules ITSELF, bottom-only (agenda-item.css), so this file adds nothing below the last
+   item — no `.alist > *:last-child` closer, unlike block's agenda. The reference's
+   `.bf-agenda { background: var(--muted-2) }` is dropped: the emitter stamps the resolved scene
+   ground onto .block-frame as an inline style, so a background on a treatment root is both dead
+   and a ground-resolution test failure. Ported from the reference .bf-agenda (cqw × 1.2,
+   cqh × 0.675, snapped to the 0.125rem authoring grid — runtime/css.ts). */
+.agenda > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+/* A step down from timeline's 4.75rem: agenda's rows carry 2.875rem uppercase titles of their own,
+   so the headline only has to out-scale them, not the whole frame. Case, tracking, ink and the
+   0.92 leading come from .block-frame h3 in frame.css — and no font-weight, here or anywhere:
+   Archivo Black ships one weight (400). */
+.agenda h3 {
+  font-size: 4.375rem;
+  margin: 0 0 2.875rem;
+}
+/* A plain column — the list has no gap because consecutive rows must SHARE the ink line between
+   them. Spacing is the rows' own vertical padding (agenda-item.css); adding a gap here would
+   split each rule into two floating lines. */
+.agenda .alist {
+  display: flex;
+  flex-direction: column;
+}

@@ -46,6 +46,11 @@ export const COMPONENT_NAMES = [
   "keyline", // single · double · inset (concentric squares)
   "corner", // corners · elbow · ticks (framing corner marks)
   "grille", // matrix · scatter · stack (cobalt dot fields)
+  // creative's punk-zine set (accent-filled solids, constant ink outline, ORANGE hard offset):
+  "stamp", // seal · rosette · medallion (the rotated closing seal)
+  "marker", // bolt · blade · caret (the bold editorial callout mark)
+  "zag", // zigzag · sawtooth · wave (the zine rule band)
+  "cutout", // torn · notch · sprocket (torn-paper collage shapes)
   "icon", // inline-SVG icon from the shared set
   "hud", // full-frame HUD overlay composite
 ] as const;

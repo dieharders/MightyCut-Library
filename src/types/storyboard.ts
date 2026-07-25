@@ -83,7 +83,7 @@ export type FrameGround = PaletteVar;
  * `grid` and `hatch` were the root chrome's deck-wide `.mc-bg--gradient/grid/pattern` layers
  * before they became per-scene, role-recoloured designs.
  */
-export const BACKDROP_NAMES = ["plain", "dots", "constellation", "gradient", "grid", "hatch"] as const;
+export const BACKDROP_NAMES = ["plain", "dots", "constellation", "gradient", "grid", "hatch", "sunburst"] as const;
 export type BackdropName = (typeof BACKDROP_NAMES)[number];
 
 // Decorations (star / tilt-rect / stripe / dot-grid) are authored per-treatment in

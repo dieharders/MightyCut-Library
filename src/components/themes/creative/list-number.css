@@ -1,0 +1,52 @@
+/* Numbered list bullet — a SQUARE pink ink-outlined plate carrying a cream Archivo numeral, beside
+   a line of Space Grotesk. There is no reference counterpart for this component, so it is
+   assembled from creative's vocabulary with one target: it must read as the SAME OBJECT as the
+   agenda numeral (agenda-item.css) at bullet scale, so a deck that uses both doesn't look like it
+   borrowed the bullet from another theme.
+
+   The three choices worth stating:
+   · 0 RADIUS. Professional's disc and capsule's lozenge are their idioms; creative's only round
+     things are the stat's corner dot and the decorative circles. A numbered bullet is a plate.
+   · THE INNER-CHROME OUTLINE, 0.375rem, not the 0.5rem structural one — a 4rem chip is chrome,
+     not a block that encloses content (same call icon.css and card.css's badge make at the same
+     size). And the QUIET ink-only offset, never the signature orange+ink stack: that is spent
+     once per frame on a featured block, and a bullet in a list never wins it.
+   · THE CHIP INVERTS. The agenda numeral is pink type ON the ground; this one is a pink plate
+     carrying the numeral. At 1.75rem a pink numeral on cream or oat thins out to nothing, and the
+     filled plate gives the bullet the visual weight the agenda row gets from its rule. The numeral
+     itself stays INK — the same call card.css's badge and icon.css make on their accent fills:
+     creative's four accents are all mid-to-light saturated, so ink is the one label colour that
+     reads on all of them, and cream on pink is the pairing that does not hold at label size (see
+     the documented cream-on-light trade-off in pill.css). Cream is the light ink for the INK and
+     GREEN plates — the eyebrow, the CTA, the flipped last step — not for a pink one. */
+.listnum-c {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+}
+/* box-sizing keeps the ink ring INSIDE the 4rem square instead of growing it to 4.75rem;
+   place-items centres the numeral in what's left. flex-shrink is pinned so a long label can never
+   squeeze the plate out of square — the whole point of the object is that it is a square. */
+.listnum-c .ln-chip {
+  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  flex-shrink: 0;
+  border: 0.375rem solid var(--dark);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+  background: var(--primary);
+  color: var(--dark);
+  font-family: var(--disp);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+/* Space Grotesk at the reading ramp's top end — the bullet's text is copy, not a label, so it
+   takes the body face rather than the mono taxonomy the agenda's right-hand detail uses. */
+.listnum-c .ln-text {
+  font-family: var(--body);
+  font-size: 2.25rem;
+  line-height: 1.4;
+  color: var(--dark);
+}

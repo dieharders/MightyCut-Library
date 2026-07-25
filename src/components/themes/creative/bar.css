@@ -1,0 +1,88 @@
+/* Chart column — a flat, ink-outlined block of colour rising off the plot rule (chart.css draws
+   that rule), with an Archivo value floating above it and a tracked mono label beneath. No fill
+   gradient, no rounded cap, no shadow: a column here is a rectangle of ink-bordered flat colour,
+   which is the whole of creative's chart vocabulary.
+
+   THE LEADER VOCABULARY. The shared Bar component sets `--col` from its `leader` param, resolving
+   through `--lead-col` / `--base-col` so a theme decides what "leader" and "the rest" look like
+   without the component knowing. Creative points them at the two hues the deck already reads as
+   opposites — GREEN is the answer/arrival colour everywhere in this theme (the comparison ledger's
+   answer column, the timeline's final step), PINK is the resting accent — so a chart and a ranking
+   say "this one won" in exactly the same language.
+
+   NO HARD OFFSET, on purpose: `.bcol` is scaled from scaleY 0 by MC.growBar, and a 0-blur offset
+   scales with its element — the shadow would shear and creep across the baseline through the whole
+   reveal. The skin owns transform-ORIGIN only; it never states a transition or animation.
+
+   Ported from the showcase .bf-chart .bar (cqw × 1.2). */
+.bar {
+  --lead-col: var(--accent-2);
+  --base-col: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 27rem;
+  width: 11.5rem;
+}
+/* Standalone plot height above matches chart.css's `.bars` exactly, so a bare Bar in the showcase
+   stands as tall as it does in a real plot; inside the chart, `.chart .bars .bar` overrides
+   flex/height so columns share the row. The FIXED width matters: without it the bar is
+   shrink-to-fit, the counting value label's changing text width drives the box, and the width:100%
+   column visibly wiggles as the number climbs. A long value just overflows this box, centred. */
+.bar .btrack {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 3rem;
+  box-sizing: border-box;
+}
+/* The padding-top above is the headroom the floating value occupies when the column is full. It is
+   load-bearing: the column is --fill% of the track BELOW that reserved band, so height maps
+   LINEARLY to --fill (0% empty → 100% full) instead of the labels eating the plot and clamping a
+   full column to ~78%. Copied wholesale from professional/bar.css — same geometry, different skin.
+   tabular-nums keeps the count-up from re-centring on every digit change (a no-op on faces that
+   ship no tnum table). */
+.bar .bv {
+  flex: 0 0 auto;
+  margin-bottom: 0.75rem;
+  font-family: var(--disp);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 2.375rem;
+  line-height: 1;
+  color: var(--dark);
+}
+/* box-sizing:border-box so the 0.5rem outline is INSIDE the --fill height — otherwise a 0% column
+   still shows 1rem of border sitting on the baseline. --fill carries the same 4% fallback rank.css
+   gives it: the prop is emitted by the Bar's layout(), but an unresolved var() makes the whole
+   declaration invalid, which drops the column to auto height (0 — the element has no content) and
+   the plot renders empty. The fallback keeps a visible stub instead. */
+.bar .bcol {
+  flex: 0 0 auto;
+  height: var(--fill, 4%);
+  width: 100%;
+  max-width: 9.625rem;
+  background: var(--col, var(--primary));
+  border: 0.5rem solid var(--dark);
+  box-sizing: border-box;
+  transform-origin: bottom;
+}
+/* The category label is taxonomy, so it takes the mono voice at --muted-3 (creative's Ink 2) —
+   quieter than the ink value above the column, which keeps the reading order value → column →
+   label rather than letting two black numbers compete. */
+.bar .bl {
+  flex: 0 0 auto;
+  margin-top: 1rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+  text-align: center;
+}

@@ -1,0 +1,68 @@
+/* Timeline step = an ink-outlined CREAM card carrying a giant Archivo numeral at the top and its
+   title pushed to the BOTTOM. That push (margin-top: auto on .step-title) is the reference's whole
+   layout idea for this object: the empty middle is the composition, not a gap waiting to be
+   filled, and it is what makes a row of four cards read as a poster rather than a feature grid.
+   Keep it.
+
+   The card sits on the timeline's oat plane; the LAST card in a row flips to green — that rule
+   belongs to the sequence, so it lives in timeline.css, and the three text colours stated below
+   are exactly what it overrides.
+
+   DEVIATION — the shadow. The reference card was flat (FRAME.md gives step-card `shadow: none`),
+   because on the reference's cream ground a cream card needed its outline and nothing else. Here
+   the card takes the QUIET ink-only offset, `0.75rem 0.75rem 0 var(--dark)`: it is the library's
+   atom for REPEATED cards and cells (card.css and stat.css both wear it), it holds the card off
+   the oat the same way the reference's cream-on-cream contrast held it off cream, and it costs the
+   frame nothing — the signature orange+ink stack is reserved for the ONE featured block per frame,
+   which a row of four identical cards is by definition not.
+
+   Ported from the reference .bf-timeline .step / .num / .t / .d (cqw × 1.2, cqh × 0.675, snapped
+   to the 0.125rem grid): the reference's 0.4cqw border lands exactly on creative's 0.5rem
+   structural outline. */
+.step {
+  background: var(--muted-1);
+  border: 0.5rem solid var(--dark);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+  padding: 2.125rem 1.875rem;
+  display: flex;
+  flex-direction: column;
+  /* The reference's 30cqh, and — as there — it is a CONTENT-box minimum: no box-sizing is stated
+     on the card (unlike the fixed-size square chips, which need one to keep their ink ring
+     inside), so the padding and outline add to it and the card renders taller than 20.25rem. That
+     surplus IS the empty middle the title is pushed away from. It also equalises the cards across
+     the row, so the bottom-anchored titles line up even when one step's body runs a line longer. */
+  min-height: 20.25rem;
+}
+/* The largest numeral in the theme after a cover word: Archivo Black at 0.85 leading, the tightest
+   setting in the ramp (FRAME.md step-num). Its ink is stated rather than inherited so timeline.css
+   has one thing to invert on the green card. */
+.step-num {
+  font-family: var(--disp);
+  font-size: 6rem;
+  line-height: 0.85;
+  color: var(--dark);
+}
+/* margin-top: auto is load-bearing — it eats the card's free height and drops the title/body pair
+   onto the floor of the card, under the numeral. Set SOLID at line-height 1 rather than the 0.92
+   headline ratio: these titles wrap to two short words at card width, and 0.92 collides the caps
+   of stacked lines at this size. Uppercase always — sentence-case Archivo Black does not exist. */
+.step-title {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 2.125rem;
+  line-height: 1;
+  color: var(--dark);
+  margin-top: auto;
+}
+/* Space Grotesk carries the reading ramp; --muted-3 is creative's Ink 2, one step back from the
+   display ink so the body sits under the title without introducing a fifth grey. The gap is the
+   body's margin-TOP (the reference hung it off the title as a margin-bottom) so a step with no
+   body copy leaves no dangling space under the title. */
+.step-body {
+  font-family: var(--body);
+  font-size: 1.375rem;
+  line-height: 1.4;
+  color: var(--muted-3);
+  margin-top: 0.75rem;
+}

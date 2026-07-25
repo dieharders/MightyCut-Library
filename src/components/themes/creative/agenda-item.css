@@ -1,0 +1,59 @@
+/* Agenda index row — one ruled line carrying all three of creative's voices at once: a PINK
+   Archivo numeral, an uppercase ink title, and a small tracked mono detail pushed out to the right
+   margin. Display / display / mono, stated once per row; that contrast is what makes the list read
+   as a printed contents page rather than a stack of bullets. Sits on the agenda's oat plane, and
+   the rule is the only structure — nothing here is boxed or filled.
+
+   RULE PLACEMENT — the one deliberate deviation. The reference ruled the TOP of every row and then
+   closed the list with a `.arow:last-child { border-bottom }`. Here the rule is BOTTOM-only on
+   every row instead. A component skin cannot see its own position: `:last-child` holds only while
+   this row really is the final element node of `.alist`, and the closing rule has to be written
+   from the TREATMENT side (block does exactly that) — which splits one ledger across two files,
+   silently drops the closing line the moment anything is appended after the list, and leaves a
+   lone agenda-item rendered in the Components grid opening on a rule that closes nothing. A bottom
+   rule per row is self-contained: any count, any container, no partner rule, and agenda.css adds
+   nothing below the last item. The list therefore OPENS without a rule above the first row — the
+   headline's own baseline does that job.
+
+   0.375rem is creative's INNER-rule weight, one step down from the 0.5rem outline that is reserved
+   for blocks enclosing something (this rule encloses nothing; it separates). Ported from the
+   reference .bf-agenda .arow / .num / .t / .d (cqw × 1.2, snapped to the 0.125rem grid). */
+.agenda-item {
+  display: flex;
+  align-items: baseline;
+  gap: 2.375rem;
+  padding: 1.75rem 0;
+  border-bottom: 0.375rem solid var(--dark);
+}
+/* Pink is the index colour across creative — the agenda numeral here, the base bar fill in
+   chart/bar-ranking. It is the one accent that carries display type on oat without going muddy,
+   and using an accent (rather than ink) is what stops the numerals reading as part of the title.
+   min-width holds a fixed numeral column so a two-digit "10" doesn't shove the titles out of
+   alignment with the rows above it. No font-weight: Archivo Black ships exactly one. */
+.agenda-item .num {
+  font-family: var(--disp);
+  font-size: 3.375rem;
+  color: var(--primary);
+  min-width: 6rem;
+}
+.agenda-item .t {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 2.875rem;
+  color: var(--dark);
+}
+/* The detail is TAXONOMY, not copy — mono, uppercase, tracked, and the smallest thing on the row.
+   margin-left: auto pushes it to the right margin so the ruled line has a stop at each end;
+   align-self re-centres it against a row whose other two children are baseline-aligned, since a
+   1.375rem mono line sharing a baseline with a 3.375rem numeral would otherwise hang off the
+   bottom of the row rather than sit in it. */
+.agenda-item .d {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.375rem;
+  color: var(--muted-3);
+  margin-left: auto;
+  align-self: center;
+}

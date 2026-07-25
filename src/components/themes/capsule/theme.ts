@@ -46,8 +46,7 @@ import coverTemplate from "./templates/cover.html" with { type: "text" };
 
 // Palette — capsule's colour for each of the 10 shared palette roles (types/palette.ts).
 // The SINGLE source of truth for capsule's colours: it drives the showcase Palette section AND
-// generates the `:root` custom properties below. Shell fills both --muted-2 and --muted-3, so
-// the UI de-dupes on hex to capsule's 9 unique colours. Colour lives on stat figures, bar
+// generates the `:root` custom properties below. Colour lives on stat figures, bar
 // fills, icon discs and pill fills — never on a headline, which is always Ink.
 const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Coral", hex: "#E85D4E", note: "leading accent", varName: "primary" },
@@ -72,7 +71,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   { name: "Cream", hex: "#F5F5F0", note: "canvas", varName: "muted-1" },
   { name: "Shell", hex: "#FBF7EF", note: "quiet ground", varName: "muted-2" },
-  { name: "Shell", hex: "#FBF7EF", note: "quiet ground", varName: "muted-3" },
+  { name: "Peach", hex: "#F5B895", note: "quiet ground", varName: "muted-3" },
   { name: "White", hex: "#FFFFFF", note: "cards, tracks", varName: "light" },
   { name: "Ink", hex: "#1A1A1A", note: "outlines + text", varName: "dark" },
 ];

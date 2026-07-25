@@ -1,0 +1,59 @@
+/* 1 · Cover — creative's opening plate, and the theme's clearest statement of restraint: an
+   inverted ink kicker-block, an enormous Archivo Black headline jammed to the left edge of the
+   measure, and one line of tracked mono underneath. Nothing else. FRAME.md asks the sparse frames
+   (cover · claim · closer) to read 45–60% EMPTY, so the cover earns no card, no rule, and — note —
+   NO hard offset shadow: the signature is spent elsewhere in the run, and there is no block here
+   to cast it.
+
+   GROUND: cream (--muted-1), stamped inline by the emitter. It is the canvas the whole rotation
+   departs from, so the cover is the one frame where the ink type sits on the theme's own paper.
+
+   The reference floats a yellow ink-outlined circle bleeding off the lower-right corner. Under the
+   port that is a DECORATION component (opt-in per scene via addDecorations), not a pseudo-element
+   here — a skin never smuggles ornament into a treatment that the author cannot turn off.
+
+   The subtitle is MONO, not body: creative's supporting copy on a hero frame is taxonomy, not
+   prose. Its colour is --muted-3, which in the library palette is Ink 2 (the reference's --ink-2);
+   creative's --muted-3 is a dark secondary ink, not the oat it names in some other themes.
+
+   Ported from the showcase .bf-cover (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem grid). */
+.cover > .body {
+  justify-content: center;
+  align-items: flex-start;
+  padding: 9.5rem 8.375rem 13.5rem;
+}
+.cover .eyebrow {
+  margin-bottom: 2.375rem;
+}
+/* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
+   family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and
+   the tracking to −0.02em, the tightest setting in the theme, because at this size the counters
+   close up and the letters want to lock into one solid block. max-width equals the body's content
+   box exactly (120rem frame − 2 × 8.375rem), i.e. the headline is allowed the full measure and is
+   held only by the padding. */
+/* SIZED TO THE LONGEST WORD, not to the reference's number. The reference sets this at 10.5cqw
+   (= 12.625rem), but its showcase headline is "Creative Mode." — two short words. Archivo Black is
+   a far wider face than block's Inter or professional's Baskerville (~0.72em average cap advance),
+   and a display line CANNOT wrap inside a word, so a single long token sets the real ceiling: at
+   12.625rem a 14-character word like "COMPONENTIZED." measures ~124rem against a 103.25rem
+   content box and runs straight off the canvas (caught by the harness layout audit, not by any
+   unit test). 9.5rem holds ~15 characters on one line with the −0.02em tracking, which covers
+   realistic generated headlines while staying hero-scale — block's Inter hero is 9rem for the same
+   reason. This is the theme's own "size it to the line" rule applied to the face we actually load. */
+.cover h3 {
+  font-size: 9.5rem;
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  max-width: 103.25rem;
+  margin: 0;
+}
+.cover .sub {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 2rem;
+  line-height: 1.5;
+  color: var(--muted-3);
+  margin-top: 2.875rem;
+  max-width: 76.75rem;
+}
