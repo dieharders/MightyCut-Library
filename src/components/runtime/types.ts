@@ -3,7 +3,7 @@ import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
 import type { PaletteVar } from "../../types/palette";
-import type { FrameGround } from "../../types/storyboard";
+import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
 import type { AnimDescriptor } from "./anim";
 
@@ -47,6 +47,11 @@ export type TypeSpec = {
 
 /** The theme's Do / Don't authoring rules (verbatim from its design showcase). */
 export type ThemeRules = { do: string[]; dont: string[] };
+
+/** One decoration declared as DATA rather than as a built instance — a registered
+ *  component name plus the params its schema parses. The serializable half of
+ *  `ThemeTokens.decorationDefaults`; the same shape the editor stores per scene. */
+export type DecorationSpec = { name: string; params?: Record<string, unknown> };
 
 /** Palette/font tokens for a theme — replaces a theme's frame.css `:root` block,
  *  plus the showcase-facing design data (palette/typography/rules/flares) the
@@ -143,9 +148,16 @@ export type ThemeTokens = {
    *  sees listed is exactly what a video renders. A caller's explicit `addDecorations()`
    *  replaces these entirely — including an EMPTY list, which means "deliberately bare".
    *
-   *  Each decoration consumes a reveal cascade slot (see treatment.ts), so keep sets to
-   *  1–3 per frame or the headline is pushed late. */
-  decorationDefaults?: Record<string, { name: string; params?: Record<string, unknown> }[]>;
+   *  Each decoration consumes a reveal cascade slot (see treatment.ts), so the size of a
+   *  set is how late that frame's headline lands — 1–2 is the norm, 4 the most any theme
+   *  spends (capsule's cover).
+   *
+   *  Keyed by `FrameTreatment`, NOT by `string`: a mistyped frame name would otherwise sit
+   *  there rendering nothing at all (the lookup in treatment.ts simply misses), and only the
+   *  three hero frames are swept by a tripwire — so the key is checked by the compiler
+   *  instead. The VALUES stay loose: params are parsed by the named component's own Zod
+   *  schema at build time, so a bad param is a loud render error, not a silent no-op. */
+  decorationDefaults?: Partial<Record<FrameTreatment, DecorationSpec[]>>;
 };
 
 export type BuildContext = {

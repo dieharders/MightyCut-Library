@@ -236,21 +236,35 @@ describe("decoration ownership (tripwire)", () => {
 // what replaced the old `suppressDefaultDecorations` flag: nothing off-theme can leak in,
 // so there is nothing left to suppress. Every theme must dress the three hero frames with
 // its OWN families, and an explicit (even empty) addDecorations() must still win.
+//
+// The map's KEY is `FrameTreatment` (runtime/types.ts), so a misspelled frame name is a
+// compile error rather than a set that sits there rendering nothing — which is why the
+// sweeps below police only the VALUES. They run over every DECLARED key, not just the hero
+// three, so a theme that later dresses `timeline` or `chart` is held to the same rules.
 const HERO_TREATMENTS = ["cover", "closing-plate", "quote"] as const;
 
+type DressedFrame = keyof NonNullable<ThemeTokens["decorationDefaults"]>;
+const dressedFrames = (theme: ThemeTokens): DressedFrame[] =>
+  Object.keys(theme.decorationDefaults ?? {}) as DressedFrame[];
+
 describe("theme decoration defaults (tripwire)", () => {
-  test.each(ALL_THEMES)("$name dresses every hero frame with its own rostered families", (theme) => {
-    const roster = new Set(theme.decorations ?? []);
+  test.each(ALL_THEMES)("$name dresses every hero frame", (theme) => {
     for (const t of HERO_TREATMENTS) {
-      const decos = theme.decorationDefaults?.[t];
-      expect(decos?.length, `${theme.name}/${t} declares no default decorations`).toBeGreaterThan(0);
-      const foreign = (decos ?? []).map((d) => d.name).filter((n) => !roster.has(n));
+      const declared = theme.decorationDefaults?.[t]?.length;
+      expect(declared, `${theme.name}/${t} declares no default decorations`).toBeGreaterThan(0);
+    }
+  });
+
+  test.each(ALL_THEMES)("$name declares only families it rosters, on every frame it dresses", (theme) => {
+    const roster = new Set(theme.decorations ?? []);
+    for (const t of dressedFrames(theme)) {
+      const foreign = (theme.decorationDefaults?.[t] ?? []).map((d) => d.name).filter((n) => !roster.has(n));
       expect(foreign, `${theme.name}/${t} uses decoration(s) it does not roster: ${foreign.join(", ")}`).toEqual([]);
     }
   });
 
-  test.each(ALL_THEMES)("$name renders its declared defaults on every hero frame", (theme) => {
-    for (const t of HERO_TREATMENTS) {
+  test.each(ALL_THEMES)("$name renders its declared defaults on every frame it dresses", (theme) => {
+    for (const t of dressedFrames(theme)) {
       const count = theme.decorationDefaults?.[t]?.length ?? 0;
       const html = renderScene(getTreatment(t)(), pctx(theme, `dd-${theme.name}-${t}`));
       for (let i = 0; i < count; i++) {

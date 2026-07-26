@@ -14,7 +14,7 @@
 import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
 import { buildBackdrop } from "../primitives/backdrops";
-import type { FrameGround } from "../../types/storyboard";
+import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/transitions";
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
 import { collectCss, scopeCss } from "./css";
@@ -155,8 +155,12 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // families are theme-exclusive, so only the active theme can name shapes that are
         // on-look here. An explicit addDecorations() replaces them, including an empty
         // list (the showcase's "delete every row" ⇒ a deliberately bare frame).
-        const defaultDecos = (ctx.theme.decorationDefaults?.[def.name] ?? []).map((d) =>
-          getComponent(d.name)(d.params ?? {}),
+        // `def.name` is a plain string — a treatment may be one the deck schema calls
+        // CUSTOM, outside FRAME_TREATMENTS — while the map is keyed by FrameTreatment so a
+        // theme can't misspell a frame. The widening is safe in this direction: an
+        // off-union name simply misses and the frame gets no defaults.
+        const defaultDecos = (ctx.theme.decorationDefaults?.[def.name as FrameTreatment] ?? []).map(
+          (d) => getComponent(d.name)(d.params ?? {}),
         );
         const decorations = addedDecorations ?? defaultDecos;
         const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
