@@ -108,7 +108,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
     name: "Concrete",
-    hex: "#E4DCC4",
+    hex: "#FFFFFF",
     note: "canvas + the light ink",
     varName: "muted-1",
   },
@@ -122,14 +122,14 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "Oat",
     hex: "#EFE9D9",
-    note: "recessed ground + track fill",
+    note: "canvas",
     varName: "muted-2",
   },
   // Ink 2 — creative's secondary body text. Nothing pins muted-3 as a ground, so this role is
   // free to be a TYPE colour rather than a surface (the reference wasted it on a duplicate oat).
   {
     name: "Dark",
-    hex: "#2A2A2A",
+    hex: "#0F0F0F",
     note: "secondary body text",
     varName: "muted-3",
   },
@@ -146,8 +146,8 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   {
     name: "Ink",
-    hex: "#0F0F0F",
-    note: "every border + all display type",
+    hex: "#2A2A2A",
+    note: "borders + all display type",
     varName: "dark",
   },
 ];
