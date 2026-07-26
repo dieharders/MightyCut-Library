@@ -28,7 +28,7 @@ every theme**. A theme supplies the CSS those class names resolve against.
 | the 10 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                                   |
 | the transition catalog (`src/types/transitions.ts`, `runtime/transitions.ts`)                           | which backdrop design is the default (`backdrop`) + the ink hooks that restyle every design                                                            |
 | the backdrop design **pool** (`primitives/backdrops.ts`) — any theme may use any design                 | its **own four decoration families** + shape engine (no other theme may roster them)                                                                   |
-| the decoration _placement_ schema (`primitives/decoration-placement.ts`)                                | structure overrides (`templates/*.html`), showcase copy (`examples`, `typography`, `rules`), `previewBg`/`previewScheme`, `suppressDefaultDecorations` |
+| the decoration _placement_ schema (`primitives/decoration-placement.ts`)                                | structure overrides (`templates/*.html`), showcase copy (`examples`, `typography`, `rules`), `previewBg`/`previewScheme`, `decorationDefaults` |
 
 ### Non-negotiable rules
 
@@ -448,15 +448,37 @@ with the shared roles), so the roster **is** the boundary.
 2. Four one-file folders, `primitives/<family>/index.ts`, each calling that helper with its
    default placement.
 3. Registration in `src/components/registry.ts`.
-4. `decorations: [...<THEME>_DECORATION_COMPONENTS]` on your tokens.
+4. `decorations: [...<THEME>_DECORATION_COMPONENTS]` on your tokens, plus
+   `decorationDefaults` for the hero frames (see **Defaults** below).
 
 Keep the **constant-ink** idiom: the outline/stroke weight is fixed and does NOT scale with
 `size` (a large shape keeps a crisp edge), while the shadow/glow offset does.
 
-**Defaults.** Treatments ship `defaultDecorations` (block's cover star, closing slab). If your
-look lives elsewhere — future's constellation backdrop carries the whole mood — set
-`suppressDefaultDecorations: true` so those off-theme shapes never auto-render or shift the
-reveal cascade. An explicit `addDecorations()` always wins.
+**Defaults.** Decoration defaults live on the THEME, not the treatment def — a treatment is
+shared by all six themes and can't name any theme's exclusive families. Declare
+`decorationDefaults` on your tokens, keyed by treatment name, as serializable specs:
+
+```ts
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  cover: [
+    { name: "node", params: { variant: "orbit", x: 86, y: 26, size: 20, accent: "primary", layer: "back" } },
+    { name: "reticle", params: { variant: "brackets", x: 80, y: 76, size: 16, accent: "accent-2" } },
+  ],
+  "closing-plate": [ /* … */ ],
+  quote: [ /* … */ ],
+};
+```
+
+Specs rather than built instances, deliberately: the SAME declaration drives the render and
+seeds the showcase's editable decoration rows, so what a user sees listed is exactly what a
+video renders — and adding one of their own appends to yours instead of wiping them.
+
+Every theme must dress the three hero frames (`cover`, `closing-plate`, `quote`) with families
+from its own roster; a tripwire in `theme-parity.test.ts` fails otherwise. Keep each set to
+**1–3**: every decoration consumes a reveal cascade slot, so a heavy set pushes the headline
+late. If your look lives elsewhere — future's constellation backdrop carries the mood — go
+sparse (one instrument) rather than none. An explicit `addDecorations()` replaces the whole
+set, **including an empty call**, which is how the showcase expresses "deliberately bare".
 
 ---
 
@@ -557,7 +579,7 @@ export const neonTheme: ThemeTokens = {
   backdrop: "grid", // this theme's DEFAULT design from the shared pool
   previewBg: "#12131a", // showcase/editor stage colour (a concrete hex)
   previewScheme: "dark", // declared, never inferred from previewBg
-  suppressDefaultDecorations: true, // set when your look doesn't want block's default shapes
+  decorationDefaults, // what cover/closing-plate/quote wear by default (§8)
   skins: {
     // components (13)
     hud: hudCss,
@@ -733,7 +755,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | shared backdrop pool              | every design paints under your theme (a design that reads a theme-specific token fails here)              |
 | default backdrop                  | your `backdrop` names a registered design                                                                 |
 | decoration ownership              | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's** |
-| `suppressDefaultDecorations` gate | the flag actually suppresses (or doesn't)                                                                 |
+| theme decoration defaults         | every hero frame (cover/closing-plate/quote) is dressed, from **your own** roster, and renders          |
 | ground resolution                 | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`  |
 | caption alignment parity          | your caption doesn't drift from the reference                                                             |
 | font coverage                     | you named a family with no `@font-face` in the staged set                                                 |
