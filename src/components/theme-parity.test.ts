@@ -150,22 +150,28 @@ describe("every treatment builds a clean scene under every theme", () => {
 
 // ------------------------------------------------------------- headline accent ---
 // The cover/closing key word (docs/THEME-AUTHORING.md §3). The runtime splits the final word of
-// a `data-accent` headline into `<span class="accent">`; the EMPHASIS itself is the theme's, so
-// a theme that never styles `.accent` renders the beat flat while every other theme has it —
-// exactly the silent look-drift this file exists to catch. Generic, so a new theme is held to it
-// the moment it joins ALL_THEMES.
+// a `data-accent` headline into `<span class="headline-accent">`; the EMPHASIS itself is the theme's,
+// so a theme that never styles `.headline-accent` renders the beat flat while every other theme has
+// it — exactly the silent look-drift this file exists to catch. Generic, so a new theme is held to
+// it the moment it joins ALL_THEMES.
 describe("headline accent (tripwire)", () => {
   const ACCENTED = ["cover", "closing-plate"] as const;
+  // An emphasis DEVICE, not just any rule: a `.headline-accent {}` that sets margin would satisfy
+  // "has a rule" while still rendering the key word identically to the rest of the line, which is
+  // the exact drift being guarded. These four are the only devices §3 allows.
+  const DEVICE = /\b(color|font-style|font-weight|background(-clip)?)\s*:/;
 
   test.each(ALL_THEMES)("$name styles the headline accent in its frameCss", (theme) => {
-    const decls = (theme.frameCss ?? "").replace(/\/\*[\s\S]*?\*\//g, ""); // prose may name .accent
-    expect(decls).toMatch(/h3[^{}]*\.accent[^{}]*\{[^}]*\S/);
+    const decls = (theme.frameCss ?? "").replace(/\/\*[\s\S]*?\*\//g, ""); // prose may name the class
+    const rule = /h3[^{}]*\.headline-accent\b[^{}]*\{([^}]*)\}/.exec(decls);
+    expect(rule, `${theme.name}: no \`h3 .headline-accent\` rule in frame.css (docs §3)`).not.toBeNull();
+    expect(rule![1]!, `${theme.name}: \`.headline-accent\` rule states no emphasis device`).toMatch(DEVICE);
   });
 
   for (const theme of ALL_THEMES) {
     test.each(ACCENTED.map((n) => [n]))(`${theme.name}/%s emits the accent span`, (name) => {
       const html = renderScene(getTreatment(name)(), pctx(theme, `ac-${theme.name}-${name}`));
-      expect(html).toContain('<span class="accent">');
+      expect(html).toContain('<span class="headline-accent">');
       expect(html).not.toContain("data-accent");
     });
   }

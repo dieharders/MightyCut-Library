@@ -70,7 +70,7 @@
    emphasis device is TYPE CONTRAST, never hue: the key word turns italic and stays ink. This
    is what the true Playfair ITALIC face is shipped for (engine/standard-fonts.ts) — without a
    drawn italic the browser would shear the upright, which on a didone reads as a mistake. */
-.block-frame h3 .accent {
+.block-frame h3 .headline-accent {
   font-style: italic;
 }
 /* Base eyebrow — standard's quiet BROWNSTONE LABEL: no chip, no border, no fill. Just Inter 500,

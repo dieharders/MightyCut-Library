@@ -133,13 +133,13 @@ treatments actually emit) | `seconds` (page entrance only). Never hardcode secon
 Templates are flat, viewable vanilla HTML. Build-time markers (consumed by
 `runtime/dom.ts`, all stripped from the output):
 
-| Marker             | Meaning                                                                                                                                                      |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `data-slot="name"` | text injection point. Escaped. An empty/null value **removes the element** (`pruneRemoved`) — that's how optional slots (subtitle, counter, cta) self-remove |
-| `data-html="name"` | raw-HTML injection (inline SVG); used by `icon`                                                                                                              |
-| `data-anim="id"`   | animatable target. Stamped to class `.<idPrefix>-<id>`; anim descriptors address it by the bare `id`                                                         |
-| `data-accent="last-word"` | on a `data-slot` element: wraps the value's **final word** in `<span class="accent">` so a theme can emphasise it. Both halves stay escaped. Carried by `cover` and `closing-plate` — see below |
-| `data-children`    | a treatment's child region. **Exactly one** per treatment template                                                                                           |
+| Marker                    | Meaning                                                                                                                                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-slot="name"`        | text injection point. Escaped. An empty/null value **removes the element** (`pruneRemoved`) — that's how optional slots (subtitle, counter, cta) self-remove                                             |
+| `data-html="name"`        | raw-HTML injection (inline SVG); used by `icon`                                                                                                                                                          |
+| `data-anim="id"`          | animatable target. Stamped to class `.<idPrefix>-<id>`; anim descriptors address it by the bare `id`                                                                                                     |
+| `data-accent="last-word"` | on a `data-slot` element: wraps the value's **final word** in `<span class="headline-accent">` so a theme can emphasise it. Both halves stay escaped. Carried by `cover` and `closing-plate` — see below |
+| `data-children`           | a treatment's child region. **Exactly one** per treatment template                                                                                                                                       |
 
 Root class = the element's own name. A treatment's root also carries the shared page-wrapper
 class:
@@ -158,30 +158,34 @@ class:
 it as "frame"). The emitter stamps the ground background onto it, and a tripwire asserts every
 scene carries `.<compId>-root .block-frame`. Your `frame.css` styles it.
 
-### The headline accent (`.accent`) — **every theme styles this**
+### The headline accent (`.headline-accent`) — **every theme styles this**
 
 A cover or closing headline is one plain string (`headline`, `max(80)`) — the deck never carries
 markup, and slot text is escaped, so an author can't mark a word up even if they want to. Instead
 the two hero headlines carry `data-accent="last-word"`, and `fillSlots` splits the final word into
-`<span class="accent">` on the way in:
+`<span class="headline-accent">` on the way in:
 
 ```html
 <!-- treatments/cover/template.html -->
-<h3 data-slot="headline" data-anim="headline" data-accent="last-word">Headline</h3>
-<!-- "Everything's a capsule."  →  Everything's a <span class="accent">capsule.</span> -->
+<h3 data-slot="headline" data-anim="headline" data-accent="last-word">
+  Headline
+</h3>
+<!-- "Everything's a capsule."  →  Everything's a <span class="headline-accent">capsule.</span> -->
 ```
 
-**Your `frame.css` must style `.block-frame h3 .accent`.** One rule there covers cover AND
-closing together (both are `h3` under the frame), and `theme-parity.test.ts` asserts it exists.
-Use the emphasis device your theme already claims — never invent a new one:
+**Your `frame.css` must style `.block-frame h3 .headline-accent`.** One rule there covers cover AND
+closing together (both are `h3` under the frame), and `theme-parity.test.ts` asserts it exists —
+and that it states an actual emphasis device (`color`, `font-style`, `font-weight`, `background`),
+not merely that some rule matches. Use the device your theme already claims — never invent a new
+one:
 
-| Theme          | Device                       | Because                                                        |
-| -------------- | ---------------------------- | -------------------------------------------------------------- |
-| capsule        | coral italic (`--primary`)   | the theme's stated signature — the one colour inside a headline |
-| standard       | italic only, no hue          | monochrome palette; its emphasis device is type contrast        |
-| creative        | orange (`--secondary`)       | a solid uppercase slab has no italic to give                    |
-| professional   | cobalt (`--primary`)         | one accent carries every emphasis                              |
-| block · future | `--primary`                  | each theme's identity accent                                    |
+| Theme          | Device                     | Because                                                         |
+| -------------- | -------------------------- | --------------------------------------------------------------- |
+| capsule        | coral italic (`--primary`) | the theme's stated signature — the one colour inside a headline |
+| standard       | italic only, no hue        | monochrome palette; its emphasis device is type contrast        |
+| creative       | orange (`--secondary`)     | a solid uppercase slab has no italic to give                    |
+| professional   | cobalt (`--primary`)       | one accent carries every emphasis                               |
+| block · future | `--primary`                | each theme's identity accent                                    |
 
 Rules:
 
@@ -192,7 +196,7 @@ Rules:
   will fail, and the cover loses the beat every other theme has.
 - **A cover template override must carry `data-accent` forward**, exactly like `data-slot` and
   `data-anim` (capsule and future both do).
-- This `accent` is **text emphasis** and has nothing to do with the `accent` **param** on
+- This `headline-accent` is **text emphasis** and has nothing to do with the `accent` **param** on
   decorations/icons/stats, which names a palette role.
 
 Single-word headlines are never split (accenting the whole line isn't the effect), and trailing
@@ -728,7 +732,7 @@ export const neonTheme: ThemeTokens = {
 }
 /* THE HEADLINE ACCENT — required (§3). The runtime wraps the final word of a cover/closing
    headline in this span; pick YOUR theme's emphasis device (hue, italic, or weight). */
-.block-frame h3 .accent {
+.block-frame h3 .headline-accent {
   color: var(--primary);
 }
 ```
@@ -825,7 +829,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                       |
 | skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                              |
 | anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                               |
-| headline accent           | a missing `.accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                            |
+| headline accent           | a missing (or device-less) `.headline-accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat  |
 | per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                           |
 | shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                |
 | default backdrop          | your `backdrop` names a registered design                                                                                   |

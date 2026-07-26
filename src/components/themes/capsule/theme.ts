@@ -48,7 +48,7 @@ import coverTemplate from "./templates/cover.html" with { type: "text" };
 // The SINGLE source of truth for capsule's colours: it drives the showcase Palette section AND
 // generates the `:root` custom properties below. Colour lives on stat figures, bar
 // fills, icon discs and pill fills. A headline is Ink with ONE exception: the coral italic
-// key word the runtime wraps as `.accent` (see frame.css) — capsule's stated signature.
+// key word the runtime wraps as `.headline-accent` (see frame.css) — capsule's stated signature.
 const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Coral", hex: "#E85D4E", note: "leading accent", varName: "primary" },
   { name: "Sky", hex: "#8BB4F7", note: "quiet accent", varName: "secondary" },

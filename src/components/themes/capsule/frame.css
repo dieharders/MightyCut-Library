@@ -57,11 +57,11 @@
   margin: 0;
 }
 /* THE HEADLINE ACCENT — the one place colour is allowed inside a headline: capsule's coral
-   italic key word, its stated signature. `.accent` is the span the runtime wraps around the
-   final word of a `data-accent="last-word"` slot (cover + closing); `em` is the same device
+   italic key word, its stated signature. `.headline-accent` is the span the runtime wraps around
+   the final word of a `data-accent="last-word"` slot (cover + closing); `em` is the same device
    reached from authored markup, so the design mockups keep rendering identically. */
 .block-frame h3 em,
-.block-frame h3 .accent {
+.block-frame h3 .headline-accent {
   font-style: italic;
   color: var(--primary);
 }

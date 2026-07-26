@@ -62,6 +62,6 @@
    `data-accent="last-word"` slot (cover + closing). Block's identity pair is pink against ink,
    so the key word takes the pink; the 900 uppercase slab leaves no room for a type-contrast
    device. */
-.block-frame h3 .accent {
+.block-frame h3 .headline-accent {
   color: var(--primary);
 }

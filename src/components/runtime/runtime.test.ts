@@ -306,7 +306,7 @@ describe("ground override accepts every palette role", () => {
 // ------------------------------------------------------- headline accent (data-accent) ---
 // The cover/closing key word. A deck's headline is ONE plain escaped string, so the emphasis
 // every theme's design calls for cannot come from author markup — `fillSlots` splits the final
-// word into a fixed `<span class="accent">` that the theme styles in frame.css. The escaping
+// word into a fixed `<span class="headline-accent">` that the theme styles in frame.css. The escaping
 // guarantee is the thing to keep honest here: this is a typographic split, NOT a raw-HTML slot.
 describe("headline accent (data-accent=\"last-word\")", () => {
   const h3 = (text: string): string => {
@@ -317,7 +317,15 @@ describe("headline accent (data-accent=\"last-word\")", () => {
 
   test("wraps the final word, leaving the head as plain text", () => {
     expect(h3("Everything's a capsule.")).toBe(
-      '<h3>Everything\'s a <span class="accent">capsule.</span></h3>',
+      '<h3>Everything\'s a <span class="headline-accent">capsule.</span></h3>',
+    );
+  });
+
+  test("surrounding whitespace does not defeat the split", () => {
+    // The match is anchored to the end of the value, so untrimmed copy (which is most of what
+    // a generated deck carries) would otherwise fall back to plain text and lose the accent.
+    expect(h3("  Everything's a capsule.  ")).toBe(
+      '<h3>Everything\'s a <span class="headline-accent">capsule.</span></h3>',
     );
   });
 
@@ -327,7 +335,7 @@ describe("headline accent (data-accent=\"last-word\")", () => {
 
   test("both halves stay escaped — the span is the only markup that can reach the output", () => {
     expect(h3("A <b>bold</b> & <em>italic</em>")).toBe(
-      '<h3>A &lt;b&gt;bold&lt;/b&gt; &amp; <span class="accent">&lt;em&gt;italic&lt;/em&gt;</span></h3>',
+      '<h3>A &lt;b&gt;bold&lt;/b&gt; &amp; <span class="headline-accent">&lt;em&gt;italic&lt;/em&gt;</span></h3>',
     );
   });
 
@@ -357,5 +365,16 @@ describe("headline accent (data-accent=\"last-word\")", () => {
     const el = rootElement('<h3 data-slot="headline" data-accent="first-word">x</h3>');
     fillSlots(el, { headline: "Loud, bordered, creative." });
     expect(serialize(el)).toBe("<h3>Loud, bordered, creative.</h3>");
+  });
+
+  test("an Object.prototype key is not a mode — the split table is prototype-free", () => {
+    // A plain-object table resolves these to real functions: `toString` returns
+    // "[object Object]", which is truthy and indexes like a tuple, so the headline would
+    // render as `[` + a `<span>o</span>`; `constructor` returns an object and throws in esc().
+    for (const key of ["toString", "valueOf", "constructor", "hasOwnProperty"]) {
+      const el = rootElement(`<h3 data-slot="headline" data-accent="${key}">x</h3>`);
+      fillSlots(el, { headline: "Loud, bordered, creative." });
+      expect(serialize(el), `data-accent="${key}"`).toBe("<h3>Loud, bordered, creative.</h3>");
+    }
   });
 });

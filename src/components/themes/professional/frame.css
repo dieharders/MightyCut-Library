@@ -58,7 +58,7 @@
 /* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
    `data-accent="last-word"` slot (cover + closing). Professional's every accent role is the one
    cobalt, so the key word takes it: emphasis stays the single colour the whole theme carries. */
-.block-frame h3 .accent {
+.block-frame h3 .headline-accent {
   color: var(--primary);
 }
 /* Base eyebrow — professional's quiet cobalt pill: a faint (single-digit-percent) cobalt tint

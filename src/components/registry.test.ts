@@ -63,10 +63,10 @@ const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { 
 
 /** Undo the headline accent split so a contains-check can see the ORIGINAL string. A
  *  `data-accent` slot (cover + closing headlines, docs §3) renders its final word inside
- *  `<span class="accent">`, so the value is no longer one contiguous run of text — the
+ *  `<span class="headline-accent">`, so the value is no longer one contiguous run of text — the
  *  assertions below care that it RENDERED, not that it stayed unwrapped. `theme-parity.test.ts`
  *  → "headline accent" is what holds the split itself. */
-const unaccent = (html: string): string => html.replace(/<span class="accent">([^<]*)<\/span>/g, "$1");
+const unaccent = (html: string): string => html.replace(/<span class="headline-accent">([^<]*)<\/span>/g, "$1");
 
 describe("registry vocabulary (tripwire)", () => {
   test("component registry == COMPONENT_NAMES, both directions", () => {
@@ -559,7 +559,7 @@ describe("future theme (tripwire)", () => {
     if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
     // shared markers preserved → headline still renders (accent-split, hence unaccent)
     expect(unaccent(html)).toContain(ex.headline);
-    expect(html).toContain('<span class="accent">'); // the override carries data-accent forward
+    expect(html).toContain('<span class="headline-accent">'); // the override carries data-accent forward
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
   });
 
@@ -678,7 +678,7 @@ describe("capsule theme (tripwire)", () => {
     // Additive only: every shared data-slot survives the override, so no editor control no-ops.
     if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
     expect(unaccent(html)).toContain(ex.headline);
-    expect(html).toContain('<span class="accent">'); // the override carries data-accent forward
+    expect(html).toContain('<span class="headline-accent">'); // the override carries data-accent forward
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
   });
 

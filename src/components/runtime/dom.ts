@@ -53,27 +53,45 @@ const LAST_WORD = /^([\s\S]*\S\s+)(\S+)$/;
  * `data-accent` modes: each maps a raw slot value to [plain head, accented tail], or
  * null when that value has no valid split for the mode (the slot then fills as plain
  * text). Add a mode here — the fill path and `ANNOTATION_ATTRS` need no changes.
+ *
+ * A Map, not an object literal: the mode is read off a template attribute, and plain
+ * property lookup reaches Object.prototype — `data-accent="toString"` would resolve to
+ * a real function, return "[object Object]", and get indexed as a [head, tail] tuple,
+ * silently rendering a garbage headline instead of falling back to plain text.
  */
-const ACCENT_SPLITS: Record<string, (raw: string) => [string, string] | null> = {
-  "last-word": (raw) => {
-    const m = LAST_WORD.exec(raw);
-    return m ? [m[1]!, m[2]!] : null;
-  },
-};
+const ACCENT_SPLITS = new Map<string, (raw: string) => [string, string] | null>([
+  [
+    "last-word",
+    (raw) => {
+      // Trim first — the `$` anchor means one trailing space (which generated and pasted
+      // deck copy carries all the time) would otherwise fail the match and drop the accent
+      // with no visible sign that anything went wrong.
+      const m = LAST_WORD.exec(raw.trim());
+      return m ? [m[1]!, m[2]!] : null;
+    },
+  ],
+]);
+
+/** The class wrapped around an accented tail. Named for the thing rather than a theme: it is a
+ *  shared page-level class every theme styles from `frame.css` (like `block-frame`, whose prefix
+ *  is only historical), and a bare `.accent` would silently capture any component that ever
+ *  styles its own — `accent` is already the name of the palette-role param on stats, icons and
+ *  decorations. */
+export const ACCENT_CLASS = "headline-accent";
 
 /**
  * Build the children for an accented slot value: a plain text node followed by a
- * `<span class="accent">` around the accented tail. Returns null when the slot declares
+ * `<span class="headline-accent">` around the accented tail. Returns null when the slot declares
  * no (or an unknown) accent mode, or the value has no valid split — callers fall back
  * to plain text. Both halves are escaped independently and the span is a FIXED literal
  * — a typographic split, never a raw-HTML escape hatch (that is `fillRaw`/`data-html`).
  */
 export const accentChildren = (raw: string, mode: string | undefined): DomNode[] | null => {
-  const split = mode ? ACCENT_SPLITS[mode]?.(raw) ?? null : null;
+  const split = mode ? ACCENT_SPLITS.get(mode)?.(raw) ?? null : null;
   if (!split) return null;
   return [
     { type: "text", text: esc(split[0]) },
-    { type: "element", tag: "span", attrs: { class: "accent" }, children: [{ type: "text", text: esc(split[1]) }] },
+    { type: "element", tag: "span", attrs: { class: ACCENT_CLASS }, children: [{ type: "text", text: esc(split[1]) }] },
   ];
 };
 
@@ -83,7 +101,7 @@ export const accentChildren = (raw: string, mode: string | undefined): DomNode[]
  * Non-null values are HTML-escaped, set as text, and the data-slot attr dropped.
  *
  * `data-accent="X"` on the slot additionally splits the value per `accentChildren`
- * (e.g. `last-word` wraps the final word in `<span class="accent">` so a theme can
+ * (e.g. `last-word` wraps the final word in `<span class="headline-accent">` so a theme can
  * emphasise it — cover + closing headlines).
  */
 export const fillSlots = (root: ElementNode, fills: Record<string, string | null | undefined>): void => {
