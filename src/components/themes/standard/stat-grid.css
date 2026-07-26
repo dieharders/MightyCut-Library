@@ -39,6 +39,15 @@
   gap: 2.875rem;
   border-top: 0.125rem solid var(--accent-3);
   padding-top: 2.875rem;
+  /* The rule's padding is SYMMETRIC here, and the bottom half is load-bearing rather than
+     decorative. Standard's cell is bare (stat.css: no fill, border or padding), so it is not a
+     box of its own — the label's nearest bounding box is this row, which stays put while the
+     cell rises into place from 26px below on its entrance. Without the bottom padding the label's
+     line box sits flush with the row's bottom edge and the whole reveal happens OUTSIDE it (the
+     layout audit catches it mid-tween: `div.stat-label ... overflowed bottom`). Every other theme
+     is immune for free because its .stat is a painted, padded cell that travels with the label.
+     Keep this ≥ the entrance distance; the row has room to spare in the body's centred column. */
+  padding-bottom: 2.875rem;
 }
 /* The other half of layout()'s density pair — --dense, the boolean hook at 4+ stats — is
    deliberately UNUSED here, as in block, capsule, professional and creative: standard answers
