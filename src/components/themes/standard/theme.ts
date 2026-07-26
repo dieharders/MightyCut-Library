@@ -440,9 +440,8 @@ export const standardTheme: ThemeTokens = {
     timeline: timelineCss,
   },
   // No template overrides: standard reaches its whole look in CSS alone. The reference's compass
-  // rings are decoration COMPONENTS here, not markup; its Playfair quote mark is a pseudo-element;
-  // and its stat has no corner dot, so the shared node is styled away rather than removed (nothing
-  // animates it).
+  // rings and its oversized quotation mark are decoration COMPONENTS here, not markup; and its stat
+  // has no corner dot, so the shared node is styled away rather than removed (nothing animates it).
   palette,
   typography,
   rules,

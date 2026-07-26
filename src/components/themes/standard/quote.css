@@ -1,20 +1,17 @@
-/* 5 · Quote — standard's centred statement: an oversized Playfair Display quotation mark in the
-   Line brownstone, a large ink Playfair sentence set to a wide measure, and a small brownstone uppercase
-   attribution, all on the sandstone canvas the emitter stamps. There is no card, no rule and no
-   fill on this frame — the statement floats in the middle of an otherwise empty stone plate, which
-   is the treatment doing the theme's "let the frame breathe" rule at full strength.
+/* 5 · Quote — standard's centred statement: a large ink Playfair sentence set to a wide measure and
+   a small brownstone uppercase attribution, on the sandstone canvas the emitter stamps. There is no
+   card, no rule and no fill on this frame — the statement floats in the middle of an otherwise empty
+   stone plate, which is the treatment doing the theme's "let the frame breathe" rule at full strength.
 
-   TWO DEPARTURES FROM THE SOURCE, both deliberate. (a) The quote mark is drawn as a
-   `.qcard::before` pseudo-element rather than a node: the shared quote template has no .qm div, and
-   standard reaches its whole look in CSS alone (no template overrides — see theme.ts). Everything
-   the source's .qm carried, including the line-height 0.5 crush and the clamped box that keeps the
-   glyph from opening a hole above the statement, moves onto the pseudo-element unchanged. (b) The
-   faint centred ring the showcase floats behind this frame is NOT reproduced here. It is a real
-   decoration COMPONENT in standard's compass family, opt-in per scene via addDecorations(), and a
-   ring baked into the skin would be a decoration the scene cannot remove — against a design rule
-   that caps standard at two geometric decorations per frame and counts them by hand. Professional
-   inlines its rings because it has no compass family to reach for; standard has one.
-   Ported from the showcase .bf-quote (cqw × 1.2, cqh × 0.675). */
+   TWO DEPARTURES FROM THE SOURCE, both deliberate, and both the same call: the skin draws no marks
+   of its own. (a) The oversized quotation mark is NOT inlined here. It is a real decoration
+   COMPONENT — the `sorts` family's quotation variant, standard's own default for this treatment
+   (see theme.ts) — so a scene can move it, resize it or drop it entirely. A glyph baked into the
+   skin would be a mark the scene cannot remove, and it would burn one of the two geometric
+   decorations this theme allows per frame without being counted. (b) The faint centred ring the
+   showcase floats behind this frame is left out for the same reason; standard's compass family
+   covers it. Professional inlines its quote mark because it has no sorts family to reach for;
+   standard has one. Ported from the showcase .bf-quote (cqw × 1.2, cqh × 0.675). */
 .quote > .body {
   justify-content: center;
   align-items: center;
@@ -31,20 +28,6 @@
 }
 .quote .qcard {
   max-width: 86.375rem;
-}
-/* The quotation mark. Playfair's own “ at display scale in the Line brownstone — the hairline colour,
-   not the accent brownstone, so the mark reads as drawn punctuation rather than as a second label. The
-   line-height 0.5 pulls the glyph's line box to half the em so the mark hangs close over the first
-   line, and the explicit height reserves the source's box (5cqw) rather than the crushed line box,
-   which is what keeps the spacing to .qt stable across quote lengths. */
-.quote .qcard::before {
-  content: "\201C";
-  display: block;
-  font-family: var(--disp);
-  font-size: 10.75rem;
-  line-height: 0.5;
-  height: 6rem;
-  color: var(--accent-3);
 }
 /* The statement: Playfair at 400, the one place standard keeps the reference's light weight. A
    pull quote is set larger than any headline but the cover, so the didone's thin strokes have the
