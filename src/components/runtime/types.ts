@@ -3,7 +3,7 @@ import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
 import type { PaletteVar } from "../../types/palette";
-import type { FrameGround } from "../../types/storyboard";
+import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
 import type { AnimDescriptor } from "./anim";
 
@@ -47,6 +47,11 @@ export type TypeSpec = {
 
 /** The theme's Do / Don't authoring rules (verbatim from its design showcase). */
 export type ThemeRules = { do: string[]; dont: string[] };
+
+/** One decoration declared as DATA rather than as a built instance — a registered
+ *  component name plus the params its schema parses. The serializable half of
+ *  `ThemeTokens.decorationDefaults`; the same shape the editor stores per scene. */
+export type DecorationSpec = { name: string; params?: Record<string, unknown> };
 
 /** Palette/font tokens for a theme — replaces a theme's frame.css `:root` block,
  *  plus the showcase-facing design data (palette/typography/rules/flares) the
@@ -132,12 +137,27 @@ export type ThemeTokens = {
    *  `ComponentFactory.decoration`) is held out of the Components grid globally, so
    *  another theme's decorations never appear under this one. */
   decorations?: string[];
-  /** When true, a treatment's `defaultDecorations` are suppressed (no auto-injected
-   *  cover star / closing slab). A theme whose look owns the backdrop instead of
-   *  per-frame decorations (e.g. future's constellation) sets this so block's default
-   *  shapes don't render off-theme or shift the reveal cascade. A caller's explicit
-   *  `addDecorations()` is unaffected. */
-  suppressDefaultDecorations?: boolean;
+  /** This theme's DEFAULT decorations, keyed by TREATMENT name — the shapes a frame
+   *  wears when the caller adds none (block's cover star + tilt-rect, and each other
+   *  theme's own equivalent). Lives on the THEME, not the treatment def, because
+   *  decoration families are theme-exclusive: only this theme can name shapes from its
+   *  own `decorations` roster, so nothing off-theme can leak into another look.
+   *
+   *  Serializable SPECS rather than built instances, deliberately: the same declaration
+   *  drives the render AND seeds the showcase's editable decoration rows, so what a user
+   *  sees listed is exactly what a video renders. A caller's explicit `addDecorations()`
+   *  replaces these entirely — including an EMPTY list, which means "deliberately bare".
+   *
+   *  Each decoration consumes a reveal cascade slot (see treatment.ts), so the size of a
+   *  set is how late that frame's headline lands — 1–2 is the norm, 4 the most any theme
+   *  spends (capsule's cover).
+   *
+   *  Keyed by `FrameTreatment`, NOT by `string`: a mistyped frame name would otherwise sit
+   *  there rendering nothing at all (the lookup in treatment.ts simply misses), and only the
+   *  three hero frames are swept by a tripwire — so the key is checked by the compiler
+   *  instead. The VALUES stay loose: params are parsed by the named component's own Zod
+   *  schema at build time, so a bad param is a loud render error, not a silent no-op. */
+  decorationDefaults?: Partial<Record<FrameTreatment, DecorationSpec[]>>;
 };
 
 export type BuildContext = {

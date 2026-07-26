@@ -289,6 +289,122 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Capsule's hero-frame decorations — soft ink-outlined candy shapes drifting in the cream
+// margins, tilted a few degrees so nothing sits square. Coral (primary) leads; sky
+// (secondary), mint (accent-2), lavender (accent-3) and yellow (accent-1) answer. Every
+// decoration takes a reveal cascade slot, so the closer and the quote stay at two; the
+// cover spends FOUR — it is the one frame with margin on all four sides, and its headline
+// can afford the later beat.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // Four shapes ringing the headline block, one to a margin: a coral bean lower-right, a
+  // sky pill top-right, a steeply tilted mint pill top-left, a lavender pebble lower-left.
+  cover: [
+    {
+      name: "blob",
+      params: {
+        variant: "bean",
+        x: 85,
+        y: 80,
+        size: 17,
+        rotate: -8,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "lozenge",
+      params: {
+        variant: "pill",
+        x: 85,
+        y: 13,
+        size: 11,
+        rotate: 13,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
+    {
+      name: "lozenge",
+      params: {
+        variant: "pill",
+        x: 2,
+        y: 21,
+        size: 11,
+        rotate: -38,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
+    {
+      name: "blob",
+      params: {
+        variant: "pebble",
+        x: 14,
+        y: 64,
+        size: 17,
+        rotate: -8,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
+  ],
+  // A wide yellow dome rising off the bottom edge behind the sign-off card, with one sky
+  // squiggle riding in FRONT of it on the same centre line — the theme's only front-layer
+  // default, and the reason the dome reads as a horizon rather than as a second card.
+  "closing-plate": [
+    {
+      name: "arch",
+      params: {
+        variant: "dome",
+        x: 50,
+        y: 92,
+        size: 44,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "confetti",
+      params: {
+        variant: "squiggle",
+        x: 50,
+        y: 85,
+        size: 15,
+        rotate: -9,
+        accent: "secondary",
+        layer: "front",
+      },
+    },
+  ],
+  // The quote card is centred: a mint pebble low-left, a coral spark high-right.
+  quote: [
+    {
+      name: "blob",
+      params: {
+        variant: "pebble",
+        x: 13,
+        y: 81,
+        size: 16,
+        rotate: 10,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
+    {
+      name: "confetti",
+      params: {
+        variant: "spark",
+        x: 87,
+        y: 23,
+        size: 11,
+        rotate: -12,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+  ],
+};
+
 export const capsuleTheme: ThemeTokens = {
   name: "capsule",
   title: "Capsule",
@@ -316,11 +432,6 @@ export const capsuleTheme: ThemeTokens = {
   // …and capsule is a LIGHT theme, stated outright: the preview shadow's color-scheme and its
   // safety-net text colour follow this, not the mere presence of previewBg above.
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are block's own (cover's star, closing's slab) — those
-  // hard-shadowed neobrutalist shapes are off-theme here, so suppress them rather than let them
-  // auto-render or shift the reveal cascade. Capsule's own families (see `decorations` below)
-  // are opt-in per scene via addDecorations(); the always-on atmosphere is the gradient wash.
-  suppressDefaultDecorations: true,
   // Capsule's skins for every shared element it renders. The element trios carry no css; these
   // are the capsule look. Unskinned elements (another theme's decorations) fall back to their
   // own inline css, which is acceptable — capsule never renders them in a deck.
@@ -382,4 +493,6 @@ export const capsuleTheme: ThemeTokens = {
   // block's and future's shapes never appear under capsule. Opt-in per scene via
   // addDecorations() / the editor's decoration picker.
   decorations: [...CAPSULE_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

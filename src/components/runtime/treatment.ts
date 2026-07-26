@@ -14,11 +14,12 @@
 import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
 import { buildBackdrop } from "../primitives/backdrops";
-import type { FrameGround } from "../../types/storyboard";
+import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/transitions";
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
 import { collectCss, scopeCss } from "./css";
 import { scrubDeterminism } from "./determinism";
+import { getComponent } from "./registry";
 import { DEFAULT_ENTRANCE, sceneEntranceJs } from "./transitions";
 import {
   childrenContainer,
@@ -57,9 +58,6 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   childComponent?: string;
   /** Children used when the caller adds none (default deck build + showcase). */
   defaultChildren: (p: z.infer<S>) => ComponentInstance[];
-  /** Decoration components rendered when the caller adds none (e.g. cover's star
-   *  + tilt-rect). A caller's addDecorations() overrides these entirely. */
-  defaultDecorations?: (p: z.infer<S>) => ComponentInstance[];
   /** Own slot fills (headline, caption, …). */
   fill?: (p: z.infer<S>) => Record<string, string | null | undefined>;
   /** Responsive layout: CSS custom properties from the child count. */
@@ -153,10 +151,17 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // The per-slot delay is resolved at runtime (MC.applyAnims) from the slide's caption
         // count — NOT from VO-line keying — so the cascade is identical in the showcase, the
         // preview, and the render, and never collapses onto a single narration line.
-        // A theme may suppress a treatment's default decorations (e.g. future owns its
-        // look via the backdrop, not per-frame shapes). An explicit addDecorations() wins.
-        const defaultDecos =
-          def.defaultDecorations && !ctx.theme.suppressDefaultDecorations ? def.defaultDecorations(p) : [];
+        // Defaults are THEME-owned (theme.decorationDefaults[treatment]) — decoration
+        // families are theme-exclusive, so only the active theme can name shapes that are
+        // on-look here. An explicit addDecorations() replaces them, including an empty
+        // list (the showcase's "delete every row" ⇒ a deliberately bare frame).
+        // `def.name` is a plain string — a treatment may be one the deck schema calls
+        // CUSTOM, outside FRAME_TREATMENTS — while the map is keyed by FrameTreatment so a
+        // theme can't misspell a frame. The widening is safe in this direction: an
+        // off-union name simply misses and the frame gets no defaults.
+        const defaultDecos = (ctx.theme.decorationDefaults?.[def.name as FrameTreatment] ?? []).map(
+          (d) => getComponent(d.name)(d.params ?? {}),
+        );
         const decorations = addedDecorations ?? defaultDecos;
         const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
         // Framing own-anims keyed to `leadIn` (an eyebrow pill, a backing card) take the title

@@ -284,6 +284,86 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Future's hero-frame decorations. The constellation backdrop already carries the theme's
+// motion, so these stay SPARSE — one or two instruments per frame, hairline strokes on the
+// navy, never competing with the particle field. Cyan (primary) draws every lit instrument;
+// glass (muted-3) is the one unlit shape, a mass rather than a mark. Every decoration takes
+// a reveal cascade slot, so a heavier set would push the headline late.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // One instrument in two parts, both centred on the BOTTOM edge so the pair is cropped to a
+  // half: a cyan ring with a bracket set turned 135° around it. It reads as a single
+  // horizon-line device under the left-set headline, not as two shapes.
+  cover: [
+    {
+      name: "node",
+      params: {
+        variant: "ring",
+        x: 50,
+        y: 100,
+        size: 25,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "reticle",
+      params: {
+        variant: "brackets",
+        x: 50,
+        y: 100,
+        size: 30,
+        rotate: 135,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+  ],
+  // A single glass triangle at the schema's maximum size, centred DIRECTLY behind the
+  // sign-off card — the one place future spends a mass instead of a hairline, so the closer
+  // has something to sit on once the constellation stops carrying the frame.
+  "closing-plate": [
+    {
+      name: "glyph",
+      params: {
+        variant: "triangle",
+        x: 50,
+        y: 50,
+        size: 60,
+        accent: "muted-3",
+        layer: "back",
+      },
+    },
+  ],
+  // The quote card is centred: a cyan beam raked up from low-left, a cyan hexagon
+  // high-right.
+  quote: [
+    {
+      name: "signal",
+      params: {
+        variant: "beam",
+        x: 13,
+        y: 78,
+        size: 16,
+        rotate: -51,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "glyph",
+      params: {
+        variant: "hexagon",
+        x: 87,
+        y: 22,
+        size: 14,
+        rotate: 12,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+  ],
+};
+
 export const futureTheme: ThemeTokens = {
   name: "future",
   title: "Future",
@@ -309,11 +389,6 @@ export const futureTheme: ThemeTokens = {
   // …and future is a DARK theme, stated outright: the preview shadow's color-scheme and
   // its safety-net text colour follow this, not the mere presence of previewBg above.
   previewScheme: "dark",
-  // The treatments' DEFAULT decorations are block's own (cover's pink star, closing's slab)
-  // — suppress them so those neobrutalist shapes never auto-render on a future frame or shift
-  // the reveal cascade. Future's own decorations (see `decorations` below) are opt-in per
-  // scene via addDecorations(); the always-on ground is the constellation backdrop.
-  suppressDefaultDecorations: true,
   // Future's skins for every shared element it renders. The element trios carry no css;
   // these are the future look. Unskinned elements (block-only decorations) fall back to
   // their own inline css, which is acceptable — future never renders them in a deck.
@@ -363,7 +438,9 @@ export const futureTheme: ThemeTokens = {
   // strokes + glow, distinct from block's neobrutalist set. Themes don't share decorations:
   // this roster lists only future's, and every decoration is held out of the Components grid
   // globally (ComponentFactory.decoration), so block's shapes never appear under future.
-  // Opt-in per scene via addDecorations() / the editor's decoration picker (the constellation
-  // backdrop remains the always-on ground; see suppressDefaultDecorations above).
+  // Offered per scene via addDecorations() / the editor's decoration picker (the constellation
+  // backdrop remains the always-on ground, which is why the defaults below stay sparse).
   decorations: [...FUTURE_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

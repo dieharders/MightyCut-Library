@@ -21,14 +21,14 @@ composed of **components** (leaf pieces: `stat`, `card`, `step`, …). Each is a
 "trio" folder — `template.html` + `schema.ts` + `anim.ts` + `index.ts` — and is **shared by
 every theme**. A theme supplies the CSS those class names resolve against.
 
-| Shared — never per-theme                                                                                | Theme-owned                                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `template.html` markup + markers, `schema.ts` params, `anim.ts` motion (`primitives/*`, `treatments/*`) | one skin CSS per element (`themes/<t>/<element>.css`, wired through `skins`)                                                                           |
-| the 10 palette **roles** (`src/types/palette.ts`)                                                       | which colour fills each role (`palette`)                                                                                                               |
-| the 10 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                                   |
-| the transition catalog (`src/types/transitions.ts`, `runtime/transitions.ts`)                           | which backdrop design is the default (`backdrop`) + the ink hooks that restyle every design                                                            |
-| the backdrop design **pool** (`primitives/backdrops.ts`) — any theme may use any design                 | its **own four decoration families** + shape engine (no other theme may roster them)                                                                   |
-| the decoration _placement_ schema (`primitives/decoration-placement.ts`)                                | structure overrides (`templates/*.html`), showcase copy (`examples`, `typography`, `rules`), `previewBg`/`previewScheme`, `suppressDefaultDecorations` |
+| Shared — never per-theme                                                                                | Theme-owned                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `template.html` markup + markers, `schema.ts` params, `anim.ts` motion (`primitives/*`, `treatments/*`) | one skin CSS per element (`themes/<t>/<element>.css`, wired through `skins`)                                                                   |
+| the 10 palette **roles** (`src/types/palette.ts`)                                                       | which colour fills each role (`palette`)                                                                                                       |
+| the 10 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                           |
+| the transition catalog (`src/types/transitions.ts`, `runtime/transitions.ts`)                           | which backdrop design is the default (`backdrop`) + the ink hooks that restyle every design                                                    |
+| the backdrop design **pool** (`primitives/backdrops.ts`) — any theme may use any design                 | its **own four decoration families** + shape engine (no other theme may roster them)                                                           |
+| the decoration _placement_ schema (`primitives/decoration-placement.ts`)                                | structure overrides (`templates/*.html`), showcase copy (`examples`, `typography`, `rules`), `previewBg`/`previewScheme`, `decorationDefaults` |
 
 ### Non-negotiable rules
 
@@ -288,8 +288,8 @@ skin re-types itself under a different theme:
 
 ```ts
 const fontTokens: Record<string, string> = {
-  disp: '"Bodoni Moda", serif',      // display / headlines
-  body: '"Inter", sans-serif',       // paragraphs
+  disp: '"Bodoni Moda", serif', // display / headlines
+  body: '"Inter", sans-serif', // paragraphs
   mono: '"JetBrains Mono", monospace', // labels, eyebrows, counters
 };
 ```
@@ -315,7 +315,7 @@ Name as many roles as your design needs; three is the convention, not a limit.
    and the showcase silently render it in a fallback while the MP4 is correct. Extend
    `gen-inline-fonts.mjs` to also inline your `<theme>-fonts.css`, and inject it from your
    `register-<theme>.ts`.
-5. **Expect a red test.** `theme-parity.test.ts` → *"font coverage"* asserts every family your
+5. **Expect a red test.** `theme-parity.test.ts` → _"font coverage"_ asserts every family your
    `:root` tokens name has a real `@font-face` behind it. A newly added family fails until
    step 4 is done — that failure is the point. Extend the check to cover your sheet once the
    face is genuinely injected; never widen it to silence the signal.
@@ -341,14 +341,14 @@ A **ground** is the scene's base colour (a palette role). A **backdrop** is a fu
 painted over it, behind the content. Designs live in one shared registry
 (`primitives/backdrops.ts`) and are listed in `BACKDROP_NAMES`:
 
-| Design          | Kind                                                                   | Contributed by                  |
-| --------------- | ---------------------------------------------------------------------- | ------------------------------- |
-| `plain`         | no mask (bare ground)                                                  | —                               |
-| `dots`          | static ink dot-grid                                                    | block                           |
-| `constellation` | **animated** seeded particle network                                   | future                          |
+| Design          | Kind                                                                    | Contributed by                  |
+| --------------- | ----------------------------------------------------------------------- | ------------------------------- |
+| `plain`         | no mask (bare ground)                                                   | —                               |
+| `dots`          | static ink dot-grid                                                     | block                           |
+| `constellation` | **animated** seeded particle network                                    | future                          |
 | `gradient`      | **animated** two-tone corner wash, turning a few degrees over the scene | ported from the old root chrome |
-| `grid`          | static 4rem ruled line grid                                            | ported from the old root chrome |
-| `hatch`         | static 45° stripes                                                     | ported from the old root chrome |
+| `grid`          | static 4rem ruled line grid                                             | ported from the old root chrome |
+| `hatch`         | static 45° stripes                                                      | ported from the old root chrome |
 
 **Every theme may use every design.** A theme names one as its default
 (`ThemeTokens.backdrop`) — that's its signature, not its property. A scene overrides the default per slide.
@@ -367,7 +367,9 @@ restyling is a five-line job in your `frame.css`:
   --grid-ink: var(--primary);
   --hatch-ink: var(--primary);
   --gradient-ink: var(--primary); /* gradient's leading glow */
-  --gradient-ink-2: var(--accent-2); /* …and its counter glow, opposite corner */
+  --gradient-ink-2: var(
+    --accent-2
+  ); /* …and its counter glow, opposite corner */
 }
 ```
 
@@ -448,15 +450,63 @@ with the shared roles), so the roster **is** the boundary.
 2. Four one-file folders, `primitives/<family>/index.ts`, each calling that helper with its
    default placement.
 3. Registration in `src/components/registry.ts`.
-4. `decorations: [...<THEME>_DECORATION_COMPONENTS]` on your tokens.
+4. `decorations: [...<THEME>_DECORATION_COMPONENTS]` on your tokens, plus
+   `decorationDefaults` for the hero frames (see **Defaults** below).
 
 Keep the **constant-ink** idiom: the outline/stroke weight is fixed and does NOT scale with
 `size` (a large shape keeps a crisp edge), while the shadow/glow offset does.
 
-**Defaults.** Treatments ship `defaultDecorations` (block's cover star, closing slab). If your
-look lives elsewhere — future's constellation backdrop carries the whole mood — set
-`suppressDefaultDecorations: true` so those off-theme shapes never auto-render or shift the
-reveal cascade. An explicit `addDecorations()` always wins.
+**Defaults.** Decoration defaults live on the THEME, not the treatment def — a treatment is
+shared by all six themes and can't name any theme's exclusive families. Declare
+`decorationDefaults` on your tokens, keyed by treatment name, as serializable specs. The key is
+typed `FrameTreatment`.
+
+```ts
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  cover: [
+    {
+      name: "node",
+      params: {
+        variant: "orbit",
+        x: 86,
+        y: 26,
+        size: 20,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "reticle",
+      params: {
+        variant: "brackets",
+        x: 80,
+        y: 76,
+        size: 16,
+        accent: "accent-2",
+      },
+    },
+  ],
+  "closing-plate": [
+    /* … */
+  ],
+  quote: [
+    /* … */
+  ],
+};
+```
+
+Specs rather than built instances, deliberately: the SAME declaration drives the render and
+seeds the showcase's editable decoration rows, so what a user sees listed is exactly what a
+video renders — and adding one of their own appends to yours instead of wiping them.
+
+Every theme must dress the three hero frames (`cover`, `closing-plate`, `quote`) with families
+from its own roster; a tripwire in `theme-parity.test.ts` fails otherwise, and it holds any
+FURTHER frame you dress to the same roster + render rules. Keep each set **small — 1–2 is the
+norm, 4 the most any theme spends**: every decoration consumes a reveal cascade slot, so the
+count is how late the headline lands. If your look lives elsewhere — future's constellation
+backdrop carries the mood, professional spends its cobalt on type — go
+sparse (one instrument) rather than none. An explicit `addDecorations()` replaces the whole
+set, **including an empty call**, which is how the showcase expresses "deliberately bare".
 
 ---
 
@@ -557,7 +607,7 @@ export const neonTheme: ThemeTokens = {
   backdrop: "grid", // this theme's DEFAULT design from the shared pool
   previewBg: "#12131a", // showcase/editor stage colour (a concrete hex)
   previewScheme: "dark", // declared, never inferred from previewBg
-  suppressDefaultDecorations: true, // set when your look doesn't want block's default shapes
+  decorationDefaults, // what cover/closing-plate/quote wear by default (§8)
   skins: {
     // components (13)
     hud: hudCss,
@@ -705,17 +755,17 @@ Copy the real bodies from `decoration-shapes.ts` (solid/box shapes) or
 
 ## 11. Wire it up
 
-| Step | Where                                                                                                              | What                                                                                                                                                                                                   |
-| ---- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1    | `src/components/themes/all.ts`                                                                                     | add your tokens to `ALL_THEMES` — **this alone turns on the whole generic test contract**                                                                                                              |
-| 2    | `src/engine/load-theme.ts`                                                                                         | add the name to `THEMES` + a `case` importing `./register-<name>`                                                                                                                                      |
-| 3    | `src/engine/register-<name>.ts`                                                                                    | copy `register-future.ts`: `import "../components/registry"`, `injectCoreFonts()`, return your tokens                                                                                                  |
-| 4    | `src/components/registry.ts`                                                                                       | register your four decoration families                                                                                                                                                                 |
-| 5    | `assets/fonts/` + `scripts/gen-inline-fonts.mjs` — **only if** your faces aren't installed yet                     | see §6: drop the woff2 in, ship `assets/fonts/<theme>-fonts.css`, then inline it for the browser engine. Naming already-installed families ⇒ skip this step                                            |
-| 6    | harness `src/types/storyboard.ts`                                                                                  | add the name to `FRAME_THEME_NAMES`                                                                                                                                                                    |
-| 7    | harness `src/pipeline/generate-content.ts`                                                                         | `FRAME_TO_THEME[<name>] = "<name>"` + a one-line blurb in `THEME_SELECT_SYSTEM` so the auto-selector can pick it                                                                                       |
-| 8    | WebUI `src/lib/themes.ts`                                                                                          | add label + blurb; generate the card image with `bun src/scripts/gen-theme-previews.ts` in the harness                                                                                                 |
-| 9    | consumers                                                                                                          | `pnpm build:engine` here, then bump the `packages/library` submodule pointer in the harness and the WebUI                                                                                              |
+| Step | Where                                                                                          | What                                                                                                                                                        |
+| ---- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `src/components/themes/all.ts`                                                                 | add your tokens to `ALL_THEMES` — **this alone turns on the whole generic test contract**                                                                   |
+| 2    | `src/engine/load-theme.ts`                                                                     | add the name to `THEMES` + a `case` importing `./register-<name>`                                                                                           |
+| 3    | `src/engine/register-<name>.ts`                                                                | copy `register-future.ts`: `import "../components/registry"`, `injectCoreFonts()`, return your tokens                                                       |
+| 4    | `src/components/registry.ts`                                                                   | register your four decoration families                                                                                                                      |
+| 5    | `assets/fonts/` + `scripts/gen-inline-fonts.mjs` — **only if** your faces aren't installed yet | see §6: drop the woff2 in, ship `assets/fonts/<theme>-fonts.css`, then inline it for the browser engine. Naming already-installed families ⇒ skip this step |
+| 6    | harness `src/types/storyboard.ts`                                                              | add the name to `FRAME_THEME_NAMES`                                                                                                                         |
+| 7    | harness `src/pipeline/generate-content.ts`                                                     | `FRAME_TO_THEME[<name>] = "<name>"` + a one-line blurb in `THEME_SELECT_SYSTEM` so the auto-selector can pick it                                            |
+| 8    | WebUI `src/lib/themes.ts`                                                                      | add label + blurb; generate the card image with `bun src/scripts/gen-theme-previews.ts` in the harness                                                      |
+| 9    | consumers                                                                                      | `pnpm build:engine` here, then bump the `packages/library` submodule pointer in the harness and the WebUI                                                   |
 
 ---
 
@@ -724,20 +774,20 @@ Copy the real bodies from `decoration-shapes.ts` (solid/box shapes) or
 **A ported theme needs no new test file for the shared contract.** Adding it to `ALL_THEMES`
 subjects it to every sweep in `src/components/theme-parity.test.ts`:
 
-| Sweep                             | Catches                                                                                                   |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| skin coverage                     | an element you forgot to skin (renders unstyled but still "composes")                                     |
-| skins keys ⊆ registry             | a typo'd skin key that silently styles nothing                                                            |
-| anim-target resolution            | a dead anim descriptor; a template override that drops a targeted `data-anim`                             |
-| per-theme scene smoke             | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                         |
-| shared backdrop pool              | every design paints under your theme (a design that reads a theme-specific token fails here)              |
-| default backdrop                  | your `backdrop` names a registered design                                                                 |
-| decoration ownership              | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's** |
-| `suppressDefaultDecorations` gate | the flag actually suppresses (or doesn't)                                                                 |
-| ground resolution                 | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`  |
-| caption alignment parity          | your caption doesn't drift from the reference                                                             |
-| font coverage                     | you named a family with no `@font-face` in the staged set                                                 |
-| palette completeness              | all 10 roles filled                                                                                       |
+| Sweep                     | Catches                                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                       |
+| skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                              |
+| anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                               |
+| per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                           |
+| shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                |
+| default backdrop          | your `backdrop` names a registered design                                                                                   |
+| decoration ownership      | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's**                   |
+| theme decoration defaults | every hero frame (cover/closing-plate/quote) is dressed, and **every** frame you dress uses **your own** roster and renders |
+| ground resolution         | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`                    |
+| caption alignment parity  | your caption doesn't drift from the reference                                                                               |
+| font coverage             | you named a family with no `@font-face` in the staged set                                                                   |
+| palette completeness      | all 10 roles filled                                                                                                         |
 
 Add theme-SPECIFIC cases to `src/components/registry.test.ts` — one `describe` per theme, in
 the shape of the existing `future theme (tripwire)` block: your template overrides preserve

@@ -230,19 +230,55 @@ describe("decoration ownership (tripwire)", () => {
   });
 });
 
-// -------------------------------------------------- default-decoration suppression ---
-// suppressDefaultDecorations gates a treatment's defaultDecorations (block's cover star /
-// closing slab). A theme that owns its look via the backdrop (future's constellation) sets
-// it so those neobrutalist shapes never render off-theme or shift the reveal cascade. Assert
-// the gate works for EVERY theme by its own flag — cover ships defaults, so its `__d0` marker
-// is present exactly when the theme does NOT suppress.
-describe("suppressDefaultDecorations gate (tripwire)", () => {
-  test.each(ALL_THEMES)("$name renders cover's default decorations iff it does not suppress", (theme) => {
-    const html = renderScene(getTreatment("cover")(), pctx(theme, `dd-${theme.name}`));
-    const hasDefaultDeco = html.includes("__d0-item");
-    expect(hasDefaultDeco, `${theme.name}: suppress=${!!theme.suppressDefaultDecorations} but __d0 present=${hasDefaultDeco}`).toBe(
-      !theme.suppressDefaultDecorations,
-    );
+// ------------------------------------------------------ default decorations ---
+// Decoration defaults live on the THEME (theme.decorationDefaults), keyed by treatment —
+// the only place that can name shapes from a theme's own exclusive roster. That is also
+// what replaced the old `suppressDefaultDecorations` flag: nothing off-theme can leak in,
+// so there is nothing left to suppress. Every theme must dress the three hero frames with
+// its OWN families, and an explicit (even empty) addDecorations() must still win.
+//
+// The map's KEY is `FrameTreatment` (runtime/types.ts), so a misspelled frame name is a
+// compile error rather than a set that sits there rendering nothing — which is why the
+// sweeps below police only the VALUES. They run over every DECLARED key, not just the hero
+// three, so a theme that later dresses `timeline` or `chart` is held to the same rules.
+const HERO_TREATMENTS = ["cover", "closing-plate", "quote"] as const;
+
+type DressedFrame = keyof NonNullable<ThemeTokens["decorationDefaults"]>;
+const dressedFrames = (theme: ThemeTokens): DressedFrame[] =>
+  Object.keys(theme.decorationDefaults ?? {}) as DressedFrame[];
+
+describe("theme decoration defaults (tripwire)", () => {
+  test.each(ALL_THEMES)("$name dresses every hero frame", (theme) => {
+    for (const t of HERO_TREATMENTS) {
+      const declared = theme.decorationDefaults?.[t]?.length;
+      expect(declared, `${theme.name}/${t} declares no default decorations`).toBeGreaterThan(0);
+    }
+  });
+
+  test.each(ALL_THEMES)("$name declares only families it rosters, on every frame it dresses", (theme) => {
+    const roster = new Set(theme.decorations ?? []);
+    for (const t of dressedFrames(theme)) {
+      const foreign = (theme.decorationDefaults?.[t] ?? []).map((d) => d.name).filter((n) => !roster.has(n));
+      expect(foreign, `${theme.name}/${t} uses decoration(s) it does not roster: ${foreign.join(", ")}`).toEqual([]);
+    }
+  });
+
+  test.each(ALL_THEMES)("$name renders its declared defaults on every frame it dresses", (theme) => {
+    for (const t of dressedFrames(theme)) {
+      const count = theme.decorationDefaults?.[t]?.length ?? 0;
+      const html = renderScene(getTreatment(t)(), pctx(theme, `dd-${theme.name}-${t}`));
+      for (let i = 0; i < count; i++) {
+        expect(html, `${theme.name}/${t} did not render default decoration ${i}`).toContain(`__d${i}-item`);
+      }
+      expect(html, `${theme.name}/${t} rendered MORE decorations than it declares`).not.toContain(`__d${count}-item`);
+    }
+  });
+
+  // The showcase's "delete every row" path: an explicit empty override must render bare,
+  // NOT fall back to the theme's defaults (which is what `decorations?.length` used to do).
+  test.each(ALL_THEMES)("$name: an explicit empty override renders a bare frame", (theme) => {
+    const html = renderScene(getTreatment("cover")().addDecorations(), pctx(theme, `bare-${theme.name}`));
+    expect(html, `${theme.name}: cover kept a decoration despite an empty override`).not.toContain("__d0-item");
   });
 });
 

@@ -27,8 +27,9 @@ export type SceneSpec = {
   params?: Record<string, unknown>;
   /** Override the treatment's default children with explicit component instances. */
   children?: ChildSpec[];
-  /** Override the treatment's default decorations with explicit component instances
-   *  (empty/absent ⇒ the treatment's canonical defaults). */
+  /** Override the theme's default decorations for this treatment with explicit component
+   *  instances. ABSENT ⇒ the theme's defaults; an EMPTY array ⇒ deliberately bare (the two
+   *  are NOT the same — that distinction is how the showcase/editor expresses "no decos"). */
   decorations?: ChildSpec[];
   /** Override the treatment's default animations. */
   anim?: AnimDescriptor[];
@@ -71,7 +72,9 @@ export const composeTreatment = (spec: SceneSpec): TreatmentInstance => {
         return comp;
       }),
     );
-  if (spec.decorations?.length)
+  // `?.length` would be wrong: an empty array MUST reach addDecorations() so it registers
+  // an explicit (empty) override and the frame renders bare, rather than falling back.
+  if (spec.decorations)
     inst.addDecorations(
       ...spec.decorations.map((d) => {
         const deco = composeComponent(d.name, d.params ?? {});

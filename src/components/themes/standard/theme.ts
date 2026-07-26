@@ -321,6 +321,73 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Standard's hero-frame decorations. This theme runs a `plain` backdrop, so its decorations
+// ARE the atmosphere — which is also why its own rules cap them at TWO per frame, a ceiling
+// the closer reaches and the cover and quote deliberately sit under. Brownstone (primary)
+// draws the one lit instrument; Line (accent-3), the hairline stone, carries every mark
+// meant to stay quiet on the sandstone canvas each frame grounds on. Each decoration takes a
+// reveal cascade slot.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // One brownstone dial on the right margin at the vertical centre, cropped by the edge —
+  // the cover's single instrument, opposite the left-set headline.
+  cover: [
+    {
+      name: "compass",
+      params: {
+        variant: "dial",
+        x: 95,
+        y: 50,
+        size: 40,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+  ],
+  // The same pivot twice, pinned to opposite corners (0,0 and 100,100) so each is quartered
+  // by the frame edge — one instrument read as two cropped halves on the diagonal, which is
+  // how the reference dresses a closer without adding a second shape to count.
+  "closing-plate": [
+    {
+      name: "azimuth",
+      params: {
+        variant: "pivot",
+        x: 0,
+        y: 0,
+        size: 46,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
+    {
+      name: "azimuth",
+      params: {
+        variant: "pivot",
+        x: 100,
+        y: 100,
+        size: 46,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
+  ],
+  // The oversized quotation mark, low-left of the centred statement — a real component now
+  // rather than the `.qcard::before` the skin used to bake in, so a scene can move it,
+  // resize it or drop it (see quote.css). The frame's only mark; it spends one of the two.
+  quote: [
+    {
+      name: "sorts",
+      params: {
+        variant: "quotation",
+        x: 13,
+        y: 76,
+        size: 18,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
+  ],
+};
+
 export const standardTheme: ThemeTokens = {
   name: "standard",
   title: "Standard",
@@ -349,13 +416,6 @@ export const standardTheme: ThemeTokens = {
   previewBg: palette.find((p) => p.varName === "muted-1")!.hex.toLowerCase(),
   // …and standard is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are block's own (cover's star, closing's slab) — hard-
-  // shadowed neobrutalist solids, which is the single most off-theme thing that could land on a
-  // standard frame, so suppress them rather than let them auto-render or shift the reveal cascade.
-  // Standard's own families (see `decorations` below) are opt-in per scene via addDecorations();
-  // with a `plain` backdrop they are the theme's ONLY atmosphere, which is why the design rules cap
-  // them at two per frame.
-  suppressDefaultDecorations: true,
   // Standard's skins for every shared element it renders. The element trios carry no css; these are
   // the standard look.
   skins: {
@@ -386,9 +446,8 @@ export const standardTheme: ThemeTokens = {
     timeline: timelineCss,
   },
   // No template overrides: standard reaches its whole look in CSS alone. The reference's compass
-  // rings are decoration COMPONENTS here, not markup; its Playfair quote mark is a pseudo-element;
-  // and its stat has no corner dot, so the shared node is styled away rather than removed (nothing
-  // animates it).
+  // rings and its oversized quotation mark are decoration COMPONENTS here, not markup; and its stat
+  // has no corner dot, so the shared node is styled away rather than removed (nothing animates it).
   palette,
   typography,
   rules,
@@ -404,4 +463,6 @@ export const standardTheme: ThemeTokens = {
   // and with a `plain` backdrop these are the theme's only atmosphere, which is why the rules cap
   // them at two per frame.
   decorations: [...STANDARD_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

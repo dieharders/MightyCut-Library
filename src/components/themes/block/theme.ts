@@ -274,6 +274,108 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// The shapes block's hero frames wear when a caller adds none — the pink star and blue
+// tilt-rect that have always ridden the cover, now declared HERE rather than on the shared
+// treatment def (only a theme may name its own decoration families). These are also what
+// the showcase seeds its editable decoration rows from, so what a user sees listed is
+// exactly what renders. Two per frame, three on the closer: every decoration takes a reveal
+// cascade slot, so the count is the headline's delay.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
+  cover: [
+    {
+      name: "starburst",
+      params: {
+        variant: "star",
+        x: 85,
+        y: 22,
+        size: 13,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "slab",
+      params: {
+        variant: "rectangle",
+        x: 78,
+        y: 78,
+        size: 15,
+        rotate: -6,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
+  ],
+  // A blue tilt-rect and a yellow star stacked low-left, plus a big blue disc bleeding off
+  // the top-right corner. All three sit BEHIND the statement card — the closer's own hard
+  // offset is the shape that reads in front, so nothing here competes with it.
+  "closing-plate": [
+    {
+      name: "slab",
+      params: {
+        variant: "rectangle",
+        x: 16,
+        y: 73,
+        size: 15,
+        rotate: -10,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
+    {
+      name: "starburst",
+      params: {
+        variant: "star",
+        x: 22,
+        y: 81,
+        size: 12,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "starburst",
+      params: {
+        variant: "circle",
+        x: 97,
+        y: 0,
+        size: 26,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
+  ],
+  // The quote card is centred, so both flourishes sit hard in opposite corners: a tilted
+  // yellow capsule upper-left, a cream rhombus lower-right.
+  quote: [
+    {
+      name: "badge",
+      params: {
+        variant: "capsule",
+        x: 12,
+        y: 20,
+        size: 14,
+        rotate: -21,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "slab",
+      params: {
+        variant: "rhombus",
+        x: 88,
+        y: 79,
+        size: 12,
+        rotate: 8,
+        accent: "muted-1",
+        layer: "back",
+      },
+    },
+  ],
+};
+
 export const blockTheme: ThemeTokens = {
   name: "block",
   title: "Block",
@@ -327,4 +429,6 @@ export const blockTheme: ThemeTokens = {
   examples,
   // The decoration component families block offers (starburst · slab · stripe · badge).
   decorations: [...DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };
