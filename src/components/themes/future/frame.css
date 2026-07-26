@@ -44,6 +44,12 @@
   color: var(--light);
   margin: 0;
 }
+/* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
+   `data-accent="last-word"` slot (cover + closing). Future's headline is near-white on navy, so
+   the key word takes the CYAN primary — the same signal colour its labels and rules carry. */
+.block-frame h3 .headline-accent {
+  color: var(--primary);
+}
 /* Base eyebrow — future's `label` type role (mono, uppercase, wide-tracked, cyan). The
    shared fallback so ANY eyebrow-bearing treatment reads on-theme even without its own
    eyebrow skin (block/frame.css provides the analogous chip base). Per-treatment skins

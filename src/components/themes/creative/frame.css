@@ -78,3 +78,10 @@
   color: var(--dark);
   margin: 0;
 }
+/* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
+   `data-accent="last-word"` slot (cover + closing). Creative's headline is a solid uppercase
+   slab, so italic is not available to it: the key word flips to the ORANGE instead, the same
+   hue the theme spends on every hard shadow, so the accent reads as part of the plane system. */
+.block-frame h3 .headline-accent {
+  color: var(--secondary);
+}

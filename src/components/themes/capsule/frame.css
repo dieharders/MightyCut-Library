@@ -56,10 +56,12 @@
   color: var(--dark);
   margin: 0;
 }
-/* The one accent inside a headline: a coral italic key word. Slot text is HTML-escaped, so
-   this can only come from markup a template override authors — it stays here as capsule's
-   stated signature so an override (or the showcase) gets it for free. */
-.block-frame h3 em {
+/* THE HEADLINE ACCENT — the one place colour is allowed inside a headline: capsule's coral
+   italic key word, its stated signature. `.headline-accent` is the span the runtime wraps around
+   the final word of a `data-accent="last-word"` slot (cover + closing); `em` is the same device
+   reached from authored markup, so the design mockups keep rendering identically. */
+.block-frame h3 em,
+.block-frame h3 .headline-accent {
   font-style: italic;
   color: var(--primary);
 }

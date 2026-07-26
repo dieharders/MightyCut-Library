@@ -28,23 +28,27 @@
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
    family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and
    the tracking to −0.02em, the tightest setting in the theme, because at this size the counters
-   close up and the letters want to lock into one solid block. max-width equals the body's content
-   box exactly (120rem frame − 2 × 8.375rem), i.e. the headline is allowed the full measure and is
-   held only by the padding. */
-/* SIZED TO THE LONGEST WORD, not to the reference's number. The reference sets this at 10.5cqw
-   (= 12.625rem), but its showcase headline is "Creative Mode." — two short words. Archivo Black is
-   a far wider face than block's Inter or professional's Baskerville (~0.72em average cap advance),
-   and a display line CANNOT wrap inside a word, so a single long token sets the real ceiling: at
-   12.625rem a 14-character word like "COMPONENTIZED." measures ~124rem against a 103.25rem
-   content box and runs straight off the canvas (caught by the harness layout audit, not by any
-   unit test). 9.5rem holds ~15 characters on one line with the −0.02em tracking, which covers
-   realistic generated headlines while staying hero-scale — block's Inter hero is 9rem for the same
-   reason. This is the theme's own "size it to the line" rule applied to the face we actually load. */
+   close up and the letters want to lock into one solid block. */
+/* AT THE REFERENCE SCALE: 10.5cqw of the 120rem frame = 12.625rem. The cover is the one frame that
+   is allowed to shout, and Archivo Black only locks into a solid block — counters closing up,
+   tracking pulling the letters together — once it is this large; anything smaller reads as a
+   heading rather than a plate.
+
+   The cost of the reference number is that Archivo Black is a much wider face than block's Inter or
+   professional's Baskerville (~0.72em average cap advance), and a display line cannot normally wrap
+   inside a word: at 12.625rem a 14-character token like "COMPONENTIZED." measures ~124rem against
+   the 103.25rem content box. overflow-wrap is therefore the guard — a token that cannot fit the
+   measure on its own breaks and wraps instead of running off the canvas. It only ever fires on
+   words that would otherwise bleed, so realistic multi-word headlines are untouched.
+
+   max-width equals the body's content box exactly (120rem frame − 2 × 8.375rem), i.e. the headline
+   is allowed the full measure and is held only by the padding. */
 .cover h3 {
-  font-size: 9.5rem;
+  font-size: 12.625rem;
   line-height: 0.86;
   letter-spacing: -0.02em;
   max-width: 103.25rem;
+  overflow-wrap: break-word;
   margin: 0;
 }
 .cover .sub {

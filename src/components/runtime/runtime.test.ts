@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import { serialize } from "../../pipeline/mini-dom";
 import { PALETTE_VARS } from "../../types/palette";
 import { serializeAnims, offsetAnim, qualifyAnim, toSlot, type AnimDescriptor } from "./anim";
 import { component } from "./component";
 import { scopeCss, collectCss, swapGround } from "./css";
 import { scrubDeterminism } from "./determinism";
+import { fillSlots, pruneRemoved, rootElement, stripAnnotations } from "./dom";
 import { renderScene } from "./emit";
 import { treatment } from "./treatment";
 import type { BuildContext, ThemeTokens } from "./types";
@@ -298,5 +300,81 @@ describe("ground override accepts every palette role", () => {
 
   test("a declaration-free input is returned untouched (nothing to override)", () => {
     expect(swapGround("color: red", "dark")).toBe("color: red");
+  });
+});
+
+// ------------------------------------------------------- headline accent (data-accent) ---
+// The cover/closing key word. A deck's headline is ONE plain escaped string, so the emphasis
+// every theme's design calls for cannot come from author markup — `fillSlots` splits the final
+// word into a fixed `<span class="headline-accent">` that the theme styles in frame.css. The escaping
+// guarantee is the thing to keep honest here: this is a typographic split, NOT a raw-HTML slot.
+describe("headline accent (data-accent=\"last-word\")", () => {
+  const h3 = (text: string): string => {
+    const el = rootElement('<h3 data-slot="headline" data-accent="last-word">x</h3>');
+    fillSlots(el, { headline: text });
+    return serialize(el);
+  };
+
+  test("wraps the final word, leaving the head as plain text", () => {
+    expect(h3("Everything's a capsule.")).toBe(
+      '<h3>Everything\'s a <span class="headline-accent">capsule.</span></h3>',
+    );
+  });
+
+  test("surrounding whitespace does not defeat the split", () => {
+    // The match is anchored to the end of the value, so untrimmed copy (which is most of what
+    // a generated deck carries) would otherwise fall back to plain text and lose the accent.
+    expect(h3("  Everything's a capsule.  ")).toBe(
+      '<h3>Everything\'s a <span class="headline-accent">capsule.</span></h3>',
+    );
+  });
+
+  test("a single-word headline is NOT split (accenting the whole line isn't the effect)", () => {
+    expect(h3("Systems")).toBe("<h3>Systems</h3>");
+  });
+
+  test("both halves stay escaped — the span is the only markup that can reach the output", () => {
+    expect(h3("A <b>bold</b> & <em>italic</em>")).toBe(
+      '<h3>A &lt;b&gt;bold&lt;/b&gt; &amp; <span class="headline-accent">&lt;em&gt;italic&lt;/em&gt;</span></h3>',
+    );
+  });
+
+  test("the marker never survives into the output", () => {
+    const out = h3("Stay loud.");
+    expect(out).not.toContain("data-accent");
+    expect(out).not.toContain("data-slot");
+  });
+
+  test("an empty value still self-removes, marker or not", () => {
+    const el = rootElement('<div><h3 data-slot="headline" data-accent="last-word">x</h3></div>');
+    fillSlots(el, { headline: "" });
+    pruneRemoved(el);
+    expect(serialize(el)).toBe("<div></div>");
+  });
+
+  test("a slot WITHOUT the marker is untouched, and stripAnnotations clears a stray marker", () => {
+    const el = rootElement('<h3 data-slot="headline">x</h3>');
+    fillSlots(el, { headline: "Loud, bordered, creative." });
+    expect(serialize(el)).toBe("<h3>Loud, bordered, creative.</h3>");
+    const unfilled = rootElement('<h3 data-slot="headline" data-accent="last-word">x</h3>');
+    stripAnnotations(unfilled);
+    expect(serialize(unfilled)).not.toContain("data-accent");
+  });
+
+  test("an unknown mode falls back to plain text rather than throwing", () => {
+    const el = rootElement('<h3 data-slot="headline" data-accent="first-word">x</h3>');
+    fillSlots(el, { headline: "Loud, bordered, creative." });
+    expect(serialize(el)).toBe("<h3>Loud, bordered, creative.</h3>");
+  });
+
+  test("an Object.prototype key is not a mode — the split table is prototype-free", () => {
+    // A plain-object table resolves these to real functions: `toString` returns
+    // "[object Object]", which is truthy and indexes like a tuple, so the headline would
+    // render as `[` + a `<span>o</span>`; `constructor` returns an object and throws in esc().
+    for (const key of ["toString", "valueOf", "constructor", "hasOwnProperty"]) {
+      const el = rootElement(`<h3 data-slot="headline" data-accent="${key}">x</h3>`);
+      fillSlots(el, { headline: "Loud, bordered, creative." });
+      expect(serialize(el), `data-accent="${key}"`).toBe("<h3>Loud, bordered, creative.</h3>");
+    }
   });
 });
