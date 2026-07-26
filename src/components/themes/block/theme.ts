@@ -282,26 +282,92 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
   cover: [
-    { name: "starburst", params: { variant: "star", x: 85, y: 22, size: 13, accent: "primary", layer: "back" } },
+    {
+      name: "starburst",
+      params: {
+        variant: "star",
+        x: 85,
+        y: 22,
+        size: 13,
+        accent: "primary",
+        layer: "back",
+      },
+    },
     {
       name: "slab",
-      params: { variant: "rectangle", x: 78, y: 78, size: 15, rotate: -6, accent: "secondary", layer: "back" },
+      params: {
+        variant: "rectangle",
+        x: 78,
+        y: 78,
+        size: 15,
+        rotate: -6,
+        accent: "secondary",
+        layer: "back",
+      },
     },
   ],
   // A blue tilt-rect behind (lower-left) + a yellow star popping OVER the card corner.
   "closing-plate": [
     {
       name: "slab",
-      params: { variant: "rectangle", x: 16, y: 73, size: 15, rotate: -10, accent: "secondary", layer: "back" },
+      params: {
+        variant: "rectangle",
+        x: 16,
+        y: 73,
+        size: 15,
+        rotate: -10,
+        accent: "secondary",
+        layer: "back",
+      },
     },
-    { name: "starburst", params: { variant: "star", x: 70, y: 20, size: 13, accent: "accent-1", layer: "front" } },
+    {
+      name: "starburst",
+      params: {
+        variant: "star",
+        x: 22,
+        y: 81,
+        size: 12,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "starburst",
+      params: {
+        variant: "star",
+        x: 97,
+        y: 0,
+        size: 26,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
   ],
   // The quote card is centred, so both flourishes sit hard in the opposite corners.
   quote: [
-    { name: "stripe", params: { variant: "bars", x: 12, y: 20, size: 14, rotate: -8, accent: "accent-2", layer: "back" } },
+    {
+      name: "badge",
+      params: {
+        variant: "capsule",
+        x: 12,
+        y: 20,
+        size: 14,
+        rotate: -21,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
     {
       name: "slab",
-      params: { variant: "rhombus", x: 88, y: 79, size: 12, rotate: 8, accent: "muted-1", layer: "back" },
+      params: {
+        variant: "rhombus",
+        x: 88,
+        y: 79,
+        size: 12,
+        rotate: 8,
+        accent: "muted-1",
+        layer: "back",
+      },
     },
   ],
 };

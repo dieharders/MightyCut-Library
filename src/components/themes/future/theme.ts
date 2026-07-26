@@ -292,17 +292,70 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A cyan orbit off the top-right, framed by a hairline bracket set lower-right.
   cover: [
-    { name: "node", params: { variant: "orbit", x: 86, y: 26, size: 20, accent: "primary", layer: "back" } },
-    { name: "reticle", params: { variant: "brackets", x: 80, y: 76, size: 16, accent: "accent-2", layer: "back" } },
+    {
+      name: "node",
+      params: {
+        variant: "ring",
+        x: 100,
+        y: 51,
+        size: 32,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "reticle",
+      params: {
+        variant: "brackets",
+        x: 100,
+        y: 51,
+        size: 40,
+        rotate: 20,
+        accent: "primary",
+        layer: "back",
+      },
+    },
   ],
   // One crosshair holding the upper-left quiet corner opposite the sign-off card.
   "closing-plate": [
-    { name: "reticle", params: { variant: "crosshair", x: 15, y: 26, size: 18, accent: "primary", layer: "back" } },
+    {
+      name: "glyph",
+      params: {
+        variant: "triangle",
+        x: 50,
+        y: 50,
+        size: 60,
+        accent: "muted-3",
+        layer: "back",
+      },
+    },
   ],
   // The quote card is centred: a waveform low-left, a hex glyph high-right.
   quote: [
-    { name: "signal", params: { variant: "waveform", x: 13, y: 78, size: 16, accent: "accent-2", layer: "back" } },
-    { name: "glyph", params: { variant: "hexagon", x: 87, y: 22, size: 14, rotate: 12, accent: "primary", layer: "back" } },
+    {
+      name: "signal",
+      params: {
+        variant: "beam",
+        x: 13,
+        y: 78,
+        size: 16,
+        rotate: -51,
+        accent: "primary",
+        layer: "back",
+      },
+    },
+    {
+      name: "glyph",
+      params: {
+        variant: "hexagon",
+        x: 87,
+        y: 22,
+        size: 14,
+        rotate: 12,
+        accent: "primary",
+        layer: "back",
+      },
+    },
   ],
 };
 

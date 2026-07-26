@@ -295,18 +295,45 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A cobalt halo top-right with a dot matrix settling under it, clear of the headline.
   cover: [
-    { name: "ring", params: { variant: "halo", x: 85, y: 25, size: 22, accent: "primary", layer: "back" } },
-    { name: "grille", params: { variant: "matrix", x: 80, y: 78, size: 17, accent: "accent-2", layer: "back" } },
+    {
+      name: "grille",
+      params: {
+        variant: "matrix",
+        x: 83,
+        y: 50,
+        size: 20,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
   ],
   // Corner ticks bracketing the sign-off card, with one inset keyline opposite.
   "closing-plate": [
-    { name: "corner", params: { variant: "corners", x: 50, y: 50, size: 40, accent: "primary", layer: "back" } },
-    { name: "keyline", params: { variant: "single", x: 16, y: 76, size: 24, accent: "accent-2", layer: "back" } },
+    {
+      name: "corner",
+      params: {
+        variant: "elbow",
+        x: 50,
+        y: 50,
+        size: 59,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
   ],
   // The quote card is centred: a contour ring low-left, an orange elbow high-right.
   quote: [
-    { name: "ring", params: { variant: "contour", x: 13, y: 77, size: 18, accent: "accent-2", layer: "back" } },
-    { name: "corner", params: { variant: "elbow", x: 87, y: 23, size: 16, accent: "accent-3", layer: "back" } },
+    {
+      name: "ring",
+      params: {
+        variant: "halo",
+        x: 50,
+        y: 50,
+        size: 34,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
   ],
 };
 

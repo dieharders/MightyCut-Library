@@ -296,26 +296,106 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A coral bean top-right, a sky pill tucked lower-right under the headline block.
   cover: [
-    { name: "blob", params: { variant: "bean", x: 85, y: 24, size: 17, rotate: -8, accent: "primary", layer: "back" } },
+    {
+      name: "blob",
+      params: {
+        variant: "bean",
+        x: 85,
+        y: 80,
+        size: 17,
+        rotate: -8,
+        accent: "primary",
+        layer: "back",
+      },
+    },
     {
       name: "lozenge",
-      params: { variant: "pill", x: 79, y: 77, size: 15, rotate: 8, accent: "secondary", layer: "back" },
+      params: {
+        variant: "pill",
+        x: 85,
+        y: 13,
+        size: 11,
+        rotate: 13,
+        accent: "secondary",
+        layer: "back",
+      },
+    },
+    {
+      name: "lozenge",
+      params: {
+        variant: "pill",
+        x: 2,
+        y: 21,
+        size: 11,
+        rotate: -38,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
+    {
+      name: "blob",
+      params: {
+        variant: "pebble",
+        x: 14,
+        y: 64,
+        size: 17,
+        rotate: -8,
+        accent: "accent-3",
+        layer: "back",
+      },
     },
   ],
   // A butter dome behind the sign-off card, with one squiggle popping over its corner.
   "closing-plate": [
-    { name: "arch", params: { variant: "dome", x: 17, y: 72, size: 18, accent: "accent-1", layer: "back" } },
+    {
+      name: "arch",
+      params: {
+        variant: "dome",
+        x: 50,
+        y: 92,
+        size: 44,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
     {
       name: "confetti",
-      params: { variant: "squiggle", x: 72, y: 21, size: 11, rotate: 14, accent: "secondary", layer: "front" },
+      params: {
+        variant: "squiggle",
+        x: 50,
+        y: 85,
+        size: 15,
+        rotate: -9,
+        accent: "secondary",
+        layer: "front",
+      },
     },
   ],
   // The quote card is centred: a pebble low-left, a spark high-right.
   quote: [
-    { name: "blob", params: { variant: "pebble", x: 13, y: 77, size: 15, rotate: 10, accent: "accent-2", layer: "back" } },
+    {
+      name: "blob",
+      params: {
+        variant: "pebble",
+        x: 13,
+        y: 81,
+        size: 16,
+        rotate: 10,
+        accent: "accent-2",
+        layer: "back",
+      },
+    },
     {
       name: "confetti",
-      params: { variant: "spark", x: 87, y: 23, size: 11, rotate: -12, accent: "primary", layer: "back" },
+      params: {
+        variant: "spark",
+        x: 87,
+        y: 23,
+        size: 11,
+        rotate: -12,
+        accent: "primary",
+        layer: "back",
+      },
     },
   ],
 };

@@ -124,7 +124,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // the cream/oat it replaces).
   {
     name: "Oat",
-    hex: "#D8CDAE",
+    hex: "#EFE9D9",
     note: "recessed ground + track fill",
     varName: "muted-2",
   },
@@ -371,26 +371,83 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // On the paper ground: a pink seal top-right, an orange sawtooth running lower-right.
   cover: [
-    { name: "stamp", params: { variant: "seal", x: 85, y: 24, size: 16, rotate: -8, accent: "primary", layer: "back" } },
     {
-      name: "zag",
-      params: { variant: "sawtooth", x: 78, y: 78, size: 18, rotate: 0, accent: "secondary", layer: "back" },
+      name: "stamp",
+      params: {
+        variant: "seal",
+        x: 85,
+        y: 21,
+        size: 16,
+        rotate: -8,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "stamp",
+      params: {
+        variant: "medallion",
+        x: 95,
+        y: 96,
+        size: 43,
+        rotate: -6,
+        accent: "primary",
+        layer: "back",
+      },
     },
   ],
   // On the pink ground: a paper torn edge low-left, a yellow bolt popping over the card.
   "closing-plate": [
-    { name: "cutout", params: { variant: "torn", x: 16, y: 74, size: 18, rotate: -5, accent: "muted-1", layer: "back" } },
     {
       name: "marker",
-      params: { variant: "bolt", x: 71, y: 20, size: 13, rotate: -8, accent: "accent-1", layer: "front" },
+      params: {
+        variant: "caret",
+        x: 16,
+        y: 74,
+        size: 18,
+        rotate: -5,
+        accent: "muted-1",
+        layer: "back",
+      },
+    },
+    {
+      name: "marker",
+      params: {
+        variant: "bolt",
+        x: 84,
+        y: 17,
+        size: 15,
+        rotate: -12,
+        accent: "accent-1",
+        layer: "front",
+      },
     },
   ],
   // The quote card is centred: a violet zigzag low-left, a yellow rosette high-right.
   quote: [
-    { name: "zag", params: { variant: "zigzag", x: 12, y: 78, size: 16, rotate: 0, accent: "accent-3", layer: "back" } },
+    {
+      name: "zag",
+      params: {
+        variant: "zigzag",
+        x: 20,
+        y: 88,
+        size: 24,
+        rotate: 0,
+        accent: "accent-1",
+        layer: "back",
+      },
+    },
     {
       name: "stamp",
-      params: { variant: "rosette", x: 88, y: 22, size: 14, rotate: 10, accent: "accent-1", layer: "back" },
+      params: {
+        variant: "rosette",
+        x: 88,
+        y: 22,
+        size: 14,
+        rotate: 10,
+        accent: "accent-1",
+        layer: "back",
+      },
     },
   ],
 };
