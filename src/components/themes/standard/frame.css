@@ -65,6 +65,14 @@
   color: var(--dark);
   margin: 0;
 }
+/* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
+   `data-accent="last-word"` slot (cover + closing). Standard's palette is monochrome, so its
+   emphasis device is TYPE CONTRAST, never hue: the key word turns italic and stays ink. This
+   is what the true Playfair ITALIC face is shipped for (engine/standard-fonts.ts) — without a
+   drawn italic the browser would shear the upright, which on a didone reads as a mistake. */
+.block-frame h3 .accent {
+  font-style: italic;
+}
 /* Base eyebrow — standard's quiet BROWNSTONE LABEL: no chip, no border, no fill. Just Inter 500,
    uppercase, very widely tracked, in the brownstone accent. That plainness is the theme's position on
    labels ("render labels in brownstone, uppercase, 2–3px tracked"), and it is why standard's eyebrow is

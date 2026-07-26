@@ -148,6 +148,29 @@ describe("every treatment builds a clean scene under every theme", () => {
   }
 });
 
+// ------------------------------------------------------------- headline accent ---
+// The cover/closing key word (docs/THEME-AUTHORING.md §3). The runtime splits the final word of
+// a `data-accent` headline into `<span class="accent">`; the EMPHASIS itself is the theme's, so
+// a theme that never styles `.accent` renders the beat flat while every other theme has it —
+// exactly the silent look-drift this file exists to catch. Generic, so a new theme is held to it
+// the moment it joins ALL_THEMES.
+describe("headline accent (tripwire)", () => {
+  const ACCENTED = ["cover", "closing-plate"] as const;
+
+  test.each(ALL_THEMES)("$name styles the headline accent in its frameCss", (theme) => {
+    const decls = (theme.frameCss ?? "").replace(/\/\*[\s\S]*?\*\//g, ""); // prose may name .accent
+    expect(decls).toMatch(/h3[^{}]*\.accent[^{}]*\{[^}]*\S/);
+  });
+
+  for (const theme of ALL_THEMES) {
+    test.each(ACCENTED.map((n) => [n]))(`${theme.name}/%s emits the accent span`, (name) => {
+      const html = renderScene(getTreatment(name)(), pctx(theme, `ac-${theme.name}-${name}`));
+      expect(html).toContain('<span class="accent">');
+      expect(html).not.toContain("data-accent");
+    });
+  }
+});
+
 // --------------------------------------------------------- canonical backdrop ---
 // A theme's canonical backdrop mask must actually paint on a scene (block dots / future
 // constellation). Generic: whatever ThemeTokens.backdrop the theme declares must render.

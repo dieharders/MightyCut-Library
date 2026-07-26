@@ -3,6 +3,7 @@
 // and strip build-time annotations. These mirror the frame-builder's setSlot /
 // stampComponent primitives but operate on a component's authored template.
 import {
+  type DomNode,
   type ElementNode,
   attrEq,
   find,
@@ -42,10 +43,48 @@ export const styleProps = (props: Record<string, string>): string =>
     .map(([k, v]) => `${k}: ${v}`)
     .join("; ");
 
+/** Split a headline into [head-with-trailing-space, final word]. Requires a non-space
+ *  BEFORE the whitespace, so a single-word value never matches — accenting a whole
+ *  one-word line is not the effect. Trailing punctuation rides with the last word
+ *  ("capsule." keeps its period), which is what the theme mockups draw. */
+const LAST_WORD = /^([\s\S]*\S\s+)(\S+)$/;
+
+/**
+ * `data-accent` modes: each maps a raw slot value to [plain head, accented tail], or
+ * null when that value has no valid split for the mode (the slot then fills as plain
+ * text). Add a mode here — the fill path and `ANNOTATION_ATTRS` need no changes.
+ */
+const ACCENT_SPLITS: Record<string, (raw: string) => [string, string] | null> = {
+  "last-word": (raw) => {
+    const m = LAST_WORD.exec(raw);
+    return m ? [m[1]!, m[2]!] : null;
+  },
+};
+
+/**
+ * Build the children for an accented slot value: a plain text node followed by a
+ * `<span class="accent">` around the accented tail. Returns null when the slot declares
+ * no (or an unknown) accent mode, or the value has no valid split — callers fall back
+ * to plain text. Both halves are escaped independently and the span is a FIXED literal
+ * — a typographic split, never a raw-HTML escape hatch (that is `fillRaw`/`data-html`).
+ */
+export const accentChildren = (raw: string, mode: string | undefined): DomNode[] | null => {
+  const split = mode ? ACCENT_SPLITS[mode]?.(raw) ?? null : null;
+  if (!split) return null;
+  return [
+    { type: "text", text: esc(split[0]) },
+    { type: "element", tag: "span", attrs: { class: "accent" }, children: [{ type: "text", text: esc(split[1]) }] },
+  ];
+};
+
 /**
  * Fill every data-slot element from a slot→text map. A null/empty value marks the
  * element for removal (optional slots self-remove — subtitle, counter, cta, …).
  * Non-null values are HTML-escaped, set as text, and the data-slot attr dropped.
+ *
+ * `data-accent="X"` on the slot additionally splits the value per `accentChildren`
+ * (e.g. `last-word` wraps the final word in `<span class="accent">` so a theme can
+ * emphasise it — cover + closing headlines).
  */
 export const fillSlots = (root: ElementNode, fills: Record<string, string | null | undefined>): void => {
   for (const [slot, value] of Object.entries(fills)) {
@@ -55,8 +94,12 @@ export const fillSlots = (root: ElementNode, fills: Record<string, string | null
       el.attrs["data-remove"] = "";
       continue;
     }
-    setText(el, esc(String(value)));
+    const raw = String(value);
+    const accented = accentChildren(raw, el.attrs["data-accent"]);
+    if (accented) el.children = accented;
+    else setText(el, esc(raw));
     delete el.attrs["data-slot"];
+    delete el.attrs["data-accent"];
   }
 };
 
@@ -102,7 +145,7 @@ export const pruneRemoved = (root: ElementNode): void => {
   removeWhere(root.children, hasAttr("data-remove"));
 };
 
-const ANNOTATION_ATTRS = ["data-slot", "data-html", "data-anim", "data-children", "data-remove", "data-deco", "data-deco-dot"];
+const ANNOTATION_ATTRS = ["data-slot", "data-html", "data-anim", "data-accent", "data-children", "data-remove", "data-deco", "data-deco-dot"];
 
 /** Strip every build-time annotation from the subtree (no leftover data-* leaks). */
 export const stripAnnotations = (root: ElementNode): void => {

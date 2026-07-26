@@ -61,6 +61,13 @@ import { THEMES as ENGINE_THEMES } from "../engine/load-theme";
 
 const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
 
+/** Undo the headline accent split so a contains-check can see the ORIGINAL string. A
+ *  `data-accent` slot (cover + closing headlines, docs §3) renders its final word inside
+ *  `<span class="accent">`, so the value is no longer one contiguous run of text — the
+ *  assertions below care that it RENDERED, not that it stayed unwrapped. `theme-parity.test.ts`
+ *  → "headline accent" is what holds the split itself. */
+const unaccent = (html: string): string => html.replace(/<span class="accent">([^<]*)<\/span>/g, "$1");
+
 describe("registry vocabulary (tripwire)", () => {
   test("component registry == COMPONENT_NAMES, both directions", () => {
     expect(componentNames()).toEqual([...COMPONENT_NAMES].sort());
@@ -143,10 +150,11 @@ describe("treatment build-smoke", () => {
       // fill — a treatment whose own slot shows the template placeholder instead
       // of its content).
       const ex = factory.defaults() as Record<string, unknown>;
+      const text = unaccent(html);
       for (const [k, v] of Object.entries(ex)) {
         if (typeof v === "string" && v.length > 2) {
           const esc = v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          expect(html.includes(v) || html.includes(esc), `${factory.treatmentName}: own field '${k}' ("${v}") did not render`).toBe(true);
+          expect(text.includes(v) || text.includes(esc), `${factory.treatmentName}: own field '${k}' ("${v}") did not render`).toBe(true);
         }
       }
     });
@@ -549,7 +557,9 @@ describe("future theme (tripwire)", () => {
     expect(built.anims.some((a) => a.kind === "rule" && a.target === "f01-cover-rule")).toBe(true);
     // the eyebrow slot is PRESERVED (future used to drop it entirely) — it renders when set.
     if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
-    expect(html).toContain(ex.headline); // shared markers preserved → headline still renders
+    // shared markers preserved → headline still renders (accent-split, hence unaccent)
+    expect(unaccent(html)).toContain(ex.headline);
+    expect(html).toContain('<span class="accent">'); // the override carries data-accent forward
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
   });
 
@@ -667,7 +677,8 @@ describe("capsule theme (tripwire)", () => {
     expect(built.anims.some((a) => a.kind === "rule" && a.target === "c01-cover-rule")).toBe(true);
     // Additive only: every shared data-slot survives the override, so no editor control no-ops.
     if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
-    expect(html).toContain(ex.headline);
+    expect(unaccent(html)).toContain(ex.headline);
+    expect(html).toContain('<span class="accent">'); // the override carries data-accent forward
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
   });
 

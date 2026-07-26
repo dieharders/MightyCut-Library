@@ -138,6 +138,7 @@ Templates are flat, viewable vanilla HTML. Build-time markers (consumed by
 | `data-slot="name"` | text injection point. Escaped. An empty/null value **removes the element** (`pruneRemoved`) — that's how optional slots (subtitle, counter, cta) self-remove |
 | `data-html="name"` | raw-HTML injection (inline SVG); used by `icon`                                                                                                              |
 | `data-anim="id"`   | animatable target. Stamped to class `.<idPrefix>-<id>`; anim descriptors address it by the bare `id`                                                         |
+| `data-accent="last-word"` | on a `data-slot` element: wraps the value's **final word** in `<span class="accent">` so a theme can emphasise it. Both halves stay escaped. Carried by `cover` and `closing-plate` — see below |
 | `data-children`    | a treatment's child region. **Exactly one** per treatment template                                                                                           |
 
 Root class = the element's own name. A treatment's root also carries the shared page-wrapper
@@ -156,6 +157,46 @@ class:
 `.block-frame` is the shared page wrapper under **every** theme (the name is historical — read
 it as "frame"). The emitter stamps the ground background onto it, and a tripwire asserts every
 scene carries `.<compId>-root .block-frame`. Your `frame.css` styles it.
+
+### The headline accent (`.accent`) — **every theme styles this**
+
+A cover or closing headline is one plain string (`headline`, `max(80)`) — the deck never carries
+markup, and slot text is escaped, so an author can't mark a word up even if they want to. Instead
+the two hero headlines carry `data-accent="last-word"`, and `fillSlots` splits the final word into
+`<span class="accent">` on the way in:
+
+```html
+<!-- treatments/cover/template.html -->
+<h3 data-slot="headline" data-anim="headline" data-accent="last-word">Headline</h3>
+<!-- "Everything's a capsule."  →  Everything's a <span class="accent">capsule.</span> -->
+```
+
+**Your `frame.css` must style `.block-frame h3 .accent`.** One rule there covers cover AND
+closing together (both are `h3` under the frame), and `theme-parity.test.ts` asserts it exists.
+Use the emphasis device your theme already claims — never invent a new one:
+
+| Theme          | Device                       | Because                                                        |
+| -------------- | ---------------------------- | -------------------------------------------------------------- |
+| capsule        | coral italic (`--primary`)   | the theme's stated signature — the one colour inside a headline |
+| standard       | italic only, no hue          | monochrome palette; its emphasis device is type contrast        |
+| creative        | orange (`--secondary`)       | a solid uppercase slab has no italic to give                    |
+| professional   | cobalt (`--primary`)         | one accent carries every emphasis                              |
+| block · future | `--primary`                  | each theme's identity accent                                    |
+
+Rules:
+
+- **Colour comes from a palette role**, same as any skin — `var(--role)` / `color-mix()`, never a hex.
+- **An italic device needs a real italic face.** Standard ships a drawn Playfair italic purely for
+  this (`engine/standard-fonts.ts`); a synthesised oblique on a high-contrast serif reads as a bug.
+- **Don't skip it.** A theme with no rule renders the headline flat — legal, but the parity test
+  will fail, and the cover loses the beat every other theme has.
+- **A cover template override must carry `data-accent` forward**, exactly like `data-slot` and
+  `data-anim` (capsule and future both do).
+- This `accent` is **text emphasis** and has nothing to do with the `accent` **param** on
+  decorations/icons/stats, which names a palette role.
+
+Single-word headlines are never split (accenting the whole line isn't the effect), and trailing
+punctuation rides with the last word — `capsule.` keeps its period.
 
 ### Template overrides (`ThemeTokens.templates`)
 
@@ -685,6 +726,11 @@ export const neonTheme: ThemeTokens = {
   line-height: 1.05;
   margin: 0;
 }
+/* THE HEADLINE ACCENT — required (§3). The runtime wraps the final word of a cover/closing
+   headline in this span; pick YOUR theme's emphasis device (hue, italic, or weight). */
+.block-frame h3 .accent {
+  color: var(--primary);
+}
 ```
 
 ### `primitives/<name>-decoration-shapes.ts` (stub)
@@ -779,6 +825,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                       |
 | skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                              |
 | anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                               |
+| headline accent           | a missing `.accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                            |
 | per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                           |
 | shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                |
 | default backdrop          | your `backdrop` names a registered design                                                                                   |

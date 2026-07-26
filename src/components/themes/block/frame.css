@@ -58,3 +58,10 @@
   line-height: 0.95;
   margin: 0;
 }
+/* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
+   `data-accent="last-word"` slot (cover + closing). Block's identity pair is pink against ink,
+   so the key word takes the pink; the 900 uppercase slab leaves no room for a type-contrast
+   device. */
+.block-frame h3 .accent {
+  color: var(--primary);
+}
