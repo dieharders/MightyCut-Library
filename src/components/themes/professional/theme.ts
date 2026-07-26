@@ -288,12 +288,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Professional's hero-frame decorations — drafting marks, not ornament: cobalt hairlines
-// and dot fields held right at the cream margin, never rotated (this theme owes its
-// authority to the square). Every frame grounds on cream (groundDefault), so cobalt
-// (primary) reads throughout. Two per frame — each takes a reveal cascade slot.
+// Professional's hero-frame decorations — drafting marks, not ornament: hairlines and dot
+// fields, never rotated (this theme owes its authority to the square). ONE per frame, the
+// sparsest set of the six: cobalt is spent on type and chrome here, so the decoration draws
+// in Ice (accent-2) — a tint barely off the cream ground, present as a watermark rather than
+// as an accent. Each takes a reveal cascade slot.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
-  // A cobalt halo top-right with a dot matrix settling under it, clear of the headline.
+  // One dot matrix on the right margin at the vertical centre, clear of the left-set
+  // headline — the frame's only mark.
   cover: [
     {
       name: "grille",
@@ -307,7 +309,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // Corner ticks bracketing the sign-off card, with one inset keyline opposite.
+  // One large centred elbow behind the sign-off card — corner ticks scaled up until they
+  // bracket the whole frame rather than a region of it.
   "closing-plate": [
     {
       name: "corner",
@@ -321,7 +324,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred: a contour ring low-left, an orange elbow high-right.
+  // The concentric rings the showcase floats behind a pull quote — the `halo` variant draws
+  // the pair, centred behind the statement. This replaces the ::before/::after circles the
+  // quote skin used to bake in, so a scene can now move, resize or delete them (quote.css).
   quote: [
     {
       name: "ring",

@@ -290,11 +290,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 };
 
 // Capsule's hero-frame decorations — soft ink-outlined candy shapes drifting in the cream
-// margins, tilted a few degrees so nothing sits square. Coral (primary) leads, sky
-// (secondary) and butter (accent-1) answer. Every decoration takes a reveal cascade slot,
-// so each set stays at two.
+// margins, tilted a few degrees so nothing sits square. Coral (primary) leads; sky
+// (secondary), mint (accent-2), lavender (accent-3) and yellow (accent-1) answer. Every
+// decoration takes a reveal cascade slot, so the closer and the quote stay at two; the
+// cover spends FOUR — it is the one frame with margin on all four sides, and its headline
+// can afford the later beat.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
-  // A coral bean top-right, a sky pill tucked lower-right under the headline block.
+  // Four shapes ringing the headline block, one to a margin: a coral bean lower-right, a
+  // sky pill top-right, a steeply tilted mint pill top-left, a lavender pebble lower-left.
   cover: [
     {
       name: "blob",
@@ -345,7 +348,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // A butter dome behind the sign-off card, with one squiggle popping over its corner.
+  // A wide yellow dome rising off the bottom edge behind the sign-off card, with one sky
+  // squiggle riding in FRONT of it on the same centre line — the theme's only front-layer
+  // default, and the reason the dome reads as a horizon rather than as a second card.
   "closing-plate": [
     {
       name: "arch",
@@ -371,7 +376,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred: a pebble low-left, a spark high-right.
+  // The quote card is centred: a mint pebble low-left, a coral spark high-right.
   quote: [
     {
       name: "blob",

@@ -360,13 +360,16 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Creative's hero-frame decorations — zine furniture: a printer's seal, a torn edge, a
-// hand-cut bolt, all knocked a few degrees off square. Creative rotates the GROUND per
+// Creative's hero-frame decorations — zine furniture: printer's stamps, a hand-cut bolt, a
+// torn zigzag, all knocked a few degrees off square. Creative rotates the GROUND per
 // treatment (see the header note), so each set is picked against the ground that frame
-// actually paints: paper for the cover, pink for quote/closing. Two per frame — each takes
-// a reveal cascade slot.
+// actually paints: cream for the cover, pink for quote/closing. Yellow (accent-1) does most
+// of the drawing — it is the one accent that holds on both of those grounds. Two per frame:
+// each takes a reveal cascade slot.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
-  // On the paper ground: a pink seal top-right, an orange sawtooth running lower-right.
+  // On the cream ground: a small yellow seal top-right, and an oversized pink medallion
+  // bleeding off the lower-right corner — the frame's one large shape, cropped by the edge
+  // rather than floating, which is how the reference crops its discs.
   cover: [
     {
       name: "stamp",
@@ -393,7 +396,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // On the pink ground: a paper torn edge low-left, a yellow bolt popping over the card.
+  // On the pink ground: two yellow marker cuts on the diagonal, a caret low-left and a bolt
+  // high-right, both in FRONT so they read as marks made ON the frame rather than under it.
   "closing-plate": [
     {
       name: "marker",
@@ -420,7 +424,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred: a violet zigzag low-left, a yellow rosette high-right.
+  // The quote card is centred: a wide yellow zigzag along the bottom-left, a yellow rosette
+  // tilted high-right. The zigzag is the theme's one UNROTATED default — it carries its own
+  // jaggedness, and a tilt on top of that just reads as a mistake.
   quote: [
     {
       name: "zag",

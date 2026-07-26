@@ -285,12 +285,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 };
 
 // Future's hero-frame decorations. The constellation backdrop already carries the theme's
-// motion, so these stay SPARSE — one instrument per frame, hairline strokes at the edge of
-// the navy, never competing with the particle field. Cyan (primary) leads; periwinkle
-// (accent-2) plays the quiet second. Every decoration takes a reveal cascade slot, so a
-// heavier set would push the headline late.
+// motion, so these stay SPARSE — one or two instruments per frame, hairline strokes on the
+// navy, never competing with the particle field. Cyan (primary) draws every lit instrument;
+// glass (muted-3) is the one unlit shape, a mass rather than a mark. Every decoration takes
+// a reveal cascade slot, so a heavier set would push the headline late.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
-  // A cyan orbit off the top-right, framed by a hairline bracket set lower-right.
+  // One instrument in two parts, both centred on the BOTTOM edge so the pair is cropped to a
+  // half: a cyan ring with a bracket set turned 135° around it. It reads as a single
+  // horizon-line device under the left-set headline, not as two shapes.
   cover: [
     {
       name: "node",
@@ -316,7 +318,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // One crosshair holding the upper-left quiet corner opposite the sign-off card.
+  // A single glass triangle at the schema's maximum size, centred DIRECTLY behind the
+  // sign-off card — the one place future spends a mass instead of a hairline, so the closer
+  // has something to sit on once the constellation stops carrying the frame.
   "closing-plate": [
     {
       name: "glyph",
@@ -330,7 +334,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred: a waveform low-left, a hex glyph high-right.
+  // The quote card is centred: a cyan beam raked up from low-left, a cyan hexagon
+  // high-right.
   quote: [
     {
       name: "signal",

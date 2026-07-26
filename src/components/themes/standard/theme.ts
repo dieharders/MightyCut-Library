@@ -322,12 +322,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 };
 
 // Standard's hero-frame decorations. This theme runs a `plain` backdrop, so its decorations
-// ARE the atmosphere — which is also why its own rules cap them at two per frame, and why
-// these sets sit exactly at that cap. Brownstone (primary) draws the instrument; the pale
-// stone (accent-3) keeps the second mark quiet against the sandstone canvas every frame
-// grounds on. Each decoration takes a reveal cascade slot.
+// ARE the atmosphere — which is also why its own rules cap them at TWO per frame, a ceiling
+// the closer reaches and the cover and quote deliberately sit under. Brownstone (primary)
+// draws the one lit instrument; Line (accent-3), the hairline stone, carries every mark
+// meant to stay quiet on the sandstone canvas each frame grounds on. Each decoration takes a
+// reveal cascade slot.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
-  // A dial off the top-right with a quiet quadrant sweep settling below it.
+  // One brownstone dial on the right margin at the vertical centre, cropped by the edge —
+  // the cover's single instrument, opposite the left-set headline.
   cover: [
     {
       name: "compass",
@@ -341,7 +343,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // A compass rose holding the quiet upper-left, a crescent answering it low-right.
+  // The same pivot twice, pinned to opposite corners (0,0 and 100,100) so each is quartered
+  // by the frame edge — one instrument read as two cropped halves on the diagonal, which is
+  // how the reference dresses a closer without adding a second shape to count.
   "closing-plate": [
     {
       name: "azimuth",
@@ -366,7 +370,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred: an oversized quotation sort low-left, a lens high-right.
+  // The oversized quotation mark, low-left of the centred statement — a real component now
+  // rather than the `.qcard::before` the skin used to bake in, so a scene can move it,
+  // resize it or drop it (see quote.css). The frame's only mark; it spends one of the two.
   quote: [
     {
       name: "sorts",

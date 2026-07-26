@@ -278,7 +278,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // tilt-rect that have always ridden the cover, now declared HERE rather than on the shared
 // treatment def (only a theme may name its own decoration families). These are also what
 // the showcase seeds its editable decoration rows from, so what a user sees listed is
-// exactly what renders. Keep each set to 2: every decoration takes a reveal cascade slot.
+// exactly what renders. Two per frame, three on the closer: every decoration takes a reveal
+// cascade slot, so the count is the headline's delay.
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
   cover: [
@@ -306,7 +307,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // A blue tilt-rect behind (lower-left) + a yellow star popping OVER the card corner.
+  // A blue tilt-rect and a yellow star stacked low-left, plus a big blue disc bleeding off
+  // the top-right corner. All three sit BEHIND the statement card — the closer's own hard
+  // offset is the shape that reads in front, so nothing here competes with it.
   "closing-plate": [
     {
       name: "slab",
@@ -343,7 +346,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       },
     },
   ],
-  // The quote card is centred, so both flourishes sit hard in the opposite corners.
+  // The quote card is centred, so both flourishes sit hard in opposite corners: a tilted
+  // yellow capsule upper-left, a cream rhombus lower-right.
   quote: [
     {
       name: "badge",
