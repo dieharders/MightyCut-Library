@@ -4,9 +4,17 @@
    filled, and it is what makes a row of four cards read as a poster rather than a feature grid.
    Keep it.
 
+   The height that OPENS that middle is not here, though. `margin-top: auto` only distributes
+   surplus height; the surplus itself came from a 20.25rem min-height on this card, and that floor
+   is a property of the SEQUENCE — four cards holding one poster line — not of a step. Alone in the
+   Components grid a lone step has no row to line up with, and the floor rendered as a card two
+   thirds empty with its title stranded at the bottom. So the min-height moved next to the other
+   sequence-only rule, in timeline.css. A lone step now sizes to its own three lines, and `auto`
+   correctly contributes nothing when there is no surplus to distribute.
+
    The card sits on the timeline's oat plane; the LAST card in a row flips to green — that rule
-   belongs to the sequence, so it lives in timeline.css, and the three text colours stated below
-   are exactly what it overrides.
+   belongs to the sequence too, so it lives in timeline.css, and the three text colours stated
+   below are exactly what it overrides.
 
    DEVIATION — the shadow. The reference card was flat (FRAME.md gives step-card `shadow: none`),
    because on the reference's cream ground a cream card needed its outline and nothing else. Here
@@ -26,12 +34,6 @@
   padding: 2.125rem 1.875rem;
   display: flex;
   flex-direction: column;
-  /* The reference's 30cqh, and — as there — it is a CONTENT-box minimum: no box-sizing is stated
-     on the card (unlike the fixed-size square chips, which need one to keep their ink ring
-     inside), so the padding and outline add to it and the card renders taller than 20.25rem. That
-     surplus IS the empty middle the title is pushed away from. It also equalises the cards across
-     the row, so the bottom-anchored titles line up even when one step's body runs a line longer. */
-  min-height: 20.25rem;
 }
 /* The largest numeral in the theme after a cover word: Archivo Black at 0.85 leading, the tightest
    setting in the ramp (FRAME.md step-num). Its ink is stated rather than inherited so timeline.css
