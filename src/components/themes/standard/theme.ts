@@ -321,6 +321,29 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Standard's hero-frame decorations. This theme runs a `plain` backdrop, so its decorations
+// ARE the atmosphere — which is also why its own rules cap them at two per frame, and why
+// these sets sit exactly at that cap. Brownstone (primary) draws the instrument; the pale
+// stone (accent-3) keeps the second mark quiet against the sandstone canvas every frame
+// grounds on. Each decoration takes a reveal cascade slot.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // A dial off the top-right with a quiet quadrant sweep settling below it.
+  cover: [
+    { name: "compass", params: { variant: "dial", x: 85, y: 26, size: 22, accent: "primary", layer: "back" } },
+    { name: "sweep", params: { variant: "quadrant", x: 80, y: 78, size: 18, accent: "accent-3", layer: "back" } },
+  ],
+  // A compass rose holding the quiet upper-left, a crescent answering it low-right.
+  "closing-plate": [
+    { name: "azimuth", params: { variant: "rose", x: 15, y: 25, size: 20, accent: "accent-3", layer: "back" } },
+    { name: "sweep", params: { variant: "crescent", x: 84, y: 77, size: 16, accent: "primary", layer: "back" } },
+  ],
+  // The quote card is centred: an oversized quotation sort low-left, a lens high-right.
+  quote: [
+    { name: "sorts", params: { variant: "quotation", x: 13, y: 76, size: 18, accent: "accent-3", layer: "back" } },
+    { name: "compass", params: { variant: "lens", x: 87, y: 24, size: 16, accent: "primary", layer: "back" } },
+  ],
+};
+
 export const standardTheme: ThemeTokens = {
   name: "standard",
   title: "Standard",
@@ -349,13 +372,6 @@ export const standardTheme: ThemeTokens = {
   previewBg: palette.find((p) => p.varName === "muted-1")!.hex.toLowerCase(),
   // …and standard is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are block's own (cover's star, closing's slab) — hard-
-  // shadowed neobrutalist solids, which is the single most off-theme thing that could land on a
-  // standard frame, so suppress them rather than let them auto-render or shift the reveal cascade.
-  // Standard's own families (see `decorations` below) are opt-in per scene via addDecorations();
-  // with a `plain` backdrop they are the theme's ONLY atmosphere, which is why the design rules cap
-  // them at two per frame.
-  suppressDefaultDecorations: true,
   // Standard's skins for every shared element it renders. The element trios carry no css; these are
   // the standard look.
   skins: {
@@ -404,4 +420,6 @@ export const standardTheme: ThemeTokens = {
   // and with a `plain` backdrop these are the theme's only atmosphere, which is why the rules cap
   // them at two per frame.
   decorations: [...STANDARD_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

@@ -361,11 +361,11 @@ describe("treatment → childComponent link", () => {
   }
 });
 
-// Any treatment can carry positioned fore/background decoration components; a few
-// treatments (cover, closing-plate) ship default decorations, and addDecorations
-// overrides them.
+// Any treatment can carry positioned fore/background decoration components. The
+// defaults come from the active THEME (theme.decorationDefaults[treatment]) — block's
+// cover wears the pink star + blue tilt-rect — and addDecorations overrides them.
 describe("treatment decorations", () => {
-  test("cover renders its default decorations (positioned shapes)", () => {
+  test("cover renders block's default decorations (positioned shapes)", () => {
     const html = renderScene(getTreatment("cover")(), ctx("s01-cover"));
     expect(html).toContain("__d0-item"); // first decoration's scoped anim marker
     expect(html).toContain("__d1-item"); // second decoration (the tilt-rect)

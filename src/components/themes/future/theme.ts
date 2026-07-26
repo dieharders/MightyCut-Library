@@ -284,6 +284,28 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Future's hero-frame decorations. The constellation backdrop already carries the theme's
+// motion, so these stay SPARSE — one instrument per frame, hairline strokes at the edge of
+// the navy, never competing with the particle field. Cyan (primary) leads; periwinkle
+// (accent-2) plays the quiet second. Every decoration takes a reveal cascade slot, so a
+// heavier set would push the headline late.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // A cyan orbit off the top-right, framed by a hairline bracket set lower-right.
+  cover: [
+    { name: "node", params: { variant: "orbit", x: 86, y: 26, size: 20, accent: "primary", layer: "back" } },
+    { name: "reticle", params: { variant: "brackets", x: 80, y: 76, size: 16, accent: "accent-2", layer: "back" } },
+  ],
+  // One crosshair holding the upper-left quiet corner opposite the sign-off card.
+  "closing-plate": [
+    { name: "reticle", params: { variant: "crosshair", x: 15, y: 26, size: 18, accent: "primary", layer: "back" } },
+  ],
+  // The quote card is centred: a waveform low-left, a hex glyph high-right.
+  quote: [
+    { name: "signal", params: { variant: "waveform", x: 13, y: 78, size: 16, accent: "accent-2", layer: "back" } },
+    { name: "glyph", params: { variant: "hexagon", x: 87, y: 22, size: 14, rotate: 12, accent: "primary", layer: "back" } },
+  ],
+};
+
 export const futureTheme: ThemeTokens = {
   name: "future",
   title: "Future",
@@ -309,11 +331,6 @@ export const futureTheme: ThemeTokens = {
   // …and future is a DARK theme, stated outright: the preview shadow's color-scheme and
   // its safety-net text colour follow this, not the mere presence of previewBg above.
   previewScheme: "dark",
-  // The treatments' DEFAULT decorations are block's own (cover's pink star, closing's slab)
-  // — suppress them so those neobrutalist shapes never auto-render on a future frame or shift
-  // the reveal cascade. Future's own decorations (see `decorations` below) are opt-in per
-  // scene via addDecorations(); the always-on ground is the constellation backdrop.
-  suppressDefaultDecorations: true,
   // Future's skins for every shared element it renders. The element trios carry no css;
   // these are the future look. Unskinned elements (block-only decorations) fall back to
   // their own inline css, which is acceptable — future never renders them in a deck.
@@ -363,7 +380,9 @@ export const futureTheme: ThemeTokens = {
   // strokes + glow, distinct from block's neobrutalist set. Themes don't share decorations:
   // this roster lists only future's, and every decoration is held out of the Components grid
   // globally (ComponentFactory.decoration), so block's shapes never appear under future.
-  // Opt-in per scene via addDecorations() / the editor's decoration picker (the constellation
-  // backdrop remains the always-on ground; see suppressDefaultDecorations above).
+  // Offered per scene via addDecorations() / the editor's decoration picker (the constellation
+  // backdrop remains the always-on ground, which is why the defaults below stay sparse).
   decorations: [...FUTURE_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

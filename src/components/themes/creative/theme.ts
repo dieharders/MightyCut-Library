@@ -363,6 +363,38 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Creative's hero-frame decorations — zine furniture: a printer's seal, a torn edge, a
+// hand-cut bolt, all knocked a few degrees off square. Creative rotates the GROUND per
+// treatment (see the header note), so each set is picked against the ground that frame
+// actually paints: paper for the cover, pink for quote/closing. Two per frame — each takes
+// a reveal cascade slot.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // On the paper ground: a pink seal top-right, an orange sawtooth running lower-right.
+  cover: [
+    { name: "stamp", params: { variant: "seal", x: 85, y: 24, size: 16, rotate: -8, accent: "primary", layer: "back" } },
+    {
+      name: "zag",
+      params: { variant: "sawtooth", x: 78, y: 78, size: 18, rotate: 0, accent: "secondary", layer: "back" },
+    },
+  ],
+  // On the pink ground: a paper torn edge low-left, a yellow bolt popping over the card.
+  "closing-plate": [
+    { name: "cutout", params: { variant: "torn", x: 16, y: 74, size: 18, rotate: -5, accent: "muted-1", layer: "back" } },
+    {
+      name: "marker",
+      params: { variant: "bolt", x: 71, y: 20, size: 13, rotate: -8, accent: "accent-1", layer: "front" },
+    },
+  ],
+  // The quote card is centred: a violet zigzag low-left, a yellow rosette high-right.
+  quote: [
+    { name: "zag", params: { variant: "zigzag", x: 12, y: 78, size: 16, rotate: 0, accent: "accent-3", layer: "back" } },
+    {
+      name: "stamp",
+      params: { variant: "rosette", x: 88, y: 22, size: 14, rotate: 10, accent: "accent-1", layer: "back" },
+    },
+  ],
+};
+
 export const creativeTheme: ThemeTokens = {
   name: "creative",
   title: "Creative",
@@ -403,13 +435,6 @@ export const creativeTheme: ThemeTokens = {
   previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
   // …and creative is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are BLOCK's own families (cover's star, closing's slab).
-  // They are superficially near-neighbours — block is neobrutalist too — which is exactly why
-  // they must not auto-render here: decorations are the one thing themes never share, and
-  // silently drawing block's shapes on a creative frame would erase that boundary (and shift the
-  // reveal cascade). Creative's own families (see `decorations` below) are opt-in per scene via
-  // addDecorations(); the always-on atmosphere is the ruled grid backdrop.
-  suppressDefaultDecorations: true,
   // Creative's skins for every shared element it renders. The element trios carry no css; these
   // are the creative look.
   skins: {
@@ -452,4 +477,6 @@ export const creativeTheme: ThemeTokens = {
   // this roster lists only creative's, and every one is held out of the Components grid globally.
   // Opt-in per scene via addDecorations().
   decorations: [...CREATIVE_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

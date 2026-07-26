@@ -289,6 +289,37 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Capsule's hero-frame decorations — soft ink-outlined candy shapes drifting in the cream
+// margins, tilted a few degrees so nothing sits square. Coral (primary) leads, sky
+// (secondary) and butter (accent-1) answer. Every decoration takes a reveal cascade slot,
+// so each set stays at two.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // A coral bean top-right, a sky pill tucked lower-right under the headline block.
+  cover: [
+    { name: "blob", params: { variant: "bean", x: 85, y: 24, size: 17, rotate: -8, accent: "primary", layer: "back" } },
+    {
+      name: "lozenge",
+      params: { variant: "pill", x: 79, y: 77, size: 15, rotate: 8, accent: "secondary", layer: "back" },
+    },
+  ],
+  // A butter dome behind the sign-off card, with one squiggle popping over its corner.
+  "closing-plate": [
+    { name: "arch", params: { variant: "dome", x: 17, y: 72, size: 18, accent: "accent-1", layer: "back" } },
+    {
+      name: "confetti",
+      params: { variant: "squiggle", x: 72, y: 21, size: 11, rotate: 14, accent: "secondary", layer: "front" },
+    },
+  ],
+  // The quote card is centred: a pebble low-left, a spark high-right.
+  quote: [
+    { name: "blob", params: { variant: "pebble", x: 13, y: 77, size: 15, rotate: 10, accent: "accent-2", layer: "back" } },
+    {
+      name: "confetti",
+      params: { variant: "spark", x: 87, y: 23, size: 11, rotate: -12, accent: "primary", layer: "back" },
+    },
+  ],
+};
+
 export const capsuleTheme: ThemeTokens = {
   name: "capsule",
   title: "Capsule",
@@ -316,11 +347,6 @@ export const capsuleTheme: ThemeTokens = {
   // …and capsule is a LIGHT theme, stated outright: the preview shadow's color-scheme and its
   // safety-net text colour follow this, not the mere presence of previewBg above.
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are block's own (cover's star, closing's slab) — those
-  // hard-shadowed neobrutalist shapes are off-theme here, so suppress them rather than let them
-  // auto-render or shift the reveal cascade. Capsule's own families (see `decorations` below)
-  // are opt-in per scene via addDecorations(); the always-on atmosphere is the gradient wash.
-  suppressDefaultDecorations: true,
   // Capsule's skins for every shared element it renders. The element trios carry no css; these
   // are the capsule look. Unskinned elements (another theme's decorations) fall back to their
   // own inline css, which is acceptable — capsule never renders them in a deck.
@@ -382,4 +408,6 @@ export const capsuleTheme: ThemeTokens = {
   // block's and future's shapes never appear under capsule. Opt-in per scene via
   // addDecorations() / the editor's decoration picker.
   decorations: [...CAPSULE_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

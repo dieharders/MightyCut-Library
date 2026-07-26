@@ -288,6 +288,28 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// Professional's hero-frame decorations — drafting marks, not ornament: cobalt hairlines
+// and dot fields held right at the cream margin, never rotated (this theme owes its
+// authority to the square). Every frame grounds on cream (groundDefault), so cobalt
+// (primary) reads throughout. Two per frame — each takes a reveal cascade slot.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // A cobalt halo top-right with a dot matrix settling under it, clear of the headline.
+  cover: [
+    { name: "ring", params: { variant: "halo", x: 85, y: 25, size: 22, accent: "primary", layer: "back" } },
+    { name: "grille", params: { variant: "matrix", x: 80, y: 78, size: 17, accent: "accent-2", layer: "back" } },
+  ],
+  // Corner ticks bracketing the sign-off card, with one inset keyline opposite.
+  "closing-plate": [
+    { name: "corner", params: { variant: "corners", x: 50, y: 50, size: 40, accent: "primary", layer: "back" } },
+    { name: "keyline", params: { variant: "single", x: 16, y: 76, size: 24, accent: "accent-2", layer: "back" } },
+  ],
+  // The quote card is centred: a contour ring low-left, an orange elbow high-right.
+  quote: [
+    { name: "ring", params: { variant: "contour", x: 13, y: 77, size: 18, accent: "accent-2", layer: "back" } },
+    { name: "corner", params: { variant: "elbow", x: 87, y: 23, size: 16, accent: "accent-3", layer: "back" } },
+  ],
+};
+
 export const professionalTheme: ThemeTokens = {
   name: "professional",
   title: "Professional",
@@ -311,11 +333,6 @@ export const professionalTheme: ThemeTokens = {
   previewBg: palette.find((p) => p.varName === "muted-1")!.hex.toLowerCase(),
   // …and professional is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
-  // The treatments' DEFAULT decorations are block's own (cover's star, closing's slab) — those
-  // hard-shadowed neobrutalist shapes are off-theme here, so suppress them rather than let them
-  // auto-render or shift the reveal cascade. Professional's own families (see `decorations` below)
-  // are opt-in per scene via addDecorations(); the always-on atmosphere is the hatch backdrop.
-  suppressDefaultDecorations: true,
   // Professional's skins for every shared element it renders. The element trios carry no css; these
   // are the professional look.
   skins: {
@@ -356,4 +373,6 @@ export const professionalTheme: ThemeTokens = {
   // dot fields), no shadow. Themes don't share decorations: this roster lists only professional's,
   // and every one is held out of the Components grid globally. Opt-in per scene via addDecorations().
   decorations: [...PROFESSIONAL_DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

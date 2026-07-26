@@ -132,12 +132,20 @@ export type ThemeTokens = {
    *  `ComponentFactory.decoration`) is held out of the Components grid globally, so
    *  another theme's decorations never appear under this one. */
   decorations?: string[];
-  /** When true, a treatment's `defaultDecorations` are suppressed (no auto-injected
-   *  cover star / closing slab). A theme whose look owns the backdrop instead of
-   *  per-frame decorations (e.g. future's constellation) sets this so block's default
-   *  shapes don't render off-theme or shift the reveal cascade. A caller's explicit
-   *  `addDecorations()` is unaffected. */
-  suppressDefaultDecorations?: boolean;
+  /** This theme's DEFAULT decorations, keyed by TREATMENT name — the shapes a frame
+   *  wears when the caller adds none (block's cover star + tilt-rect, and each other
+   *  theme's own equivalent). Lives on the THEME, not the treatment def, because
+   *  decoration families are theme-exclusive: only this theme can name shapes from its
+   *  own `decorations` roster, so nothing off-theme can leak into another look.
+   *
+   *  Serializable SPECS rather than built instances, deliberately: the same declaration
+   *  drives the render AND seeds the showcase's editable decoration rows, so what a user
+   *  sees listed is exactly what a video renders. A caller's explicit `addDecorations()`
+   *  replaces these entirely — including an EMPTY list, which means "deliberately bare".
+   *
+   *  Each decoration consumes a reveal cascade slot (see treatment.ts), so keep sets to
+   *  1–3 per frame or the headline is pushed late. */
+  decorationDefaults?: Record<string, { name: string; params?: Record<string, unknown> }[]>;
 };
 
 export type BuildContext = {

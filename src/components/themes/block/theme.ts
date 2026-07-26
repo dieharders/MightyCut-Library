@@ -274,6 +274,38 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
+// The shapes block's hero frames wear when a caller adds none — the pink star and blue
+// tilt-rect that have always ridden the cover, now declared HERE rather than on the shared
+// treatment def (only a theme may name its own decoration families). These are also what
+// the showcase seeds its editable decoration rows from, so what a user sees listed is
+// exactly what renders. Keep each set to 2: every decoration takes a reveal cascade slot.
+const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
+  // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
+  cover: [
+    { name: "starburst", params: { variant: "star", x: 85, y: 22, size: 13, accent: "primary", layer: "back" } },
+    {
+      name: "slab",
+      params: { variant: "rectangle", x: 78, y: 78, size: 15, rotate: -6, accent: "secondary", layer: "back" },
+    },
+  ],
+  // A blue tilt-rect behind (lower-left) + a yellow star popping OVER the card corner.
+  "closing-plate": [
+    {
+      name: "slab",
+      params: { variant: "rectangle", x: 16, y: 73, size: 15, rotate: -10, accent: "secondary", layer: "back" },
+    },
+    { name: "starburst", params: { variant: "star", x: 70, y: 20, size: 13, accent: "accent-1", layer: "front" } },
+  ],
+  // The quote card is centred, so both flourishes sit hard in the opposite corners.
+  quote: [
+    { name: "stripe", params: { variant: "bars", x: 12, y: 20, size: 14, rotate: -8, accent: "accent-2", layer: "back" } },
+    {
+      name: "slab",
+      params: { variant: "rhombus", x: 88, y: 79, size: 12, rotate: 8, accent: "muted-1", layer: "back" },
+    },
+  ],
+};
+
 export const blockTheme: ThemeTokens = {
   name: "block",
   title: "Block",
@@ -327,4 +359,6 @@ export const blockTheme: ThemeTokens = {
   examples,
   // The decoration component families block offers (starburst · slab · stripe · badge).
   decorations: [...DECORATION_COMPONENTS],
+  // …and how the hero frames wear them by default — see `decorationDefaults` above.
+  decorationDefaults,
 };

@@ -1,7 +1,8 @@
 /* 1 · Cover — the opening title frame. The cream ground is applied by the builder
    (ground), so it isn't re-authored here; only the cover's own layout, the
    oversized headline, and the mono subtitle. The star + tilt-rect flourishes are
-   decoration components (defaultDecorations in index.ts), not inline markup. */
+   decoration components (block's decorationDefaults.cover in theme.ts), not inline
+   markup — a user can edit or replace them from the showcase. */
 .cover > .body {
   justify-content: center;
   align-items: flex-start;
