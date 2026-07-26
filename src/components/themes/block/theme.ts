@@ -334,7 +334,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
     {
       name: "starburst",
       params: {
-        variant: "star",
+        variant: "circle",
         x: 97,
         y: 0,
         size: 26,
