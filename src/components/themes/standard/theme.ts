@@ -329,18 +329,56 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A dial off the top-right with a quiet quadrant sweep settling below it.
   cover: [
-    { name: "compass", params: { variant: "dial", x: 85, y: 26, size: 22, accent: "primary", layer: "back" } },
-    { name: "sweep", params: { variant: "quadrant", x: 80, y: 78, size: 18, accent: "accent-3", layer: "back" } },
+    {
+      name: "compass",
+      params: {
+        variant: "dial",
+        x: 95,
+        y: 50,
+        size: 40,
+        accent: "primary",
+        layer: "back",
+      },
+    },
   ],
   // A compass rose holding the quiet upper-left, a crescent answering it low-right.
   "closing-plate": [
-    { name: "azimuth", params: { variant: "rose", x: 15, y: 25, size: 20, accent: "accent-3", layer: "back" } },
-    { name: "sweep", params: { variant: "crescent", x: 84, y: 77, size: 16, accent: "primary", layer: "back" } },
+    {
+      name: "azimuth",
+      params: {
+        variant: "pivot",
+        x: 0,
+        y: 0,
+        size: 46,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
+    {
+      name: "azimuth",
+      params: {
+        variant: "pivot",
+        x: 100,
+        y: 100,
+        size: 46,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
   ],
   // The quote card is centred: an oversized quotation sort low-left, a lens high-right.
   quote: [
-    { name: "sorts", params: { variant: "quotation", x: 13, y: 76, size: 18, accent: "accent-3", layer: "back" } },
-    { name: "compass", params: { variant: "lens", x: 87, y: 24, size: 16, accent: "primary", layer: "back" } },
+    {
+      name: "sorts",
+      params: {
+        variant: "quotation",
+        x: 13,
+        y: 76,
+        size: 18,
+        accent: "accent-3",
+        layer: "back",
+      },
+    },
   ],
 };
 

@@ -105,10 +105,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
     note: "stat ground + the answer",
     varName: "accent-2",
   },
-  // Green Dark — depth on decorative levers. accent-3 is the one accent OUTSIDE the cycle
-  // (primary→secondary→accent-1→accent-2), so it never lands on an auto-cycled badge; it only
-  // appears where a skin or a scene asks for it.
-  { name: "Violet", hex: "#4c1f8a", note: "depth", varName: "accent-3" },
+  { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
     name: "Concrete",
     hex: "#E4DCC4",
@@ -402,12 +399,12 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "marker",
       params: {
         variant: "caret",
-        x: 16,
-        y: 74,
+        x: 15,
+        y: 77,
         size: 18,
         rotate: -5,
-        accent: "muted-1",
-        layer: "back",
+        accent: "accent-1",
+        layer: "front",
       },
     },
     {
