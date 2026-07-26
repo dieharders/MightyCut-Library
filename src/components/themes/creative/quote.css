@@ -1,14 +1,16 @@
 /* 5 · Quote / Big Claim — the frame where THE GROUND IS THE ACCENT. A full-bleed pink plane
-   carrying nothing but an ink kicker-block and an oversized Archivo Black claim in solid INK,
-   left-anchored and vertically centred. FRAME.md: "the ground IS the accent" — so the claim gets
-   no card, no border, no shadow. This is the deliberate parting of ways with the `block` theme,
-   whose quote sets its .qcard as a white shadowed panel; creative's punk-zine move is to paint the
-   whole sheet and let the type sit straight on it.
+   carrying nothing but an ink kicker-block and an oversized Archivo Black claim in the theme's
+   LIGHT INK, left-anchored and vertically centred. FRAME.md: "the ground IS the accent" — so the
+   claim gets no card, no border, no shadow. This is the deliberate parting of ways with the `block`
+   theme, whose quote sets its .qcard as a white shadowed panel; creative's punk-zine move is to
+   paint the whole sheet and let the type sit straight on it.
 
-   GROUND: pink (--primary), stamped inline by the emitter. Ink on pink is the reference pairing
-   and stays well clear of the cream/accent type used on the saturated frames, so no colour is
-   restated on .qt beyond the explicit --dark (the claim must never inherit a lighter ink if the
-   frame default ever moves).
+   GROUND: pink (--primary), stamped inline by the emitter. The claim and its attribution run on
+   --muted-1, the same cream/light ink every other saturated frame in the theme uses for type
+   (cta, closing-plate's seal, row, timeline) — at 9rem Archivo Black the near-black ink vibrated
+   against the pink, and light type reads as the calmer slab. Both colours stay stated explicitly
+   so neither can inherit a darker ink if the frame default ever moves. The eyebrow keeps its ink
+   kicker-block: it is a filled object, not type on the ground, so it still separates cleanly.
 
    TEMPLATE DIFFERENCE from the reference: the shared quote template nests .attr INSIDE .qcard,
    where the showcase had the two as siblings under .body. Two consequences are handled below —
@@ -41,13 +43,13 @@
   font-size: 9rem;
   line-height: 0.9;
   letter-spacing: -0.01em;
-  color: var(--dark);
+  color: var(--muted-1);
 }
 .quote .attr {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 1.625rem;
-  color: var(--dark);
+  color: var(--muted-1);
   margin-top: 2.875rem;
 }
