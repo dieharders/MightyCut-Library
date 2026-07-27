@@ -19,15 +19,15 @@
   font-family: var(--disp);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  font-size: 3.625rem;
-  line-height: 1.15;
+  letter-spacing: var(--track-display);
+  font-size: var(--text-xl);
+  line-height: var(--lh-snug);
 }
 .quote .attr {
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 1.875rem;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
   margin-top: 2.5rem;
 }

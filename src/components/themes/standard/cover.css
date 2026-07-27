@@ -26,8 +26,8 @@
    holds the right half of the frame open for the compass ring a scene may add. */
 .cover h3 {
   font-weight: 700;
-  font-size: 9.625rem;
-  line-height: 1.04;
+  font-size: var(--text-4xl);
+  line-height: var(--lh-tight);
   max-width: 74.375rem;
 }
 /* The subtitle is SMALL for this slot — professional runs 2.75rem here, standard 1.625rem. That is
@@ -38,8 +38,8 @@
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.625rem;
-  line-height: 1.55;
+  font-size: var(--text-sm);
+  line-height: var(--lh-relaxed);
   color: var(--muted-3);
   margin-top: 2.625rem;
   max-width: 55.25rem;

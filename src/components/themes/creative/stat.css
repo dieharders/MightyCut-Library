@@ -44,8 +44,8 @@
    base size everywhere else. */
 .stat-number {
   font-family: var(--disp);
-  font-size: calc(7.25rem * var(--dense-scale, 1));
-  line-height: 0.88;
+  font-size: calc(var(--text-3xl) * var(--dense-scale, 1));
+  line-height: var(--lh-solid);
   letter-spacing: -0.02em;
   color: var(--dark);
 }
@@ -56,8 +56,8 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.5rem;
-  line-height: 1.3;
+  font-size: var(--text-xs);
+  line-height: var(--lh-normal);
   color: var(--muted-3);
   margin-top: 1rem;
 }

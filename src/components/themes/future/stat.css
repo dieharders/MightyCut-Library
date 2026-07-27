@@ -23,17 +23,17 @@
   font-weight: 700;
   /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
      row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
-  font-size: calc(6.5rem * var(--dense-scale, 1));
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-size: calc(var(--text-3xl) * var(--dense-scale, 1));
+  line-height: var(--lh-solid);
+  letter-spacing: var(--track-display);
   color: var(--dot, var(--primary));
 }
 .stat-label {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--text-xs);
   color: var(--muted-1);
   margin-top: 1.25rem;
-  line-height: 1.35;
+  line-height: var(--lh-normal);
   max-width: 26.375rem;
 }

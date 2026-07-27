@@ -40,16 +40,16 @@
 .quote .qt {
   font-family: var(--disp);
   text-transform: uppercase;
-  font-size: 9rem;
-  line-height: 0.9;
-  letter-spacing: -0.01em;
+  font-size: var(--text-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-display);
   color: var(--muted-1);
 }
 .quote .attr {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.625rem;
+  font-size: var(--text-xs);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

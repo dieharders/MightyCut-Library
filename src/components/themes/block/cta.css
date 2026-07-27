@@ -7,7 +7,7 @@
   padding: 3rem 6.875rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 3.5rem;
+  font-size: var(--text-xl);
   text-transform: uppercase;
   color: var(--dark);
 }

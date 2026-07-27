@@ -17,11 +17,11 @@
   color: var(--light);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: var(--text-md);
 }
 .listnum-c .ln-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.25rem;
+  font-size: var(--text-lg);
   color: var(--dark);
 }

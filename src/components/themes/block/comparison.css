@@ -9,8 +9,7 @@
 }
 .comparison h3 {
   font-weight: 800;
-  font-size: 3.875rem;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--track-display);
   margin: 1.5rem 0 2.5rem;
 }
 .comparison .ledger {
@@ -26,8 +25,8 @@
   font-family: var(--mono);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 1.75rem;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
   padding: 0.75rem 1.25rem;
 }
 .comparison .ch.a {

@@ -9,8 +9,8 @@
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 2.875rem;
-  line-height: 1.2;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-md);
+  line-height: var(--lh-snug);
   color: var(--dark);
 }

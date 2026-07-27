@@ -31,7 +31,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.5rem;
+  font-size: var(--text-xs);
   color: var(--dark);
   width: 19.25rem;
   flex-shrink: 0;
@@ -60,9 +60,9 @@
   font-family: var(--disp);
   font-variant-numeric: tabular-nums;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  font-size: 2.125rem;
-  line-height: 1;
+  letter-spacing: var(--track-display);
+  font-size: var(--text-md);
+  line-height: var(--lh-tight);
   color: var(--dark);
   width: 6rem;
   text-align: right;

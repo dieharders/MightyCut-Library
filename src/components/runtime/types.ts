@@ -3,6 +3,7 @@ import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
 import type { PaletteVar } from "../../types/palette";
+import type { Leading, Tracking, TypeScale } from "../../types/typescale";
 import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
 import type { AnimDescriptor } from "./anim";
@@ -126,6 +127,19 @@ export type ThemeTokens = {
   examples?: Record<string, { params?: Record<string, unknown>; children?: Record<string, unknown>[] }>;
   /** The theme's swatches — drives the showcase Palette section (data-driven). */
   palette?: PaletteSwatch[];
+  /** The theme's size for each of the 8 shared type steps (types/typescale.ts) — the
+   *  SINGLE source of every font-size it renders. Generates the `--text-*` custom
+   *  properties (via `buildTokensCss`); skins name steps, never sizes.
+   *
+   *  Optional here for the same reason `palette` is: the runtime tests build minimal
+   *  `ThemeTokens` literals. Every LIVE theme must define all 8 — enforced by a
+   *  tripwire over ALL_THEMES in theme-parity.test.ts, not by the compiler. */
+  typeScale?: TypeScale;
+  /** The theme's 5 line-height steps → `--lh-*`. Same optionality rule as `typeScale`. */
+  leading?: Leading;
+  /** The theme's display + label letter-spacing → `--track-*`. Only those two roles are
+   *  tokenised; per-skin tracking craft stays an authored literal (see typescale.ts). */
+  tracking?: Tracking;
   /** The theme's type scale — drives the showcase Typography section. */
   typography?: TypeSpec[];
   /** The theme's authoring rules — drives the showcase Rules section. */

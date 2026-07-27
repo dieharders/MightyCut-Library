@@ -39,7 +39,7 @@
   display: grid;
   place-items: center;
   font-family: var(--disp);
-  font-size: 1.875rem;
+  font-size: var(--text-sm);
   color: var(--ic, var(--primary));
   margin-bottom: 1.625rem;
 }
@@ -48,8 +48,8 @@
 .card-title {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.5rem;
-  line-height: 1.15;
+  font-size: var(--text-lg);
+  line-height: var(--lh-snug);
   color: var(--dark);
 }
 /* Inter in the warm gray: the paragraph voice, recessive against the serif title above it. The
@@ -59,8 +59,8 @@
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.625rem;
-  line-height: 1.5;
+  font-size: var(--text-sm);
+  line-height: var(--lh-relaxed);
   color: var(--muted-3);
   margin-top: 1rem;
 }

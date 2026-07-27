@@ -1,17 +1,21 @@
 // CSS scoping + collection for the component runtime.
 //
 // Components author their CSS under a semantic root class (`.stat`, `.stat-grid`)
-// using rem, quantized to a 0.125rem GRID (see `remGrid` below). Two reasons for that
+// using rem, quantized to a 0.125rem GRID (see `remGrid` below). TYPE sizes are the one
+// thing a skin never writes: every `font-size` names a step on the active theme's ladder
+// (`var(--text-md)` — see types/typescale.ts), and leading/tracking follow the same rule. Two reasons for that
 // grid: at the 1920 design size 1rem = 16px, so every multiple of 0.125rem lands on an
 // EVEN pixel — which minimizes sub-pixel jitter when an element is rotated or drawn off
 // the device-pixel/DPI grid; and it keeps the authored scale legible.
 //
-// The render document (the harness-generated index.html) sets a viewport-derived root
-// font-size, so authored numbers are CANVAS-relative, not pixel-absolute: the whole
-// composition rescales if the canvas ever moves off 1920x1080. The even-pixel property
-// therefore holds at the design size only — off it, jitter resistance comes from the
-// uniform scale factor instead. (The old "1.2rem = 1% of 1920" convention is retired:
-// 1.2rem rounds to 1.25rem on this grid, so the percentages no longer line up.)
+// NOTE, because this header used to claim otherwise: the render document does NOT set a
+// viewport-derived root font-size. Neither repo emits an `html { font-size }` rule, so rem
+// resolves against the browser default of 16px — which happens to equal 1rem = 16px at the
+// 1920 design size, so authored numbers are correct today but are pixel-absolute, not
+// canvas-relative. A canvas off 1920x1080 would NOT rescale the type. Worth fixing if that
+// ever becomes real; don't design against the guarantee until it does. (The old
+// "1.2rem = 1% of 1920" convention is retired: 1.2rem rounds to 1.25rem on this grid, so the
+// percentages no longer line up.)
 //
 // Because every sub-composition is imported into ONE shared
 // DOM (importNode, not iframes), those semantic classes would cross-match between
@@ -31,8 +35,10 @@ export const REM_GRID = 0.125;
  * Quantize a rem length onto the 0.125rem grid, e.g. `remGrid(2.4) === "2.375rem"`.
  *
  * For sizes COMPUTED from user params (icon size, decoration dimensions) — authored CSS
- * is quantized at write time instead, and guarded by the grid-audit test. `min` floors
- * the result so a small param can't round a hairline to `0rem` and delete it.
+ * is quantized at write time instead, and guarded by the grid-audit test
+ * (theme-parity.test.ts → "authored rem lengths land on the 0.125rem grid"; that test was
+ * referenced here long before it existed). `min` floors the result so a small param can't
+ * round a hairline to `0rem` and delete it.
  */
 export const remGrid = (n: number, min = REM_GRID): string =>
   `${Math.max(min, Math.round(n / REM_GRID) * REM_GRID)}rem`;

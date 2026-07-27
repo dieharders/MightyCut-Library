@@ -277,7 +277,11 @@ export type FooterSpec = z.infer<typeof FooterSchema>;
 
 export const CaptionStyleSchema = z.object({
   backdrop: z.enum(["blur", "semi", "solid", "none"]).optional(),
-  size: z.enum(["small", "medium", "large"]).optional(),
+  // NO `size`. The caption's size is the THEME's — a step on its type ladder, set once in
+  // themes/<theme>/caption.css (types/typescale.ts). It used to be overridable here, and the
+  // harness stamped the chosen rem as an inline font-size that beat the skin, which meant a deck
+  // could silently opt out of the one type system the theme guarantees. A theme that wants a
+  // different caption size changes its step; a deck does not get to.
   weight: z.enum(["normal", "medium", "semibold", "bold"]).optional(),
   outline: z.boolean().optional().describe("Dark text outline for busy backdrops"),
   accentBar: z.boolean().optional().describe("Accent bar on the caption box (default true)"),

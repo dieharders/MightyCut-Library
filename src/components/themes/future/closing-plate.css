@@ -14,9 +14,9 @@
   align-items: center;
 }
 .closing-plate h3 {
-  font-size: 7.625rem;
+  font-size: var(--text-4xl);
   letter-spacing: -0.03em;
-  line-height: 0.98;
+  line-height: var(--lh-solid);
 }
 .closing-plate .cta {
   margin-top: 3.625rem;
@@ -27,6 +27,6 @@
   padding: 1.5rem 3.625rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: var(--text-md);
   color: var(--primary);
 }

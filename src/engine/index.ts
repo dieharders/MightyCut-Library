@@ -65,6 +65,24 @@ export {
   type PaletteVar,
 } from "../types/palette";
 
+// The type-scale contract — the palette pattern applied to type. The showcase Typography
+// section renders a theme's ladder from these, and the `:root` block a theme emits carries
+// one `--text-<step>` per name here. Exported alongside the palette because the web UI
+// reaches the library only through `/engine`.
+export {
+  TEXT_VARS,
+  LEADING_VARS,
+  TRACKING_VARS,
+  TYPE_ROLES,
+  type TextVar,
+  type LeadingVar,
+  type TrackingVar,
+  type TypeRole,
+  type TypeScale,
+  type Leading,
+  type Tracking,
+} from "../types/typescale";
+
 // Vocab for the React form controls.
 export {
   TRANSITION_NAMES,

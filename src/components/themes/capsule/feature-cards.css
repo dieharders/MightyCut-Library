@@ -12,9 +12,8 @@
   padding: 8.125rem 7.25rem 13.5rem;
 }
 .feature-cards h3 {
-  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
-     section heading is the base Bodoni cut, so only the size and rhythm are stated. */
-  font-size: 4.75rem;
+  /* Size, weight, tracking, leading and colour all come from .block-frame h3 in frame.css —
+     capsule's section heading is the base Bodoni cut, so only the rhythm is stated here. */
   margin: 1.625rem 0 2.875rem;
 }
 .feature-cards .row {

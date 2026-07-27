@@ -29,7 +29,6 @@
 /* Centred, like every content treatment's header under creative. `.block-frame h3` already fixes
    the face, case, leading and tracking — a treatment skin varies only size, colour and spacing. */
 .comparison h3 {
-  font-size: 4.375rem;
   margin: 0 0 2.375rem;
   text-align: center;
 }
@@ -63,9 +62,9 @@
   align-items: center;
   font-family: var(--disp);
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  line-height: 0.92;
-  font-size: 2rem;
+  letter-spacing: var(--track-display);
+  line-height: var(--lh-tight);
+  font-size: var(--text-sm);
   padding: 1.5rem 1.625rem;
   background: var(--dark);
   color: var(--muted-1);

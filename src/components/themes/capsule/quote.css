@@ -27,9 +27,9 @@
 .quote .qt {
   font-family: var(--disp);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  font-size: 5rem;
-  line-height: 1.3;
+  letter-spacing: var(--track-display);
+  font-size: var(--text-2xl);
+  line-height: var(--lh-normal);
   color: var(--dark);
 }
 /* The legacy inline candy-pill highlight, kept as capsule's stated signature the same way
@@ -47,7 +47,7 @@
   font-family: var(--body);
   font-style: normal;
   font-weight: 600;
-  font-size: 3.625rem;
+  font-size: var(--text-xl);
   letter-spacing: 0;
   color: var(--dark);
 }
@@ -56,7 +56,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 1.375rem;
+  font-size: var(--text-xs);
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-top: 2.875rem;
 }

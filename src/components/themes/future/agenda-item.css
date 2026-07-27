@@ -22,14 +22,14 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 3.125rem;
+  font-size: var(--text-xl);
   color: var(--primary);
   min-width: 6rem;
 }
 .agenda-item .t {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.625rem;
+  font-size: var(--text-lg);
   letter-spacing: -0.01em;
   color: var(--light);
 }
@@ -38,7 +38,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.25rem;
+  font-size: var(--text-xs);
   color: var(--muted-1);
   margin-left: auto;
   align-self: center;

@@ -33,8 +33,8 @@
   font-weight: 800;
   /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
      row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
-  font-size: calc(5.5rem * var(--dense-scale, 1));
-  line-height: 1;
+  font-size: calc(var(--text-2xl) * var(--dense-scale, 1));
+  line-height: var(--lh-tight);
   letter-spacing: -0.03em;
   /* One of the three sanctioned places colour meets type in capsule (with the chart bar
      value and the agenda numeral); every other Bodoni run stays ink. */
@@ -45,8 +45,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 1.25rem;
-  line-height: 1.3;
+  font-size: var(--text-xs);
+  line-height: var(--lh-normal);
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-top: 1.125rem;
 }

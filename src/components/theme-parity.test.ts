@@ -10,6 +10,7 @@
 import { describe, expect, test } from "bun:test";
 import { TREATMENT_NAMES } from "../types/components";
 import { PALETTE_VARS } from "../types/palette";
+import { LEADING_VARS, TEXT_VARS, TRACKING_VARS, TYPE_ROLES } from "../types/typescale";
 import { BACKDROP_NAMES } from "../types/storyboard";
 import "./registry"; // populate the registry
 import { scrubDeterminism } from "./runtime/determinism";
@@ -550,5 +551,83 @@ describe("palette completeness (tripwire)", () => {
     const roles = new Set((theme.palette ?? []).map((p) => p.varName));
     const missing = PALETTE_VARS.filter((r) => !roles.has(r));
     expect(missing, `${theme.name} is missing palette role(s): ${missing.join(", ")}`).toEqual([]);
+  });
+});
+
+// ------------------------------------------------------------- type scale ---
+// The palette pattern applied to type (types/typescale.ts). Same three guarantees the
+// colour roles get: every theme defines the WHOLE contract, the emitted `:root` carries a
+// property per name, and skins address the shared names instead of writing literals.
+//
+// The last one is the load-bearing test. Before it, every font-size in the library was a
+// bare rem at its use site — 257 of them, 43 distinct values — and nothing could tell a
+// deliberate size from a typo. It is the exact analogue of "skins carry no hex/rgb literal"
+// in registry.test.ts, which is what keeps colour honest.
+describe("type scale (tripwire)", () => {
+  const GRID = 0.125;
+  const rem = (v: string) => Number(v.replace("rem", ""));
+
+  test.each(ALL_THEMES)("$name defines all 8 type steps, ascending, on the grid", (theme) => {
+    const scale = theme.typeScale;
+    expect(scale, `${theme.name} defines no typeScale`).toBeDefined();
+
+    const missing = TEXT_VARS.filter((k) => !scale?.[k]);
+    expect(missing, `${theme.name} is missing type step(s): ${missing.join(", ")}`).toEqual([]);
+
+    const values = TEXT_VARS.map((k) => scale![k]);
+    const offGrid = values.filter((v) => !/^[\d.]+rem$/.test(v) || Math.abs(rem(v) / GRID - Math.round(rem(v) / GRID)) > 1e-9);
+    expect(offGrid, `${theme.name} has off-grid type step(s): ${offGrid.join(", ")}`).toEqual([]);
+
+    // strictly ascending, so `md` can never be quietly smaller than `sm`
+    const nums = values.map(rem);
+    const notAscending = nums.map((n, i) => (i && n <= nums[i - 1]! ? `${TEXT_VARS[i]} (${n}) <= ${TEXT_VARS[i - 1]}` : "")).filter(Boolean);
+    expect(notAscending, `${theme.name}'s ladder does not ascend: ${notAscending.join(", ")}`).toEqual([]);
+  });
+
+  test.each(ALL_THEMES)("$name defines all leading + tracking roles", (theme) => {
+    const missingLead = LEADING_VARS.filter((k) => !theme.leading?.[k]);
+    expect(missingLead, `${theme.name} is missing leading step(s): ${missingLead.join(", ")}`).toEqual([]);
+    const missingTrack = TRACKING_VARS.filter((k) => theme.tracking?.[k] === undefined);
+    expect(missingTrack, `${theme.name} is missing tracking role(s): ${missingTrack.join(", ")}`).toEqual([]);
+  });
+
+  test.each(ALL_THEMES)("$name's :root emits every type token", (theme) => {
+    for (const k of TEXT_VARS) expect(theme.css, `${theme.name} :root lacks --text-${k}`).toContain(`--text-${k}:`);
+    for (const k of LEADING_VARS) expect(theme.css, `${theme.name} :root lacks --lh-${k}`).toContain(`--lh-${k}:`);
+    for (const k of TRACKING_VARS) expect(theme.css, `${theme.name} :root lacks --track-${k}`).toContain(`--track-${k}:`);
+  });
+
+  test.each(ALL_THEMES)("$name's skins name type STEPS, never a bare font-size", (theme) => {
+    const sheets = [["frameCss", theme.frameCss ?? ""] as const, ...Object.entries(theme.skins ?? {})];
+    const offenders: string[] = [];
+    for (const [name, css] of sheets) {
+      // strip comments first — prose quotes sizes on purpose
+      for (const m of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/font-size\s*:\s*([^;}]+)/g)) {
+        if (!/var\(--text-/.test(m[1]!)) offenders.push(`${name}: ${m[1]!.trim()}`);
+      }
+    }
+    expect(offenders, `${theme.name} writes a bare font-size: ${offenders.join(" | ")}`).toEqual([]);
+  });
+
+  // The grid rule docs/THEME-AUTHORING.md §5 and runtime/css.ts both say is "guarded by the
+  // grid-audit test". It was not — there was no such test. This is it.
+  test.each(ALL_THEMES)("$name's authored rem lengths land on the 0.125rem grid", (theme) => {
+    const sheets = [["frameCss", theme.frameCss ?? ""] as const, ...Object.entries(theme.skins ?? {})];
+    const offenders: string[] = [];
+    for (const [name, css] of sheets) {
+      for (const m of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/(-?[\d.]+)rem/g)) {
+        const n = Math.abs(Number(m[1]));
+        if (Math.abs(n / GRID - Math.round(n / GRID)) > 1e-9) offenders.push(`${name}: ${m[0]}`);
+      }
+    }
+    expect(offenders, `${theme.name} has off-grid rem length(s): ${offenders.join(" | ")}`).toEqual([]);
+  });
+
+  test.each(ALL_THEMES)("$name documents the 5 canonical type roles, in order", (theme) => {
+    const tokens = (theme.typography ?? []).map((t) => t.token);
+    // the five come first and in canonical order; a theme MAY append its own extras after
+    expect(tokens.slice(0, TYPE_ROLES.length), `${theme.name}'s typography roles`).toEqual([...TYPE_ROLES]);
+    const px = (theme.typography ?? []).filter((t) => /font-size:\s*\d+px/.test(t.style)).map((t) => t.token);
+    expect(px, `${theme.name} documents a px font-size (should name a step): ${px.join(", ")}`).toEqual([]);
   });
 });

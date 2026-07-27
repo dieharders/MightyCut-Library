@@ -10,9 +10,9 @@
    frame rather than punched out of it — the tracing-paper sheet the decorations are named for.
 
    UNITS. The reference authored this block in px (the rail lives outside the cqw frame), so it is
-   not converted literally: .cap-text is pinned to 3.625rem, the cross-theme caption convention, so
-   the BOX scales with the text and lands on the shared caption geometry rather than on the px
-   divisor. The BORDER is the exception that proves it — 0.125rem is the theme's one line weight, a
+   not converted literally: the BOX scales with the text and lands on the shared caption geometry
+   rather than on the px divisor. The BORDER is the exception that proves it — 0.125rem is the
+   theme's one line weight, a
    constant rather than a proportion, so it stays put while everything around it grows. */
 .caption {
   display: inline-flex;
@@ -34,12 +34,14 @@
 /* Deliberately no alignment declaration: theme-parity's "cap-text alignment matches block" sweep
    reads block's rule, which declares none. Keep this note OUTSIDE the rule — the extractor regex
    is not comment-aware. Inter 400 is the theme's body voice (transcript prose is neither display
-   nor label), and 3.625rem is the cross-theme caption convention, not a conversion of the
-   reference's 24px. */
+   nor label). The size is a ladder step now (types/typescale.ts). The old
+   3.625rem "cross-theme caption convention" is preserved by it — the step each theme picked is
+   the one nearest that value — so the rail looks unchanged; what changed is that retuning it is
+   now one edit in theme.ts instead of six. */
 .caption .cap-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 3.625rem;
-  line-height: 1.4;
+  font-size: var(--text-xl);
+  line-height: var(--lh-normal);
   color: var(--dark);
 }

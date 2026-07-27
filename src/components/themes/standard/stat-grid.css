@@ -22,10 +22,9 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .stat-grid h3 {
-  /* Family, weight, tracking, leading and the ink colour all arrive from `.block-frame h3`
-     (frame.css) — standard's section headline IS the base Playfair cut, so only the size and the
-     rhythm down to the rule are stated. */
-  font-size: 4.75rem;
+  /* Family, size, weight, tracking, leading and the ink colour all arrive from `.block-frame h3`
+     (frame.css) — standard's section headline IS the base Playfair cut, so only the rhythm down to
+     the rule is stated. */
   margin: 0 0 1.875rem;
 }
 /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the source's hardcoded

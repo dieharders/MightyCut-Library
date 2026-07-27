@@ -21,11 +21,15 @@
 }
 /* Deliberately no alignment declaration: theme-parity's "cap-text alignment matches block" sweep
    reads block's rule, which declares none. Keep this note OUTSIDE the rule — the extractor regex
-   is not comment-aware. 3.625rem is the cross-theme caption convention (block, future, capsule). */
+   is not comment-aware.
+   The size is a ladder step now (types/typescale.ts). The old
+   3.625rem "cross-theme caption convention" is preserved by it — the step each theme picked is
+   the one nearest that value — so the rail looks unchanged; what changed is that retuning it is
+   now one edit in theme.ts instead of six. */
 .caption .cap-text {
   font-family: var(--body);
   font-weight: 500;
-  font-size: 3.625rem;
-  line-height: 1.35;
+  font-size: var(--text-2xl);
+  line-height: var(--lh-normal);
   color: var(--dark);
 }

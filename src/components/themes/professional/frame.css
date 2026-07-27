@@ -47,11 +47,17 @@
    the accent is carried by numerals, icon badges, pills, rules and fills. */
 .block-frame h3 {
   font-family: var(--disp);
+  /* THE SLIDE TITLE, stated once. Every content treatment (agenda, chart, bar-ranking,
+     comparison, feature-cards, stat-grid, timeline) used to redeclare this, at two different
+     sizes grouped differently in every theme; they now layer only margin/rhythm over it. A
+     treatment that genuinely wants another size overrides it and says why — cover and
+     closing-plate do, because a hero frame steps up to its own display step. */
+  font-size: var(--text-2xl);
   font-weight: 700;
   /* Libre Baskerville is a wide, moderate-contrast text serif — the tight negative tracking a
      grotesque wants would cramp it, and a serif headline needs a touch more leading than a sans. */
-  letter-spacing: 0;
-  line-height: 1.16;
+  letter-spacing: var(--track-display);
+  line-height: var(--lh-tight);
   color: var(--dark);
   margin: 0;
 }
@@ -76,7 +82,7 @@
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 1.25rem;
-  line-height: 1.35;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  line-height: var(--lh-normal);
 }

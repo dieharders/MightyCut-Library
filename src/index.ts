@@ -25,6 +25,11 @@ export {
 // address colours through it.
 export * from "./types/palette";
 
+// The type-scale contract (the 8 shared type steps + leading/tracking every theme
+// defines) — exported flat for the same reason as the palette: it is one shared
+// vocabulary, addressed by both consumers.
+export * from "./types/typescale";
+
 // Zod contracts (the params / spec / deck vocabulary).
 export * as spec from "./types/spec";
 export * as storyboard from "./types/storyboard";

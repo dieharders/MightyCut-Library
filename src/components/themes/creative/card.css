@@ -44,8 +44,8 @@
   display: grid;
   place-items: center;
   font-family: var(--disp);
-  font-size: 2.375rem;
-  line-height: 1;
+  font-size: var(--text-md);
+  line-height: var(--lh-tight);
   text-transform: uppercase;
   margin-bottom: 1.625rem;
 }
@@ -54,9 +54,9 @@
 .card-title {
   font-family: var(--disp);
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  font-size: 2.25rem;
-  line-height: 1;
+  letter-spacing: var(--track-display);
+  font-size: var(--text-md);
+  line-height: var(--lh-tight);
   color: var(--dark);
 }
 /* The reference hung this gap off the title (`.t { margin-bottom }`); it is stated as the body's
@@ -65,8 +65,8 @@
    step back from the display type without introducing a fifth grey. */
 .card-body {
   font-family: var(--body);
-  font-size: 1.5rem;
-  line-height: 1.4;
+  font-size: var(--text-xs);
+  line-height: var(--lh-relaxed);
   color: var(--muted-3);
   margin-top: 1rem;
 }

@@ -14,7 +14,9 @@
 // is capsule's ADD-ON face (assets/fonts/capsule-fonts.css), injected by engine/register-capsule;
 // Space Grotesk rides along in the always-staged core set.
 import { CAPSULE_DECORATION_COMPONENTS } from "../../primitives/capsule-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import cardCss from "./card.css" with { type: "text" };
@@ -86,18 +88,47 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
-/**
- * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (matching block and
- * future), so each hex is written down exactly once. Capsule authors no identity layer beside
- * the roles — the legacy `--cap-coral` / `--cap-shadow` / `--cap-serif` tokens are gone, and
- * every translucent shade they carried is derived per-use with color-mix() in the skins.
- */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** capsule's ladder. The widest range in the library: a very small 1.25rem label band against a
+ *  13.25rem cover, which is the candy-poster contrast the theme is built on.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.25rem",
+  sm: "1.625rem",
+  md: "2.125rem",
+  lg: "2.625rem",
+  xl: "3.25rem",
+  "2xl": "5rem",
+  "3xl": "10.25rem",
+  "4xl": "13.25rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "0.9",
+  tight: "1",
+  snug: "1.1",
+  normal: "1.3",
+  relaxed: "1.5",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "-0.02em",
+  label: "0.12em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase applies to each live sample (px is fine here — a
@@ -109,21 +140,21 @@ const typography: ThemeTokens["typography"] = [
     spec: "Bodoni Moda 800 · sentence case · −0.03em · ink, never coloured",
     sample: "Inflated.",
     style:
-      "font-family: var(--disp); font-weight: 800; letter-spacing: -0.03em; line-height: 0.9; font-size: 88px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 800; letter-spacing: -0.03em; line-height: var(--lh-solid); font-size: var(--text-4xl); color: var(--dark);",
   },
   {
-    token: "headline",
+    token: "heading",
     spec: "Bodoni Moda 700 · sentence case · −0.02em · ink, never coloured",
     sample: "A friendly pill",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; line-height: 1; font-size: 54px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: var(--track-display); line-height: var(--lh-tight); font-size: var(--text-2xl); color: var(--dark);",
   },
   {
-    token: "stat-number",
+    token: "figure",
     spec: "Bodoni Moda 800 · −0.03em · the ONE place colour meets type",
     sample: "240%",
     style:
-      "font-family: var(--disp); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-size: 64px; color: var(--primary);",
+      "font-family: var(--disp); font-weight: 800; line-height: var(--lh-tight); letter-spacing: -0.03em; font-size: var(--text-2xl); color: var(--primary);",
   },
   {
     token: "body",
@@ -131,14 +162,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Space Grotesk carries every paragraph and label — the clean grotesque against Bodoni's glamour.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 680px; color: color-mix(in srgb, var(--dark) 65%, transparent);",
+      "font-family: var(--body); font-weight: 400; font-size: var(--text-xs); line-height: var(--lh-relaxed); max-width: 680px; color: color-mix(in srgb, var(--dark) 65%, transparent);",
   },
   {
-    token: "pill-text",
+    token: "label",
     spec: "Space Grotesk 600 · uppercase · 0.12em · in a yellow outlined pill",
     sample: "Featured",
     style:
-      "display: inline-block; border: 3px solid var(--dark); border-radius: 9999px; background: var(--accent-1); box-shadow: 5px 5px 0 color-mix(in srgb, var(--dark) 12%, transparent); padding: 7px 22px; font-family: var(--body); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; font-size: 14px; color: var(--dark);",
+      "display: inline-block; border: 3px solid var(--dark); border-radius: 9999px; background: var(--accent-1); box-shadow: 5px 5px 0 color-mix(in srgb, var(--dark) 12%, transparent); padding: 7px 22px; font-family: var(--body); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-label); font-size: var(--text-xs); color: var(--dark);",
   },
 ];
 
@@ -482,6 +513,9 @@ export const capsuleTheme: ThemeTokens = {
   // theme-name-keyed on disk. The font-coverage tripwire in theme-parity.test.ts checks the
   // families named in `css` against the injected set.)
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   // Capsule's own showcase sample copy — see `examples` above.

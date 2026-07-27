@@ -14,7 +14,6 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .comparison h3 {
-  font-size: 4.75rem;
   margin: 0 0 1.875rem;
 }
 /* NO GAP in either axis — the departure from professional's gapped chip ledger, and the reason this
@@ -42,7 +41,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 1.25rem;
+  font-size: var(--text-xs);
   padding: 1.5rem 1.625rem;
   color: var(--primary);
 }

@@ -35,9 +35,9 @@
 .quote .qt {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: 4.75rem;
-  line-height: 1.2;
-  letter-spacing: 0;
+  font-size: var(--text-2xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-display);
   color: var(--dark);
 }
 /* Attribution: Inter 400 — the paragraph weight, not the label's 500. It is tracked to 0.2em
@@ -48,7 +48,7 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 1.25rem;
+  font-size: var(--text-xs);
   color: var(--primary);
   margin-top: 2.875rem;
 }

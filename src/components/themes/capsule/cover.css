@@ -20,14 +20,14 @@
   box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
   padding: 1rem 2.625rem;
   letter-spacing: 0.18em;
-  font-size: 1.375rem;
+  font-size: var(--text-xs);
   margin-bottom: 3.625rem;
 }
 .cover h3 {
   font-weight: 800;
-  font-size: 13.25rem;
+  font-size: var(--text-4xl);
   letter-spacing: -0.03em;
-  line-height: 0.88;
+  line-height: var(--lh-solid);
   max-width: 105.625rem;
   margin: 0;
 }
@@ -49,8 +49,8 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 2rem;
-  line-height: 1.5;
+  font-size: var(--text-md);
+  line-height: var(--lh-relaxed);
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-top: 2.5rem;
   max-width: 67.25rem;

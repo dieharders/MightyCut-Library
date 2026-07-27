@@ -29,8 +29,8 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 2.25rem;
-  line-height: 1.2;
+  font-size: var(--text-md);
+  line-height: var(--lh-snug);
 }
 .cta-c .cta-arrow {
   white-space: pre;

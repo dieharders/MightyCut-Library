@@ -46,16 +46,22 @@
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 1.75rem;
-  line-height: 1.2;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  line-height: var(--lh-snug);
 }
 .block-frame h3 {
   font-family: var(--disp);
+  /* THE SLIDE TITLE, stated once. Every content treatment (agenda, chart, bar-ranking,
+     comparison, feature-cards, stat-grid, timeline) used to redeclare this, at two different
+     sizes grouped differently in every theme; they now layer only margin/rhythm over it. A
+     treatment that genuinely wants another size overrides it and says why — cover and
+     closing-plate do, because a hero frame steps up to its own display step. */
+  font-size: var(--text-xl);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.03em;
-  line-height: 0.95;
+  line-height: var(--lh-tight);
   margin: 0;
 }
 /* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a

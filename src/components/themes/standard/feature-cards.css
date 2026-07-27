@@ -20,7 +20,6 @@
    and it earns its place: a headline running the full content width would out-measure the three
    columns beneath it, and a frame here is allowed — expected — to be mostly empty. */
 .feature-cards h3 {
-  font-size: 4.75rem;
   margin: 0 0 1.875rem;
   max-width: 84rem;
 }

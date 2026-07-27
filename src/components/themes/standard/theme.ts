@@ -25,7 +25,9 @@
 //     default is `plain` — the bare stone. Atmosphere comes from the compass decorations a scene
 //     opts into, never from an always-on field.
 import { STANDARD_DECORATION_COMPONENTS } from "../../primitives/standard-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -128,14 +130,48 @@ const fontTokens: Record<string, string> = {
   mono: '"Inter", sans-serif',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future, capsule, professional and creative). */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** standard's ladder. A catalogue scale: a very small type band (1.25–2.625rem) carrying every label
+ *  and paragraph, then a deliberate JUMP to the serif display steps. The gap IS the design — see
+ *  cover.css on why the subtitle sits at the bottom of the ramp under a 9rem headline.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.375rem",
+  sm: "1.75rem",
+  md: "2.125rem",
+  lg: "2.625rem",
+  xl: "3.625rem",
+  "2xl": "4.75rem",
+  "3xl": "6rem",
+  "4xl": "9rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "1",
+  tight: "1.05",
+  snug: "1.15",
+  normal: "1.35",
+  relaxed: "1.5",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "0",
+  label: "0.22em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
@@ -147,21 +183,21 @@ const typography: ThemeTokens["typography"] = [
     spec: "Playfair Display 700 · sentence case · line 1.04 — the cover and closing statement, and nothing else",
     sample: "Considered.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.04; font-size: 92px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: var(--track-display); line-height: var(--lh-tight); font-size: var(--text-4xl); color: var(--dark);",
   },
   {
     token: "heading",
     spec: "Playfair Display 600 · sentence case · line 1.1 — the headline on every content frame",
     sample: "Drawn in one line",
     style:
-      "font-family: var(--disp); font-weight: 600; letter-spacing: 0; line-height: 1.1; font-size: 56px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 600; letter-spacing: var(--track-display); line-height: var(--lh-snug); font-size: var(--text-2xl); color: var(--dark);",
   },
   {
     token: "figure",
     spec: "Playfair Display 600 · ink · line 1 — a stat figure, a bar value, an agenda numeral; the serif does the numbers too",
     sample: "24.3",
     style:
-      "font-family: var(--disp); font-weight: 600; line-height: 1; font-size: 76px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 600; line-height: var(--lh-solid); font-size: var(--text-3xl); color: var(--dark);",
   },
   {
     token: "body",
@@ -169,14 +205,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Inter carries every paragraph in warm gray — readable, recessive, never competing with the serif statement above it.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-3);",
+      "font-family: var(--body); font-weight: 400; font-size: var(--text-sm); line-height: var(--lh-relaxed); max-width: 680px; color: var(--muted-3);",
   },
   {
     token: "label",
     spec: "Inter 500 · uppercase · 0.22em · brownstone — every eyebrow, stat label, column head and counter; no chip, no fill",
     sample: "Section · Eyebrow",
     style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.22em; font-size: 15px; color: var(--primary);",
+      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: var(--track-label); font-size: var(--text-xs); color: var(--primary);",
   },
 ];
 
@@ -449,6 +485,9 @@ export const standardTheme: ThemeTokens = {
   // rings and its oversized quotation mark are decoration COMPONENTS here, not markup; and its stat
   // has no corner dot, so the shared node is styled away rather than removed (nothing animates it).
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   examples,

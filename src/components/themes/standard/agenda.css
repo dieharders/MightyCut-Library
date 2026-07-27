@@ -22,7 +22,6 @@
 .agenda h3 {
   /* The base h3 (frame.css) zeroes its margins; the index needs one gap beneath the headline and
      none above it, because the body is centred and the top space is the padding's job. */
-  font-size: 4.75rem;
   margin: 0 0 1.875rem;
 }
 .agenda .alist {

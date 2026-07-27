@@ -22,9 +22,9 @@
 .quote .qt {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: 3.75rem;
-  line-height: 1.42;
-  letter-spacing: 0;
+  font-size: var(--text-2xl);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--track-display);
   color: var(--dark);
   margin-top: 1.25rem;
 }
@@ -33,7 +33,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.25rem;
+  font-size: var(--text-xs);
   color: var(--muted-3);
   margin-top: 2.375rem;
 }

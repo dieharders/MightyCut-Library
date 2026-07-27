@@ -13,6 +13,7 @@ export {
   type AnimTime,
 } from "./anim";
 export { collectCss, scopeCss } from "./css";
+export { buildTokensCss, type TokenInput } from "./tokens";
 export { scrubDeterminism } from "./determinism";
 export { buildPreview, buildScene, renderScene, type Preview, type SceneOverrides } from "./emit";
 export {

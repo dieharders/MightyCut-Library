@@ -32,9 +32,9 @@
 /* 700, one weight above the frame base's 600 — the cover and the closer are the only two places
    standard sets Playfair that heavy, and the tighter 1.04 leading goes with it. */
 .closing-plate h3 {
-  font-size: 8.375rem;
+  font-size: var(--text-4xl);
   font-weight: 700;
-  line-height: 1.04;
+  line-height: var(--lh-tight);
 }
 /* The call to action is NOT A BUTTON. Standard has no pill, no fill and no radius to spend on one,
    so the action is set as one more brownstone label — Inter 500, uppercase, tracked 0.2em — and the rule
@@ -47,7 +47,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 1.375rem;
+  font-size: var(--text-xs);
   color: var(--primary);
 }
 /* THE ONE INK RULE. The reference draws it as a separate .ha node — its "horizontal accent"

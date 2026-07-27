@@ -20,7 +20,9 @@
 // this folder is therefore authored AGAINST ITS OWN GROUND, and an explicit scene ground still
 // wins over all of it.
 import { CREATIVE_DECORATION_COMPONENTS } from "../../primitives/creative-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -169,14 +171,47 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future, capsule and professional). */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** creative's ladder. Archivo Black is a single heavy weight, so this theme separates its voices by
+ *  SIZE alone — hence the big jumps above `lg` and the 12.625rem cover.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.5rem",
+  sm: "1.875rem",
+  md: "2.25rem",
+  lg: "3rem",
+  xl: "4rem",
+  "2xl": "6rem",
+  "3xl": "8rem",
+  "4xl": "12.625rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "0.85",
+  tight: "0.95",
+  snug: "1.2",
+  normal: "1.3",
+  relaxed: "1.45",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "-0.01em",
+  label: "0.1em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section, and FRAME.md's ramp).
 // `style` is the self-contained inline CSS the showcase renders each live sample with (px is fine
@@ -186,37 +221,37 @@ const displayBase =
   "font-family: var(--disp); text-transform: uppercase; color: var(--dark);";
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display-hero",
+    token: "display",
     spec: "Archivo Black · uppercase · line 0.86 · −0.02em — the cover word and nothing else",
     sample: "Loud.",
-    style: `${displayBase} line-height: 0.86; letter-spacing: -0.02em; font-size: 128px;`,
+    style: `${displayBase} line-height: var(--lh-solid); letter-spacing: -0.02em; font-size: var(--text-4xl);`,
   },
   {
-    token: "display-md",
+    token: "heading",
     spec: "Archivo Black · uppercase · line 0.92 · −0.01em — section headlines on every content frame",
     sample: "Make It Move",
-    style: `${displayBase} line-height: 0.92; letter-spacing: -0.01em; font-size: 76px;`,
+    style: `${displayBase} line-height: var(--lh-tight); letter-spacing: var(--track-display); font-size: var(--text-xl);`,
   },
   {
-    token: "stat-num",
+    token: "figure",
     spec: "Archivo Black · line 0.88 — the figure on a stat plate, a step numeral, a bar value",
     sample: "240%",
-    style: `${displayBase} line-height: 0.88; font-size: 88px;`,
+    style: `${displayBase} line-height: var(--lh-solid); font-size: var(--text-3xl);`,
   },
   {
-    token: "body-lg",
+    token: "body",
     spec: "Space Grotesk 400 · line 1.4 · left-aligned — the reading ramp; it explains while the display declares",
     sample:
       "Body copy sits in Space Grotesk — left-aligned, never centred. It explains while the display type declares.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 24px; line-height: 1.4; max-width: 760px; color: var(--muted-3);",
+      "font-family: var(--body); font-weight: 400; font-size: var(--text-xs); line-height: var(--lh-relaxed); max-width: 760px; color: var(--muted-3);",
   },
   {
-    token: "mono-kicker",
+    token: "label",
     spec: "JetBrains Mono · uppercase · 0.14em · cream on an ink plate — the inverted kicker-block that opens a frame",
     sample: "Fig. 02 — Type Specimen",
     style:
-      "display: inline-block; background: var(--dark); color: var(--muted-1); padding: 8px 18px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: 22px;",
+      "display: inline-block; background: var(--dark); color: var(--muted-1); padding: 8px 18px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: var(--text-xs);",
   },
 ];
 
@@ -528,6 +563,9 @@ export const creativeTheme: ThemeTokens = {
   // decorative corner disc and rotated stamp are decoration COMPONENTS here, not markup, and the
   // cover's redundant counter node does not exist in the shared template at all.
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   examples,

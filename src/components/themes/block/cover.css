@@ -12,17 +12,17 @@
   margin-bottom: 2.5rem;
 }
 .cover h3 {
-  font-size: 9rem;
+  font-size: var(--text-4xl);
   letter-spacing: -0.04em;
-  line-height: 0.9;
+  line-height: var(--lh-solid);
   max-width: 86.375rem;
   margin: 0;
 }
 .cover .sub {
   font-family: var(--mono);
   font-weight: 500;
-  font-size: 3rem;
-  line-height: 1.5;
+  font-size: var(--text-lg);
+  line-height: var(--lh-relaxed);
   color: var(--dark);
   margin-top: 2.5rem;
   max-width: 60rem;

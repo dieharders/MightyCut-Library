@@ -45,8 +45,8 @@
   margin-bottom: 1.125rem;
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 2.875rem;
-  line-height: 1;
+  font-size: var(--text-lg);
+  line-height: var(--lh-tight);
   color: var(--primary);
 }
 .bar .bcol {
@@ -73,7 +73,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.5rem;
+  font-size: var(--text-sm);
   color: var(--dark);
   text-align: center;
 }

@@ -6,7 +6,6 @@
   padding: 8.125rem 6rem 13.5rem;
 }
 .chart h3 {
-  font-size: 4.125rem;
   margin: 0 0 3.625rem;
 }
 .chart h3::after {
@@ -41,7 +40,7 @@
 .chart .caption {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--text-xs);
   color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
   margin-top: 2.125rem;
   text-align: center;

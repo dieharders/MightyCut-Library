@@ -13,7 +13,9 @@
 // styles the same standard class names from its own folder. Content fonts (Inter,
 // Space Grotesk) are self-hosted and staged from video-assets/themes/block/assets.
 import { DECORATION_COMPONENTS } from "../../primitives/decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Per-element skins block OWNS. Every primitive + treatment is structure+behavior only
 // (template/schema/anim); block styles their standard class names here, in
@@ -75,18 +77,47 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
-/**
- * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (replaces the old
- * hand-maintained tokens.css, which duplicated every hex). The harness writes this to
- * a project's assets/tokens.css; the browser engine rewrites `:root` → `:host` to
- * scope it into a shadow root.
- */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** block's ladder. The neobrutalist scale: a tall body band (nothing under 1.75rem — this theme
+ *  does not whisper) and three display steps for the stat figure, the closing plate and the cover.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.75rem",
+  sm: "2.125rem",
+  md: "2.625rem",
+  lg: "3.125rem",
+  xl: "3.75rem",
+  "2xl": "5.5rem",
+  "3xl": "6.625rem",
+  "4xl": "9rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "0.9",
+  tight: "0.95",
+  snug: "1.15",
+  normal: "1.3",
+  relaxed: "1.5",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "-0.02em",
+  label: "0.08em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the 5 type roles (frame-showcase.html TYPOGRAPHY section). `style`
 // is the self-contained inline CSS the showcase applies to each live sample — it sets
@@ -96,23 +127,23 @@ const displayBase =
   "font-family: var(--disp); text-transform: uppercase; line-height: 0.95; color: var(--dark);";
 const typography: ThemeTokens["typography"] = [
   {
-    token: "heading-xl",
+    token: "display",
     spec: "Inter 900 · uppercase · hero titles & biggest word on a frame",
     sample: "Maximal.",
-    style: `${displayBase} font-weight: 900; letter-spacing: -0.03em; font-size: 80px;`,
+    style: `${displayBase} font-weight: 900; letter-spacing: -0.03em; font-size: var(--text-4xl);`,
   },
   {
-    token: "heading-lg",
+    token: "heading",
     spec: "Inter 800 · uppercase · section headlines & secondary titles",
     sample: "Bordered & Bold",
-    style: `${displayBase} font-weight: 800; letter-spacing: -0.02em; font-size: 50px;`,
+    style: `${displayBase} font-weight: 800; letter-spacing: var(--track-display); font-size: var(--text-xl);`,
   },
   {
-    token: "stat-number",
+    token: "figure",
     spec: "Inter 900 · line 1 · big numeric callouts: stats, counts, prices",
     sample: "240",
     style:
-      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 900; line-height: var(--lh-tight); letter-spacing: var(--track-display); font-size: var(--text-2xl); color: var(--dark);",
   },
   {
     token: "body",
@@ -120,14 +151,14 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
     style:
-      "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 500; font-size: var(--text-xs); line-height: var(--lh-relaxed); max-width: 640px; color: var(--dark);",
   },
   {
     token: "label",
     spec: "Space Grotesk 600 · uppercase · eyebrows, tags & section kickers above a heading",
     sample: "Section Eyebrow",
     style:
-      "display: inline-block; border: 3px solid var(--dark); background: var(--light); box-shadow: 4px 4px 0 var(--dark); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: var(--dark);",
+      "display: inline-block; border: 3px solid var(--dark); background: var(--light); box-shadow: 4px 4px 0 var(--dark); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-label); font-size: var(--text-xs); color: var(--dark);",
   },
 ];
 
@@ -423,6 +454,9 @@ export const blockTheme: ThemeTokens = {
   // theme-name-keyed on disk. The font-coverage tripwire in theme-parity.test.ts checks the
   // families in `css` against the core set instead.)
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   // Block's own showcase sample copy — see `examples` above.

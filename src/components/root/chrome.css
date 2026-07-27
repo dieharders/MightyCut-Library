@@ -13,8 +13,9 @@
  * bottom 200px (captions + progress), left/right 80px. (The block treatments'
  * own body inset is tighter — ~130px top / 216px bottom / 96px sides.)
  *
- * Units: layout and type measures are rem (they define the composition and rescale
- * with the canvas via the render document's viewport-derived root font-size). Sub-pixel
+ * Units: layout and type measures are rem (they define the composition). NB the render
+ * document does NOT set a viewport-derived root font-size — see runtime/css.ts — so rem
+ * resolves against the browser's 16px default, which equals the 1920 design size. Sub-pixel
  * RASTER effects — the 1px hairline gradient stops and the caption text-shadow blur —
  * stay px on purpose: they tune how the composition is drawn, not its geometry, and
  * would double in weight if snapped up to the 0.125rem (2px) grid.

@@ -7,7 +7,7 @@
 .row .rl {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: var(--text-xs);
   color: var(--light);
   align-self: center;
 }
@@ -18,8 +18,8 @@
   padding: 1.25rem 1.5rem;
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.375rem;
-  line-height: 1.35;
+  font-size: var(--text-xs);
+  line-height: var(--lh-normal);
   color: var(--muted-1);
 }
 .row .cell.b {

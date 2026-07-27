@@ -14,7 +14,9 @@
 // Sans (--body/--mono), NEITHER of which is in the core chrome set — so it ships an add-on sheet
 // (assets/fonts/professional-fonts.css) and register-professional.ts injects only that, not core.
 import { PROFESSIONAL_DECORATION_COMPONENTS } from "../../primitives/professional-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -94,14 +96,47 @@ const fontTokens: Record<string, string> = {
   mono: '"IBM Plex Sans", sans-serif',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future and capsule). */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** professional's ladder. The quietest scale in the library — its `4xl` cover (7rem) is smaller than
+ *  three other themes' stat figures, which is the restraint the theme is for.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.25rem",
+  sm: "1.375rem",
+  md: "1.75rem",
+  lg: "2.125rem",
+  xl: "2.5rem",
+  "2xl": "3.75rem",
+  "3xl": "5rem",
+  "4xl": "7rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "1",
+  tight: "1.15",
+  snug: "1.25",
+  normal: "1.4",
+  relaxed: "1.5",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "0",
+  label: "0.08em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
@@ -113,21 +148,21 @@ const typography: ThemeTokens["typography"] = [
     spec: "Libre Baskerville 700 · serif · near-black — hero titles & the biggest line on a frame",
     sample: "Measured.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 76px; color: var(--dark);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: var(--track-display); line-height: var(--lh-tight); font-size: var(--text-4xl); color: var(--dark);",
   },
   {
-    token: "eyebrow",
-    spec: "IBM Plex Sans 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
-    sample: "Executive Summary",
+    token: "heading",
+    spec: "Libre Baskerville 700 · serif · near-black — the headline on every content frame, two steps under the display",
+    sample: "A considered position",
     style:
-      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--primary);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: var(--track-display); line-height: var(--lh-tight); font-size: var(--text-2xl); color: var(--dark);",
   },
   {
-    token: "metric-value",
+    token: "figure",
     spec: "IBM Plex Sans 600 · tabular · cobalt — the ONE place colour meets type: stats, counts, prices",
     sample: "$24.3M",
     style:
-      "font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--primary);",
+      "font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; line-height: var(--lh-solid); letter-spacing: -0.02em; font-size: var(--text-3xl); color: var(--primary);",
   },
   {
     token: "body",
@@ -135,14 +170,21 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "IBM Plex Sans carries every paragraph in muted gray — readable, premium, never competing with the cobalt accent or the serif headline.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 660px; color: var(--muted-3);",
+      "font-family: var(--body); font-weight: 400; font-size: var(--text-xs); line-height: var(--lh-relaxed); max-width: 660px; color: var(--muted-3);",
+  },
+  {
+    token: "label",
+    spec: "IBM Plex Sans 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
+    sample: "Executive Summary",
+    style:
+      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-label); font-size: var(--text-xs); color: var(--primary);",
   },
   {
     token: "cta",
     spec: "IBM Plex Sans 600 · solid cobalt pill · cream label — the one saturated call to action",
     sample: "Book a Briefing",
     style:
-      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.02em; font-size: 17px; color: var(--light);",
+      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.02em; font-size: var(--text-md); color: var(--light);",
   },
 ];
 
@@ -397,6 +439,9 @@ export const professionalTheme: ThemeTokens = {
   // No template overrides: professional reaches its whole look in CSS alone (the cover panel/dots
   // and the quote rings are decoration components, not markup; the quote mark is a pseudo-element).
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   examples,

@@ -13,7 +13,9 @@
 // layer. Content fonts (Space Grotesk / Inter / JetBrains Mono) are all in the
 // always-staged core set, so future ships no add-on font.
 import { FUTURE_DECORATION_COMPONENTS } from "../../primitives/future-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import cardCss from "./card.css" with { type: "text" };
@@ -77,19 +79,47 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/**
- * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (matching block),
- * so each hex is written down exactly once. Future no longer authors an identity
- * layer beside the roles — the shades it used to name (`--fx-panel`, `--fx-line`,
- * `--fx-steel`, `--fx-faint`, `--fx-glass`, `--fx-rule`) are derived per-use with
- * color-mix() in the skins.
- */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** future's ladder. The most compressed scale here: a sci-fi HUD reads as instrumentation, so the
+ *  body band sits tight and the display steps stay restrained.
+ *
+ *  Fitted to the sizes this theme ALREADY shipped, then quantised onto the 0.125rem grid — the
+ *  8 steps reproduce its old scale rather than imposing a new one. Skins name steps
+ *  (`var(--text-md)`), never sizes, so retuning the whole theme is an edit here. See
+ *  types/typescale.ts for the contract and why the same name carries a different size per theme. */
+const typeScale: TypeScale = {
+  xs: "1.375rem",
+  sm: "1.875rem",
+  md: "2.25rem",
+  lg: "2.75rem",
+  xl: "3.375rem",
+  "2xl": "4.25rem",
+  "3xl": "6.5rem",
+  "4xl": "8rem",
+};
+
+/** Leading, ascending — `solid` is display leading (numerals, the cover headline), `relaxed` is
+ *  paragraph leading. Unitless, so each scales with whatever step it sits beside. */
+const leading: Leading = {
+  solid: "1",
+  tight: "1.15",
+  snug: "1.25",
+  normal: "1.35",
+  relaxed: "1.5",
+};
+
+/** The two tracking values that are this theme's SIGNATURE: what its headlines are tracked at, and
+ *  its uppercase label tracking. Per-skin tracking craft stays an authored literal on purpose
+ *  (types/typescale.ts explains why only these two are tokenised). */
+const tracking: Tracking = {
+  display: "-0.02em",
+  label: "0.18em",
+};
+
+/** `:root`, DERIVED from `palette` + `fontTokens` + the type tokens above — every value written
+ *  down exactly once. Shared with the other five themes via `buildTokensCss` (runtime/tokens.ts):
+ *  the block used to be copy-pasted into all six theme.ts, and it now carries enough tokens that
+ *  six hand-maintained copies was six chances to silently drop one. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase applies to each live sample.
@@ -99,21 +129,21 @@ const typography: ThemeTokens["typography"] = [
     spec: "Space Grotesk 700 · sentence case · −0.03em · hero titles",
     sample: "Command Center.",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--light);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: var(--lh-solid); font-size: var(--text-4xl); color: var(--light);",
   },
   {
-    token: "h2",
+    token: "heading",
     spec: "Space Grotesk 700 · slide headlines",
     sample: "Built for the Edge",
     style:
-      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--light);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: var(--text-2xl); color: var(--light);",
   },
   {
-    token: "stat-number",
+    token: "figure",
     spec: "Space Grotesk 700 · cyan · big numeric callouts",
     sample: "99.7%",
     style:
-      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--primary);",
+      "font-family: var(--disp); font-weight: 700; line-height: var(--lh-solid); letter-spacing: var(--track-display); font-size: var(--text-3xl); color: var(--primary);",
   },
   {
     token: "body",
@@ -121,18 +151,15 @@ const typography: ThemeTokens["typography"] = [
     sample:
       "Inter carries every paragraph in cool muted blue — readable, recessive, never competing with the cyan statement above it.",
     style:
-      "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-1);",
+      "font-family: var(--body); font-weight: 400; font-size: var(--text-xs); line-height: var(--lh-relaxed); max-width: 680px; color: var(--muted-1);",
   },
   {
     token: "label",
     spec: "JetBrains Mono 500 · uppercase · wide track · cyan — eyebrows, counters, HUD",
     sample: "Section · Eyebrow",
     style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--primary);",
+      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: var(--track-label); font-size: var(--text-sm); color: var(--primary);",
   },
-  // NOTE: the quote glyph is deliberately NOT a type role — it belongs solely to the quote
-  // treatment (templates/quote.html's .qmark + quote.css). Keep this list to the general roles
-  // (mirrors block's typography) so the showcase Typography section stays treatment-agnostic.
 ];
 
 // Frame Rules — Do / Don't bullets (frame-showcase.html PRINCIPLES section).
@@ -430,6 +457,9 @@ export const futureTheme: ThemeTokens = {
   // field — it was dead metadata; see the note on blockTheme. The font-coverage tripwire in
   // theme-parity.test.ts checks the families named in `css` against the core set.)
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography,
   rules,
   // Future's own showcase sample copy (Atlas Relay demo) — see `examples` above.

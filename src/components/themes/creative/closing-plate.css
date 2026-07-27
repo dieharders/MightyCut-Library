@@ -45,8 +45,8 @@
    cap, so 8.5rem holds ~13 characters on a line; at the reference-derived 12rem a single
    12-character sign-off already overruns the plate and pushes through the ink border. */
 .closing-plate h3 {
-  font-size: 8.5rem;
-  line-height: 0.86;
+  font-size: var(--text-3xl);
+  line-height: var(--lh-solid);
   color: var(--dark);
   max-width: 80rem;
 }
@@ -63,6 +63,6 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 2.25rem;
-  line-height: 1.2;
+  font-size: var(--text-md);
+  line-height: var(--lh-snug);
 }

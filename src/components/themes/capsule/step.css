@@ -38,7 +38,7 @@
   background: var(--accent-1);
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.625rem;
+  font-size: var(--text-sm);
   color: var(--dark);
   margin-bottom: 1.5rem;
 }
@@ -46,14 +46,14 @@
   /* Bodoni, sentence case, ink (inherited from .block-frame) — never uppercase, never coloured. */
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2rem;
-  line-height: 1.1;
+  font-size: var(--text-md);
+  line-height: var(--lh-snug);
 }
 .step-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.25rem;
-  line-height: 1.5;
+  font-size: var(--text-xs);
+  line-height: var(--lh-relaxed);
   color: color-mix(in srgb, var(--dark) 65%, transparent);
   margin-top: 0.875rem;
 }

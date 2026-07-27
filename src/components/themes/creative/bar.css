@@ -53,9 +53,9 @@
   font-family: var(--disp);
   font-variant-numeric: tabular-nums;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  font-size: 2.375rem;
-  line-height: 1;
+  letter-spacing: var(--track-display);
+  font-size: var(--text-md);
+  line-height: var(--lh-tight);
   color: var(--dark);
 }
 /* box-sizing:border-box so the 0.5rem outline is INSIDE the --fill height — otherwise a 0% column
@@ -82,7 +82,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.375rem;
+  font-size: var(--text-xs);
   color: var(--muted-3);
   text-align: center;
 }

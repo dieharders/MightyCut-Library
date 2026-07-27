@@ -19,9 +19,8 @@
    a decision here, not an omission.
 
    UNITS. The reference authored this block in px (it lives outside the cqw frame), but the port
-   deliberately does not convert it literally: .cap-text is pinned to 3.625rem, the cross-theme
-   caption convention every other theme already uses, which is ~2.2× the reference's 26px — so the
-   BOX has to scale with the text, not with the divisor. Padding and gap therefore land on the
+   deliberately does not convert it literally: the caption step is ~2.2× the reference's 26px, so
+   the BOX has to scale with the text, not with the divisor. Padding and gap therefore land on the
    shared caption geometry (professional's box), while the CHROME comes from creative's own
    taxonomy: the outline is the 0.5rem ink rule the whole theme is built on, and the offset is held
    at 0.5rem — a deliberate half-step under the 0.75rem repeated-card stack, because the rail sits
@@ -54,12 +53,14 @@
 }
 /* Deliberately NO alignment declaration: theme-parity's "cap-text alignment matches block" sweep
    reads block's rule, which declares none, so any text-align here fails the build. This note is
-   kept OUTSIDE the rule body because that extractor's regex is not comment-aware. 3.625rem is the
-   cross-theme caption convention (block, future, capsule, professional), not a conversion of the
-   reference's 26px. */
+   kept OUTSIDE the rule body because that extractor's regex is not comment-aware.
+   The size is a ladder step now (types/typescale.ts). The old
+   3.625rem "cross-theme caption convention" is preserved by it — the step each theme picked is
+   the one nearest that value — so the rail looks unchanged; what changed is that retuning it is
+   now one edit in theme.ts instead of six. */
 .caption .cap-text {
   font-family: var(--body);
-  font-size: 3.625rem;
-  line-height: 1.3;
+  font-size: var(--text-xl);
+  line-height: var(--lh-normal);
   color: var(--dark);
 }

@@ -10,10 +10,10 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .agenda h3 {
-  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
-     section heading is the base Bodoni cut, so only the size and rhythm are stated. This is
-     the SMALL section size (agenda, comparison, chart, bar-ranking), not the 4.75rem cut. */
-  font-size: 4.375rem;
+  /* Size, weight, tracking, leading and colour all come from .block-frame h3 in frame.css —
+     capsule's section heading is the base Bodoni cut, so only the rhythm is stated here. The old
+     two-tier split (a SMALL 4.375rem cut for agenda/comparison/chart/bar-ranking against a
+     4.75rem one for the card treatments) is gone: both collapsed onto the one title step. */
   margin: 1.625rem 0 2.875rem;
 }
 .agenda .alist {

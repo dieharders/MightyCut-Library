@@ -18,22 +18,22 @@
      caption, the ledger's column heads) track tighter than the frame-level eyebrow so a two-digit
      pair still reads as one word at step scale. The reference draws the same distinction. */
   letter-spacing: 0.15em;
-  font-size: 1.5rem;
+  font-size: var(--text-xs);
   color: var(--primary);
 }
 .step-title {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.625rem;
-  line-height: 1.15;
+  font-size: var(--text-lg);
+  line-height: var(--lh-snug);
   color: var(--dark);
   margin-top: 1.25rem;
 }
 .step-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.625rem;
-  line-height: 1.5;
+  font-size: var(--text-sm);
+  line-height: var(--lh-relaxed);
   color: var(--muted-3);
   margin-top: 1.25rem;
 }

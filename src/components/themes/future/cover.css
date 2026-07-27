@@ -14,15 +14,15 @@
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 2rem;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-sm);
   color: var(--primary);
   margin-bottom: 2.5rem;
 }
 .cover h3 {
-  font-size: 8.375rem;
+  font-size: var(--text-4xl);
   letter-spacing: -0.03em;
-  line-height: 0.98;
+  line-height: var(--lh-solid);
   max-width: 96rem;
   margin: 0;
 }
@@ -35,8 +35,8 @@
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 3rem;
-  line-height: 1.5;
+  font-size: var(--text-lg);
+  line-height: var(--lh-relaxed);
   color: var(--muted-1);
   margin-top: 2.875rem;
   max-width: 67.25rem;

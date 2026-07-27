@@ -8,7 +8,7 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 3.375rem;
+  font-size: var(--text-lg);
   color: var(--primary);
   min-width: 6rem;
 }
@@ -16,7 +16,7 @@
   font-family: var(--disp);
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 2.875rem;
+  font-size: var(--text-md);
   letter-spacing: -0.01em;
 }
 .agenda-item .d {
@@ -24,7 +24,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.875rem;
+  font-size: var(--text-xs);
   color: color-mix(in srgb, var(--dark) 80%, transparent);
   margin-left: auto;
   align-self: center;

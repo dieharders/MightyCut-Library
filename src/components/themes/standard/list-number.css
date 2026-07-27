@@ -18,7 +18,7 @@
   flex-shrink: 0;
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2rem;
+  font-size: var(--text-md);
   color: var(--primary);
 }
 /* Ink, not the frame's warm gray: a bullet is a short statement, not a paragraph, and the gray body
@@ -26,7 +26,7 @@
 .listnum-c .ln-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.25rem;
-  line-height: 1.5;
+  font-size: var(--text-md);
+  line-height: var(--lh-relaxed);
   color: var(--dark);
 }
