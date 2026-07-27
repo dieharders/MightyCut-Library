@@ -40,9 +40,12 @@ every theme**. A theme supplies the CSS those class names resolve against.
    element renders completely unstyled — and still passes a "does it compose" smoke.
    Enforced: `theme-parity.test.ts` → _"skin coverage"_.
 4. **rem on a 0.125rem grid.** Never px for geometry (see §5).
-5. **A theme adds no motion code.** If you want movement, it belongs in a backdrop design or
+   Enforced: `theme-parity.test.ts` → _"authored rem lengths land on the 0.125rem grid"_.
+5. **Type is a STEP, never a size.** A skin says `font-size: var(--text-md)`; the size behind
+   that step is your theme's (see §6). Never a bare rem font-size.
+6. **A theme adds no motion code.** If you want movement, it belongs in a backdrop design or
    a decoration, not in a skin.
-6. **Decorations are exclusive; backdrops are shared.** Your four decoration families are
+7. **Decorations are exclusive; backdrops are shared.** Your four decoration families are
    yours alone. Your signature backdrop goes into a common pool every theme can draw from.
 
 ---
@@ -256,10 +259,29 @@ class names would cross-match between scenes. `scopeCss` prefixes every rule wit
 tokenizer and a test guards the assumption. rem needs no `@media`/`@container`.
 
 **rem on the 0.125rem grid.** At the 1920 design size 1rem = 16px, so every 0.125rem multiple
-lands on an even pixel (minimises sub-pixel jitter on rotated elements), and the render
-document sets a viewport-derived root font-size so authored numbers are canvas-relative. For
-sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raster_ effects (a
-1px hairline gradient stop, a text-shadow blur) may stay px on purpose.
+lands on an even pixel (minimises sub-pixel jitter on rotated elements). For sizes computed
+from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raster_ effects (a 1px hairline
+gradient stop, a text-shadow blur) may stay px on purpose.
+
+**Type sizes are the exception: they are never written at all.** Every `font-size` in a skin
+names a step on your theme's ladder — `var(--text-xs)` … `var(--text-4xl)` — and leading and
+your two signature tracking values do the same:
+
+```css
+.card-title {
+  font-family: var(--disp);
+  font-size: var(--text-xl); /* a STEP; theme.ts decides what that is */
+  line-height: var(--lh-snug);
+}
+.card-body {
+  font-size: var(--text-xs);
+  line-height: var(--lh-relaxed);
+}
+```
+
+The density hook still multiplies a step rather than restating a size:
+`font-size: calc(var(--text-2xl) * var(--dense-scale, 1))`. A deliberate one-off may keep a
+literal — say so in a comment, the way a px raster effect does.
 
 **Colours are roles, always.** Anything lighter/darker/translucent is `color-mix()`:
 
@@ -371,12 +393,34 @@ still keeps the render correct.
 
 ### Typography — your type scale
 
-`ThemeTokens.typography` is your theme's own scale: an array of type ROLES (block and future
-both ship five — display, section heading, stat figure, body, label), each with a token name,
-a human spec line, a sample string, and self-contained inline CSS the showcase renders live.
-It documents the scale and drives the showcase Typography section; the actual sizes your
-slides use live in your skins. Sizes and weights are yours to choose — nothing is shared here
-but the shape of the field.
+Your scale is `ThemeTokens.typeScale` — **8 named steps, `xs` through `4xl`**, and it is the
+single source of every font-size your theme renders. The step NAMES are shared by every theme
+(`types/typescale.ts`); the sizes behind them are entirely yours, so capsule's `xs` is 1.25rem
+where block's is 1.75rem. Two smaller sets ride along: `leading` (5 steps, `solid` → `relaxed`)
+and `tracking` (just two roles — `display` and `label`, the values your design rules actually
+name; per-skin tracking craft stays an authored literal).
+
+```ts
+const typeScale: TypeScale = {
+  xs: "1.5rem", sm: "1.875rem", md: "2.25rem", lg: "3rem",
+  xl: "4rem", "2xl": "6rem", "3xl": "8rem", "4xl": "12.625rem",
+};
+const leading: Leading = { solid: "0.85", tight: "0.95", snug: "1.2", normal: "1.3", relaxed: "1.45" };
+const tracking: Tracking = { display: "-0.01em", label: "0.1em" };
+```
+
+Steps must be rem on the 0.125rem grid and strictly ascending. Pick them by writing the sizes
+your design wants and then clustering: the ladders that ship were fitted to what each theme
+already rendered, so nothing had to be redrawn.
+
+Retuning is now one edit. "Every label one notch up" is a change to `xs` in `theme.ts`, not a
+hunt through 40 skin files — which is the whole reason the ladder exists.
+
+`ThemeTokens.typography` documents that scale for the showcase: the **five canonical roles**
+`display · heading · figure · body · label`, in that order (append your own extras after them
+if your theme has a role worth showing, as professional does with `cta`). Each carries a token
+name, a human spec line, a sample string, and inline CSS the showcase renders live — and that
+CSS names steps too, so what the showcase displays is what your slides actually ship.
 
 ---
 
@@ -581,7 +625,9 @@ are shared and live in `assets/fonts/` (§6), including a theme's own add-on
 
 ```ts
 import { NEON_DECORATION_COMPONENTS } from "../../primitives/neon-decoration-shapes";
+import { buildTokensCss } from "../../runtime/tokens";
 import type { ThemeTokens } from "../../runtime/types";
+import type { Leading, Tracking, TypeScale } from "../../../types/typescale";
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -633,13 +679,17 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** :root, derived — every hex written down exactly once. Copy verbatim. */
-const tokensCss = `:root {\n${[
-  ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
-  ...Object.entries(fontTokens).map(
-    ([name, value]) => `  --${name}: ${value};`,
-  ),
-].join("\n")}\n}\n`;
+/** Your type ladder (§6) — 8 steps, ascending, rem on the 0.125rem grid. Every font-size in
+ *  your skins names one of these. */
+const typeScale: TypeScale = {
+  xs: "1.375rem", sm: "1.75rem", md: "2.125rem", lg: "2.625rem",
+  xl: "3.625rem", "2xl": "4.75rem", "3xl": "6rem", "4xl": "9rem",
+};
+const leading: Leading = { solid: "1", tight: "1.05", snug: "1.15", normal: "1.35", relaxed: "1.5" };
+const tracking: Tracking = { display: "0", label: "0.22em" };
+
+/** :root, derived — every value written down exactly once. Copy verbatim. */
+const tokensCss = buildTokensCss({ palette, fontTokens, typeScale, leading, tracking });
 
 export const neonTheme: ThemeTokens = {
   name: "neon",
@@ -682,6 +732,9 @@ export const neonTheme: ThemeTokens = {
   },
   // templates: { stat: statTemplate },   // only where CSS can't reach the structure
   palette,
+  typeScale,
+  leading,
+  tracking,
   typography, // 5 roles — see block/theme.ts for the shape
   rules, // do / dont bullets for the showcase
   examples, // per-treatment on-theme sample copy (showcase only)
