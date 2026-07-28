@@ -77,30 +77,33 @@ const previewCss = (frame: boolean, surface: string, fg: string, scheme: string)
    (stage / inner / preview-root) — exactly like the render border-boxes its padded
    containers (.mc-page) and NOT components — so a content-box component still matches the
    MP4 while the padded scaffold sizes predictably. */
-.mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
+/* These scaffold class names are PRIVATE to this shadow root — nothing outside can select
+   into it, and nothing does. They were mc-stage* once, which read as the render's shared
+   mc- vocabulary; that vocabulary is retired and this was never part of it. */
+.stage, .stage-inner, .preview-root { box-sizing: border-box; }
 /* The stage surface is theme-driven (theme.previewBg): a dark theme paints a dark ground so
    its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
    is the surface the user actually sees (it fills the preview box, above the host card). */
-.mc-stage { width: 100%; overflow: hidden; background: ${surface}; }
-.mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
+.stage { width: 100%; overflow: hidden; background: ${surface}; }
+.stage--frame { position: relative; aspect-ratio: 16 / 9; }
 /* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
    viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
    resolves against document.documentElement even across a shadow boundary — so a global
    html font-size rule here would leak into the WebUI's own rem layout. We rely on the
    host's 16px root instead. Do NOT set document.documentElement.style.fontSize here. */
-.mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
-.mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
+.stage--frame .stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.stage--frame .stage-inner > * { position: absolute; inset: 0; }
 /* Component/decoration previews render at their natural rem size inside a wide canvas
    (64rem — wider than any component, so text like the card body stays one line), then
    scale() FITS each element to its own box: scaled down to fill ~85% when it's bigger than
    the box, but never enlarged past natural size — so every component sits comfortably in its
    frame (small ones near natural, big ones scaled to fit), the way they did before. The
    canvas is centred in the (square) box; scale() transforms the preview-root around center. */
-.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
-.mc-stage--comp .mc-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
+.stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
+.stage--comp .stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
 /* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
    into this centred flex; a single-box component has one child, so the gap is a no-op there. */
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
+${frame ? "" : ".stage--comp .stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
 `;
 
 // Fraction of the preview box a fitted component fills (when it's larger than the box).
@@ -171,10 +174,10 @@ export const mountPreview = (
 
   const stage = document.createElement("div");
   stage.className = frame
-    ? "mc-stage mc-stage--frame"
-    : "mc-stage mc-stage--comp";
+    ? "stage stage--frame"
+    : "stage stage--comp";
   const inner = document.createElement("div");
-  inner.className = "mc-stage-inner";
+  inner.className = "stage-inner";
   inner.innerHTML = html;
   stage.appendChild(inner);
   shadow.appendChild(stage);
