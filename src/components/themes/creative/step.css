@@ -1,16 +1,15 @@
-/* Timeline step = an ink-outlined WHITE card carrying a giant Archivo numeral at the top and its
-   title pushed to the BOTTOM. That push (margin-top: auto on .step-title) is the reference's whole
-   layout idea for this object: the empty middle is the composition, not a gap waiting to be
-   filled, and it is what makes a row of four cards read as a poster rather than a feature grid.
-   Keep it.
+/* Timeline step = an ink-outlined WHITE card carrying a giant Archivo numeral over a title and one
+   line of body. The card SIZES TO THAT CONTENT — here, and equally in a timeline row. The
+   reference opened an empty middle under the numeral with a 20.25rem card floor and let
+   `margin-top: auto` strand the title at the bottom of it; at the copy these cards actually carry
+   that read as a half-empty card in both places, so the floor is gone from this file AND from
+   timeline.css, and no rule in the theme manufactures card height any more.
 
-   The height that OPENS that middle is not here, though. `margin-top: auto` only distributes
-   surplus height; the surplus itself came from a 20.25rem min-height on this card, and that floor
-   is a property of the SEQUENCE — four cards holding one poster line — not of a step. Alone in the
-   Components grid a lone step has no row to line up with, and the floor rendered as a card two
-   thirds empty with its title stranded at the bottom. So the min-height moved next to the other
-   sequence-only rule, in timeline.css. A lone step now sizes to its own three lines, and `auto`
-   correctly contributes nothing when there is no surplus to distribute.
+   `margin-top: auto` on .step-title stays, with a smaller job than it had. It distributes surplus
+   height, and a card that sizes to its content has none — so on a lone step it now contributes
+   exactly nothing. In a row it still earns its place: the grid stretches all four cards to the
+   tallest, and `auto` drops the shorter cards' title/body pair onto the same floor line as their
+   taller neighbour instead of leaving each one hanging at a different height under its numeral.
 
    The card sits on the timeline's oat plane; the LAST card in a row flips to green — that rule
    belongs to the sequence too, so it lives in timeline.css, and the three text colours stated
@@ -44,8 +43,9 @@
   line-height: 0.85;
   color: var(--dark);
 }
-/* margin-top: auto is load-bearing — it eats the card's free height and drops the title/body pair
-   onto the floor of the card, under the numeral. Set SOLID at line-height 1 rather than the 0.92
+/* margin-top: auto eats whatever free height the card has and drops the title/body pair onto its
+   floor — nothing on a content-sized card, the row's equaliser when a neighbour's copy runs a line
+   longer (see the header note). Set SOLID at line-height 1 rather than the 0.92
    headline ratio: these titles wrap to two short words at card width, and 0.92 collides the caps
    of stacked lines at this size. Uppercase always — sentence-case Archivo Black does not exist. */
 .step-title {
