@@ -356,30 +356,35 @@
     // title, children …); the gap between slots tightens as the slide narrates more, so every
     // element is up well before the VO finishes reading and nothing flashes at the end. A no-VO
     // scene (voCount 0, incl. the showcase) uses the full per-treatment default `d`.
-    var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.6;
-    var lastSlot = 0, haveDefault = false;
+    // CEILING (the `fit` pass below): the cascade must FINISH inside the scene, not merely
+    // tighten with caption count. voCount is a poor proxy for scene LENGTH — a scene narrated
+    // by a single line is short (leadIn + one padded line + tailOut) yet gets the widest gap,
+    // so a treatment with many slots cascaded nearly to the scene's end and its content was
+    // still arriving after the frame the stills sample. (Measured on the sample deck:
+    // bar-ranking's last reveal landed at 3.10s of a 3.47s scene in every theme; capsule's
+    // cover at 3.40s.) Slots also grow with the DECORATION count — treatment.ts gives
+    // decorations slots 0..N-1 ahead of the title — so a purely ambient choice could push the
+    // headline off the end. Fit the whole cascade into CASCADE_BUDGET of the scene. This only
+    // ever TIGHTENS: a scene long enough for its own cascade keeps the caption-count gap.
+    var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.6, CASCADE_BUDGET = 0.55;
+    // A slot fires at `leadIn + n * slotDelay + plus` (timeOf below), so the binding
+    // constraint is per-anim, not just the highest n: a mid-cascade slot carrying a big
+    // `plus` can land after a later bare one. Solve each anim's budget for slotDelay and keep
+    // the tightest. n === 0 is skipped — its time does not move with slotDelay at all.
+    var budget = ctx.dur > 0 ? ctx.dur * CASCADE_BUDGET - ctx.leadIn : 0;
+    var fit = Infinity, haveDefault = false;
     for (var si = 0; si < anims.length; si++) {
       var st = anims[si].time;
       if (!st || st.at !== "slot") continue;
       if (!haveDefault && st.d != null) { slotDefault = st.d; haveDefault = true; } // first wins
-      if ((st.n || 0) > lastSlot) lastSlot = st.n || 0;
+      var sn = st.n || 0;
+      if (ctx.dur > 0 && sn > 0) {
+        var cand = (budget - (st.plus || 0)) / sn;
+        if (cand < fit) fit = cand;
+      }
     }
     var slotDelay = Math.max(MIN_SLOT_DELAY, slotDefault - PER_CAPTION * (ctx.voCount || 0));
-    // CEILING: the cascade must FINISH inside the scene, not merely tighten with caption
-    // count. voCount is a poor proxy for scene LENGTH — a scene narrated by a single line is
-    // short (leadIn + one padded line + tailOut) yet gets the widest gap, so a treatment with
-    // many slots cascaded nearly to the scene's end and its content was still arriving after
-    // the frame the stills sample. (Measured on the sample deck: bar-ranking's last reveal
-    // landed at 3.10s of a 3.47s scene in every theme; capsule's cover at 3.40s.) Slots also
-    // grow with the DECORATION count — treatment.ts gives decorations slots 0..N-1 ahead of
-    // the title — so a purely ambient choice could push the headline off the end.
-    // Fit the whole cascade into CASCADE_BUDGET of the scene. This only ever TIGHTENS: a
-    // scene long enough for its own cascade keeps the caption-count gap untouched.
-    var CASCADE_BUDGET = 0.55;
-    if (ctx.dur > 0 && lastSlot > 0) {
-      var fit = (ctx.dur * CASCADE_BUDGET - ctx.leadIn) / lastSlot;
-      slotDelay = Math.min(slotDelay, Math.max(MIN_SLOT_DELAY, fit));
-    }
+    if (fit < Infinity) slotDelay = Math.min(slotDelay, Math.max(MIN_SLOT_DELAY, fit));
     var timeOf = function (t) {
       if (!t) return ctx.leadIn;
       var plus = t.plus || 0;

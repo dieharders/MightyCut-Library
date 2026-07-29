@@ -94,14 +94,8 @@ describe("the ordered cascade fits inside a short scene", () => {
     });
   }
 
-  test("a scene long enough for its own cascade keeps the caption-count gap", () => {
-    // The ceiling only ever TIGHTENS. With room to spare, slotDelay stays at the
-    // caption-count value (0.6 default − 0.1 × voCount 1 = 0.5), so slot 4 fires at
-    // leadIn + 4 × 0.5 = 2.4s — unchanged by the fit.
-    const anims: AnimDescriptor[] = [
-      { kind: "fadeIn", target: "a", time: { at: "slot", n: 0, plus: 0, d: 0.6 } },
-      { kind: "fadeIn", target: "b", time: { at: "slot", n: 4, plus: 0, d: 0.6 } },
-    ];
+  /** Hand-written descriptors straight through the interpreter — every fire time, in order. */
+  const slotTimes = (anims: AnimDescriptor[], dur: number): number[] => {
     const els = new Map<string, object>();
     const out: number[] = [];
     const tl: Record<string, unknown> = {};
@@ -117,9 +111,39 @@ describe("the ordered cascade fits inside a short scene", () => {
       lineId: () => "",
       leadIn: LEAD_IN,
       voCount: 1,
-      dur: 20, // plenty of room
+      dur,
       page: {},
     });
+    return out;
+  };
+
+  test("a scene long enough for its own cascade keeps the caption-count gap", () => {
+    // The ceiling only ever TIGHTENS. With room to spare, slotDelay stays at the
+    // caption-count value (0.6 default − 0.1 × voCount 1 = 0.5), so slot 4 fires at
+    // leadIn + 4 × 0.5 = 2.4s — unchanged by the fit.
+    const out = slotTimes(
+      [
+        { kind: "fadeIn", target: "a", time: { at: "slot", n: 0, plus: 0, d: 0.6 } },
+        { kind: "fadeIn", target: "b", time: { at: "slot", n: 4, plus: 0, d: 0.6 } },
+      ],
+      20, // plenty of room
+    );
     expect(Math.max(...out)).toBeCloseTo(LEAD_IN + 4 * 0.5, 5);
+  });
+
+  test("a slot's `plus` offset counts against the budget, not just its slot number", () => {
+    // A slot fires at leadIn + n × slotDelay + plus, so the HIGHEST n is not always the LAST
+    // reveal: slot 2 carrying a 1.2s plus outlives bare slot 4 for any slotDelay under 0.6.
+    // Fitting on the highest n alone would solve 1.8s/4 = 0.45 and put slot 2 at
+    // 0.4 + 0.9 + 1.2 = 2.5s — past the 2.2s budget it was supposed to enforce.
+    const BUDGET = 4 * 0.55; // dur × CASCADE_BUDGET
+    const out = slotTimes(
+      [
+        { kind: "fadeIn", target: "late", time: { at: "slot", n: 4, plus: 0, d: 0.6 } },
+        { kind: "fadeIn", target: "offset", time: { at: "slot", n: 2, plus: 1.2, d: 0.6 } },
+      ],
+      4,
+    );
+    expect(Math.max(...out)).toBeLessThanOrEqual(BUDGET + 1e-9);
   });
 });
