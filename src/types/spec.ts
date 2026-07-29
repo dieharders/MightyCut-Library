@@ -269,14 +269,21 @@ export const HeaderBandSchema = z.object({
 });
 export type HeaderBandSpec = z.infer<typeof HeaderBandSchema>;
 
+// `text` (small mono line above the progress bar) was REMOVED: it only ever rendered in
+// the root's generic `.mc-hud-*` fallback, and once every theme's HUD came from the
+// library — which has no footer slot — it silently stopped appearing. The field is gone
+// rather than left as a lie; an older spec.json carrying it still parses (Zod strips the
+// unknown key). Add a footer slot to primitives/hud if the line is ever wanted back.
 export const FooterSchema = z.object({
-  text: z.string().max(80).optional().describe("Small mono text above the progress bar"),
   slideNumbers: z.boolean().optional().describe("Show \"NN / TT\" slide counter"),
 });
 export type FooterSpec = z.infer<typeof FooterSchema>;
 
+// `backdrop` (blur | semi | solid | none) was REMOVED alongside footer.text and for the
+// same reason: it only ever styled the root's inline fallback caption box, and the theme's
+// own caption skin (theme.skins.caption) has owned that surface since the library took over
+// the chrome. An older spec.json carrying it still parses — Zod strips the unknown key.
 export const CaptionStyleSchema = z.object({
-  backdrop: z.enum(["blur", "semi", "solid", "none"]).optional(),
   size: z.enum(["small", "medium", "large"]).optional(),
   weight: z.enum(["normal", "medium", "semibold", "bold"]).optional(),
   outline: z.boolean().optional().describe("Dark text outline for busy backdrops"),
@@ -289,8 +296,9 @@ export type CaptionStyleSpec = z.infer<typeof CaptionStyleSchema>;
  * HUD visibility toggles — the source of truth for what chrome renders. All
  * default to visible (omitted → shown). `header.show` / `footer.slideNumbers`
  * remain honored as legacy fallbacks so existing LLM-generated specs still
- * render; `header`/`footer` keep supplying HUD *content* (brand/tagline/right
- * label/footer text). Captions are NOT part of the HUD (see caption.show).
+ * render; `header` keeps supplying HUD *content* (brand/tagline/right label) and
+ * `footer` is now visibility only — its `text` line went with the generic root
+ * fallback (see FooterSchema). Captions are NOT part of the HUD (see caption.show).
  */
 export const HudSchema = z.object({
   show: z.boolean().optional().describe("Master switch — false hides the entire HUD (default true)"),

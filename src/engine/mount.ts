@@ -70,37 +70,46 @@ export type MountPreviewOptions = {
 // preview but is near-invisible on future's dark one, so a dark theme flips to
 // `var(--light)`. Every element skin sets its own colour; this only backstops one that
 // forgets, so it must not be a fixed light-background assumption.
-const previewCss = (frame: boolean, surface: string, fg: string, scheme: string): string => `
+const previewCss = (frame: boolean, surface: string, fg: string, scheme: string, compId: string): string => `
 :host { display: block; overflow: hidden; border-radius: inherit; color-scheme: ${scheme}; font-family: var(--disp, "Inter", system-ui, sans-serif); color: ${fg}; }
 /* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
    boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
-   (stage / inner / preview-root) — exactly like the render border-boxes its padded
+   (stage / inner / the scene root) — exactly like the render border-boxes its padded
    containers (.mc-page) and NOT components — so a content-box component still matches the
    MP4 while the padded scaffold sizes predictably. */
-.mc-stage, .mc-stage-inner, .mc-preview-root { box-sizing: border-box; }
+/* NAMES. The scaffold keeps the shared mc- prefix: no external CSS can reach into a shadow
+   root, but the root is open (attachShadow below), so host code CAN querySelector through
+   it, and the render document has scaffold of its own — base.css owns a DIFFERENT .mc-stage
+   (the composed-slide slot region, see the harness's slide-templates). mc-preview-stage* is
+   the prefix kept AND the collision with that name dropped.
+   The third selector is built from compId, not hard-coded: the scene root is emitted as
+   .<compId>-root (runtime/emit.ts), so a caller passing its own compId — the option exists
+   right above — must still get border-box. Spelling it .mc-preview-root only ever matched
+   the DEFAULT compId, and silently matched nothing once one was passed. */
+.mc-preview-stage, .mc-preview-stage-inner, .${compId}-root { box-sizing: border-box; }
 /* The stage surface is theme-driven (theme.previewBg): a dark theme paints a dark ground so
    its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
    is the surface the user actually sees (it fills the preview box, above the host card). */
-.mc-stage { width: 100%; overflow: hidden; background: ${surface}; }
-.mc-stage--frame { position: relative; aspect-ratio: 16 / 9; }
+.mc-preview-stage { width: 100%; overflow: hidden; background: ${surface}; }
+.mc-preview-stage--frame { position: relative; aspect-ratio: 16 / 9; }
 /* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
    viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
    resolves against document.documentElement even across a shadow boundary — so a global
    html font-size rule here would leak into the WebUI's own rem layout. We rely on the
    host's 16px root instead. Do NOT set document.documentElement.style.fontSize here. */
-.mc-stage--frame .mc-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
-.mc-stage--frame .mc-stage-inner > * { position: absolute; inset: 0; }
+.mc-preview-stage--frame .mc-preview-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.mc-preview-stage--frame .mc-preview-stage-inner > * { position: absolute; inset: 0; }
 /* Component/decoration previews render at their natural rem size inside a wide canvas
    (64rem — wider than any component, so text like the card body stays one line), then
    scale() FITS each element to its own box: scaled down to fill ~85% when it's bigger than
    the box, but never enlarged past natural size — so every component sits comfortably in its
    frame (small ones near natural, big ones scaled to fit), the way they did before. The
-   canvas is centred in the (square) box; scale() transforms the preview-root around center. */
-.mc-stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
-.mc-stage--comp .mc-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
+   canvas is centred in the (square) box; scale() transforms the scene root around center. */
+.mc-preview-stage--comp { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
+.mc-preview-stage--comp .mc-preview-stage-inner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64rem; height: 42rem; }
 /* One gap spaces the cells of a display:contents fragment (the ledger Row) that flow straight
    into this centred flex; a single-box component has one child, so the gap is a no-op there. */
-${frame ? "" : ".mc-stage--comp .mc-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
+${frame ? "" : ".mc-preview-stage--comp .mc-preview-stage-inner > * { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1.75rem; transform-origin: center; }"}
 `;
 
 // Fraction of the preview box a fitted component fills (when it's larger than the box).
@@ -166,15 +175,15 @@ export const mountPreview = (
   const dark = theme.previewScheme === "dark";
   const fg = dark ? "var(--light, #fff)" : "var(--dark, #000)";
   const scheme = dark ? "dark" : "light";
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme)}\n${css}`;
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId)}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
   stage.className = frame
-    ? "mc-stage mc-stage--frame"
-    : "mc-stage mc-stage--comp";
+    ? "mc-preview-stage mc-preview-stage--frame"
+    : "mc-preview-stage mc-preview-stage--comp";
   const inner = document.createElement("div");
-  inner.className = "mc-stage-inner";
+  inner.className = "mc-preview-stage-inner";
   inner.innerHTML = html;
   stage.appendChild(inner);
   shadow.appendChild(stage);

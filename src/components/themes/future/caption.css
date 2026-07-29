@@ -1,32 +1,35 @@
 /* Future caption skin: a dark translucent glass pill with a glowing cyan left bar and
-   near-white Inter text. Scaled to match the showcase caption card; the harness owns the
-   root rail placement + master-timeline autoAlpha hook in the render.
+   near-white Inter text. The harness owns the root rail placement + master-timeline
+   autoAlpha hook in the render.
    The bar follows the instance's accent (--capbar); unset ⇒ future's cyan. The pill's own
-   hairline/ground stay theme chrome, so only the accent moves — as in block. */
+   hairline/ground stay theme chrome, so only the accent moves — as in block.
+   Sized on the shared caption scale (see block/caption.css): root chrome over live scene
+   content, 1–2 lines inside the rail's 1280px cap. */
 .caption {
   display: inline-flex;
   align-items: center;
-  gap: 2.5rem;
-  padding: 2rem 3.5rem;
+  gap: 1rem;
+  padding: 1rem 1.75rem;
   background: color-mix(in srgb, var(--muted-2) 82%, transparent);
+  /* The reference hairline is 1px; 0.125rem is the grid floor and future's one line weight. */
   border: 0.125rem solid color-mix(in srgb, var(--primary) 28%, transparent);
-  box-shadow: 0 1rem 3.75rem color-mix(in srgb, var(--dark) 50%, transparent);
-  border-radius: 1.25rem;
+  box-shadow: 0 0.5rem 1.875rem color-mix(in srgb, var(--dark) 50%, transparent);
+  border-radius: 0.625rem;
   backdrop-filter: blur(6px);
 }
 .caption .cap-bar {
   --bar: var(--capbar, var(--primary));
   align-self: stretch;
-  width: 0.5rem;
+  width: 0.25rem;
   flex-shrink: 0;
   background: var(--bar);
-  box-shadow: 0 0 1.25rem color-mix(in srgb, var(--bar) 70%, transparent);
-  border-radius: 0.25rem;
+  box-shadow: 0 0 0.625rem color-mix(in srgb, var(--bar) 70%, transparent);
+  border-radius: 0.125rem;
 }
 .caption .cap-text {
   font-family: var(--body);
   font-weight: 500;
-  font-size: 3.625rem;
+  font-size: 1.875rem;
   line-height: 1.25;
   color: var(--light);
 }
