@@ -358,6 +358,44 @@ describe("caption alignment parity (block is the reference)", () => {
   });
 });
 
+// ------------------------------------------------------------------ caption scale ---
+// A caption is ROOT CHROME: the consumer stamps one box per VO line into a rail laid OVER
+// live scene content (see block/caption.css for the full rule). It is therefore sized
+// against the rail, not against the treatment it covers. Every theme once carried a
+// 3.625rem (58px) "cross-theme convention" reasoned from the caption card in isolation; in
+// a real deck those boxes covered the comparison table and clipped headlines.
+//
+// A BAND, not exact values — per-theme tuning inside the band is a design call, re-inflating
+// past it is the regression. Block is also the reference for spread: no theme may drift far
+// from it, so one theme can't quietly reintroduce its own scale.
+describe("caption scale (tripwire)", () => {
+  const MIN_REM = 1.4;
+  const MAX_REM = 2.0;
+  const capTextRem = (theme: ThemeTokens): number => {
+    const css = theme.skins?.caption ?? "";
+    const m = css.match(/\.cap-text\s*\{[^}]*\bfont-size\s*:\s*([\d.]+)rem/s);
+    if (!m) throw new Error(`${theme.name}'s caption skin declares no .cap-text font-size`);
+    return Number(m[1]);
+  };
+  const reference = capTextRem(blockTheme);
+
+  test.each(ALL_THEMES)("$name's caption sits in the root-chrome band", (theme) => {
+    const rem = capTextRem(theme);
+    expect(rem, `${theme.name}'s .cap-text is ${rem}rem, outside ${MIN_REM}–${MAX_REM}rem`).toBeGreaterThanOrEqual(
+      MIN_REM,
+    );
+    expect(rem).toBeLessThanOrEqual(MAX_REM);
+  });
+
+  test.each(ALL_THEMES)("$name's caption stays within 25% of block's", (theme) => {
+    const rem = capTextRem(theme);
+    expect(
+      Math.abs(rem - reference) / reference,
+      `${theme.name}'s .cap-text (${rem}rem) diverges from block's (${reference}rem) by more than 25%`,
+    ).toBeLessThanOrEqual(0.25);
+  });
+});
+
 // ----------------------------------------------------------------- font coverage ---
 // Every font family a theme names in its :root font tokens must be a face the browser can
 // actually load. A family with no @font-face anywhere renders in a silent system fallback —
