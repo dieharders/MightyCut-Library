@@ -296,8 +296,9 @@ export type CaptionStyleSpec = z.infer<typeof CaptionStyleSchema>;
  * HUD visibility toggles — the source of truth for what chrome renders. All
  * default to visible (omitted → shown). `header.show` / `footer.slideNumbers`
  * remain honored as legacy fallbacks so existing LLM-generated specs still
- * render; `header`/`footer` keep supplying HUD *content* (brand/tagline/right
- * label/footer text). Captions are NOT part of the HUD (see caption.show).
+ * render; `header` keeps supplying HUD *content* (brand/tagline/right label) and
+ * `footer` is now visibility only — its `text` line went with the generic root
+ * fallback (see FooterSchema). Captions are NOT part of the HUD (see caption.show).
  */
 export const HudSchema = z.object({
   show: z.boolean().optional().describe("Master switch — false hides the entire HUD (default true)"),
