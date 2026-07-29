@@ -357,10 +357,29 @@
     // element is up well before the VO finishes reading and nothing flashes at the end. A no-VO
     // scene (voCount 0, incl. the showcase) uses the full per-treatment default `d`.
     var PER_CAPTION = 0.1, MIN_SLOT_DELAY = 0.15, slotDefault = 0.6;
+    var lastSlot = 0, haveDefault = false;
     for (var si = 0; si < anims.length; si++) {
-      if (anims[si].time && anims[si].time.at === "slot" && anims[si].time.d != null) { slotDefault = anims[si].time.d; break; }
+      var st = anims[si].time;
+      if (!st || st.at !== "slot") continue;
+      if (!haveDefault && st.d != null) { slotDefault = st.d; haveDefault = true; } // first wins
+      if ((st.n || 0) > lastSlot) lastSlot = st.n || 0;
     }
     var slotDelay = Math.max(MIN_SLOT_DELAY, slotDefault - PER_CAPTION * (ctx.voCount || 0));
+    // CEILING: the cascade must FINISH inside the scene, not merely tighten with caption
+    // count. voCount is a poor proxy for scene LENGTH — a scene narrated by a single line is
+    // short (leadIn + one padded line + tailOut) yet gets the widest gap, so a treatment with
+    // many slots cascaded nearly to the scene's end and its content was still arriving after
+    // the frame the stills sample. (Measured on the sample deck: bar-ranking's last reveal
+    // landed at 3.10s of a 3.47s scene in every theme; capsule's cover at 3.40s.) Slots also
+    // grow with the DECORATION count — treatment.ts gives decorations slots 0..N-1 ahead of
+    // the title — so a purely ambient choice could push the headline off the end.
+    // Fit the whole cascade into CASCADE_BUDGET of the scene. This only ever TIGHTENS: a
+    // scene long enough for its own cascade keeps the caption-count gap untouched.
+    var CASCADE_BUDGET = 0.55;
+    if (ctx.dur > 0 && lastSlot > 0) {
+      var fit = (ctx.dur * CASCADE_BUDGET - ctx.leadIn) / lastSlot;
+      slotDelay = Math.min(slotDelay, Math.max(MIN_SLOT_DELAY, fit));
+    }
     var timeOf = function (t) {
       if (!t) return ctx.leadIn;
       var plus = t.plus || 0;
