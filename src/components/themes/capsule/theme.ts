@@ -316,8 +316,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "lozenge",
       params: {
         variant: "pill",
-        x: 85,
-        y: 13,
+        x: 100,
+        y: 28,
         size: 11,
         rotate: 13,
         accent: "secondary",
@@ -340,8 +340,8 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "blob",
       params: {
         variant: "pebble",
-        x: 14,
-        y: 64,
+        x: 10,
+        y: 73,
         size: 17,
         rotate: -8,
         accent: "accent-3",
