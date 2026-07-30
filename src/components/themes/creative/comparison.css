@@ -33,11 +33,17 @@
   margin: 0 0 2.375rem;
   text-align: center;
 }
+/* THE LEDGER GROUND IS INK, NOT OAT — the oat block is painted by the CELLS (row.css), which
+   also draw the rules. Grid rows land on fractional pixels once a font's metrics set the row
+   height, and a cell's background box rounds inward from that edge: a ground lighter than the
+   rules leaks a hairline of itself between two rows, which reads as a thin WHITE line cutting
+   the green column. Ink here makes that seam the rule colour, so the worst case is a rule a
+   hair fatter rather than a stray light line. */
 .comparison .ledger {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   border: 0.5rem solid var(--dark);
-  background: var(--muted-2);
+  background: var(--dark);
   box-shadow:
     1.5rem 1.5rem 0 var(--secondary),
     1.5rem 1.5rem 0 0.25rem var(--dark);
