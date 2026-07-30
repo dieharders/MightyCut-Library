@@ -25,7 +25,7 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.375rem;
+  font-size: 3.5rem;
   color: var(--primary);
   /* The numeral column is fixed rather than shrink-to-fit so 01…04 hold one left edge and the
      titles start on a common margin — the alignment a rule-per-row layout lives or dies on. */
@@ -59,7 +59,7 @@
 .agenda-item .d {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   color: var(--muted-3);
   margin-left: auto;
 }

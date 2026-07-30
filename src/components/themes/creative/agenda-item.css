@@ -8,7 +8,7 @@
    closed the list with a `.arow:last-child { border-bottom }`. Here the rule is BOTTOM-only on
    every row instead. A component skin cannot see its own position: `:last-child` holds only while
    this row really is the final element node of `.alist`, and the closing rule has to be written
-   from the TREATMENT side (block does exactly that) — which splits one ledger across two files,
+   from the TREATMENT side — which splits one ledger across two files,
    silently drops the closing line the moment anything is appended after the list, and leaves a
    lone agenda-item rendered in the Components grid opening on a rule that closes nothing. A bottom
    rule per row is self-contained: any count, any container, no partner rule, and agenda.css adds
@@ -32,7 +32,7 @@
    alignment with the rows above it. No font-weight: Archivo Black ships exactly one. */
 .agenda-item .num {
   font-family: var(--disp);
-  font-size: 3.375rem;
+  font-size: 3.5rem;
   color: var(--primary);
   min-width: 6rem;
 }
@@ -52,7 +52,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.375rem;
+  font-size: 1.875rem;
   color: var(--muted-3);
   margin-left: auto;
   align-self: center;

@@ -45,7 +45,7 @@
    the plot, deliberately NOT mono — the mono taxonomy is already carrying every bar label. */
 .chart .caption {
   font-family: var(--body);
-  font-size: 1.5rem;
+  font-size: 2.125rem;
   color: var(--muted-3);
   margin-top: 1.625rem;
   text-align: center;
