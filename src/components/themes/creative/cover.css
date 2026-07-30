@@ -24,6 +24,7 @@
 }
 .cover .eyebrow {
   margin-bottom: 2.375rem;
+  font-size: 1.75rem;
 }
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
    family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and
@@ -44,7 +45,7 @@
    max-width equals the body's content box exactly (120rem frame − 2 × 8.375rem), i.e. the headline
    is allowed the full measure and is held only by the padding. */
 .cover h3 {
-  font-size: 12.625rem;
+  font-size: 12rem;
   line-height: 0.86;
   letter-spacing: -0.02em;
   max-width: 103.25rem;
