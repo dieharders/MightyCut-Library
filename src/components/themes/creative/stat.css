@@ -27,7 +27,7 @@
    rather than a stretched pill in the column flex. Nothing animates `dot` — statAnim only counts
    up `number` — so its position is purely a layout decision. */
 .stat-dot {
-  align-self: flex-start;
+  align-self: flex-end;
   box-sizing: border-box;
   flex-shrink: 0;
   width: 1.5rem;
