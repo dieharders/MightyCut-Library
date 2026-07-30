@@ -49,9 +49,9 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // bar fills) resolves to cobalt everywhere WITHOUT a per-skin !important. The two ground roles are
 // cream (canvas); muted-3 is the body gray. The UI de-dupes on hex to professional's 5 colours.
 const palette: NonNullable<ThemeTokens["palette"]> = [
-  { name: "Cobalt", hex: "#1E2BFA", note: "the accent", varName: "primary" },
-  { name: "Cobalt", hex: "#1E2BFA", varName: "secondary" },
-  { name: "Cobalt", hex: "#1E2BFA", varName: "accent-1" },
+  { name: "Cobalt", hex: "#323fea", note: "the accent", varName: "primary" },
+  { name: "Cobalt", hex: "#323fea", varName: "secondary" },
+  { name: "Cobalt", hex: "#323fea", varName: "accent-1" },
   // Ice — a soft cool periwinkle surface. It sits on accent-2, the LAST slot of the ACCENT_CYCLE
   // (primary→secondary→accent-1→accent-2), which 3-item rows never reach — so auto-cycled card
   // icons / stat figures stay cobalt, and ice only appears where a scene asks for it (a quiet

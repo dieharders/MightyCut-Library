@@ -10,7 +10,7 @@
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1.625rem;
-  background: var(--light);
+  background: var(--muted-2);
   /* The reference hairline is 1.5px; 0.125rem is the grid floor and professional's one line
      weight — the theme casts no shadow, so this border is the entire chrome. */
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
