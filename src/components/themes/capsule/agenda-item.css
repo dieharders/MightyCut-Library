@@ -1,16 +1,15 @@
 /* Agenda index row: a big coral Bodoni numeral, a Bodoni title, and a small muted grotesk
    detail pushed to the right margin — all sitting on a hairline ink rule. Ported from legacy
    .bf-agenda .arow (cqw × 1.2).
-   The rule is BOTTOM-only and belongs to the row itself: block draws `border-top` here and
-   closes the list from agenda.css, but the legacy capsule index has no rule above the first
-   item, so each row carries its own and agenda.css stays out of it.
+   The rule is BOTTOM-only and belongs to the row itself: the legacy capsule index has no rule
+   above the first item, so each row carries its own and agenda.css stays out of it.
    This 0.125rem hairline is the ONE sanctioned exception to capsule's single 0.25rem outline
    weight — an index rule, not a container edge. */
 .agenda-item {
   display: flex;
   align-items: baseline;
   gap: 2.375rem;
-  padding: 1.875rem 0;
+  padding: 1.75rem 0;
   border-bottom: 0.125rem solid var(--dark);
 }
 .agenda-item .num {
@@ -18,7 +17,7 @@
      value); every other Bodoni run in the theme stays ink. */
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 3.125rem;
+  font-size: 3.5rem;
   color: var(--primary);
   min-width: 6rem;
 }
@@ -34,7 +33,7 @@
      reading copy rather than a label — capsule uppercases labels, not sentences. */
   font-family: var(--body);
   font-weight: 500;
-  font-size: 1.375rem;
+  font-size: 2rem;
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-left: auto;
   align-self: center;

@@ -21,20 +21,20 @@
   place-items: center;
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.875rem;
+  font-size: 2rem;
   margin-bottom: 1.5rem;
 }
 .card-title {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 2rem;
   line-height: 1.25;
   color: var(--dark);
 }
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   line-height: 1.5;
   color: var(--muted-3);
   margin-top: 0.875rem;

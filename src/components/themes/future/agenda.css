@@ -1,5 +1,6 @@
-/* 10 · Agenda — a hairline-ruled numbered index (agenda-item.css); the treatment closes the
-   list with a bottom rule. Headline opened by a cyan rule. Ported from legacy .bf-agenda. */
+/* 10 · Agenda — a hairline-ruled numbered index. Each row rules itself BOTTOM-only
+   (agenda-item.css), so this file adds nothing above the first item or below the last one.
+   Headline opened by a cyan rule. Ported from legacy .bf-agenda. */
 .agenda > .body {
   justify-content: center;
   padding: 8.75rem 6rem 13.5rem;
@@ -25,15 +26,4 @@
 .agenda .alist {
   display: flex;
   flex-direction: column;
-}
-/* Glowing cyan bottom divider on the last row (matches the top dividers in agenda-item.css). */
-.agenda .alist > *:last-child::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 0.125rem;
-  background: var(--primary);
-  box-shadow: 0 0 0.625rem color-mix(in srgb, var(--primary) 55%, transparent);
 }

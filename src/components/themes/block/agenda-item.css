@@ -1,9 +1,13 @@
+/* The rule is BOTTOM-only and belongs to the row itself — as in every other theme. A top rule
+   plus a treatment-side `:last-child` closer put a heavy line ABOVE the first item with nothing
+   above it to separate; bottom-only opens the list on the headline instead, and agenda.css adds
+   nothing below the last row. */
 .agenda-item {
   display: flex;
   align-items: baseline;
   gap: 2.5rem;
   padding: 1.75rem 0;
-  border-top: 0.375rem solid var(--dark);
+  border-bottom: 0.375rem solid var(--dark);
 }
 .agenda-item .num {
   font-family: var(--disp);
@@ -24,7 +28,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.875rem;
+  font-size: 2rem;
   color: color-mix(in srgb, var(--dark) 80%, transparent);
   margin-left: auto;
   align-self: center;

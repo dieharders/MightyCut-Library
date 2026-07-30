@@ -36,7 +36,7 @@
   flex-shrink: 0;
   border: 0.375rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
-  background: var(--primary);
+  background: var(--secondary);
   color: var(--dark);
   font-family: var(--disp);
   font-size: 1.75rem;

@@ -10,7 +10,7 @@
 }
 .closing-plate .cardf {
   position: relative;
-  background: var(--light);
+  background: var(--muted-2);
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 1.625rem;
   padding: 4.75rem 7.25rem;
@@ -19,7 +19,7 @@
   align-items: center;
 }
 .closing-plate h3 {
-  font-size: 5.25rem;
+  font-size: 6rem;
   line-height: 1.14;
   color: var(--dark);
 }
@@ -31,6 +31,6 @@
   padding: 1.25rem 3.125rem;
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 1.75rem;
+  font-size: 2.25rem;
   letter-spacing: 0.02em;
 }

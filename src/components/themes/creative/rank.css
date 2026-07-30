@@ -18,7 +18,7 @@
    Ported from the showcase .bf-bar-ranking .bar (cqw × 1.2). */
 .rank {
   --lead-col: var(--accent-2);
-  --base-col: var(--primary);
+  --base-col: var(--secondary);
   display: flex;
   align-items: center;
   gap: 1.875rem;
@@ -31,7 +31,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.5rem;
+  font-size: 2.125rem;
   color: var(--dark);
   width: 19.25rem;
   flex-shrink: 0;
@@ -50,7 +50,7 @@
 .rank .bcol {
   height: 100%;
   width: var(--fill, 4%);
-  background: var(--col, var(--primary));
+  background: var(--col, var(--secondary));
   transform-origin: left center;
 }
 /* The value closes the row in ink display type — fixed width, right-aligned, so the column of
@@ -61,7 +61,7 @@
   font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: 2.125rem;
+  font-size: 3.25rem;
   line-height: 1;
   color: var(--dark);
   width: 6rem;

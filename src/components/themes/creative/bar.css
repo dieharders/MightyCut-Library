@@ -17,7 +17,7 @@
    Ported from the showcase .bf-chart .bar (cqw × 1.2). */
 .bar {
   --lead-col: var(--accent-2);
-  --base-col: var(--primary);
+  --base-col: var(--secondary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,7 +54,7 @@
   font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: 2.375rem;
+  font-size: 3.25rem;
   line-height: 1;
   color: var(--dark);
 }
@@ -68,7 +68,7 @@
   height: var(--fill, 4%);
   width: 100%;
   max-width: 9.625rem;
-  background: var(--col, var(--primary));
+  background: var(--col, var(--secondary));
   border: 0.5rem solid var(--dark);
   box-sizing: border-box;
   transform-origin: bottom;
@@ -82,7 +82,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.375rem;
+  font-size: 2.5rem;
   color: var(--muted-3);
   text-align: center;
 }

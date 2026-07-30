@@ -18,6 +18,7 @@
    smallest, quietest voice. */
 .cover .eyebrow {
   margin-bottom: 2.375rem;
+  font-size: 1.75rem;
 }
 /* The display voice. Weight 700 rather than the shared h3's 600 — the cover and the closing plate
    are the only two frames that step up — with the leading pulled to 1.04 and the tracking left at
@@ -26,7 +27,7 @@
    holds the right half of the frame open for the compass ring a scene may add. */
 .cover h3 {
   font-weight: 700;
-  font-size: 9.625rem;
+  font-size: 9.5rem;
   line-height: 1.04;
   max-width: 74.375rem;
 }
@@ -38,7 +39,7 @@
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.625rem;
+  font-size: 2rem;
   line-height: 1.55;
   color: var(--muted-3);
   margin-top: 2.625rem;

@@ -39,7 +39,7 @@
    has one thing to invert on the green card. */
 .step-num {
   font-family: var(--disp);
-  font-size: 6rem;
+  font-size: 5rem;
   line-height: 0.85;
   color: var(--dark);
 }
@@ -52,10 +52,10 @@
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: 2.125rem;
+  font-size: 2.25rem;
   line-height: 1;
   color: var(--dark);
-  margin-top: auto;
+  margin-top: 0.5rem;
 }
 /* Space Grotesk carries the reading ramp; --muted-3 is creative's Ink 2, one step back from the
    display ink so the body sits under the title without introducing a fifth grey. The gap is the
@@ -63,7 +63,7 @@
    body copy leaves no dangling space under the title. */
 .step-body {
   font-family: var(--body);
-  font-size: 1.375rem;
+  font-size: 1.75rem;
   line-height: 1.4;
   color: var(--muted-3);
   margin-top: 0.75rem;

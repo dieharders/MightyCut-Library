@@ -13,7 +13,7 @@
    invite someone to "fix" it to match the others.
 
    Each row rules ITSELF, bottom-only (agenda-item.css), so this file adds nothing below the last
-   item — no `.alist > *:last-child` closer, unlike block's agenda. The reference's
+   item — no `.alist > *:last-child` closer. The reference's
    `.bf-agenda { background: var(--muted-2) }` is dropped: the emitter stamps the resolved scene
    ground onto .block-frame as an inline style, so a background on a treatment root is both dead
    and a ground-resolution test failure. Ported from the reference .bf-agenda (cqw × 1.2,

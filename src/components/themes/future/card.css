@@ -31,21 +31,21 @@
   place-items: center;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 2.5rem;
   color: var(--ac);
   margin-bottom: 1.75rem;
 }
 .card-title {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 1.875rem;
+  font-size: 2.25rem;
   line-height: 1.15;
   color: var(--light);
 }
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   line-height: 1.55;
   color: var(--muted-1);
   margin-top: 1rem;

@@ -1,6 +1,9 @@
-/* Agenda index row: a cyan numeral, a near-white title, a mono detail, over a hairline
-   top rule (the treatment closes the list with a bottom rule). Ported from legacy
-   .bf-agenda .arow (cqw × 1.2). */
+/* Agenda index row: a cyan numeral, a near-white title, a mono detail, under a hairline
+   rule. Ported from legacy .bf-agenda .arow (cqw × 1.2).
+   The rule is BOTTOM-only and belongs to the row itself — as in every other theme. The legacy
+   ruled the TOP of each row and closed the list from the treatment, which left a glowing line
+   ABOVE the first item with nothing above it to separate; bottom-only opens the list on the
+   headline's own rule instead, and agenda.css adds nothing below the last row. */
 .agenda-item {
   position: relative;
   display: flex;
@@ -8,11 +11,11 @@
   gap: 2.375rem;
   padding: 1.75rem 0;
 }
-/* Glowing cyan top divider (a pseudo-element so the glow can bleed — a border can't). */
-.agenda-item::before {
+/* Glowing cyan bottom divider (a pseudo-element so the glow can bleed — a border can't). */
+.agenda-item::after {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 0.125rem;
@@ -22,14 +25,14 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 3.125rem;
+  font-size: 3.5rem;
   color: var(--primary);
   min-width: 6rem;
 }
 .agenda-item .t {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.625rem;
+  font-size: 2.875rem;
   letter-spacing: -0.01em;
   color: var(--light);
 }
@@ -38,7 +41,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 1.25rem;
+  font-size: 2rem;
   color: var(--muted-1);
   margin-left: auto;
   align-self: center;

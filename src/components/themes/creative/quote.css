@@ -27,6 +27,7 @@
 }
 .quote .eyebrow {
   margin-bottom: 2.875rem;
+  font-size: 1.75rem;
 }
 .quote .qcard {
   display: flex;
@@ -40,7 +41,7 @@
 .quote .qt {
   font-family: var(--disp);
   text-transform: uppercase;
-  font-size: 9rem;
+  font-size: 7rem;
   line-height: 0.9;
   letter-spacing: -0.01em;
   color: var(--muted-1);
@@ -49,7 +50,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.625rem;
+  font-size: 2rem;
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

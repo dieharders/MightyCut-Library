@@ -49,7 +49,7 @@
   align-self: stretch;
   width: 0.5rem;
   flex-shrink: 0;
-  background: var(--capbar, var(--primary));
+  background: var(--capbar, var(--secondary));
 }
 /* Deliberately NO alignment declaration: theme-parity's "cap-text alignment matches block" sweep
    reads block's rule, which declares none, so any text-align here fails the build. This note is
