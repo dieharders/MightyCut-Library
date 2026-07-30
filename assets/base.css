@@ -1,7 +1,32 @@
 /* MightyCut base stylesheet — structural classes shared by every theme.
  *
- * Color/style come exclusively from CSS custom properties defined in the
- * project's generated theme.css (see harness src/pipeline/theme-css.ts).
+ * LEGACY. Nothing in this repo links this file: the go-forward render path is
+ * components/root/chrome.css plus the active theme's own frameCss + skins. It is kept
+ * only for the legacy generic generator (slideHtml) and its .mc-page/.mc-card/.mc-heading
+ * slide classes, and it stays reachable to outside consumers through package.json's
+ * `"./assets/*"` export.
+ *
+ * Color/style came exclusively from CSS custom properties defined in the project's
+ * generated theme.css (the harness's src/pipeline/theme-css.ts). THAT SYSTEM IS RETIRED —
+ * the live themes derive their `:root` from a 10-role palette in <theme>/theme.ts instead,
+ * and no theme has ever emitted the tokens this file reads. Of the ~35 custom properties it
+ * consumes, only the dozen it defines itself in the `:root` below (the type scale, the safe
+ * area, the radii) resolve; everything colour-valued (--text, --accent, --grad-panel, …) is
+ * orphaned and falls back to inherit.
+ *
+ * The four FONT vars of that retired vocabulary — --font-body, --font-heading, --font-mono
+ * and --heading-font — have been removed outright (13 declarations). They were never defined
+ * in this repo and never set at runtime, so each `font-family: var(--font-x)` was invalid at
+ * computed-value time and already resolving to the inherited family: deleting the declaration
+ * computes identically. They are also NOT the live vocabulary — themes use --disp / --body /
+ * --mono, three role slots each theme fills with its own faces — so keeping a second, dead set
+ * of font names around only invited a skin to reach for the wrong one. `.mc-mono` went with
+ * them: that font-family was the rule's only declaration.
+ *
+ * The remaining orphaned colour vars are the same class of dead weight; clearing them (or
+ * retiring this file wholesale) is a larger change that needs the downstream consumers of the
+ * `./assets/*` export checked first.
+ *
  * This file defines layout, type scale, and component skeletons only.
  *
  * Safe area (chrome zones, must match the root HUD/caption markup):
@@ -52,7 +77,6 @@ body {
      `justify-content: center`) so the title hugs its content instead of pinning to
      the top edge / HUD. Paired with .mc-content no longer flex-growing below. */
   justify-content: center;
-  font-family: var(--font-body);
   color: var(--text);
 }
 
@@ -75,7 +99,6 @@ body {
 /* ---------------------------------------------------------- typography --- */
 
 .mc-kicker {
-  font-family: var(--font-mono);
   font-size: 20px;
   letter-spacing: 6px;
   text-transform: uppercase;
@@ -88,35 +111,30 @@ body {
   color: var(--text);
 }
 .mc-heading--hero {
-  font-family: var(--heading-font, var(--font-heading));
   font-size: var(--fs-hero);
   font-weight: var(--heading-weight, 700);
   letter-spacing: -2px;
   line-height: 1.04;
 }
 .mc-heading--title {
-  font-family: var(--heading-font, var(--font-heading));
   font-size: var(--fs-title);
   font-weight: var(--heading-weight, 700);
   letter-spacing: -1.5px;
   line-height: 1.06;
 }
 .mc-heading--h1 {
-  font-family: var(--heading-font, var(--font-heading));
   font-size: var(--fs-h1);
   font-weight: var(--heading-weight, 700);
   letter-spacing: -1px;
   line-height: 1.08;
 }
 .mc-heading--h2 {
-  font-family: var(--heading-font, var(--font-heading));
   font-size: var(--fs-h2);
   font-weight: var(--heading-weight, 600);
   letter-spacing: -0.5px;
   line-height: 1.12;
 }
 .mc-heading--h3 {
-  font-family: var(--heading-font, var(--font-body));
   font-size: var(--fs-h3);
   font-weight: var(--heading-weight, 600);
   letter-spacing: 0;
@@ -125,9 +143,6 @@ body {
 
 .mc-muted {
   color: var(--text-muted);
-}
-.mc-mono {
-  font-family: var(--font-mono);
 }
 
 /* Slide header block (kicker + title), used by most slide kinds. */
@@ -244,7 +259,6 @@ body {
   border-radius: 999px;
   border: 1px solid var(--hairline);
   background: rgba(var(--accent-rgb), 0.08);
-  font-family: var(--font-mono);
   font-size: var(--fs-small);
   letter-spacing: 1px;
   color: var(--text);
@@ -325,7 +339,6 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  font-family: var(--font-mono);
 }
 
 .mc-hud-corner {
@@ -426,7 +439,6 @@ body {
   box-shadow: 0 0 12px var(--accent);
 }
 .mc-hud-brand-name {
-  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 2px;
@@ -434,7 +446,6 @@ body {
   text-transform: uppercase;
 }
 .mc-hud-label {
-  font-family: var(--font-mono);
   font-size: 14px;
   letter-spacing: 3px;
   color: var(--text-muted);
@@ -529,7 +540,6 @@ body {
   flex-shrink: 0;
 }
 .mc-caption-text {
-  font-family: var(--font-body);
   font-size: 30px;
   line-height: 1.28;
   color: var(--text);
