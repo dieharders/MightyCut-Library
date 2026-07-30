@@ -14,14 +14,14 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 2rem;
+  font-size: 1.75rem;
   color: var(--primary);
   margin-bottom: 3.625rem;
 }
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 8.375rem;
+  font-size: 10rem;
   line-height: 0.5;
   color: var(--primary);
   opacity: 0.6;
@@ -35,7 +35,7 @@
   font-family: var(--disp);
   font-weight: 700;
   letter-spacing: -0.02em;
-  font-size: 4.375rem;
+  font-size: 4.5rem;
   line-height: 1.12;
   color: var(--light);
 }
@@ -44,7 +44,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

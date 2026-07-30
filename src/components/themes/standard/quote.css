@@ -25,6 +25,7 @@
   /* The base eyebrow is flex-start — the only frame where the label sits over the centre line. */
   align-self: center;
   margin-bottom: 1.625rem;
+  font-size: 1.5rem;
 }
 .quote .qcard {
   max-width: 86.375rem;
@@ -48,7 +49,7 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 1.25rem;
+  font-size: 2rem;
   color: var(--primary);
   margin-top: 2.875rem;
 }
