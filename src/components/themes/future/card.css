@@ -32,6 +32,11 @@
   font-family: var(--disp);
   font-weight: 700;
   font-size: 2.5rem;
+  /* The tile's box is fixed (4.125rem square), so leading can't change its size — but
+     `place-items: center` centres the LINE BOX, and an unstated `normal` line box is asymmetric
+     (a face's ascent and descent are not equal), which seats the glyph a little high in the tile.
+     At 1 the box is the glyph, so it centres on the tile itself. */
+  line-height: 1;
   color: var(--ac);
   margin-bottom: 1.75rem;
 }

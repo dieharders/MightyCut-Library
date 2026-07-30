@@ -51,7 +51,7 @@
 .agenda-item .d {
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-size: 2rem;
   color: var(--muted-3);
   margin-left: auto;

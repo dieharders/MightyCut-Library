@@ -42,8 +42,10 @@
    stretching to the full content box, which would flatten the object the shadow is lifting. */
 /* Sized to the longest word, like the cover — and tighter, because the plate's own 7.25rem inset
    leaves a NARROWER measure (80rem) than the cover's 103.25rem. Archivo Black runs ~0.72em per
-   cap, so 8.5rem holds ~13 characters on a line; at the reference-derived 12rem a single
-   12-character sign-off already overruns the plate and pushes through the ink border. */
+   cap, so at 7.5rem the 80rem measure holds ~14 characters on a line; at the reference-derived
+   12rem a single 12-character sign-off already overruns the plate and pushes through the ink
+   border. That headroom is the whole reason for the cap — recompute it (chars ≈ max-width /
+   (font-size × 0.72)) whenever either number moves, or the constraint stops being checked. */
 .closing-plate h3 {
   font-size: 7.5rem;
   line-height: 0.86;

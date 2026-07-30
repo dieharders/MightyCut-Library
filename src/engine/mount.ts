@@ -79,9 +79,10 @@ const previewCss = (frame: boolean, surface: string, fg: string, scheme: string,
    MP4 while the padded scaffold sizes predictably. */
 /* NAMES. The scaffold keeps the shared mc- prefix: no external CSS can reach into a shadow
    root, but the root is open (attachShadow below), so host code CAN querySelector through
-   it, and the render document has scaffold of its own — base.css owns a DIFFERENT .mc-stage
-   (the composed-slide slot region, see the harness's slide-templates). mc-preview-stage* is
-   the prefix kept AND the collision with that name dropped.
+   it, and the render document has scaffold of its own — the harness's slide-templates emits
+   a DIFFERENT .mc-stage (the composed-slide slot region) inline. mc-preview-stage* is the
+   prefix kept AND the collision with that name dropped. (The library's own copy of that
+   class lived in assets/base.css, which is deleted — nothing linked it.)
    The third selector is built from compId, not hard-coded: the scene root is emitted as
    .<compId>-root (runtime/emit.ts), so a caller passing its own compId — the option exists
    right above — must still get border-box. Spelling it .mc-preview-root only ever matched

@@ -69,9 +69,23 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   { name: "Black", hex: "#000000", note: "borders", varName: "dark" },
 ];
 
-/** Font tokens — the only `:root` entries that aren't colours. */
+/** Font tokens — the only `:root` entries that aren't colours. Block has exactly TWO faces, and
+ *  unusually it spends the NEUTRAL one on display: Inter (--disp) carries the uppercase 800/900
+ *  slab headlines, the stat figures and the reading copy alike, because block's display voice is
+ *  built from weight, case and negative tracking rather than from a characterful face. Space
+ *  Grotesk (--mono) carries the label voice — every eyebrow pill, bar label and counter.
+ *
+ *  `body` is an ALIAS of `disp` (block's own `body` type role is set in Inter, see `typography`
+ *  below), stated for the same reason capsule aliases `mono` onto `body`: the three role names are
+ *  a SHARED vocabulary, so a skin reaching for var(--body) out of a shared idiom must land on a
+ *  real family. Undefined, that declaration is invalid at computed-value time and silently falls
+ *  back to whatever the parent inherits — a wrong face with no error and nothing in the suite to
+ *  catch it. Every theme defines all three; none may define fewer.
+ *
+ *  Both faces are in the core chrome set (assets/fonts.css), so block ships no add-on sheet. */
 const fontTokens: Record<string, string> = {
   disp: '"Inter", sans-serif',
+  body: '"Inter", sans-serif',
   mono: '"Space Grotesk", sans-serif',
 };
 

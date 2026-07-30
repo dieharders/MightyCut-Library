@@ -51,13 +51,18 @@
   /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
   transform-origin: bottom;
 }
+/* Tracking damped for the size — this label DOUBLED (1.25rem → 2.5rem) and an em value holds a
+   constant RATIO, so 0.04em would have doubled the gap with it. √(1.25/2.5) is the optical rule:
+   absolute tracking still grows with the type, just sub-linearly. This lands as the TIGHTEST bar
+   label in the library, which is the theme's position, not an accident — professional spends no
+   width on its labels the way capsule and standard do. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1rem;
   font-family: var(--body);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-size: 2.5rem;
   color: var(--muted-3);
   text-align: center;

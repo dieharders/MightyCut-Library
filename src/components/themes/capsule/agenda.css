@@ -11,8 +11,11 @@
 }
 .agenda h3 {
   /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
-     section heading is the base Bodoni cut, so only the size and rhythm are stated. This is
-     the SMALL section size (agenda, comparison, chart, bar-ranking), not the 4.75rem cut. */
+     section heading is the base Bodoni cut, so only the size and rhythm are stated. 4.5rem is
+     THE section size, one value across all seven content frames — the old two-cut split
+     (4.375rem here, 4.75rem on feature-cards / stat-grid / timeline) is gone, so a heading that
+     differs from its neighbours is now a mistake rather than a variant. Only the MARGIN varies
+     per treatment, which is the rhythm each frame needs under its own headline. */
   font-size: 4.5rem;
   margin: 1.625rem 0 2.875rem;
 }

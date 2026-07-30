@@ -35,6 +35,10 @@
   font-family: var(--disp);
   font-weight: 900;
   font-size: 3.25rem;
+  /* Pinned to 1 like every other .bv in the library. Unstated, this falls to `normal`, which is
+     derived from the FACE's own metrics — so the row's height would differ per theme purely
+     because the families differ. A figure needs no leading: it never wraps. */
+  line-height: 1;
   width: 7.75rem;
   text-align: right;
   flex-shrink: 0;

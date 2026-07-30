@@ -25,6 +25,7 @@
 .cover .eyebrow {
   margin-bottom: 2.375rem;
   font-size: 1.75rem;
+  letter-spacing: 0.085em;
 }
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
    family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and

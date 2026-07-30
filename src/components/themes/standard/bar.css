@@ -58,15 +58,22 @@
   /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
   transform-origin: bottom;
 }
-/* The label is the theme's small in-frame label: brownstone, uppercase, tracked 0.12em rather than the
-   eyebrow's 0.22em — at this size the wider tracking would break a two-word category apart. */
+/* The label is the theme's small in-frame label: brownstone, uppercase, tracked 0.095em rather than
+   the eyebrow's 0.22em — at this size the wider tracking would break a two-word category apart.
+   TRACKING IS SIZE-DEPENDENT, and this label is the largest in the theme (2.5rem, matching every
+   other theme's bar label). An em value holds a CONSTANT RATIO, so carrying the small-label 0.12em
+   up to 2.5rem would open the letters to ~4.8px of air — a spaced-out caption, not a label. The
+   value is the small-label tracking damped by √(old size / new size), the standard optical rule:
+   absolute tracking still grows with the type, just sub-linearly. Same reasoning in rank.css,
+   comparison.css, step.css and quote.css, each damped off its OWN starting point so standard stays
+   the widest-tracked theme in the library. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1.5rem;
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.095em;
   font-size: 2.5rem;
   color: var(--primary);
   text-align: center;

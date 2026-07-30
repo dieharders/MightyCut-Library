@@ -44,6 +44,10 @@
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 3.25rem;
+  /* Pinned to 1 like every other .bv. IBM Plex Sans' `normal` leading is the tallest of the six
+     content faces, so leaving this unstated made professional's rank row the tallest in the
+     library on metrics alone. A figure never wraps. */
+  line-height: 1;
   color: var(--primary);
   width: 6rem;
   text-align: right;

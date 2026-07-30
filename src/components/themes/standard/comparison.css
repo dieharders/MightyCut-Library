@@ -35,13 +35,15 @@
    radius — and deliberately NO `.ch.a` / `.ch.b` rules at all, where professional splits them into a
    faint pill and a solid cobalt one. Standard has no saturated hue to spend on "the answer", so both
    heads are typographically identical and the emphasis is deferred to row.css, where the .b cells go
-   ink against warm gray. Tracking is 0.12em rather than the frame eyebrow's 0.22em: the reference
-   tightens its small in-frame labels so a two-word head still reads as one word at this size. */
+   ink against warm gray. Tracking is 0.1em rather than the frame eyebrow's 0.22em: the reference
+   tightens its small in-frame labels so a two-word head still reads as one word at this size — and
+   this head now sets at 1.75rem, so the ratio is damped off the 0.12em it carried at 1.25rem (see
+   bar.css for the rule). */
 .comparison .ch {
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   font-size: 1.75rem;
   padding: 1.5rem 1.625rem;
   color: var(--primary);
