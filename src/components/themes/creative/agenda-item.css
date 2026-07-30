@@ -33,7 +33,7 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-size: 3.5rem;
-  color: var(--primary);
+  color: var(--secondary);
   min-width: 6rem;
 }
 .agenda-item .t {
