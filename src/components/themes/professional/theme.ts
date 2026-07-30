@@ -69,7 +69,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // appears where a skin/scene asks for it.
   {
     name: "Ember",
-    hex: "#EA580C",
+    hex: "#fa752d",
     note: "leader / positive",
     varName: "accent-3",
   },
