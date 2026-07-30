@@ -38,7 +38,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.375rem;
+  font-size: 1.75rem;
 }
 /* `.cell.b` is the ANSWER column, continuing the green head plate straight down the ledger: a
    solid green field with CREAM ink on it. Creative's "light" ink is the cream (--muted-1), never
