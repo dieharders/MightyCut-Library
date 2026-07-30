@@ -27,8 +27,8 @@
   display: contents;
 }
 /* Column heads as chips. `.ch.a` is the plain white pill; `.ch.b` is the filled coral one
-   — the one place in capsule where type goes light-on-colour, and it is lifted off the
-   ledger by the soft offset shadow so "us" reads as the answer. */
+   — the one place in capsule where type goes light-on-colour. Both are lifted off the
+   ledger by the same soft offset shadow the row cells wear. */
 .comparison .ch {
   font-family: var(--body);
   font-weight: 600;
@@ -40,13 +40,15 @@
   border-radius: 9999px;
   text-align: center;
 }
+.comparison .ch.a,
+.comparison .ch.b {
+  border: 0.25rem solid var(--dark);
+  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+}
 .comparison .ch.a {
   background: var(--light);
-  border: 0.25rem solid var(--dark);
 }
 .comparison .ch.b {
   background: var(--primary);
   color: var(--light);
-  border: 0.25rem solid var(--dark);
-  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
 }
