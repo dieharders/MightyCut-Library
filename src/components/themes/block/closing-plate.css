@@ -15,7 +15,10 @@
   align-items: center;
 }
 .closing-plate h3 {
-  font-size: 6.75rem;
+  /* The DISPLAY step, shared with the cover — one size for the two frames that carry a
+     statement rather than a headline. Was 6.75rem; `4xl` is 9rem, so this plate now closes
+     at the same weight the deck opened at, which is the point of the pairing. */
+  font-size: var(--font-size-4xl);
   letter-spacing: -0.03em;
   line-height: 0.95;
   color: var(--dark);
@@ -28,7 +31,7 @@
   padding: 1.25rem 2.875rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: var(--font-size-md);
   color: var(--dark);
   text-transform: uppercase;
 }

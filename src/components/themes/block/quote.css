@@ -20,7 +20,9 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  font-size: 3.625rem;
+  /* The statement takes the same step as every content frame's headline — a pull quote IS the
+     headline of its slide. Was 3.625rem; `3xl` is 4rem. */
+  font-size: var(--font-size-3xl);
   line-height: 1.15;
 }
 .quote .attr {
@@ -28,6 +30,6 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 2rem;
+  font-size: var(--font-size-sm);
   margin-top: 2.5rem;
 }

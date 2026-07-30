@@ -30,7 +30,12 @@
 .caption .cap-text {
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 1.875rem;
+  /* --font-size-xs = 1.75rem (28px), the low end of the 24–30px band above. This was 1.875rem,
+     exactly between block's `xs` and `sm`; it snaps DOWN on purpose. Block is the REFERENCE for
+     the caption-scale tripwire (theme-parity.test.ts), whose band tops out at 2rem and whose
+     spread check measures every other theme against this number — rounding up would sit block
+     on the ceiling and put standard on the ±25% boundary, both passing with zero margin. */
+  font-size: var(--font-size-xs);
   line-height: 1.25;
   color: var(--dark);
 }
