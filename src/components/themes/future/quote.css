@@ -18,11 +18,18 @@
   color: var(--primary);
   margin-bottom: 3.625rem;
 }
+/* The mark is a WATERMARK, so its line-height is doing layout, not leading: a fraction under 1
+   crops the block box well inside the glyph, letting the mark read large while occupying little
+   vertical space above the card. That makes the crop a function of BOTH numbers — the box is
+   line-height × font-size — so the two have to move together. The mark grew 8.375rem → 10rem;
+   0.42 holds the box at the 4.1875rem the 0.5 gave it before, so the composition below (and the
+   1.25rem margin tuned against it) is unchanged and only the mark itself is bigger. Resize this
+   again and recompute: line-height = 4.1875 / new-size-in-rem. */
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
   font-size: 10rem;
-  line-height: 0.5;
+  line-height: 0.42;
   color: var(--primary);
   opacity: 0.6;
   margin-bottom: 1.25rem;
@@ -43,7 +50,7 @@
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.135em;
   font-size: 2rem;
   color: var(--muted-1);
   margin-top: 2.875rem;

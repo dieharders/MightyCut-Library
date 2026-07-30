@@ -33,7 +33,7 @@
   font-family: var(--body);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.085em;
   font-size: 1.75rem;
   color: var(--dark);
   padding: 0.875rem 1.5rem;

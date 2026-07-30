@@ -54,6 +54,12 @@
   font-family: var(--mono);
   font-weight: 600;
   font-size: 2.25rem;
+  /* The chip's box is fixed (3.625rem square), so leading can't change its size — but
+     `place-items: center` centres the LINE BOX, and an unstated `normal` line box is
+     asymmetric (a face's ascent and descent are not equal), which seats the numeral a little
+     high in the chip. At 1 the box is the glyph, so the numeral centres on the chip itself.
+     Visible here in a way it wasn't before because the numeral grew by half. */
+  line-height: 1;
   color: var(--primary);
   margin-bottom: 1.5rem;
 }

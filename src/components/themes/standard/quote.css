@@ -26,6 +26,7 @@
   align-self: center;
   margin-bottom: 1.625rem;
   font-size: 1.5rem;
+  letter-spacing: 0.2em;
 }
 .quote .qcard {
   max-width: 86.375rem;
@@ -41,14 +42,17 @@
   letter-spacing: 0;
   color: var(--dark);
 }
-/* Attribution: Inter 400 — the paragraph weight, not the label's 500. It is tracked to 0.2em
-   rather than the eyebrow's 0.22em and set in the accent brownstone, so it reads as the quiet close of
-   the statement instead of a second eyebrow answering the first. */
+/* Attribution: Inter 400 — the paragraph weight, not the label's 500. Set in the accent brownstone
+   so it reads as the quiet close of the statement instead of a second eyebrow answering the first.
+   Tracked 0.16em: it carried 0.2em at 1.25rem and now sets at 2rem, so the ratio is damped off that
+   starting point (see bar.css for the rule). Still the widest-tracked attribution in the library —
+   the point was never to match the other themes, only to stop the letters drifting apart as the
+   type grew. */
 .quote .attr {
   font-family: var(--mono);
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
   font-size: 2rem;
   color: var(--primary);
   margin-top: 2.875rem;

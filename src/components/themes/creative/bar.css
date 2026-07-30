@@ -75,13 +75,18 @@
 }
 /* The category label is taxonomy, so it takes the mono voice at --muted-3 (creative's Ink 2) —
    quieter than the ink value above the column, which keeps the reading order value → column →
-   label rather than letting two black numbers compete. */
+   label rather than letting two black numbers compete.
+   Tracking damped for the size: 0.06em was drawn for 1.375rem, and an em value holds a constant
+   RATIO, so carrying it to 2.5rem would open the letters by four-fifths again. √(1.375/2.5) is
+   the optical rule, then a touch tighter still because JetBrains Mono already sets on uniform,
+   generous advances — equal em is NOT equal optical gap once the face is monospaced. Not a round
+   number on purpose; it moves only if the font-size does. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1rem;
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   font-size: 2.5rem;
   color: var(--muted-3);
   text-align: center;

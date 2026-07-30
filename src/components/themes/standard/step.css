@@ -14,10 +14,12 @@
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  /* 0.15em, not the eyebrow's 0.22em: standard's SMALL in-frame labels (this numeral, the stat
+  /* 0.125em, not the eyebrow's 0.22em: standard's SMALL in-frame labels (this numeral, the stat
      caption, the ledger's column heads) track tighter than the frame-level eyebrow so a two-digit
-     pair still reads as one word at step scale. The reference draws the same distinction. */
-  letter-spacing: 0.15em;
+     pair still reads as one word at step scale. The reference draws the same distinction. The
+     numeral carried 0.15em at 1.5rem and now sets at 2.125rem, so the ratio is damped off that
+     (see bar.css for the rule) — .stat-label keeps the full 0.15em because it did not grow. */
+  letter-spacing: 0.125em;
   font-size: 2.125rem;
   color: var(--primary);
 }

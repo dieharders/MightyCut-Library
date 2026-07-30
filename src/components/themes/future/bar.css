@@ -33,6 +33,10 @@
   font-family: var(--disp);
   font-weight: 700;
   font-size: 3.25rem;
+  /* Pinned to 1, as capsule/creative/professional/standard already do. This value sits in the
+     `padding-top` headroom the column reserves above a full bar; unstated, its box is set by
+     Space Grotesk's `normal` metrics and eats into that reserve. A figure never wraps. */
+  line-height: 1;
   color: var(--primary);
 }
 .bar .bcol {
@@ -52,13 +56,18 @@
     color-mix(in srgb, var(--col, var(--primary)) calc((30 + var(--lead, 0) * 20) * 1%), transparent);
   transform-origin: bottom;
 }
+/* Tracking damped for the size — this label DOUBLED (1.25rem → 2.5rem) and an em value holds a
+   constant RATIO, so 0.08em would have doubled the gap with it. √(1.25/2.5) is the optical rule,
+   then a touch tighter still because JetBrains Mono already sets on uniform, generous advances —
+   equal em is NOT equal optical gap once the face is monospaced. Not a round number on purpose;
+   it moves only if the font-size does. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1.125rem;
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   font-size: 2.5rem;
   color: var(--muted-1);
   text-align: center;

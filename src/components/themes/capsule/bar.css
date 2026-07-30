@@ -66,13 +66,17 @@
   /* MC.growBar scales this from scaleY 0; the skin owns the origin, never the motion. */
   transform-origin: bottom;
 }
+/* Tracking damped for the size: 0.06em was drawn for 1.5rem, and an em value holds a constant
+   RATIO, so carrying it to 2.5rem would open the letters by two-thirds again. √(1.5/2.5) is the
+   optical rule — absolute tracking still grows, just sub-linearly. Not a round number on purpose;
+   it moves only if the font-size does. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 2.125rem;
   font-family: var(--body);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.045em;
   font-size: 2.5rem;
   color: var(--dark);
   text-align: center;
