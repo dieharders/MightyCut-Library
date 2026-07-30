@@ -19,7 +19,7 @@
   display: flex;
   align-items: baseline;
   gap: 2.875rem;
-  padding: 1.875rem 0;
+  padding: 1.75rem 0;
   border-bottom: 0.125rem solid var(--accent-3);
 }
 .agenda-item .num {
@@ -59,7 +59,7 @@
 .agenda-item .d {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.875rem;
+  font-size: 2rem;
   color: var(--muted-3);
   margin-left: auto;
 }

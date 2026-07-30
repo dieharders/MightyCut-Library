@@ -26,7 +26,7 @@
 .agenda-item .d {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.875rem;
+  font-size: 2rem;
   color: var(--muted-3);
   margin-left: auto;
   align-self: center;

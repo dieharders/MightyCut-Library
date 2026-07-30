@@ -9,7 +9,7 @@
   display: flex;
   align-items: baseline;
   gap: 2.375rem;
-  padding: 1.875rem 0;
+  padding: 1.75rem 0;
   border-bottom: 0.125rem solid var(--dark);
 }
 .agenda-item .num {
@@ -33,7 +33,7 @@
      reading copy rather than a label — capsule uppercases labels, not sentences. */
   font-family: var(--body);
   font-weight: 500;
-  font-size: 1.875rem;
+  font-size: 2rem;
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-left: auto;
   align-self: center;
