@@ -9,8 +9,12 @@
 // blockTheme.css becomes a project's tokens.css.
 //
 // STRUCTURE ONLY: the active theme's skin (block's .bf-hud* / .bf-cap*) is linked
-// after it and wins on any shared property. This is what replaces the go-forward
-// render path's dependency on the legacy assets/base.css.
+// after it and wins on any shared property. This REPLACED the go-forward render path's
+// dependency on the legacy assets/base.css, which is now deleted: the harness stopped
+// staging and linking it once this file existed, so it sat in the repo styling `.mc-*`
+// classes that nothing loaded. The four render sheets are fonts.css (core @font-face),
+// this one, tokens.css (the theme's palette + --disp/--body/--mono) and chrome.css (the
+// theme's HUD/caption skin) — there is no fifth.
 import chromeCss from "./chrome.css" with { type: "text" };
 
 export const ROOT_CHROME_CSS = chromeCss;

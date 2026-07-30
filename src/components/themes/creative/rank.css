@@ -30,7 +30,7 @@
 .rank .bl {
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-size: 2.125rem;
   color: var(--dark);
   width: 19.25rem;

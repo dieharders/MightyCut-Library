@@ -33,6 +33,10 @@
   font-family: var(--disp);
   font-weight: 900;
   font-size: 2.75rem;
+  /* Pinned to 1, as every other theme's .bv is. This value sits in the `padding-top` headroom
+     the column reserves above a full bar; unstated, its box is set by Inter's `normal` metrics
+     and eats into that reserve. A figure never wraps. */
+  line-height: 1;
 }
 .bar .bcol {
   flex: 0 0 auto;
@@ -46,13 +50,19 @@
   box-shadow: 0.5rem 0.5rem 0 var(--dark);
   transform-origin: bottom;
 }
+/* TRACKING IS SIZE-DEPENDENT — an em value holds a constant RATIO, so a label that grows keeps
+   opening its letters unless the value comes down with it. This label carried 0.075em at 2rem;
+   at 2.5rem that is the same tracking damped by √(2/2.5), which lets absolute tracking still
+   grow with the type, just sub-linearly. Not a round number on purpose: don't tidy it without
+   moving the font-size too. The same rule set every theme's .bar .bl, each damped off its OWN
+   starting point, so the six stay distinct rather than converging on one house value. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1rem;
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.065em;
   font-size: 2.5rem;
   text-align: center;
 }

@@ -44,7 +44,7 @@
   font-family: var(--body);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.085em;
   font-size: 1.75rem;
   line-height: 1.3;
   color: color-mix(in srgb, var(--dark) 60%, transparent);

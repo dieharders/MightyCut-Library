@@ -26,6 +26,13 @@
   font-family: var(--disp);
   font-weight: 600;
   font-size: 3.5rem;
+  /* The numeral is the TALLEST thing on this baseline-aligned row, so its line box — not the
+     title's — sets how far the row opens above the shared baseline, and with it the height of the
+     whole index. Unstated, that comes from Playfair's own `normal` metrics, which run generous
+     (a didone carries tall ascenders), so the printed-index rhythm this row is built on would be a
+     property of the FACE rather than of the design. Pinned to 1: a numeral never wraps and has no
+     descender to clear. */
+  line-height: 1;
   color: var(--primary);
   /* The numeral column is fixed rather than shrink-to-fit so 01…04 hold one left edge and the
      titles start on a common margin — the alignment a rule-per-row layout lives or dies on. */

@@ -40,7 +40,7 @@
 .row .rl {
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-size: 1.75rem;
 }
 /* `.cell.b` is the ANSWER column, continuing the green head plate straight down the ledger: a

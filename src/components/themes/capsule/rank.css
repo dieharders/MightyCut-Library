@@ -22,7 +22,7 @@
   font-family: var(--body);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-size: 2.125rem;
   color: var(--dark);
   width: 19.25rem;
@@ -60,6 +60,9 @@
   font-family: var(--disp);
   font-weight: 800;
   font-size: 3.25rem;
+  /* Pinned to 1 like every other .bv — unstated it falls to Bodoni's own `normal` metrics and
+     the row grows taller here than in the themes that state it. A figure never wraps. */
+  line-height: 1;
   color: var(--dark);
   width: 7.75rem;
   text-align: right;
