@@ -389,18 +389,17 @@ const stepIndex = (s: string | undefined): number =>
  *  `SCALE_PENDING` set that has now emptied and been removed.) */
 const SCALED = ALL_THEMES;
 
-/** `hud` is excluded from the scale by decision, not by oversight — it is being reworked
- *  separately. Skipped at the FILE level rather than allowlisted selector-by-selector, so that
- *  rework doesn't have to touch this test. */
-const SKIP_SKINS = new Set(["hud"]);
+/** No skin is exempt. `hud` was, while it was being reworked separately; it is on the scale now,
+ *  so every stylesheet a theme owns is checked. */
+const SKIP_SKINS = new Set<string>();
 
 /** Selectors allowed to keep a font-size literal instead of naming a step.
  *
- *  IT IS EMPTY, and that is the point: every font-size in every skin now names a step. It was the
- *  stat figure in all six themes — that size sits between the content headline and the display
- *  size, and nothing else in a deck wants type in that band — until `4xl` was given to it outright
- *  and the cover moved up to `max`. Keep it empty if you can; an entry here is a decision to
- *  review, not a place to park a number. */
+ *  IT IS EMPTY, and that is the point: all 294 font-size declarations across the six themes now
+ *  name a step, HUD chrome included. The last holdout was the stat figure — that size sits between
+ *  the content headline and the display size, and nothing else in a deck wants type in that band —
+ *  until `4xl` was given to it outright and the cover moved up to `max`. Keep this empty if you
+ *  can; an entry here is a decision to review, not a place to park a number. */
 const OFF_SCALE: Record<string, readonly string[]> = {};
 
 /** The theme's scale, read off its emitted `:root`. `css` IS the contract — size tokens ride it
