@@ -358,7 +358,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "slab",
       params: {
         variant: "rectangle",
-        x: 16,
+        x: 5,
         y: 73,
         size: 15,
         rotate: -10,
@@ -370,9 +370,10 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "starburst",
       params: {
         variant: "star",
-        x: 10,
-        y: 81,
+        x: 12,
+        y: 79,
         size: 12,
+        rotate: 19,
         accent: "accent-1",
         layer: "back",
       },
@@ -396,7 +397,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "badge",
       params: {
         variant: "capsule",
-        x: 12,
+        x: 2,
         y: 20,
         size: 14,
         rotate: -21,
@@ -408,9 +409,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
       name: "slab",
       params: {
         variant: "rhombus",
-        x: 88,
+        x: 97,
         y: 79,
-        size: 12,
+        size: 14,
         rotate: 8,
         accent: "muted-1",
         layer: "back",

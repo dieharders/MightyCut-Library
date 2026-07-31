@@ -18,7 +18,7 @@
   justify-content: space-around;
   gap: 2.875rem;
   height: 27rem;
-  padding: 0 2.375rem;
+  padding: 0 2.375rem 1.75rem;
   border-bottom: 0.25rem solid var(--dark);
 }
 /* The Bar primitive is a fixed 28.25rem x 9.625rem box by default (so it reads correctly

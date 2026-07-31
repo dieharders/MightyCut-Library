@@ -20,7 +20,7 @@
   justify-content: space-around;
   gap: 3.625rem;
   height: 25.625rem;
-  padding: 0 2.375rem;
+  padding: 0 2.375rem 1.5rem;
   border-bottom: 0.125rem solid var(--accent-3);
 }
 /* The Bar primitive is a fixed box by default (so it reads bare in the showcase); inside the plot

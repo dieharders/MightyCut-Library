@@ -19,7 +19,5 @@
   /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the legacy's
      hardcoded repeat(4, 1fr) leaves dead tracks on a 2- or 3-step slide. */
   grid-template-columns: repeat(var(--cols, 4), 1fr);
-  /* COUPLED to step.css's connector dash (`right: -2.125rem; width: 1.625rem`), which is
-     positioned inside this gap — change one, change both. */
   gap: 2.875rem;
 }

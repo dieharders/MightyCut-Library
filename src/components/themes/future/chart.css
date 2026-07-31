@@ -29,8 +29,9 @@
   justify-content: space-around;
   gap: 2.875rem;
   height: 27rem;
-  border-bottom: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
-  padding: 0 2.375rem;
+  border-bottom: 0.125rem solid
+    color-mix(in srgb, var(--muted-1) 16%, transparent);
+  padding: 0 2.375rem 1.5rem;
 }
 .chart .bars .bar {
   flex: 1;

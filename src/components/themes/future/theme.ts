@@ -318,31 +318,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One instrument in two parts, both centred on the BOTTOM edge so the pair is cropped to a
   // half: a cyan ring with a bracket set turned 135° around it. It reads as a single
   // horizon-line device under the left-set headline, not as two shapes.
-  cover: [
-    {
-      name: "node",
-      params: {
-        variant: "ring",
-        x: 50,
-        y: 100,
-        size: 25,
-        accent: "primary",
-        layer: "back",
-      },
-    },
-    {
-      name: "reticle",
-      params: {
-        variant: "brackets",
-        x: 50,
-        y: 100,
-        size: 30,
-        rotate: 135,
-        accent: "primary",
-        layer: "back",
-      },
-    },
-  ],
+  cover: [],
   // A single glass triangle at the schema's maximum size, centred DIRECTLY behind the
   // sign-off card — the one place future spends a mass instead of a hairline, so the closer
   // has something to sit on once the constellation stops carrying the frame.

@@ -7,20 +7,16 @@
   background: var(--light);
   border: 0.25rem solid var(--dark);
   border-radius: 1.875rem;
-  box-shadow: 0.625rem 0.625rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  box-shadow: 0.625rem 0.625rem 0
+    color-mix(in srgb, var(--dark) 12%, transparent);
   padding: 2.375rem 2.125rem;
 }
-/* Connector: a short ink capsule FLOATING in the grid gap — not a full-width rule (block) and
-   not a hairline + chevron (future). `right` is measured from the padding box, so the offset
-   already includes this card's 0.25rem border: the dash starts 0.25rem clear of the card edge
-   and stops 1rem short of the next one (2.875rem gap − 1.875rem reach). Derived from the
-   timeline gap + the .step border — keep the three in sync. */
 .step:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 50%;
-  right: -2.125rem;
-  width: 1.625rem;
+  right: -3.125rem;
+  width: 2.875rem;
   height: 0.375rem;
   border-radius: 9999px;
   background: var(--dark);

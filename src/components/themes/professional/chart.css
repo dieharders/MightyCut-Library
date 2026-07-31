@@ -17,8 +17,9 @@
   justify-content: space-around;
   gap: 3.125rem;
   height: 27rem;
-  padding: 0 2.375rem;
-  border-bottom: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  padding: 0 2.375rem 1.5rem;
+  border-bottom: 0.125rem solid
+    color-mix(in srgb, var(--primary) 22%, transparent);
 }
 /* The Bar primitive is a fixed box by default (so it reads bare in the showcase); inside the plot
    it fills the height and shares the row equally. */
