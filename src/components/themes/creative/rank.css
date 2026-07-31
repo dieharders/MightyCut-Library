@@ -42,7 +42,7 @@
 .rank .track {
   flex: 1;
   height: 3.625rem;
-  background: var(--muted-2);
+  background: var(--muted-1);
   border: 0.5rem solid var(--dark);
   box-sizing: border-box;
   overflow: hidden;
