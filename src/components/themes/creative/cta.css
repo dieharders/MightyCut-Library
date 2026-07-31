@@ -29,7 +29,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   line-height: 1.2;
 }
 .cta-c .cta-arrow {

@@ -54,7 +54,11 @@
    measure here is 80rem against the cover's 103.25rem, so the two frames cannot carry the same
    type. Allowlisted in the type-scale tripwire. */
 .closing-plate h3 {
-  font-size: var(--font-size-4xl);
+  /* --font-size-3xl (7.5rem), NOT the cover's 4xl. Creative is the one theme whose two display
+     frames can't share a size: the measure here is 80rem against the cover's 103.25rem, and the
+     paragraph above is the record of 12rem overrunning this plate. 3xl exists for exactly this —
+     the pull quote takes it too. */
+  font-size: var(--font-size-3xl);
   line-height: 0.86;
   color: var(--dark);
   max-width: 80rem;
@@ -72,6 +76,6 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   line-height: 1.2;
 }

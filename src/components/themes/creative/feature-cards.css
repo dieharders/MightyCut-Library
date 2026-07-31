@@ -34,7 +34,7 @@
    uppercase, 0.92 leading, −0.01em, and NO font-weight (the face ships one weight; asking for a
    bold would synthesise one). Only size, rhythm, colour and alignment are stated here. */
 .feature-cards h3 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-2xl);
   margin: 0 0 2.875rem;
   color: var(--muted-1);
   text-align: center;

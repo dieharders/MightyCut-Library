@@ -42,9 +42,10 @@
 .quote .qt {
   font-family: var(--disp);
   text-transform: uppercase;
-  /* The statement takes the same step as every content frame's headline — a pull quote IS the
-     headline of its slide. This is the largest single reduction in the migration (7rem → 4.375rem):
-     creative's quote was set as a display size, and it is now a headline like the others. */
+  /* --font-size-3xl (7.5rem) — the DISPLAY step creative reserves for its two statement frames,
+     shared with the closing plate. A pull quote here is not a headline: at the content-h3 size
+     (2xl) it sat on one line in the top third and left the frame empty, which is the opposite of
+     what this treatment is for. Was 7rem, so this is +7.1%. */
   font-size: var(--font-size-3xl);
   line-height: 0.9;
   letter-spacing: -0.01em;
@@ -54,7 +55,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.065em;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

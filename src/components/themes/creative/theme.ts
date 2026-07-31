@@ -174,21 +174,15 @@ const fontTokens: Record<string, string> = {
  *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
  *  grid, no adjacent pair closer than 1.10x) is shared.
  *
- *  `3xl` IS the content-frame h3 (the seven-treatment normalisation 8fb19d7 landed) and `4xl` IS
- *  the cover display size — a 2.74x leap, the biggest in the library, which is creative being
- *  creative. Note `4xl` is the ONE anchor that is cover-only: every other theme's closing plate
- *  shares it, and creative's provably cannot (closing-plate.css shows the arithmetic). Three sizes
- *  stay literal — that closer, the stat figure, and the oversized step numeral that is meant to
- *  outrank the headline. Re-derive with
- *  `node scripts/audit-font-scale.mjs --derive --theme creative`. */
+ */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.375rem",
   "font-size-sm": "1.75rem",
   "font-size-md": "2rem",
-  "font-size-lg": "2.25rem",
-  "font-size-xl": "2.625rem",
-  "font-size-2xl": "3.375rem",
-  "font-size-3xl": "4.375rem",
+  "font-size-lg": "2.625rem",
+  "font-size-xl": "3.375rem",
+  "font-size-2xl": "4.375rem",
+  "font-size-3xl": "7.5rem",
   "font-size-4xl": "12rem",
 };
 

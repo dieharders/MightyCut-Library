@@ -44,6 +44,9 @@
   display: grid;
   place-items: center;
   font-family: var(--disp);
+  /* `lg`, not `md`: the glyph was 2.375rem, which sits between the two — nearer lg (+10.5%) than
+     md (−15.8%). It also has to stay clear of .card-title below it, and the badge is a fixed
+     square, so the glyph can grow into it without moving anything. */
   font-size: var(--font-size-lg);
   line-height: 1;
   text-transform: uppercase;
@@ -55,7 +58,7 @@
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   line-height: 1;
   color: var(--dark);
 }

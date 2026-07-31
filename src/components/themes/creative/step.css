@@ -39,11 +39,7 @@
    has one thing to invert on the green card. */
 .step-num {
   font-family: var(--disp);
-  /* OFF-SCALE, and it has to be: this numeral is deliberately LARGER than the frame headline
-     (--font-size-3xl, 4.375rem), which is the whole conceit of the sentence above. Taking that
-     step is −12.5% and would put it level with the h3 instead of above it. Allowlisted in the
-     type-scale tripwire. */
-  font-size: 5rem;
+  font-size: var(--font-size-2xl);
   line-height: 0.85;
   color: var(--dark);
 }
@@ -56,7 +52,7 @@
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   line-height: 1;
   color: var(--dark);
   margin-top: 0.5rem;

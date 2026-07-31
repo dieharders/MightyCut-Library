@@ -19,7 +19,7 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .chart h3 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-2xl);
   margin: 0 0 2.875rem;
   text-align: center;
 }
@@ -45,7 +45,7 @@
    the plot, deliberately NOT mono — the mono taxonomy is already carrying every bar label. */
 .chart .caption {
   font-family: var(--body);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   color: var(--muted-3);
   margin-top: 1.625rem;
   text-align: center;

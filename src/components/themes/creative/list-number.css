@@ -46,7 +46,7 @@
    takes the body face rather than the mono taxonomy the agenda's right-hand detail uses. */
 .listnum-c .ln-text {
   font-family: var(--body);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   line-height: 1.4;
   color: var(--dark);
 }
