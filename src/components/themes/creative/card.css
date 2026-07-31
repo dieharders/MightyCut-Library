@@ -22,7 +22,7 @@
    0.125rem grid): the reference's 0.4cqw border lands exactly on creative's structural 0.5rem
    outline, its 0.3cqw badge border on the 0.375rem inner-chrome weight. */
 .card {
-  background: var(--light);
+  background: var(--muted-1);
   border: 0.5rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.375rem 2.125rem;

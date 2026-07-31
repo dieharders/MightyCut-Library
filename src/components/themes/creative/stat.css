@@ -13,7 +13,7 @@
 .stat {
   display: flex;
   flex-direction: column;
-  background: var(--light);
+  background: var(--muted-1);
   border: 0.5rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.625rem 2.375rem;

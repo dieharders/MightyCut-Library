@@ -107,8 +107,8 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
-    name: "Concrete",
-    hex: "#f3e1af",
+    name: "Milk",
+    hex: "#f4e3b5",
     note: "canvas & light ink",
     varName: "muted-1",
   },
@@ -133,7 +133,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // still creative's "light ink" — the type colour every cream-on-accent line in the skins names.
   {
     name: "White",
-    hex: "#FFFFFF",
+    hex: "#EFE9D9",
     note: "plate fill — card · stat · step",
     varName: "light",
   },

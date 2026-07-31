@@ -36,7 +36,7 @@
 .feature-cards h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.875rem;
-  color: var(--muted-1);
+  color: var(--muted-3);
   text-align: center;
 }
 /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the reference's hardcoded

@@ -39,7 +39,7 @@
 .closing-plate .cta {
   margin-top: 3.625rem;
   background: var(--accent-2);
-  color: var(--muted-1);
+  color: var(--light);
   border: 0.5rem solid var(--dark);
   padding: 1.5rem 3.125rem;
   font-family: var(--mono);
