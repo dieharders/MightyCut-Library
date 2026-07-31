@@ -487,9 +487,10 @@ export const creativeTheme: ThemeTokens = {
   // they actually land on (stat-grid's plates go white on green; the closer is a cream card on
   // pink).
   //
-  // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with three
-  // sets of long spiral arms sweeping out of it, turning continuously and very slowly across the
-  // scene (MC.washSpin, 24° total). Painted in ink through --sunburst-ink (frame.css) at 16%, so
+  // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with one round
+  // of long spiral arms sweeping out of it, turning continuously and very slowly across the scene,
+  // counter to the arms' own curl (MC.washSpin, −24° total). Painted in ink through
+  // --sunburst-ink (frame.css) at 16%, so
   // it reads as a poster's screen-printed sunray field behind the content rather than as a
   // picture — and stays legible on every one of the six grounds above. This is the design
   // creative CONTRIBUTES to the shared pool; a default is not ownership, so a scene may pick any

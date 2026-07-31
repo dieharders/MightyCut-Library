@@ -278,11 +278,20 @@ const HATCH_STRIPES: string = (() => {
   return parts.join("");
 })();
 
-/** sunburst — a SLOWLY TURNING RADIAL BURST: a soft central glow with three sets of long spiral
- *  arms sweeping out of it, rotating continuously across the scene. Ported from a generated
- *  "sun tornado" SVG (creative's signature design, contributed to the shared pool like every
- *  other). ANIMATED: one `backdrop` descriptor driving MC.washSpin — the same FX `gradient`
- *  already uses, so nothing new is added to mc.js's BACKDROP_FX allowlist.
+/** sunburst — a SLOWLY TURNING RADIAL BURST: a soft central glow with one round of long spiral
+ *  arms sweeping out of it, turning continuously (COUNTER to the arms' own curl) across the scene.
+ *  Ported from a generated "sun tornado" SVG (creative's signature design, contributed to the
+ *  shared pool like every other). ANIMATED: one `backdrop` descriptor driving MC.washSpin — the
+ *  same FX `gradient` already uses, so nothing new is added to mc.js's BACKDROP_FX allowlist.
+ *
+ *  IT IS PAINTED ONCE. Every element of this design exists exactly once in the markup: ONE fan of
+ *  fifteen arms (not three stacked copies of it) and TWO gradient circles (not thirteen inside an
+ *  opacity group). The design as ported was ~59 gradient-filled, near-full-frame vector fills plus
+ *  two compositing layers PER SCENE, which is the most expensive backdrop in the registry by an
+ *  order of magnitude and showed up as scroll jank in the showcase's treatment grid at widths past
+ *  1800px (where each card's burst square rasterises at ~4900px on a side). It is 17 fills and one
+ *  compositing layer now. SUNBURST_FAN and SUNBURST_GLOW_STOPS carry the details of how each
+ *  collapse preserves what it replaced — read those before adding anything back.
  *
  *  HOW IT WAS MADE THEME-NEUTRAL, AND WHY IT IS TWO-TONE. The source is a fully hand-coloured
  *  artwork: an `#ee5522` ground rect, a `#FB3 → #ee5522` radial gradient for the glow and an
@@ -330,7 +339,7 @@ const HATCH_STRIPES: string = (() => {
  *  formula is for a field centred in the frame, and this one is not.
  *
  *  WHY THE SCOPED IDS + CLASS. Sub-compositions are imported into ONE shared DOM, so the SVG's
- *  internal ids (`#s`, `#g`, the two gradients) would collide across scenes and every scene would
+ *  internal ids (`#s`, the three gradients) would collide across scenes and every scene would
  *  silently resolve to whichever one parsed first. They are prefixed with `ctx.idPrefix`, as is
  *  the rotation target — backdrop anims are NOT run through qualifyAnim and the render's selector
  *  is document-wide. The CSS stays STRUCTURAL (`> div`, element selectors) so the stylesheet
@@ -444,10 +453,15 @@ const sunburst: BackdropDesign = {
           // frame's corner, so the artwork's centre and the rotation origin are the same point.
           `<svg viewBox="0 0 5000 5000" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">` +
           `<defs>` +
-          // The glow: strongest at the core, fading out toward the rim. Colour comes from CSS.
-          `<radialGradient id="${p}-glow" gradientUnits="objectBoundingBox">` +
-          `<stop class="sb-a" offset="0" stop-opacity="0.6"></stop>` +
-          `<stop class="sb-b" offset="1" stop-opacity="0"></stop>` +
+          // The glow: ONE multi-stop falloff from a near-solid core out to nothing at the rim.
+          // Colour comes from CSS; the stop ladder is SUNBURST_GLOW_STOPS (see the note there).
+          `<radialGradient id="${p}-glow" gradientUnits="objectBoundingBox">${SUNBURST_GLOW_STOPS}</radialGradient>` +
+          // The hot core — the second and LAST gradient circle. It is what reads as a light
+          // SOURCE rather than a flat disc: a tight bloom sitting inside the broad falloff.
+          // Concentric like everything else, so the spin cannot make it orbit.
+          `<radialGradient id="${p}-core" gradientUnits="objectBoundingBox">` +
+          `<stop class="sb-a" offset="0" stop-opacity="0.45"></stop>` +
+          `<stop class="sb-a" offset="1" stop-opacity="0"></stop>` +
           `</radialGradient>` +
           // The arms: near-solid where they leave the core, thinning out along their length. This
           // ramp carries the whole design's tonal range (one ink, varying alpha), so it runs much
@@ -457,25 +471,23 @@ const sunburst: BackdropDesign = {
           `<stop class="sb-b" offset="1" stop-opacity="0.42"></stop>` +
           `</linearGradient>` +
           `<path id="${p}-s" fill="url(#${p}-arm)" d="${SUNBURST_ARM}"></path>` +
-          `<g id="${p}-g">${SUNBURST_FAN.map((t) => `<use href="#${p}-s" transform="${t}"></use>`).join("")}</g>` +
           `</defs>` +
           // The burst centre — the middle of the square viewBox, which the CSS pins to the frame's
           // bottom-left corner. Concentric with the rotation origin (see the note above).
           `<g transform="translate(2500 2500)">` +
           `<circle fill="url(#${p}-glow)" r="3000"></circle>` +
-          `<g opacity="0.32">${SUNBURST_RINGS.map((r) => `<circle fill="url(#${p}-glow)" r="${r}"></circle>`).join("")}</g>` +
-          `<g transform="rotate(-86.4)">` +
-          `<use href="#${p}-g" transform="rotate(10)"></use>` +
-          `<use href="#${p}-g" transform="rotate(120)"></use>` +
-          `<use href="#${p}-g" transform="rotate(240)"></use>` +
-          `</g>` +
+          `<circle fill="url(#${p}-core)" r="750"></circle>` +
+          // ONE fan, painted once — no stacked copies. SUNBURST_FAN already carries the
+          // round-the-clock spread the three 120° copies used to supply.
+          `<g transform="rotate(-86.4)">${SUNBURST_FAN.map((t) => `<use href="#${p}-s" transform="${t}"></use>`).join("")}</g>` +
           `</g></svg></div></div>`,
       ),
       css: `${BACKDROP_BASE}
 .mc-backdrop--sunburst {
-  /* The design's ONE strength knob. Everything inside is authored at full alpha and dialled back
-     here, so a theme reading "too washed out / too heavy" is a single number, not a hunt through
-     four stacked opacities. This reads as a screen-printed sunray field, not a watermark. */
+  /* The design's ONE strength knob — and now genuinely the only one: the opacity group that
+     used to wrap the ring stack is gone with the stack. Everything inside is authored at full alpha
+     and dialled back here, so a theme reading "too washed out / too heavy" is a single number, not
+     a hunt through stacked opacities. This reads as a screen-printed sunray field, not a watermark. */
   opacity: 0.5;
   overflow: hidden;
 }
@@ -519,10 +531,13 @@ const sunburst: BackdropDesign = {
           // One ease-less turn across the whole scene — constant rate, never starting or
           // stopping, which is what reads as a continuous loop. `deg` is a TOTAL, not a rate, so
           // a long slide turns more GENTLY rather than further (a 6s slide and a 20s slide both
-          // end at 24°). The arms repeat every 120°, so 120 would be a seamlessly cyclic turn —
-          // but at any realistic slide length that is fast enough to watch, and this backdrop is
-          // meant to be felt at the edge of vision.
-          opts: { fn: "washSpin", deg: 24 },
+          // end at −24°).
+          //
+          // NEGATIVE, i.e. COUNTER-CLOCKWISE, and that is the point rather than a sign slip: the
+          // arms themselves curl clockwise out of the core, so turning the field the OTHER way
+          // makes them read as unwinding/opening outward. Turning WITH the curl (the +24 this
+          // shipped at) reads as the whole picture being dragged around instead.
+          opts: { fn: "washSpin", deg: -24 },
         },
       ],
     };
@@ -534,29 +549,68 @@ const SUNBURST_ARM =
   "M1549.2 51.6c-5.4 99.1-20.2 197.6-44.2 293.6c-24.1 96-57.4 189.4-99.3 278.6c-41.9 89.2-92.4 174.1-150.3 253.3c-58 79.2-123.4 152.6-195.1 219c-71.7 66.4-149.6 125.8-232.2 177.2c-82.7 51.4-170.1 94.7-260.7 129.1c-90.6 34.4-184.4 60-279.5 76.3C192.6 1495 96.1 1502 0 1500c96.1-2.1 191.8-13.3 285.4-33.6c93.6-20.2 185-49.5 272.5-87.2c87.6-37.7 171.3-83.8 249.6-137.3c78.4-53.5 151.5-114.5 217.9-181.7c66.5-67.2 126.4-140.7 178.6-218.9c52.3-78.3 96.9-161.4 133-247.9c36.1-86.5 63.8-176.2 82.6-267.6c18.8-91.4 28.6-184.4 29.6-277.4c0.3-27.6 23.2-48.7 50.8-48.4s49.5 21.8 49.2 49.5c0 0.7 0 1.3-0.1 2L1549.2 51.6z";
 
 /** The fan: one arm re-used at fifteen scales and angles, which is what turns a single sweep into
- *  a tornado. Verbatim from the source; three copies of this fan sit 120° apart. */
+ *  a tornado. THE WHOLE TORNADO IS THIS ONE LIST — it is painted ONCE.
+ *
+ *  The source (and this design as it first shipped) drew this fan THREE TIMES, at 0/120/240°, to
+ *  close the round: an arm sweeps ~90° of arc and the source's fifteen anchors all sit inside a
+ *  ±60° wedge, so a single copy left two thirds of the circle bare. That is 45 gradient-filled
+ *  1550-unit paths per scene, and it was the bulk of the design's raster cost — at showcase widths
+ *  above 1800px the treatment grid goes single-column and each card's burst square is ~4900px on a
+ *  side, so those 45 near-full-frame fills are re-rasterised on every scroll tile.
+ *
+ *  The fix is to spend the copies where they were actually doing work: the 120° offsets are folded
+ *  INTO the anchors here (arm i takes the sector `(i % 3) * 120`), so one pass covers the round.
+ *  Same scale ladder, same base angles, same 3-fold spread — a third of the fills. The resulting
+ *  anchors run 40/60/60/90/90/130/130/145/200/248/250/260/280/300/340, i.e. no gap wider than 60°,
+ *  which each arm's own ~90° sweep closes.
+ *
+ *  Pure constant, no randomness — byte-identical every build. */
 const SUNBURST_FAN: readonly string[] = [
   "scale(0.12) rotate(60)",
-  "scale(0.2) rotate(10)",
-  "scale(0.25) rotate(40)",
+  "scale(0.2) rotate(130)",
+  "scale(0.25) rotate(280)",
   "scale(0.3) rotate(-20)",
-  "scale(0.4) rotate(-30)",
-  "scale(0.5) rotate(20)",
+  "scale(0.4) rotate(90)",
+  "scale(0.5) rotate(260)",
   "scale(0.6) rotate(60)",
-  "scale(0.7) rotate(10)",
-  "scale(0.835) rotate(-40)",
+  "scale(0.7) rotate(130)",
+  "scale(0.835) rotate(200)",
   "scale(0.9) rotate(40)",
-  "scale(1.05) rotate(25)",
-  "scale(1.2) rotate(8)",
+  "scale(1.05) rotate(145)",
+  "scale(1.2) rotate(248)",
   "scale(1.333) rotate(-60)",
-  "scale(1.45) rotate(-30)",
-  "scale(1.6) rotate(10)",
+  "scale(1.45) rotate(90)",
+  "scale(1.6) rotate(250)",
 ];
 
-/** Concentric glow rings — stacked translucent discs that build the core's falloff. */
-const SUNBURST_RINGS: readonly number[] = [
-  2000, 1800, 1700, 1651, 1450, 1250, 1175, 900, 750, 500, 380, 250,
-];
+/** The core's falloff, as ONE gradient's stop ladder.
+ *
+ *  This replaces a stack of twelve concentric translucent discs (r = 2000…250, all sharing the
+ *  glow gradient, all inside a `<g opacity="0.32">`). Eight of those discs covered the entire
+ *  frame, and the group's opacity forced an offscreen transparency buffer to composite them — so
+ *  the core alone cost ~8 full-frame gradient fills plus a compositing layer, per scene, purely to
+ *  shape a curve a single gradient can state directly.
+ *
+ *  The stops are FITTED to what that stack actually painted: the composited alpha of the twelve
+ *  discs plus the base disc, sampled at r = 0/250/500/750/1000/1500/2000/2500/3000, came out at
+ *  0.97/0.92/0.84/0.73/0.63/0.38/0.20/0.10/0. The ladder below plus the `-core` bloom reproduces
+ *  that to within ~0.02 at every sample, so the design's read is unchanged — this is a cost fix,
+ *  not a redesign.
+ *
+ *  The COLOUR crossover sits at the ladder's middle (the inner four stops take the bright core
+ *  tone, the outer four the deep rim tone), which is where the old stack's a→b mix landed. */
+const SUNBURST_GLOW_STOPS: string = [
+  ["0", "0.93", "sb-a"],
+  ["0.0833", "0.9", "sb-a"],
+  ["0.1667", "0.82", "sb-a"],
+  ["0.3333", "0.61", "sb-a"],
+  ["0.5", "0.37", "sb-b"],
+  ["0.6667", "0.2", "sb-b"],
+  ["0.8333", "0.1", "sb-b"],
+  ["1", "0", "sb-b"],
+]
+  .map(([offset, op, cls]) => `<stop class="${cls}" offset="${offset}" stop-opacity="${op}"></stop>`)
+  .join("");
 
 // --- The one colour outside the CSS custom-property system ------------------
 // Every other colour in this library is a role var (`var(--primary)`) and anything
