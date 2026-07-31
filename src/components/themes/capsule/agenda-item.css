@@ -29,7 +29,7 @@
      (`xl` is −13%, `2xl` is +17%), and a didone title losing 13% on a warm ground is exactly where
      Bodoni's hairlines start to disappear. Stated, and allowlisted in the type-scale tripwire —
      professional's `.agenda-item .t` is the only other one in the library. */
-  font-size: 2.875rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .agenda-item .d {

@@ -7,7 +7,8 @@
   align-items: baseline;
   gap: 2.375rem;
   padding: 1.75rem 0;
-  border-bottom: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-bottom: 0.125rem solid
+    color-mix(in srgb, var(--primary) 22%, transparent);
 }
 .agenda-item .num {
   font-family: var(--mono);
@@ -31,7 +32,7 @@
      would put the title on the same step as the numeral above it and flatten the hierarchy the
      comment there depends on — the numeral has to stay the tallest thing on the row. So the size
      stays stated and the type-scale tripwire allowlists this selector. */
-  font-size: 2.875rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .agenda-item .d {
