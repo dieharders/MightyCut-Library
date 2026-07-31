@@ -1,16 +1,21 @@
 /* Ranked row — a fixed-width brownstone label, an OUTLINED stone track (the same recessed stone and the
-   same 0.125rem Line-brownstone hairline the chart column wears), a solid brownstone fill, and an ink Playfair
-   value closing the row. Square-cornered: standard's tracks are ruled channels, not pills.
+   same 0.125rem Line-brownstone hairline the chart column wears), a brownstone fill — solid on the
+   leader, a lighter stone on the rest — and an ink Playfair value closing the row. Square-cornered:
+   standard's tracks are ruled channels, not pills.
    Ported from the showcase .bf-bar-ranking .bar (cqw × 1.2). */
 .rank {
-  /* Both ends of the shared leader hook resolve to the SAME brownstone, because standard has no second
-     hue to spend on a winner — all four accent-cycle slots are the one stone (theme.ts). Ranking
-     rows are already sorted, so length alone says which row leads; tinting the top one would be the
-     populist accent the theme's rules rule out. The pair is still declared rather than dropped: the
-     shared rank component reads --lead-col/--base-col to set --col, and a theme that leaves them
-     unset inherits whatever the previous skin left behind. */
+  /* Emphasis by TONE, not by hue — the same device the chart column runs (bar.css), reached
+     differently because the ground differs. Standard has no second hue to spend on a winner: all
+     four accent-cycle slots are the one brownstone (theme.ts), and tinting the top row would be the
+     populist accent the rules rule out. So the leader takes the solid stone and every other row a
+     lighter one, and the winner reads as filled-IN rather than coloured-in. The chart can hand its
+     losers the recessed stone outright because they stand on the sandstone canvas; a rank fill sits
+     INSIDE a --muted-2 track, so the same value would erase them. It is derived instead — 60%
+     brownstone through that track — which lands it clear of the stone behind it AND darker than the
+     Line hairline drawn around it, the two edges it has to hold. The shared rank component reads
+     --lead-col/--base-col to set --col. */
   --lead-col: var(--primary);
-  --base-col: var(--primary);
+  --base-col: color-mix(in srgb, var(--primary) 60%, var(--muted-2));
   display: flex;
   align-items: center;
   gap: 1.875rem;
