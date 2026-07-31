@@ -48,7 +48,7 @@
 .cover h3 {
   /* The DISPLAY step — creative's biggest type, and the size --font-size-4xl is derived FROM. It
      is the only frame that takes it: the closing plate's narrower measure can't (closing-plate.css). */
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   line-height: 0.86;
   letter-spacing: -0.02em;
   max-width: 103.25rem;

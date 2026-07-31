@@ -39,7 +39,7 @@
    has one thing to invert on the green card. */
 .step-num {
   font-family: var(--disp);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
   line-height: 0.85;
   color: var(--dark);
 }

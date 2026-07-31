@@ -33,7 +33,7 @@
   font-weight: 700;
   /* The DISPLAY step — standard's biggest type, and the size --font-size-4xl is derived FROM. The
      closing plate shares it. */
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   line-height: 1.04;
   max-width: 74.375rem;
 }

@@ -16,7 +16,7 @@
 .closing-plate h3 {
   /* The DISPLAY step, shared with the cover — the two frames that carry a statement rather than a
      headline are the two that take it. Was 7.25rem; --font-size-4xl is 8.25rem. */
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   letter-spacing: -0.03em;
   line-height: 0.98;
 }

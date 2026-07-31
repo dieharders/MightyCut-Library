@@ -35,7 +35,7 @@
   /* The DISPLAY step, shared with the cover — the two frames that carry a statement rather than a
      headline are the two that take it. Was 8rem; --font-size-4xl is 9.5rem, so the closer now
      signs off at the weight the deck opened at. */
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   font-weight: 700;
   line-height: 1.04;
 }

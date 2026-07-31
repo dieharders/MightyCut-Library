@@ -46,7 +46,7 @@
      shared with the closing plate. A pull quote here is not a headline: at the content-h3 size
      (2xl) it sat on one line in the top third and left the frame empty, which is the opposite of
      what this treatment is for. Was 7rem, so this is +7.1%. */
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
   line-height: 0.9;
   letter-spacing: -0.01em;
   color: var(--muted-1);

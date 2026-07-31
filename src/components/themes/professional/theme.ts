@@ -114,7 +114,8 @@ const sizeTokens: Record<string, string> = {
   "font-size-xl": "2.375rem",
   "font-size-2xl": "3.25rem",
   "font-size-3xl": "4rem",
-  "font-size-4xl": "7rem",
+  "font-size-4xl": "5rem",
+  "font-size-max": "7rem",
 };
 
 /** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written

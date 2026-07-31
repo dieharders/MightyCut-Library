@@ -96,7 +96,8 @@ const sizeTokens: Record<string, string> = {
   "font-size-xl": "2.875rem",
   "font-size-2xl": "3.375rem",
   "font-size-3xl": "4.375rem",
-  "font-size-4xl": "8.25rem",
+  "font-size-4xl": "6.5rem",
+  "font-size-max": "8.25rem",
 };
 
 /**

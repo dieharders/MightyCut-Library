@@ -31,7 +31,7 @@
 .stat-number {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: calc(6rem * var(--dense-scale, 1));
+  font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 1;
   color: var(--dot, var(--dark));
 }

@@ -22,7 +22,7 @@
 .cover h3 {
   /* The DISPLAY step — future's biggest headline, and the size --font-size-4xl is derived FROM.
      The closing plate shares it. */
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   letter-spacing: -0.03em;
   line-height: 0.98;
   max-width: 96rem;

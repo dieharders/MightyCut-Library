@@ -25,7 +25,7 @@
      allowlists this selector.
      --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
      row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else. */
-  font-size: calc(5.5rem * var(--dense-scale, 1));
+  font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 1;
 }
 .stat-label {

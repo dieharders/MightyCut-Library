@@ -30,7 +30,7 @@
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-max);
   line-height: 0.508;
   color: var(--primary);
   opacity: 0.6;

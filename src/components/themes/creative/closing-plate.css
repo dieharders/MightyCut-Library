@@ -58,7 +58,7 @@
      frames can't share a size: the measure here is 80rem against the cover's 103.25rem, and the
      paragraph above is the record of 12rem overrunning this plate. 3xl exists for exactly this —
      the pull quote takes it too. */
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
   line-height: 0.86;
   color: var(--dark);
   max-width: 80rem;

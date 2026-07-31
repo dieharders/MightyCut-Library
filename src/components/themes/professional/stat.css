@@ -26,7 +26,7 @@
      in the GAP between --font-size-3xl (4rem, the headline) and --font-size-4xl (7rem, the display
      step) — 25% above one, 29% below the other — so no step fits it. See theme.ts `sizeTokens`;
      the type-scale tripwire allowlists this selector. */
-  font-size: calc(5rem * var(--dense-scale, 1));
+  font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--dot, var(--primary));
