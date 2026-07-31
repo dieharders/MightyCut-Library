@@ -169,11 +169,26 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future, capsule and professional). */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.375rem",
+  "font-size-sm": "1.75rem",
+  "font-size-md": "2rem",
+  "font-size-lg": "2.625rem",
+  "font-size-xl": "3.375rem",
+  "font-size-2xl": "4.375rem",
+  "font-size-3xl": "5rem",
+  "font-size-4xl": "7.5rem",
+  "font-size-max": "12rem",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
+ *  down exactly once (matching block, future, capsule and professional). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

@@ -22,7 +22,7 @@
   place-items: center;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: var(--font-size-lg);
   /* The glyph is INK on the coloured disc, never reversed — stated rather than inherited
      because this is the one element whose ground is the instance accent. */
   color: var(--dark);
@@ -31,13 +31,13 @@
 .card-title {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: var(--font-size-lg);
   line-height: 1.1;
 }
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   line-height: 1.55;
   color: color-mix(in srgb, var(--dark) 65%, transparent);
   margin-top: 1rem;

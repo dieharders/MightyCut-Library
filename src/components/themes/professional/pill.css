@@ -12,6 +12,6 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.25rem;
+  font-size: var(--font-size-xs);
   line-height: 1.35;
 }

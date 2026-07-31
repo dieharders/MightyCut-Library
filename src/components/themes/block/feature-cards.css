@@ -4,7 +4,7 @@
 }
 .feature-cards h3 {
   font-weight: 800;
-  font-size: 4rem;
+  font-size: var(--font-size-3xl);
   letter-spacing: -0.02em;
   margin: 1.5rem 0 2.625rem;
 }

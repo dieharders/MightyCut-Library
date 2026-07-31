@@ -32,7 +32,7 @@
    alignment with the rows above it. No font-weight: Archivo Black ships exactly one. */
 .agenda-item .num {
   font-family: var(--disp);
-  font-size: 3.5rem;
+  font-size: var(--font-size-xl);
   color: var(--secondary);
   min-width: 6rem;
 }
@@ -40,7 +40,7 @@
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: 2.875rem;
+  font-size: var(--font-size-lg);
   color: var(--dark);
 }
 /* The detail is TAXONOMY, not copy — mono, uppercase, tracked, and the smallest thing on the row.
@@ -52,7 +52,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   color: var(--muted-3);
   margin-left: auto;
   align-self: center;

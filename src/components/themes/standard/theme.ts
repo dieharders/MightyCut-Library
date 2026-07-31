@@ -128,11 +128,36 @@ const fontTokens: Record<string, string> = {
   mono: '"Inter", sans-serif',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future, capsule, professional and creative). */
+/** Type-SIZE tokens — standard's own type scale. This is to `font-size` what `palette` is to
+ *  colour: a skin NAMES a step, it never writes a number. The steps are STANDARD's — every theme
+ *  derives its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the
+ *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Standard's runs the widest of the
+ *  six, because a catalogue voice needs a real 1.25rem label AND a 9.5rem display statement.
+ *
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote also takes), `4xl` IS the stat figure, and
+ *  `max` IS the cover and closing plate. The jumps up there are leaps rather than steps — display
+ *  type is supposed to break the ramp. */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.25rem",
+  "font-size-sm": "1.5rem",
+  "font-size-md": "1.75rem",
+  "font-size-lg": "2.125rem",
+  "font-size-xl": "2.625rem",
+  "font-size-2xl": "3.375rem",
+  "font-size-3xl": "4.75rem",
+  "font-size-4xl": "6rem",
+  "font-size-max": "9.5rem",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
+ *  down exactly once (matching block, future, capsule, professional and creative). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

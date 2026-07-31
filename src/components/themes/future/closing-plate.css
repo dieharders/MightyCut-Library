@@ -14,7 +14,7 @@
   align-items: center;
 }
 .closing-plate h3 {
-  font-size: 7.25rem;
+  font-size: var(--font-size-max);
   letter-spacing: -0.03em;
   line-height: 0.98;
 }
@@ -27,6 +27,6 @@
   padding: 1.5rem 3.625rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: var(--font-size-lg);
   color: var(--primary);
 }

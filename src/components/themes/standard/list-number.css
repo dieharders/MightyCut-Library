@@ -18,15 +18,17 @@
   flex-shrink: 0;
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: var(--primary);
 }
 /* Ink, not the frame's warm gray: a bullet is a short statement, not a paragraph, and the gray body
-   default would sink it under the numeral it is meant to answer. */
+   default would sink it under the numeral it is meant to answer. Numeral and copy share a step —
+   the separation here is serif-against-sans and brownstone-against-ink, which is how standard
+   separates every other pair of voices too. */
 .listnum-c .ln-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.25rem;
+  font-size: var(--font-size-lg);
   line-height: 1.5;
   color: var(--dark);
 }

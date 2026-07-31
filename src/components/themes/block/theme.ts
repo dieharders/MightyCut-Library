@@ -89,15 +89,43 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
+/** Type-SIZE tokens — block's own type scale. This is to `font-size` what `palette` is to
+ *  colour: a skin NAMES a step, it never writes a number, and the scale is the one place the
+ *  theme's type ramp is stated. The steps are BLOCK's, not the library's — every theme derives
+ *  its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the 0.125rem
+ *  grid) is shared. Block's is the tightest in the library: it starts at 1.75rem because block has
+ *  no small copy at all, and no adjacent pair is closer than 1.10x, because a step nobody can tell
+ *  from its neighbour is not a step.
+ *
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed), `4xl` IS the stat figure, and `max` IS the cover and closing
+ *  plate. That is why the jumps up there are leaps rather than steps — display type is supposed
+ *  to break the ramp. If you change `3xl`, re-derive the whole scale — don't nudge one step, or
+ *  the 1.10x floor stops holding. */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.75rem",
+  "font-size-sm": "2rem",
+  "font-size-md": "2.25rem",
+  "font-size-lg": "2.5rem",
+  "font-size-xl": "2.875rem",
+  "font-size-2xl": "3.375rem",
+  "font-size-3xl": "4rem",
+  "font-size-4xl": "5.5rem",
+  "font-size-max": "9rem",
+};
+
 /**
- * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (replaces the old
- * hand-maintained tokens.css, which duplicated every hex). The harness writes this to
+ * The theme's `:root` block, DERIVED from `palette` + `fontTokens` + `sizeTokens` (replaces the
+ * old hand-maintained tokens.css, which duplicated every hex). The harness writes this to
  * a project's assets/tokens.css; the browser engine rewrites `:root` → `:host` to
  * scope it into a shadow root.
  */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

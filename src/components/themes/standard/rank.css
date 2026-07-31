@@ -20,14 +20,14 @@
 }
 /* Fixed label column so every track starts on the same vertical — the ledger reading the frame is
    built on. Tracked 0.1em, not the eyebrow's 0.22em: these are multi-word row names, and at the
-   2.125rem this label now sets the 0.12em it carried at 1.5rem would pull them apart (see bar.css
-   for the damping rule). */
+   --font-size-lg this label sets at, the 0.12em it carried two steps down would pull them apart
+   (see bar.css for the damping rule). */
 .rank .bl {
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 2.125rem;
+  font-size: var(--font-size-lg);
   color: var(--primary);
   width: 21.625rem;
   flex-shrink: 0;
@@ -53,7 +53,7 @@
   font-family: var(--disp);
   font-variant-numeric: tabular-nums;
   font-weight: 400;
-  font-size: 3.25rem;
+  font-size: var(--font-size-2xl);
   /* Pinned to 1 like every other .bv. Playfair's `normal` leading runs generous — a didone
      carries tall ascenders — so unstated this figure would set the rank row's height off the
      face's metrics rather than off the design. A figure never wraps. */

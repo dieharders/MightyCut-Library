@@ -20,12 +20,12 @@
   background: var(--accent-1);
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.375rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .listnum-c .ln-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.75rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }

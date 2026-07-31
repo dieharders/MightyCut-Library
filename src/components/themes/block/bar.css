@@ -32,7 +32,7 @@
   margin-bottom: 0.75rem;
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.75rem;
+  font-size: var(--font-size-xl);
   /* Pinned to 1, as every other theme's .bv is. This value sits in the `padding-top` headroom
      the column reserves above a full bar; unstated, its box is set by Inter's `normal` metrics
      and eats into that reserve. A figure never wraps. */
@@ -55,7 +55,9 @@
    at 2.5rem that is the same tracking damped by √(2/2.5), which lets absolute tracking still
    grow with the type, just sub-linearly. Not a round number on purpose: don't tidy it without
    moving the font-size too. The same rule set every theme's .bar .bl, each damped off its OWN
-   starting point, so the six stay distinct rather than converging on one house value. */
+   starting point, so the six stay distinct rather than converging on one house value. The size
+   is --font-size-lg now; the ratio above was struck against its 2.5rem value, so if block's `lg`
+   ever moves, re-derive the tracking rather than leaving it pointing at the old number. */
 .bar .bl {
   flex: 0 0 auto;
   margin-top: 1rem;
@@ -63,6 +65,6 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.065em;
-  font-size: 2.5rem;
+  font-size: var(--font-size-lg);
   text-align: center;
 }

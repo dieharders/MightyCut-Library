@@ -16,12 +16,12 @@
    chip and no fill — so this layers spacing and SCALE and nothing else. The restraint is the
    statement: the theme's loudest frame opens on its quietest voice.
    The tracking override is not a second opinion about the label, it is the SAME label held at a
-   bigger size: 0.22em was drawn for the base 1.25rem, and an em value keeps the ratio, so at
-   1.75rem it would open to ~6.2px of air. 0.185em is that tracking damped by √(1.25/1.75) — the
-   optical rule bar.css writes up. Change the font-size here and this value has to move with it. */
+   bigger size: 0.22em was drawn for the base --font-size-xs, and an em value keeps the ratio, so at
+   --font-size-md it would open to ~6.2px of air. 0.185em is that tracking damped by √(1.25/1.75) —
+   the optical rule bar.css writes up. Change the step here and this value has to move with it. */
 .cover .eyebrow {
   margin-bottom: 2.375rem;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   letter-spacing: 0.185em;
 }
 /* The display voice. Weight 700 rather than the shared h3's 600 — the cover and the closing plate
@@ -31,19 +31,20 @@
    holds the right half of the frame open for the compass ring a scene may add. */
 .cover h3 {
   font-weight: 700;
-  font-size: 9.5rem;
+  font-size: var(--font-size-max);
   line-height: 1.04;
   max-width: 74.375rem;
 }
-/* The subtitle is SMALL for this slot — professional runs 2.75rem here, standard 1.625rem. That is
-   faithful to the reference and deliberate: 1.4cqw is the TOP of standard's body ramp (every other
-   frame's copy sits at 1.1–1.3cqw), and the cover's whole effect is the distance between a serif
-   statement at 9.625rem and a single catalogue-caption line under it. Scaling the subtitle up to
-   the other themes' hero rhythm closes that gap and the frame stops reading as a catalogue. */
+/* The subtitle is SMALL for this slot — professional gives its cover sub a far bigger share of the
+   frame. That is faithful to the reference and deliberate: --font-size-lg is the TOP of standard's
+   body ramp (every other frame's copy sits a step or two below it), and the cover's whole effect is
+   the distance between a serif statement at --font-size-4xl and a single catalogue-caption line
+   under it. Scaling the subtitle up to the other themes' hero rhythm closes that gap and the frame
+   stops reading as a catalogue. */
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   line-height: 1.55;
   color: var(--muted-3);
   margin-top: 2.625rem;

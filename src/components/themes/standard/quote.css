@@ -25,7 +25,7 @@
   /* The base eyebrow is flex-start — the only frame where the label sits over the centre line. */
   align-self: center;
   margin-bottom: 1.625rem;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.2em;
 }
 .quote .qcard {
@@ -37,15 +37,17 @@
 .quote .qt {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: 4.75rem;
+  /* The statement takes the same step as every content frame's headline — a pull quote IS the
+     headline of its slide. Standard already set it there; the token records the intent. */
+  font-size: var(--font-size-3xl);
   line-height: 1.2;
   letter-spacing: 0;
   color: var(--dark);
 }
 /* Attribution: Inter 400 — the paragraph weight, not the label's 500. Set in the accent brownstone
    so it reads as the quiet close of the statement instead of a second eyebrow answering the first.
-   Tracked 0.16em: it carried 0.2em at 1.25rem and now sets at 2rem, so the ratio is damped off that
-   starting point (see bar.css for the rule). Still the widest-tracked attribution in the library —
+   Tracked 0.16em: it carried 0.2em at the eyebrow's --font-size-xs and now sets at --font-size-lg,
+   so the ratio is damped off that starting point (see bar.css for the rule). Still the widest-tracked attribution in the library —
    the point was never to match the other themes, only to stop the letters drifting apart as the
    type grew. */
 .quote .attr {
@@ -53,7 +55,7 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: var(--primary);
   margin-top: 2.875rem;
 }

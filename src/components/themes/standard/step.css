@@ -17,16 +17,17 @@
   /* 0.125em, not the eyebrow's 0.22em: standard's SMALL in-frame labels (this numeral, the stat
      caption, the ledger's column heads) track tighter than the frame-level eyebrow so a two-digit
      pair still reads as one word at step scale. The reference draws the same distinction. The
-     numeral carried 0.15em at 1.5rem and now sets at 2.125rem, so the ratio is damped off that
-     (see bar.css for the rule) — .stat-label keeps the full 0.15em because it did not grow. */
+     numeral carried 0.15em two steps down and now sets at --font-size-lg, so the ratio is damped
+     off that (see bar.css for the rule) — .stat-label keeps the full 0.15em because it sits a step
+     lower and did not grow. */
   letter-spacing: 0.125em;
-  font-size: 2.125rem;
+  font-size: var(--font-size-lg);
   color: var(--primary);
 }
 .step-title {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.625rem;
+  font-size: var(--font-size-xl);
   line-height: 1.15;
   color: var(--dark);
   margin-top: 1.25rem;
@@ -34,7 +35,7 @@
 .step-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   line-height: 1.5;
   color: var(--muted-3);
   margin-top: 1.25rem;

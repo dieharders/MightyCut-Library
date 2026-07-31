@@ -25,7 +25,7 @@
 .agenda-item .num {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 3.5rem;
+  font-size: var(--font-size-2xl);
   /* The numeral is the TALLEST thing on this baseline-aligned row, so its line box — not the
      title's — sets how far the row opens above the shared baseline, and with it the height of the
      whole index. Unstated, that comes from Playfair's own `normal` metrics, which run generous
@@ -41,7 +41,7 @@
 .agenda-item .t {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.875rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 /* The detail column, pushed out to the right margin — the folio of a printed contents page. It was
@@ -56,8 +56,8 @@
    crowding the theme's rules warn about. Warm-gray Inter against the title's ink Playfair is the
    same device row.css uses to make a ledger stub recede: standard separates these voices by FACE,
    never by weight or hue, so the detail can sit on the same rule as the title without competing
-   with it. A size down (1.5rem) is the in-frame body size every other quiet column in the theme
-   takes.
+   with it. One step down from the title (--font-size-lg) is the in-frame body size every other
+   quiet column in the theme takes.
 
    No `align-self`: the row is baseline-aligned and the detail stays on that baseline, where a
    printed index sets its page number — capsule centres its detail instead, which is a different
@@ -66,7 +66,7 @@
 .agenda-item .d {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: var(--muted-3);
   margin-left: auto;
 }

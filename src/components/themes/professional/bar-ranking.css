@@ -6,7 +6,7 @@
   padding: 8.125rem 7.25rem 13.5rem;
 }
 .bar-ranking h3 {
-  font-size: 4rem;
+  font-size: var(--font-size-3xl);
   margin: 1.25rem 0 3.125rem;
 }
 .bar-ranking .bars {
@@ -18,7 +18,7 @@
 .bar-ranking .caption {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.125rem;
+  font-size: var(--font-size-lg);
   text-align: center;
   color: var(--muted-3);
   margin-top: 2.125rem;

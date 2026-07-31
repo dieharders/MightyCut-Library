@@ -13,7 +13,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 2.125rem;
+  font-size: var(--font-size-md);
   width: 19.25rem;
   flex-shrink: 0;
 }
@@ -34,7 +34,7 @@
 .rank .bv {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 3.25rem;
+  font-size: var(--font-size-2xl);
   /* Pinned to 1 like every other .bv in the library. Unstated, this falls to `normal`, which is
      derived from the FACE's own metrics — so the row's height would differ per theme purely
      because the families differ. A figure needs no leading: it never wraps. */

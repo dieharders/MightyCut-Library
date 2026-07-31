@@ -28,20 +28,20 @@
   background: var(--accent-1);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 2.125rem;
+  font-size: var(--font-size-md);
   margin-bottom: 1.25rem;
 }
 .step-title {
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 2.5rem;
+  font-size: var(--font-size-lg);
   line-height: 1.15;
 }
 .step-body {
   font-family: var(--disp);
   font-weight: 500;
-  font-size: 1.75rem;
+  font-size: var(--font-size-xs);
   line-height: 1.5;
   color: color-mix(in srgb, var(--dark) 87%, transparent);
   margin-top: 0.75rem;

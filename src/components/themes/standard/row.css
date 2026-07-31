@@ -19,13 +19,14 @@
   border-top: 0.125rem solid var(--accent-3);
   padding: 1.5rem 1.625rem;
 }
-/* The row label is the stub of the table, not a third answer: Inter in warm gray, a size down from
-   the values it introduces. Sans against the cells' serif is the whole reason the first column
-   recedes — standard separates these voices by face, never by weight or hue. */
+/* The row label is the stub of the table, not a third answer: Inter in warm gray. Sans against the
+   cells' serif is the whole reason the first column recedes — standard separates these voices by
+   face, never by weight or hue, which is why the stub can sit a step ABOVE the cells and still read
+   as the quieter column. */
 .row .rl {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: var(--muted-3);
 }
 /* The value cells take Playfair, and they keep the reference's 400 rather than stepping to the
@@ -41,7 +42,7 @@
 .row .cell {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   color: var(--muted-3);
 }
 .row .cell.b {

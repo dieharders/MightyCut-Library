@@ -30,20 +30,21 @@
   background: var(--primary);
   border: 0.25rem solid var(--dark);
   border-radius: 50%;
-  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  box-shadow: 0.375rem 0.375rem 0
+    color-mix(in srgb, var(--dark) 12%, transparent);
 }
 .hud .hud-brand-name {
   /* Bodoni is never uppercased and never coloured — ink, sentence case, always. */
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 3rem;
+  font-size: var(--font-size-xl);
   letter-spacing: -0.01em;
   color: var(--dark);
 }
 .hud .hud-tagline {
   font-family: var(--body);
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--dark) 55%, transparent);
@@ -59,7 +60,7 @@
   box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
   font-family: var(--body);
   font-weight: 600;
-  font-size: 1.625rem;
+  font-size: var(--font-size-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--dark);
@@ -73,7 +74,7 @@
   white-space: nowrap;
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .hud .hud-track {

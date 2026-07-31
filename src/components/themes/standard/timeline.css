@@ -13,7 +13,7 @@
    eyebrow, so the headline is the first thing in a vertically centred body and has nothing to
    clear. */
 .timeline h3 {
-  font-size: 4.75rem;
+  font-size: var(--font-size-3xl);
   margin-bottom: 1.875rem;
 }
 .timeline .row {

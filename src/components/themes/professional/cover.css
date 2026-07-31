@@ -10,13 +10,11 @@
 }
 .cover .eyebrow {
   margin-bottom: 2.125rem;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   letter-spacing: 0.065em;
 }
 .cover h3 {
-  /* Baskerville sets wider than the grotesque it replaced, so the hero drops from 8.125rem to
-     hold the same two-line measure without overflowing. */
-  font-size: 7rem;
+  font-size: var(--font-size-max);
   line-height: 1.12;
   letter-spacing: -0.01em;
   max-width: 74.375rem;
@@ -25,7 +23,7 @@
 .cover .sub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   line-height: 1.55;
   color: var(--muted-3);
   margin-top: 2.125rem;

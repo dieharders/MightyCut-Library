@@ -1,8 +1,7 @@
 /* 5 · Quote — a centered statement with a cyan quote mark, the attribution below the card
    (templates/quote.html). The eyebrow sits above the card as future's `label` type role
    (mono, uppercase, wide-tracked, cyan) and self-removes when the slide sets none — the
-   template used to DROP the slot, so typing an eyebrow silently did nothing.
-   Ported from legacy .bf-quote (cqw × 1.2). */
+   template used to DROP the slot, so typing an eyebrow silently did nothing. */
 .quote > .body {
   justify-content: center;
   align-items: center;
@@ -14,22 +13,15 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 1.75rem;
+  font-size: var(--font-size-sm);
   color: var(--primary);
   margin-bottom: 3.625rem;
 }
-/* The mark is a WATERMARK, so its line-height is doing layout, not leading: a fraction under 1
-   crops the block box well inside the glyph, letting the mark read large while occupying little
-   vertical space above the card. That makes the crop a function of BOTH numbers — the box is
-   line-height × font-size — so the two have to move together. The mark grew 8.375rem → 10rem;
-   0.42 holds the box at the 4.1875rem the 0.5 gave it before, so the composition below (and the
-   1.25rem margin tuned against it) is unchanged and only the mark itself is bigger. Resize this
-   again and recompute: line-height = 4.1875 / new-size-in-rem. */
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 10rem;
-  line-height: 0.42;
+  font-size: var(--font-size-max);
+  line-height: 0.508;
   color: var(--primary);
   opacity: 0.6;
   margin-bottom: 1.25rem;
@@ -42,7 +34,7 @@
   font-family: var(--disp);
   font-weight: 700;
   letter-spacing: -0.02em;
-  font-size: 4.5rem;
+  font-size: var(--font-size-3xl);
   line-height: 1.12;
   color: var(--light);
 }
@@ -51,7 +43,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.135em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }
