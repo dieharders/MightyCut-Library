@@ -94,18 +94,16 @@ const fontTokens: Record<string, string> = {
   mono: '"IBM Plex Sans", sans-serif',
 };
 
-/** Type-SIZE tokens — professional's own 8-step scale. This is to `font-size` what `palette` is to
+/** Type-SIZE tokens — professional's own type scale. This is to `font-size` what `palette` is to
  *  colour: a skin NAMES a step, it never writes a number. The steps are PROFESSIONAL's — every
- *  theme derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the
- *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Professional's is the most
- *  compressed of the six: its `4xl` is 7rem where creative's is 12rem, because a consulting deck
+ *  theme derives its own from its own ramp, and only the SHAPE (the step vocabulary, ascending,
+ *  on the 0.125rem grid, no adjacent pair closer than 1.10x) is shared. Professional's is the most
+ *  compressed of the six: its `max` is 7rem where creative's is 12rem, because a consulting deck
  *  states things rather than shouts them.
  *
- *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
- *  normalisation 8fb19d7 landed, which the pull quote already sat on) and `4xl` IS the
- *  cover/closing display size. The one size still written as a literal is the stat figure,
- *  deliberately in the gap between them; see stat.css. Re-derive the middle six with
- *  `node scripts/audit-font-scale.mjs --derive --theme professional`. */
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote already sat on), `4xl` IS the stat figure,
+ *  and `max` IS the cover and closing plate. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.25rem",
   "font-size-sm": "1.5rem",

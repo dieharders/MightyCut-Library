@@ -89,20 +89,19 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
-/** Type-SIZE tokens — block's own 8-step scale. This is to `font-size` what `palette` is to
+/** Type-SIZE tokens — block's own type scale. This is to `font-size` what `palette` is to
  *  colour: a skin NAMES a step, it never writes a number, and the scale is the one place the
  *  theme's type ramp is stated. The steps are BLOCK's, not the library's — every theme derives
- *  its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem grid) is
- *  shared. Block's is the tightest in the library: it starts at 1.75rem because block has no
- *  small copy at all, and no adjacent pair is closer than 1.10x, because a step nobody can tell
+ *  its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the 0.125rem
+ *  grid) is shared. Block's is the tightest in the library: it starts at 1.75rem because block has
+ *  no small copy at all, and no adjacent pair is closer than 1.10x, because a step nobody can tell
  *  from its neighbour is not a step.
  *
- *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
- *  normalisation 8fb19d7 landed) and `4xl` IS the cover/closing display size. That is why the
- *  jump between them is a leap rather than a step — display type is supposed to break the ramp.
- *  The one size still written as a literal is the stat figure, which sits deliberately in the gap
- *  between them; see stat.css. If you change `3xl`, re-derive the whole scale — don't nudge one
- *  step, or the 1.10x floor stops holding. */
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed), `4xl` IS the stat figure, and `max` IS the cover and closing
+ *  plate. That is why the jumps up there are leaps rather than steps — display type is supposed
+ *  to break the ramp. If you change `3xl`, re-derive the whole scale — don't nudge one step, or
+ *  the 1.10x floor stops holding. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.75rem",
   "font-size-sm": "2rem",

@@ -128,17 +128,16 @@ const fontTokens: Record<string, string> = {
   mono: '"Inter", sans-serif',
 };
 
-/** Type-SIZE tokens — standard's own 8-step scale. This is to `font-size` what `palette` is to
+/** Type-SIZE tokens — standard's own type scale. This is to `font-size` what `palette` is to
  *  colour: a skin NAMES a step, it never writes a number. The steps are STANDARD's — every theme
- *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
- *  grid, no adjacent pair closer than 1.10x) is shared. Standard's runs the widest of the six,
- *  because a catalogue voice needs a real 1.25rem label AND a 9.5rem display statement.
+ *  derives its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the
+ *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Standard's runs the widest of the
+ *  six, because a catalogue voice needs a real 1.25rem label AND a 9.5rem display statement.
  *
- *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
- *  normalisation 8fb19d7 landed, which the pull quote also takes) and `4xl` IS the cover/closing
- *  display size. The jump between them is a leap rather than a step — display type is supposed to
- *  break the ramp. The one size still written as a literal is the stat figure, deliberately in the
- *  gap between them; see stat.css. Re-derive with `node scripts/audit-font-scale.mjs --derive`. */
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote also takes), `4xl` IS the stat figure, and
+ *  `max` IS the cover and closing plate. The jumps up there are leaps rather than steps — display
+ *  type is supposed to break the ramp. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.25rem",
   "font-size-sm": "1.5rem",

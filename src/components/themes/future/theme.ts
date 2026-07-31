@@ -77,17 +77,16 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** Type-SIZE tokens — future's own 8-step scale. This is to `font-size` what `palette` is to
+/** Type-SIZE tokens — future's own type scale. This is to `font-size` what `palette` is to
  *  colour: a skin NAMES a step, it never writes a number. The steps are FUTURE's — every theme
- *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
- *  grid, no adjacent pair closer than 1.10x) is shared. Future's floor is 1.5rem: it has no true
- *  fine print, because a HUD reads at a distance.
+ *  derives its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the
+ *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Future's floor is 1.5rem: it has
+ *  no true fine print, because a HUD reads at a distance.
  *
- *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
- *  normalisation 8fb19d7 landed, which the pull quote now joins) and `4xl` IS the cover/closing
- *  display size. TWO sizes stay literal — the stat figure, which sits in the gap between them, and
- *  the quote watermark, whose line-height is derived from its exact rem value (see quote.css).
- *  Re-derive with `node scripts/audit-font-scale.mjs --derive --theme future`. */
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote now joins), `4xl` IS the stat figure, and
+ *  `max` IS the cover and closing plate. One step change here is NOT self-contained: the quote
+ *  watermark's line-height is derived from the rem value of the step it names (see quote.css). */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.5rem",
   "font-size-sm": "1.75rem",

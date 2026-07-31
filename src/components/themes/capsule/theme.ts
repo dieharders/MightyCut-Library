@@ -86,17 +86,16 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
-/** Type-SIZE tokens — capsule's own 8-step scale. This is to `font-size` what `palette` is to
+/** Type-SIZE tokens — capsule's own type scale. This is to `font-size` what `palette` is to
  *  colour: a skin NAMES a step, it never writes a number. The steps are CAPSULE's — every theme
- *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
- *  grid, no adjacent pair closer than 1.10x) is shared. Capsule's spans the widest range in the
- *  library — 1.25rem to 13rem — because a didone cover is meant to be the loudest thing here.
+ *  derives its own from its own ramp, and only the SHAPE (the step vocabulary, ascending, on the
+ *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Capsule's spans the widest range
+ *  in the library — 1.25rem to 13rem — because a didone cover is meant to be the loudest thing
+ *  here.
  *
- *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
- *  normalisation 8fb19d7 landed, which the pull quote now joins) and `4xl` IS the cover/closing
- *  display size, so the 3xl→4xl jump is a LEAP by design. Two sizes stay literal — the stat figure
- *  in the gap between them, and the agenda title (see agenda-item.css). Re-derive with
- *  `node scripts/audit-font-scale.mjs --derive --theme capsule`. */
+ *  The top of the ramp is ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote now joins), `4xl` IS the stat figure, and
+ *  `max` IS the cover and closing plate — so the jumps above the headline are LEAPS by design. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.25rem",
   "font-size-sm": "1.5rem",

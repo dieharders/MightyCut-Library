@@ -40,7 +40,7 @@ every theme**. A theme supplies the CSS those class names resolve against.
    element renders completely unstyled — and still passes a "does it compose" smoke.
    Enforced: `theme-parity.test.ts` → _"skin coverage"_.
 4. **rem on a 0.125rem grid.** Never px for geometry (see §5).
-5. **A skin never writes a font size.** Name a step of your theme's 9-step scale
+5. **A skin never writes a font size.** Name a step of your theme's type scale
    (`var(--font-size-lg)`); the numbers live in `theme.ts`'s `sizeTokens` and nowhere else.
    Enforced: `theme-parity.test.ts` → _"type scale"_.
 6. **A theme adds no motion code.** If you want movement, it belongs in a backdrop design or
@@ -264,7 +264,7 @@ document sets a viewport-derived root font-size so authored numbers are canvas-r
 sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raster_ effects (a
 1px hairline gradient stop, a text-shadow blur) may stay px on purpose.
 
-**Type sizes are steps, always.** Your theme declares a 9-step scale in `theme.ts`:
+**Type sizes are steps, always.** Your theme declares its scale in `theme.ts`:
 
 ```css
 .card-title {
@@ -277,8 +277,14 @@ sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raste
 
 The scale is **yours**, not the library's. Only the shape is shared:
 
-- Eight steps, `--font-size-xs` through `--font-size-4xl`, then `--font-size-max` ascending, on the 0.125rem grid.
-- No adjacent pair closer than **0.25rem**.
+- The step vocabulary — `--font-size-xs` through `--font-size-4xl`, then `--font-size-max` — is
+  fixed and lives in `TEXT_STEPS` (`theme-parity.test.ts`). Declare all of it, use all of it: a
+  step nothing names is dead, and a step nothing declares renders at the browser default.
+- Ascending, on the 0.125rem grid, no adjacent pair closer than **1.10×**.
+- The top of the ramp is ANCHORED to frames rather than chosen: the seven content treatments'
+  `h3` all share one step, `.cover h3` takes `max`, and `.closing-plate h3` names a step above
+  the content headline. Which name the content headline lands on is yours — it falls out of how
+  many display sizes your theme needs above it.
 
 **Colours are roles, always.** Anything lighter/darker/translucent is `color-mix()`:
 
@@ -298,8 +304,8 @@ The scale is **yours**, not the library's. Only the shape is shared:
 }
 .stat-number {
   font-family: var(--disp);
-  /* an off-scale display size (see above) — still honours the density hook */
-  font-size: calc(6.5rem * var(--dense-scale, 1));
+  /* a step like everything else — the density hook multiplies it */
+  font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   color: var(--dot, var(--primary)); /* honour the instance accent */
 }
 ```
@@ -653,11 +659,11 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** This theme's 9-step type scale (§5) — the size half of the type system. Steps ascend, sit on
- *  the 0.125rem grid, and stay ≥1.10x apart. Three are anchored to frames: `3xl` is the
+/** This theme's type scale (§5) — the size half of the type system. Steps ascend, sit on the
+ *  0.125rem grid, and stay ≥1.10x apart. The top of the ramp is anchored to frames: `3xl` is the
  *  content-frame h3 every content treatment shares, `4xl` is the stat figure's base, `max` is the
- *  cover (and the closing plate, unless its measure is narrower — see §5). Derive the six below
- *  them with `node scripts/audit-font-scale.mjs --derive --theme <yours>`. */
+ *  cover (and the closing plate, unless its measure is narrower — see §5). Pick the rest off your
+ *  own ramp; the working steps below the headline stay within 1.45x of each other. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.25rem",
   "font-size-sm": "1.5rem",
@@ -877,7 +883,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | theme decoration defaults | every hero frame (cover/closing-plate/quote) is dressed, and **every** frame you dress uses **your own** roster and renders                                                                                                                                                  |
 | ground resolution         | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`                                                                                                                                                                     |
 | caption alignment parity  | your caption doesn't drift from the reference                                                                                                                                                                                                                                |
-| type scale                | all 9 steps declared, ascending, on-grid, ≥1.10× apart (and evenly spaced up to the headline); **no skin writes a font-size number at all**; no dead step; all seven content `h3`s share one step, `.cover h3` is `max`, `.closing-plate h3` names a step above the headline |
+| type scale                | the whole step vocabulary declared, ascending, on-grid, ≥1.10× apart (and evenly spaced up to the headline); **no skin writes a font-size number at all**; no dead step; all seven content `h3`s share one step, `.cover h3` is `max`, `.closing-plate h3` names a step above the headline |
 | font coverage             | you named a family with no `@font-face` in the staged set                                                                                                                                                                                                                    |
 | palette completeness      | all 10 roles filled                                                                                                                                                                                                                                                          |
 
