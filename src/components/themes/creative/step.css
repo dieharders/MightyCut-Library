@@ -27,7 +27,7 @@
    to the 0.125rem grid): the reference's 0.4cqw border lands exactly on creative's 0.5rem
    structural outline. */
 .step {
-  background: var(--light);
+  background: var(--muted-1);
   border: 0.5rem solid var(--dark);
   box-shadow: 0.75rem 0.75rem 0 var(--dark);
   padding: 2.125rem 1.875rem;

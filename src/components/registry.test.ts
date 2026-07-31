@@ -68,6 +68,21 @@ const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { 
  *  → "headline accent" is what holds the split itself. */
 const unaccent = (html: string): string => html.replace(/<span class="headline-accent">([^<]*)<\/span>/g, "$1");
 
+/** The backdrop designs that take NO `--<design>-ink` hook, because CSS does not paint their
+ *  pixels — both draw into a canvas, where a custom property cannot reach.
+ *    • `constellation` resolves its colour from the theme's --primary at build time (particleRgb).
+ *    • `sunburst` is a fixed GREY artwork recoloured by `mix-blend-mode` against whatever ground
+ *      the scene carries. It is the one design where having no hook means MORE themeability, not
+ *      less — it adapts to grounds no theme has authored yet. (It did once carry --sunburst-ink
+ *      plus build-time HSL maths; both are deleted, so a --sunburst-ink in a frame.css is dead.)
+ *
+ *  ONE list, shared by both sides of the convention — the registry check that a design must READ a
+ *  hook, and the per-theme checks that a frame.css must STATE one. They were separate literals and
+ *  drifted the moment sunburst went to canvas: the registry stopped requiring the hook while
+ *  standard's frame.css was still asserted to declare it. Adding a canvas design means adding it
+ *  here, once. */
+const HOOKLESS_DESIGNS: readonly string[] = ["constellation", "sunburst"];
+
 describe("registry vocabulary (tripwire)", () => {
   test("component registry == COMPONENT_NAMES, both directions", () => {
     expect(componentNames()).toEqual([...COMPONENT_NAMES].sort());
@@ -453,15 +468,25 @@ describe("backdrop registry (tripwire)", () => {
 
   // FOUR designs are animated: constellation paints a seeded particle canvas (particleBg),
   // gradient turns its two-tone corner wash a few degrees over the scene (washSpin), hatch drifts
-  // the hue of its vanishing stripes (hueShift), and sunburst turns its spiral-arm field
-  // (washSpin again — a new design does NOT imply a new FX, and reusing one keeps mc.js's
-  // BACKDROP_FX allowlist untouched). Everything else is pure CSS. Adding a fifth animated design
-  // is a deliberate change to this list.
+  // the hue of its vanishing stripes (hueShift), and sunburst turns its spiral-arm fans over a
+  // static glow (sunburstBg). Everything else is pure CSS. Adding a fifth animated design is a
+  // deliberate change to this list — and to mc.js's BACKDROP_FX allowlist, which the tripwire in
+  // runtime/boxless-reveal.test.ts checks by running each design's real descriptor.
+  //
+  // sunburst is the ONLY design that needed an FX of its own rather than reusing one, and the
+  // reason is worth keeping: it was tried as SVG rotated by washSpin — both by turning the layer
+  // and by turning a group inside the SVG — and neither was viable. Turning the layer forces it
+  // oversized (a 280rem square against a 120 x 67.5rem frame) so its own corners cannot swing into
+  // view, which was ~24MP of raster per card; turning an inner group keeps the element frame-sized
+  // but DIRTIES THE PAINT of the whole scaled slide on every frame, which was slower still and did
+  // not improve when the artwork was cut from 59 fills to 18, nor when mix-blend-mode was removed.
+  // A canvas owns its backing surface, so painting it invalidates nothing around it — the same
+  // reason constellation has always been smooth. Do not "simplify" this back to washSpin.
   const ANIMATED_DESIGNS: Record<string, string> = {
     constellation: "particleBg",
     gradient: "washSpin",
     hatch: "hueShift",
-    sunburst: "washSpin",
+    sunburst: "sunburstBg",
   };
 
   test("the animated designs each emit one backdrop anim; every other design is static", () => {
@@ -484,9 +509,8 @@ describe("backdrop registry (tripwire)", () => {
   // dark one. The hook name is DERIVED from the design name, not mapped: that is the whole
   // convention (§7 of docs/THEME-AUTHORING.md), and a design that coins its own hook spelling
   // fails here rather than silently ignoring what a theme author wrote in frame.css.
-  // `constellation` is exempt — it paints into a canvas, so its colour comes from the theme's
-  // --primary resolved at build time (particleRgb), not from CSS.
-  const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => n !== "constellation");
+  // The canvas-painted designs are exempt — see HOOKLESS_DESIGNS at the top of this file.
+  const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => !HOOKLESS_DESIGNS.includes(n));
 
   // The assertion is on the CONTRACT, not on one literal spelling: the theme hook must be read
   // FIRST (so frame.css always wins) and the chain must bottom out at `var(--dark)` (so an
@@ -991,31 +1015,50 @@ describe("creative theme (tripwire)", () => {
     expect(html).not.toContain("background: var(--muted-1)");
   });
 
-  test("the sunburst backdrop emits a valid, compId-scoped rotation descriptor", () => {
+  test("the sunburst backdrop emits a valid, compId-scoped canvas descriptor", () => {
     const built = getTreatment("cover")().build(crctx("c01-cover-a"));
     const bd = built.anims.find((a) => a.kind === "backdrop");
     expect(bd, "creative scene must carry a backdrop anim").toBeDefined();
     expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
-    expect(bd?.opts?.fn).toBe("washSpin"); // it turns; it is not a canvas FX
-    expect(bd?.target).toBe("c01-cover-a-spin"); // the turning layer is compId-scoped
-    // It paints through its one themeable hook, which frame.css re-points at the ink.
-    expect(built.css).toContain("--sunburst-ink");
-    // The turning element must be the inner SQUARE, not the full-bleed layer — the square is
-    // centred on the burst's corner anchor so the spin is concentric and no edge sweeps in.
-    expect(built.css).toContain("width: 280rem");
-    expect(built.html).toContain("c01-cover-a-spin");
+    expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
+    expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
+    expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
+    // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
+    // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
+    // mean someone had gone back to rotating the layer, which is the expensive shape.
+    expect(built.css).not.toContain("280rem");
+    // Colour comes from blending grey artwork against the scene's ground, not from a hook.
+    // (Asserted on the DESIGN's own css, not the scene's — creative's frame.css mentions
+    // --sunburst-ink in prose to explain why it deliberately states nothing for this design.)
+    expect(built.css).toContain("mix-blend-mode");
+    expect(BACKDROPS.sunburst.build({ ground: "muted-1", theme: creativeTheme, ctx: crctx("c01-x") }).css)
+      .not.toContain("--sunburst-ink");
   });
 
-  test("the sunburst's SVG ids are compId-scoped (sub-comps share ONE DOM)", () => {
-    // Unscoped `#s` / `#g` / gradient ids would collide across scenes and every scene would
-    // resolve to whichever parsed first.
-    const a = getTreatment("cover")().build(crctx("c01-a")).html;
+  test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
+    // The FX in mc.js is GENERIC — it knows how to draw a sunburst but not what this one looks
+    // like. Path, fan and glow ramp all travel in opts so primitives/backdrops.ts stays the single
+    // source of truth; if that link breaks the backdrop silently paints nothing.
+    const built = getTreatment("cover")().build(crctx("c01-a"));
+    const o = built.anims.find((a) => a.kind === "backdrop")?.opts ?? {};
+    expect(String(o.armPath)).toMatch(/^M[\d.]/); // an SVG path, not a transform or a name
+    const fan = JSON.parse(String(o.fan)) as [number, number][];
+    const glow = JSON.parse(String(o.glow)) as [number, number][];
+    // [scale, degrees] pairs — NOT the `scale(…) rotate(…)` strings an SVG <use> would take. The
+    // canvas multiplies these, so a string here draws no arms at all and fails silently.
+    expect(fan.length).toBeGreaterThan(0);
+    for (const [s, d] of fan) {
+      expect(typeof s === "number" && typeof d === "number").toBe(true);
+    }
+    // The glow ramp must stay non-decreasing (a gradient's stops cannot go backwards) and keep the
+    // repeated offsets that reproduce the source's concentric BANDING — a repeat is a hard edge.
+    expect(glow.every(([off], i) => i === 0 || off >= glow[i - 1][0])).toBe(true);
+    expect(glow.filter(([off], i) => i > 0 && off === glow[i - 1][0]).length).toBeGreaterThan(0);
+
+    // Sub-comps share ONE DOM, so the canvas class must not leak between scenes.
     const b = getTreatment("cover")().build(crctx("c01-b")).html;
-    expect(a).toContain('id="c01-a-s"');
-    expect(b).toContain('id="c01-b-s"');
-    expect(a).not.toContain('id="c01-b-s"');
-    // …and the artwork carries no colour of its own — the stops are opacity-only.
-    expect(a).not.toMatch(/stop-color="#/);
+    expect(built.html).toContain("c01-a-sun");
+    expect(b).not.toContain("c01-a-sun");
   });
 
   test("creative ships NO template overrides (the whole look is CSS alone)", () => {
@@ -1211,10 +1254,11 @@ describe("standard theme (tripwire)", () => {
     // The pool is shared and a default is not a refusal: a slide may pick any design. Each paints
     // through `var(--<design>-ink, var(--dark))`, whose near-black fallback would read as a smudge
     // on stone — so frame.css must state a hook for every CSS-painted design, not just the ones
-    // standard happens to use (which is none of them).
-    const missing = BACKDROP_NAMES.filter((n) => n !== "plain" && n !== "constellation").filter(
-      (n) => !(standardTheme.frameCss ?? "").includes(`--${n}-ink:`),
-    );
+    // standard happens to use (which is none of them). The canvas designs take no hook and must
+    // NOT be listed: see HOOKLESS_DESIGNS at the top of this file.
+    const missing = BACKDROP_NAMES.filter(
+      (n) => n !== "plain" && !HOOKLESS_DESIGNS.includes(n),
+    ).filter((n) => !(standardTheme.frameCss ?? "").includes(`--${n}-ink:`));
     expect(
       missing,
       `standard's frame.css states no ink hook for: ${missing.join(", ")} — those masks would paint near-black on stone`,

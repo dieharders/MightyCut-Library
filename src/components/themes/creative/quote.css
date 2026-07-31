@@ -6,7 +6,7 @@
    paint the whole sheet and let the type sit straight on it.
 
    GROUND: pink (--primary), stamped inline by the emitter. The claim and its attribution run on
-   --muted-1, the same cream/light ink every other saturated frame in the theme uses for type
+   --light, the same cream/light ink every other saturated frame in the theme uses for type
    (cta, closing-plate's seal, row, timeline) — at 9rem Archivo Black the near-black ink vibrated
    against the pink, and light type reads as the calmer slab. Both colours stay stated explicitly
    so neither can inherit a darker ink if the frame default ever moves. The eyebrow keeps its ink
@@ -29,6 +29,7 @@
   margin-bottom: 2.875rem;
   font-size: var(--font-size-sm);
   letter-spacing: 0.085em;
+  color: var(--light);
 }
 .quote .qcard {
   display: flex;
@@ -49,13 +50,13 @@
   font-size: var(--font-size-4xl);
   line-height: 0.9;
   letter-spacing: -0.01em;
-  color: var(--muted-1);
+  color: var(--light);
 }
 .quote .attr {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.065em;
   font-size: var(--font-size-md);
-  color: var(--muted-1);
+  color: var(--light);
   margin-top: 2.875rem;
 }

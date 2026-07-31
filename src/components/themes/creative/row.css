@@ -13,7 +13,7 @@
 
    NO GAP, RULES INSTEAD. Each cell draws its own 0.375rem ink border-top — creative's inner-rule
    weight, one step down from the 0.5rem structural outline — so consecutive rows share a single
-   ink line and the ledger reads as one printed table. Cells are otherwise unpainted: the oat
+   ink line and the ledger reads as one printed table. Cells are otherwise unpainted: the milk
    ground shows through, and only the answer column takes a fill.
 
    Ported from the showcase .bf-comparison .rl / .cell / .cell.b (cqw × 1.2). */
@@ -25,9 +25,9 @@
   display: flex;
   align-items: center;
   padding: 1.25rem 1.625rem;
-  /* Each cell PAINTS the oat block it sits in; the ledger itself is ink (comparison.css) so a
+  /* Each cell PAINTS the milk block it sits in; the ledger itself is ink (comparison.css) so a
      sub-pixel row seam shows the rule colour instead of leaking a light hairline. */
-  background: var(--muted-2);
+  background: var(--muted-1);
   border-top: 0.375rem solid var(--dark);
   font-family: var(--body);
   font-size: var(--font-size-xs);

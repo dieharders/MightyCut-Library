@@ -277,286 +277,250 @@ const HATCH_STRIPES: string = (() => {
   }
   return parts.join("");
 })();
+/** sunburst — a RADIAL SPIRAL BURST ("sun tornado"): a soft central glow with a fan of long spiral
+ *  arms sweeping out of it, the arms turning slowly and continuously across the scene while the
+ *  glow stays put. Creative's signature design, contributed to the shared pool like every other.
+ *  ANIMATED: one `backdrop` descriptor driving MC.sunburstBg — the one design that needed an FX of
+ *  its own, so it IS an addition to mc.js's BACKDROP_FX allowlist.
+ *
+ *  IT PAINTS INTO A CANVAS, NOT AN SVG, and that is the whole point of the design's current shape.
+ *  It shipped first as inline SVG turned by MC.washSpin — both by turning the layer and by turning
+ *  a group inside it — and neither was viable: an SVG transform DIRTIES THE PAINT of the scaled
+ *  slide around it, so every frame re-rastered the whole thing. A canvas owns its backing surface.
+ *  The full argument, including what was tried and why cutting the fill count didn't help, lives on
+ *  MC.sunburstBg in assets/fx/mc.js — read it there before "simplifying" this back to washSpin.
+ *
+ *  The artwork itself is the source file's, unchanged in look: its greys, its glow falloff, its arm
+ *  path, its scale/angle ladder. What changed is only HOW it is drawn — see SUNBURST_FAN and
+ *  SUNBURST_GLOW_RAMP, which fold the source's three stacked fans and thirteen concentric circles
+ *  into one fan and one gradient without altering the result.
+ *
+ *  HOW IT COLOURS ITSELF: GREY + `mix-blend-mode: luminosity`. This is the trick that lets the
+ *  artwork keep its literal greys without becoming un-themeable. `luminosity` takes the HUE and
+ *  SATURATION of what is underneath and the LIGHTNESS of what is on top — so the scene's plane
+ *  supplies every hue and the burst supplies only light and shade. The same grey artwork reads
+ *  amber on creative's cream, rose on its pink and green on its green, with no colour arithmetic
+ *  anywhere.
+ *
+ *  BE CLEAR ABOUT WHAT THAT COSTS, because it is the one thing to know before touching SB_DARK.
+ *  Unlike `overlay`/`soft-light`, luminosity has NO identity value: mid-grey is not a no-op, it
+ *  REPLACES the ground's own lightness. The layer covers the frame, so SB_DARK (the artwork's
+ *  ambient tone, #878787) sets the lightness of the whole plane, not just of the burst. Raising or
+ *  lowering that one number moves the entire slide lighter or darker. If a ground needs to keep its
+ *  authored lightness and only be lit locally, `overlay` and `soft-light` are the anchored-at-
+ *  mid-grey alternatives and are a one-word swap; `lighten` is NOT (per-channel MAX flattens every
+ *  ground darker than mid-grey — it would erase future's navy and block's near-black).
+ *
+ *  That replaces the whole `--sunburst-ink` / `sunburstTones()` apparatus this design used to
+ *  carry (a theme hook, plus HSL maths that derived a two-tone complement from the scene's ground
+ *  at build time). Blending gets the same result — a field that suits every ground — from one CSS
+ *  declaration, and gets it for grounds nobody has authored yet. Those hooks and that maths are
+ *  deleted, not deprecated; `--sunburst-ink` in a theme's frame.css is now dead and does nothing.
+ *
+ *  GEOMETRY. Every circle in the source is `r=…` with no cx/cy, so the burst is anchored at the
+ *  artwork's ORIGIN, which this design pins to the FRAME's TOP-LEFT corner (originX/originY in the
+ *  descriptor); the arms sweep down and right across the slide from there. The artwork is authored
+ *  against a 2000-unit-wide space (viewW) and the FX scales it by canvasWidth/viewW, so the frame's
+ *  16:9 maps to 2000 x 1125 artwork units. The only requirement is that the artwork COVER the frame
+ *  at every angle: the glow disc is radially symmetric at r=3000, and the arms reach 1.6 x 1550 =
+ *  2480 units against a farthest frame corner at sqrt(2000^2 + 1125^2) = 2294.
+ *
+ *  THE LAYER IS EXACTLY THE FRAME, and that is worth understanding because the alternative shipped
+ *  as a bug. Rotating the ELEMENT swings its own corners into view, so it must be oversized until
+ *  its inscribed circle covers the frame from the rotation origin — with the burst on a corner that
+ *  reach is sqrt(120^2 + 67.5^2) = 137.7rem against a 120 x 67.5rem frame, i.e. a 280rem square,
+ *  ~9.7x the frame's area, ~90% of it never visible. At showcase widths that measured ~24MP of
+ *  raster PER treatment card and made the treatments grid stutter on scroll. Here the rotation is a
+ *  transform on the drawing CONTEXT, so nothing is oversized. A `280rem` reappearing in this file's
+ *  CSS means someone has gone back to rotating the layer; registry.test.ts asserts it does not.
+ *
+ *  THE THREE PIECES THE FX COMPOSITES, bottom to top — the arms are the only one that moves, so the
+ *  other two are pre-rendered ONCE at setup and blitted:
+ *    • BELOW — the ambient ground tone, with the glow disc (SUNBURST_GLOW_RAMP) over it.
+ *    • THE ARMS — SUNBURST_FAN, one gradient-filled fill per entry, re-drawn every frame.
+ *    • ABOVE — the VEIL: the same radial ramp again at `veilAlpha`, which is what keeps the arms
+ *      sitting IN the light rather than on top of it. It is the one part that cannot fold into the
+ *      glow, because it is on the far side of the arms. Drop veilAlpha to 0 and the arms read as
+ *      cut-out shapes laid over the burst instead of as light within it.
+ *
+ *  Deterministic, like every other backdrop FX: the angle is a pure function of timeline position
+ *  via a proxy tween — no rAF, no wall clock, no repeat — so the renderer, which SEEKS a paused
+ *  timeline frame by frame, repaints identically for a given frame. */
+/** One spiral arm — the `d` of the source's `<path id='s'>`, verbatim. A 1550-unit tapering sweep
+ *  that curls roughly a quarter turn out of the core. Everything else in the tornado is this one
+ *  path re-used at a different scale and angle. */
+const SUNBURST_ARM =
+  "M1549.2 51.6c-5.4 99.1-20.2 197.6-44.2 293.6c-24.1 96-57.4 189.4-99.3 278.6c-41.9 89.2-92.4 174.1-150.3 253.3c-58 79.2-123.4 152.6-195.1 219c-71.7 66.4-149.6 125.8-232.2 177.2c-82.7 51.4-170.1 94.7-260.7 129.1c-90.6 34.4-184.4 60-279.5 76.3C192.6 1495 96.1 1502 0 1500c96.1-2.1 191.8-13.3 285.4-33.6c93.6-20.2 185-49.5 272.5-87.2c87.6-37.7 171.3-83.8 249.6-137.3c78.4-53.5 151.5-114.5 217.9-181.7c66.5-67.2 126.4-140.7 178.6-218.9c52.3-78.3 96.9-161.4 133-247.9c36.1-86.5 63.8-176.2 82.6-267.6c18.8-91.4 28.6-184.4 29.6-277.4c0.3-27.6 23.2-48.7 50.8-48.4s49.5 21.8 49.2 49.5c0 0.7 0 1.3-0.1 2L1549.2 51.6z";
 
-/** sunburst — a SLOWLY TURNING RADIAL BURST: a soft central glow with three sets of long spiral
- *  arms sweeping out of it, rotating continuously across the scene. Ported from a generated
- *  "sun tornado" SVG (creative's signature design, contributed to the shared pool like every
- *  other). ANIMATED: one `backdrop` descriptor driving MC.washSpin — the same FX `gradient`
- *  already uses, so nothing new is added to mc.js's BACKDROP_FX allowlist.
- *
- *  HOW IT WAS MADE THEME-NEUTRAL, AND WHY IT IS TWO-TONE. The source is a fully hand-coloured
- *  artwork: an `#ee5522` ground rect, a `#FB3 → #ee5522` radial gradient for the glow and an
- *  `#f7882b → #ee5522` linear gradient on the arms. The ground rect is DROPPED outright (a
- *  backdrop paints OVER the scene's ground — it must never lay down its own). The two gradients
- *  are kept AS gradients, repainted through TWO hooks: `--sunburst-ink` (the bright core tone,
- *  the source's amber) and `--sunburst-ink-2` (the deep outer tone, its burnt orange), with
- *  `-ink-2` falling back through `-ink` exactly as `gradient`'s second hook does — so a theme
- *  that states only the first still gets a coherent single-tone field.
- *
- *  This was first built with ONE hook, reproducing the colour ramp as a single ink at ramping
- *  opacity (`hatch`'s trick). That was a mistake worth recording: alpha can only ever make the
- *  ink LESS present, i.e. closer to the ground, so a one-ink version cannot be anything but
- *  washed out no matter how it is tuned. The source's punch comes from a HUE shift between core
- *  and rim, and a hue shift needs a second colour. `hatch` gets away with one ink because its
- *  stripes are a monochrome ladder; a sunburst is not.
- *
- *  Alpha still does the OTHER job: the arms fade toward their tips and the glow fades to nothing
- *  at the rim, so the field dissolves into whatever ground the scene carries instead of ending on
- *  a hard edge (the source could simply match its outer stops to its own ground rect; a shared
- *  design has no such luxury). Colour carries the richness, alpha carries the blend.
- *
- *  WHY IT IS RE-CENTRED. The source anchors the burst at the viewBox ORIGIN, i.e. the top-left
- *  corner (every circle is `r=…` with no cx/cy) — an artifact of how the generator emits it,
- *  harmless for a still. It is fatal for a ROTATING field: a burst that is not concentric with
- *  its own rotation origin does not spin, it ORBITS, and the arms visibly swing across the frame.
- *  WHERE THE SUN SITS, AND WHY IT STILL TURNS. The source anchors the burst at the viewBox ORIGIN
- *  (every circle is `r=…` with no cx/cy), which puts the centre in a CORNER, off-canvas — so the
- *  frame catches only the long outer arcs sweeping across it. That corner anchoring IS the look and
- *  is kept: the burst centre sits on the frame's BOTTOM-LEFT corner.
- *
- *  The tempting mistake is to re-centre it so it can rotate. That is unnecessary, and it throws the
- *  design away. What a rotation actually requires is that the field be CONCENTRIC WITH ITS OWN
- *  ROTATION ORIGIN — not that it be centred in the frame. A radial field turned about its own
- *  centre maps its painted disc exactly onto itself, so coverage is rotation-INVARIANT and no edge
- *  can ever sweep into view. (Turn it about anything else — the layer's centre, say — and it does
- *  not spin, it ORBITS: the arms visibly swing across the frame.)
- *
- *  GEOMETRY (the caller's job, per MC.washSpin's contract). The turning element is a SQUARE whose
- *  centre is pinned to that bottom-left corner: 280rem on a side at left -140rem / top -72.5rem,
- *  against the 120×67.5rem frame. The only figure that matters is the square's inscribed circle —
- *  half-side 140rem must exceed the distance from the anchor to the far corner,
- *  sqrt(120² + 67.5²) = 137.7rem. It does, so every point of the frame stays inside the square at
- *  every angle. This is why the design does NOT need `gradient`'s 150%/-25% sqrt(2) oversize: that
- *  formula is for a field centred in the frame, and this one is not.
- *
- *  WHY THE SCOPED IDS + CLASS. Sub-compositions are imported into ONE shared DOM, so the SVG's
- *  internal ids (`#s`, `#g`, the two gradients) would collide across scenes and every scene would
- *  silently resolve to whichever one parsed first. They are prefixed with `ctx.idPrefix`, as is
- *  the rotation target — backdrop anims are NOT run through qualifyAnim and the render's selector
- *  is document-wide. The CSS stays STRUCTURAL (`> div`, element selectors) so the stylesheet
- *  carries no per-scene name and still dedupes by design name across scenes.
- *
- *  Deterministic: the geometry is a pure constant, the ids derive from compId, and the rotation is
- *  a pure function of timeline position — no seed, no clock, no repeat. */
-/** `#rgb`/`#rrggbb` → HSL in [0,360) × [0,1] × [0,1]. Null for anything unparseable. */
-const hexToHsl = (hex: string): { h: number; s: number; l: number } | null => {
-  const raw = hex.trim().replace(/^#/, "");
-  const full = raw.length === 3 ? raw.replace(/./g, (c) => c + c) : raw;
-  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
-  const n = Number.parseInt(full, 16);
-  const r = ((n >> 16) & 255) / 255;
-  const g = ((n >> 8) & 255) / 255;
-  const b = (n & 255) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  const d = max - min;
-  if (d === 0) return { h: 0, s: 0, l };
-  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-  const h =
-    max === r ? ((g - b) / d + (g < b ? 6 : 0)) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return { h: h * 60, s, l };
-};
+/** The source's palette. Three greys, and that is the entire artwork — see the blend-mode note on
+ *  the design above for why grey is the point rather than a placeholder. */
+const SB_LIGHT = 0xd4; // #D4D4D4 — the glow's hot centre
+const SB_DARK = 0x87; // #878787 — the ground tone, and every gradient's outer stop
+const SB_MID = 0xae; // #aeaeae — where an arm leaves the core
 
-/** HSL → `#rrggbb`. */
-const hslToHex = (h: number, s: number, l: number): string => {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const hp = (((h % 360) + 360) % 360) / 60;
-  const x = c * (1 - Math.abs((hp % 2) - 1));
-  const [r1, g1, b1] =
-    hp < 1 ? [c, x, 0] : hp < 2 ? [x, c, 0] : hp < 3 ? [0, c, x]
-    : hp < 4 ? [0, x, c] : hp < 5 ? [x, 0, c] : [c, 0, x];
-  const m = l - c / 2;
-  const to = (v: number) => Math.round(Math.min(1, Math.max(0, v + m)) * 255).toString(16).padStart(2, "0");
-  return `#${to(r1)}${to(g1)}${to(b1)}`;
-};
 
-/**
- * The sunburst's two tones, COMPUTED FROM THE SCENE'S GROUND — the design colours itself instead
- * of being hand-tuned per theme.
+/** The fan: the source's fifteen scale/angle pairs, PAINTED ONCE.
  *
- * Why compute rather than let each theme pick: this design's whole job is to read as a field
- * BEHIND content on whatever plane the scene carries, and a hand-picked ink can only ever be right
- * for one of them. Creative alone rotates through six grounds (cream, oat, yellow, pink, orange,
- * green) — a fixed orange swirl is handsome on the cream and muddy on the green. Deriving from the
- * ground fixes every one of them at once, and fixes it for themes not written yet.
+ *  The source draws this fan THREE times — `<use href='#g' transform='rotate(10|120|240)'>` — which
+ *  is 45 gradient-filled 1550-unit paths per scene. It needs three copies because its fifteen
+ *  anchors all sit inside a ±60° wedge, so one pass would leave two thirds of the circle bare.
  *
- * THE HARMONY IS ANALOGOUS, NOT THE 180° COMPLEMENT — and that is a deliberate reading of the
- * source. The reference artwork is orange arms on an orange ground: same hue family, separated by
- * VALUE. Rotating a full 180° instead lands a blue swirl on creative's cream, a cyan one on its
- * orange and a magenta one on its green — foreign colours that also break creative's own "no fifth
- * accent" rule. So the tones stay in the ground's own family (HUE_SHIFT below) and earn their
- * contrast from lightness and saturation instead. Set HUE_SHIFT to 180 for the true complement;
- * that is the whole switch.
+ *  The copies are folded in here instead: arm i takes the sector `[10, 120, 240][i % 3]`, i.e. the
+ *  source's own three offsets, distributed across the fan rather than stacked on top of it. Same
+ *  scale ladder, same base angles, same 3-fold spread, a THIRD of the fills. The resulting anchors
+ *  run 50/70/70/90/90/130/130/145/200/248/250/260/280/310/350 — no gap wider than 60°, which each
+ *  arm's own ~90° sweep closes.
  *
- * Three guards keep it from producing something unusable:
- *   • LIGHTNESS IS PUSHED AWAY FROM THE GROUND. This is the one that matters: a same-hue field at
- *     the ground's own lightness is invisible, which was exactly the earlier "washed out" failure.
- *     On a light ground the tones go darker, on a dark ground lighter.
- *   • SATURATION IS LIFTED off the ground's, so a near-neutral canvas still yields a field with
- *     some colour in it rather than a grey smear...
- *   • …but a FLOOR applies: a ground with essentially no hue (a true white/grey) has no family to
- *     stay in, so the pair goes neutral and the field reads as a tonal grey swirl by design.
- *
- * Deterministic and pure: same theme + same ground ⇒ same two hexes, so the scene still rebuilds
- * byte-identically. Resolved at BUILD time (like `constellation`'s particleRgb) because CSS cannot
- * do hue arithmetic on a custom property.
- */
-const sunburstTones = (ground: FrameGround, theme: ThemeTokens): { a: string; b: string } | null => {
-  const hex = theme.palette?.find((sw) => sw.varName === ground)?.hex;
-  const g = hex ? hexToHsl(hex) : null;
-  if (!g) return null; // no palette / unparseable ⇒ emit nothing, CSS falls back to --dark
-  // 0 = stay in the ground's own family (the source's look). 180 = the true complement.
-  const HUE_SHIFT = 0;
-  const NEUTRAL = 0.1; // below this the ground has no hue to stay in
-  // The core lifts a touch WARM of the ground and the rim sits a touch cool of it — the same
-  // small hue spread the source uses between its amber core and its burnt-orange rim.
-  const base = g.h + HUE_SHIFT;
-  const s = g.s < NEUTRAL ? 0 : Math.min(0.88, Math.max(0.5, g.s * 1.7));
-  // Value contrast, the load-bearing part: a same-hue field at the ground's own lightness is
-  // invisible no matter how it is tuned.
-  const light = g.l > 0.5;
-  const core = light ? Math.max(0.34, g.l - 0.3) : Math.min(0.72, g.l + 0.26);
-  const rim = light ? Math.max(0.22, g.l - 0.44) : Math.min(0.86, g.l + 0.4);
-  // The spread is kept SMALL (+8/0). The source lifts its core ~26° warmer, but its ground is a
-  // red-orange with room to move; the same lift applied to a yellow-ish ground (creative's cream
-  // and its yellow ledger) walks straight into green and reads acid. Value does the work; hue only
-  // warms the core slightly.
-  return { a: hslToHex(base + 8, s, core), b: hslToHex(base, Math.min(0.92, s + 0.06), rim) };
-};
+ *  This is what makes the rotation affordable: the arms are the only part of the artwork that
+ *  moves, so they are the part that re-rasterises every frame. */
+const SUNBURST_FAN: readonly (readonly [number, number])[] = [
+  [0.12, 70],
+  [0.2, 130],
+  [0.25, 280],
+  [0.3, -10],
+  [0.4, 90],
+  [0.5, 260],
+  [0.6, 70],
+  [0.7, 130],
+  [0.835, 200],
+  [0.9, 50],
+  [1.05, 145],
+  [1.2, 248],
+  [1.333, -50],
+  [1.45, 90],
+  [1.6, 250],
+];
 
+/** The core's falloff, as ONE gradient's stop ladder — DERIVED, not redrawn.
+ *
+ *  The source builds its core from THIRTEEN concentric circles: a base disc at r=3000 plus a stack
+ *  of twelve rings (r=2000…250) inside a `<g opacity='0.5'>`. Eight of those cover the whole frame.
+ *  That is ~9 full-frame gradient fills plus an offscreen buffer to composite the group — every one
+ *  of them re-run on every frame of the rotation, purely to shape a falloff curve that a single
+ *  radial gradient can simply STATE.
+ *
+ *  THE CURVE IS REPRODUCED EXACTLY, INCLUDING ITS BANDING. The ring stack does not fade smoothly:
+ *  the rings are OPAQUE (gradient `a` has no stop-opacity), drawn largest-first, so at any radius
+ *  the SMALLEST ring still covering it wins outright — and where a ring ends, the tone jumps. Those
+ *  twelve hard steps are a real feature of the artwork, the concentric rings you can see in it. A
+ *  naive single gradient would smooth them away. This ladder keeps them by emitting a PAIR of stops
+ *  at each ring boundary (two stops at one offset is a hard edge in SVG): the inner value, then the
+ *  outer one.
+ *
+ *  So the maths below is not a fit or an approximation — it is the source's own compositing
+ *  arithmetic, evaluated at build time instead of by the rasteriser on every frame. Change a radius
+ *  in SUNBURST_RINGS and the gradient follows automatically. */
+const SUNBURST_RINGS: readonly number[] = [
+  2000, 1800, 1700, 1651, 1450, 1250, 1175, 900, 750, 500, 380, 250,
+];
+
+/** The burst's outer radius, in artwork units — the disc every glow stop is stated against. */
+const SB_OUTER = 3000;
+
+/** The derived ramp as DATA: `[offset, greyLevel]` pairs, offsets ascending with a deliberate
+ *  repeat at each ring boundary (a repeated offset is a hard edge — the artwork's banding).
+ *  This is the single source for both renderers: the canvas FX consumes it directly. */
+const SUNBURST_GLOW_RAMP: readonly (readonly [number, number])[] = (() => {
+  const OUTER = SB_OUTER;
+  const GROUP_ALPHA = 0.5; // the source's <g opacity='0.5'> around the ring stack
+  const asc = [...SUNBURST_RINGS].sort((a, b) => a - b);
+  // Gradient `a` is objectBoundingBox on a circle centred at the origin, so its offset at radius r
+  // of a disc of radius R is exactly r/R — a straight ramp from the hot centre to the ground tone.
+  const tone = (r: number, R: number): number => SB_LIGHT + (SB_DARK - SB_LIGHT) * (r / R);
+  // The stack renders opaque and largest-first, so the smallest ring still covering r is on top.
+  const ringAt = (r: number): number | null => {
+    const R = asc.find((x) => x >= r);
+    return R === undefined ? null : tone(r, R);
+  };
+  const mix = (base: number, ring: number | null): number =>
+    ring === null ? base : base * (1 - GROUP_ALPHA) + ring * GROUP_ALPHA;
+  const stop = (r: number, v: number): readonly [number, number] => [
+    Number((r / OUTER).toFixed(4)),
+    Math.round(v),
+  ];
+
+  const parts: (readonly [number, number])[] = [stop(0, mix(tone(0, OUTER), ringAt(0)))];
+  for (const R of asc) {
+    // Approaching R from INSIDE: ring R is the one on top, at its own outer edge (the dark end).
+    parts.push(stop(R, mix(tone(R, OUTER), tone(R, R))));
+    // Immediately OUTSIDE R: the next ring up takes over, which is lighter at this radius — the
+    // step that makes the band. Past the largest ring there is none, so the base shows alone.
+    const next = asc.find((x) => x > R);
+    parts.push(stop(R, mix(tone(R, OUTER), next === undefined ? null : tone(R, next))));
+  }
+  parts.push(stop(OUTER, tone(OUTER, OUTER)));
+  return parts;
+})();
 const sunburst: BackdropDesign = {
   name: "sunburst",
-  build: ({ ctx, ground, theme }) => {
-    // idPrefix === compId for a treatment root (children never build the backdrop).
-    const p = ctx.idPrefix;
-    const spinClass = `${p}-spin`;
-    // The computed pair rides the node as INLINE custom properties, so it is per-SCENE (the ground
-    // is a per-scene choice) while the stylesheet stays structural and dedupes by design name.
-    // A theme that states --sunburst-ink / --sunburst-ink-2 in its frame.css still WINS: the CSS
-    // below reads the theme hook FIRST and only falls through to these. Opting out is one line.
-    const tones = sunburstTones(ground, theme);
-    const autoVars = tones ? ` style="--sunburst-auto: ${tones.a}; --sunburst-auto-2: ${tones.b}"` : "";
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop). The canvas
+    // MUST carry a per-scene class: `backdrop` anims are not run through qualifyAnim and the
+    // render's `q` is document-wide (sub-composition.ts), so an unscoped selector would let one
+    // scene's paint loop grab another scene's canvas in the shared render DOM.
+    const canvasClass = `${ctx.idPrefix}-sun`;
     return {
       node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--sunburst"${autoVars}><div class="${spinClass}">` +
-          // A SQUARE viewBox with the burst dead centre — the square is what sits centred on the
-          // frame's corner, so the artwork's centre and the rotation origin are the same point.
-          `<svg viewBox="0 0 5000 5000" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">` +
-          `<defs>` +
-          // The glow: strongest at the core, fading out toward the rim. Colour comes from CSS.
-          `<radialGradient id="${p}-glow" gradientUnits="objectBoundingBox">` +
-          `<stop class="sb-a" offset="0" stop-opacity="0.6"></stop>` +
-          `<stop class="sb-b" offset="1" stop-opacity="0"></stop>` +
-          `</radialGradient>` +
-          // The arms: near-solid where they leave the core, thinning out along their length. This
-          // ramp carries the whole design's tonal range (one ink, varying alpha), so it runs much
-          // wider than a gradient's would.
-          `<linearGradient id="${p}-arm" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1550" y2="0">` +
-          `<stop class="sb-a" offset="0" stop-opacity="1"></stop>` +
-          `<stop class="sb-b" offset="1" stop-opacity="0.42"></stop>` +
-          `</linearGradient>` +
-          `<path id="${p}-s" fill="url(#${p}-arm)" d="${SUNBURST_ARM}"></path>` +
-          `<g id="${p}-g">${SUNBURST_FAN.map((t) => `<use href="#${p}-s" transform="${t}"></use>`).join("")}</g>` +
-          `</defs>` +
-          // The burst centre — the middle of the square viewBox, which the CSS pins to the frame's
-          // bottom-left corner. Concentric with the rotation origin (see the note above).
-          `<g transform="translate(2500 2500)">` +
-          `<circle fill="url(#${p}-glow)" r="3000"></circle>` +
-          `<g opacity="0.32">${SUNBURST_RINGS.map((r) => `<circle fill="url(#${p}-glow)" r="${r}"></circle>`).join("")}</g>` +
-          `<g transform="rotate(-86.4)">` +
-          `<use href="#${p}-g" transform="rotate(10)"></use>` +
-          `<use href="#${p}-g" transform="rotate(120)"></use>` +
-          `<use href="#${p}-g" transform="rotate(240)"></use>` +
-          `</g>` +
-          `</g></svg></div></div>`,
+        `<div class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
       ),
       css: `${BACKDROP_BASE}
 .mc-backdrop--sunburst {
-  /* The design's ONE strength knob. Everything inside is authored at full alpha and dialled back
-     here, so a theme reading "too washed out / too heavy" is a single number, not a hunt through
-     four stacked opacities. This reads as a screen-printed sunray field, not a watermark. */
-  opacity: 0.5;
-  overflow: hidden;
+  /* The design's whole colour story — see the note on the design above. The artwork is grey; this
+     takes the ground's hue and saturation and the artwork's LIGHTNESS, so the burst reads as light
+     on the slide's own plane colour instead of as a grey film over it. Note there is no identity
+     value here: the layer sets the lightness of the whole frame, so SB_DARK moves the entire plane.
+     overlay / soft-light are the anchored-at-mid-grey alternatives if that is not wanted; lighten
+     is NOT a substitute (it flattens every ground darker than mid-grey). */
+  mix-blend-mode: luminosity;
 }
-/* The turning square, centred on the frame's BOTTOM-LEFT corner (0, 67.5rem) against the
-   120 x 67.5rem frame: 280rem on a side at left -140rem / top -72.5rem. Half-side 140rem clears
-   the 137.7rem anchor-to-far-corner distance, so the frame never leaves the square at any angle.
-   Authored in rem because the render document's root font-size is viewport-derived, so these are
-   canvas-relative — a percentage would resolve against two different bases per axis and could not
-   express a square at all. */
-.mc-backdrop--sunburst > div {
-  position: absolute;
-  left: -140rem;
-  top: -72.5rem;
-  width: 280rem;
-  height: 280rem;
-  transform-origin: 50% 50%;
-}
-.mc-backdrop--sunburst svg {
+.mc-backdrop--sunburst canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-}
-/* The two tones. Each stop reads, in order: the THEME's hook (frame.css — an explicit opt-out of
-   the auto colouring), then the per-scene COMPLEMENT computed from the ground (inline on the
-   layer), then --dark. The second hook additionally falls through the first, matching the
-   gradient design's second hook, so a theme that states only one still gets a coherent
-   single-tone field. sb-a is the bright core; sb-b the deep rim. */
-.mc-backdrop--sunburst .sb-a {
-  stop-color: var(--sunburst-ink, var(--sunburst-auto, var(--dark)));
-}
-.mc-backdrop--sunburst .sb-b {
-  stop-color: var(--sunburst-ink-2, var(--sunburst-auto-2, var(--sunburst-ink, var(--dark))));
 }`,
       anims: [
         {
           kind: "backdrop",
-          target: spinClass,
+          target: canvasClass,
           time: { at: "seconds", t: 0 },
-          // One ease-less turn across the whole scene — constant rate, never starting or
-          // stopping, which is what reads as a continuous loop. `deg` is a TOTAL, not a rate, so
-          // a long slide turns more GENTLY rather than further (a 6s slide and a 20s slide both
-          // end at 24°). The arms repeat every 120°, so 120 would be a seamlessly cyclic turn —
-          // but at any realistic slide length that is fast enough to watch, and this backdrop is
-          // meant to be felt at the edge of vision.
-          opts: { fn: "washSpin", deg: 24 },
+          // THE ARTWORK TRAVELS IN THE DESCRIPTOR. mc.js knows how to draw a sunburst but not
+          // what this one looks like — the path, the fan and the glow ramp all ship from here, so
+          // this file stays the single source of truth for the design and the FX stays generic.
+          // (`opts` values are string | number | boolean, so the two lists go as JSON.)
+          opts: {
+            fn: "sunburstBg",
+            // One ease-less turn across the whole scene — constant rate, never starting or
+            // stopping, which is what reads as a continuous loop. `deg` is a TOTAL, not a rate,
+            // so a long slide turns more GENTLY rather than further (a 6s slide and a 20s slide
+            // both end at -24°). Negative = counter to the arms' own curl, so they read as
+            // unwinding outward rather than the picture being dragged around; flip to reverse.
+            deg: -24,
+            // The artwork's own coordinate system: a 2000-unit-wide authoring space, the burst
+            // anchored at its ORIGIN — which, with the canvas filling the frame, puts the sun on
+            // the frame's TOP-LEFT corner. Move it by moving these.
+            viewW: 2000,
+            originX: 0,
+            originY: 0,
+            outer: SB_OUTER,
+            armPath: SUNBURST_ARM,
+            armLen: 1550,
+            fan: JSON.stringify(SUNBURST_FAN),
+            glow: JSON.stringify(SUNBURST_GLOW_RAMP),
+            // The three greys, and the veil's alpha — the whole palette (see SB_LIGHT/MID/DARK).
+            ground: SB_DARK,
+            armInner: SB_MID,
+            armOuter: SB_DARK,
+            veilInner: SB_LIGHT,
+            veilOuter: SB_DARK,
+            veilAlpha: 0.6,
+          },
         },
       ],
     };
   },
 };
-
-/** One spiral arm, verbatim from the source artwork (a 1550-unit tapering sweep). */
-const SUNBURST_ARM =
-  "M1549.2 51.6c-5.4 99.1-20.2 197.6-44.2 293.6c-24.1 96-57.4 189.4-99.3 278.6c-41.9 89.2-92.4 174.1-150.3 253.3c-58 79.2-123.4 152.6-195.1 219c-71.7 66.4-149.6 125.8-232.2 177.2c-82.7 51.4-170.1 94.7-260.7 129.1c-90.6 34.4-184.4 60-279.5 76.3C192.6 1495 96.1 1502 0 1500c96.1-2.1 191.8-13.3 285.4-33.6c93.6-20.2 185-49.5 272.5-87.2c87.6-37.7 171.3-83.8 249.6-137.3c78.4-53.5 151.5-114.5 217.9-181.7c66.5-67.2 126.4-140.7 178.6-218.9c52.3-78.3 96.9-161.4 133-247.9c36.1-86.5 63.8-176.2 82.6-267.6c18.8-91.4 28.6-184.4 29.6-277.4c0.3-27.6 23.2-48.7 50.8-48.4s49.5 21.8 49.2 49.5c0 0.7 0 1.3-0.1 2L1549.2 51.6z";
-
-/** The fan: one arm re-used at fifteen scales and angles, which is what turns a single sweep into
- *  a tornado. Verbatim from the source; three copies of this fan sit 120° apart. */
-const SUNBURST_FAN: readonly string[] = [
-  "scale(0.12) rotate(60)",
-  "scale(0.2) rotate(10)",
-  "scale(0.25) rotate(40)",
-  "scale(0.3) rotate(-20)",
-  "scale(0.4) rotate(-30)",
-  "scale(0.5) rotate(20)",
-  "scale(0.6) rotate(60)",
-  "scale(0.7) rotate(10)",
-  "scale(0.835) rotate(-40)",
-  "scale(0.9) rotate(40)",
-  "scale(1.05) rotate(25)",
-  "scale(1.2) rotate(8)",
-  "scale(1.333) rotate(-60)",
-  "scale(1.45) rotate(-30)",
-  "scale(1.6) rotate(10)",
-];
-
-/** Concentric glow rings — stacked translucent discs that build the core's falloff. */
-const SUNBURST_RINGS: readonly number[] = [
-  2000, 1800, 1700, 1651, 1450, 1250, 1175, 900, 750, 500, 380, 250,
-];
 
 // --- The one colour outside the CSS custom-property system ------------------
 // Every other colour in this library is a role var (`var(--primary)`) and anything
