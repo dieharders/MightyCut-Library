@@ -712,8 +712,13 @@
     var H = canvas.height || 1080;
     canvas.width = W;
     canvas.height = H;
-    var ctx = canvas.getContext("2d");
-    if (!ctx) return { addTo: function (tl) { return tl; } };
+    // NEVER bail out of the factory on a missing context. The tween is scheduled
+    // unconditionally (see addTo) and every draw is guarded instead — same contract as
+    // particleBg. Returning a no-op addTo here would silently drop this backdrop's tween from
+    // the scene timeline, which is a worse failure than simply not painting, and it also makes
+    // the design invisible to the BACKDROP_FX allowlist tripwire (which asserts that every
+    // registered design actually schedules something through the real interpreter).
+    var ctx = typeof canvas.getContext === "function" ? canvas.getContext("2d") : null;
 
     var deg = o.deg != null ? o.deg : -24;
     // Artwork units -> canvas pixels. The design authors against a 2000-unit-wide viewBox; the
@@ -731,13 +736,15 @@
     var ox = (o.originX || 0) * unit;
     var oy = (o.originY || 0) * unit;
 
-    /** An offscreen, frame-sized layer. Both static layers are built once, at setup. */
+    /** An offscreen, frame-sized layer, or null where there is no document to make one in. */
     var layer = function (draw) {
+      if (typeof document === "undefined" || typeof document.createElement !== "function") return null;
       var c = document.createElement("canvas");
       c.width = W;
       c.height = H;
-      var cx = c.getContext("2d");
-      if (cx) draw(cx);
+      var cx = typeof c.getContext === "function" ? c.getContext("2d") : null;
+      if (!cx) return null;
+      draw(cx);
       return c;
     };
 
@@ -781,8 +788,9 @@
     var armLen = o.armLen || 1550;
 
     var paint = function (rot) {
+      if (!ctx) return; // no 2D context (stub element, context loss) — draw nothing, tween still runs
       ctx.clearRect(0, 0, W, H);
-      ctx.drawImage(below, 0, 0);
+      if (below) ctx.drawImage(below, 0, 0);
       if (arm && fan.length) {
         ctx.save();
         ctx.translate(ox, oy);
@@ -802,7 +810,7 @@
         }
         ctx.restore();
       }
-      ctx.drawImage(above, 0, 0);
+      if (above) ctx.drawImage(above, 0, 0);
     };
 
     paint(0);
@@ -857,26 +865,18 @@
     // Degrees swept across the WHOLE scene, not per second: `deg` is a total, so a longer
     // slide turns more slowly rather than further. Keep it small — this is atmosphere.
     var deg = o.deg != null ? o.deg : 10;
-    // svgOrigin (optional) — the pivot, in the SVG's own USER-SPACE coordinates, e.g. "0 0".
-    //
-    // Only meaningful when the target is inside an SVG, and load-bearing when it is. For an SVG
-    // element GSAP defaults its pivot to the target's BOUNDING-BOX centre, which is wrong for any
-    // radial field whose centre is not its bbox centre: rotating about the bbox makes the artwork
-    // ORBIT rather than spin. The `sunburst` backdrop rotates its arm fans about the burst's
-    // anchor at user-space (0,0) — which sits at a CORNER of the group's bbox — so it passes
-    // "0 0" here. Omitted for a plain HTML element (gradient/hatch), where it does not apply and
-    // GSAP's normal transform-origin handling is correct.
-    var svgOrigin = o.svgOrigin;
     return {
       /** Turn from the element's resting angle to `deg` over durationSec, starting at atSec. */
       addTo: function (tl, at, durationSec) {
-        var vars = {
-          rotation: deg,
-          duration: durationSec,
-          ease: "none",
-        };
-        if (svgOrigin) vars.svgOrigin = svgOrigin;
-        tl.to(el, vars, at || 0);
+        tl.to(
+          el,
+          {
+            rotation: deg,
+            duration: durationSec,
+            ease: "none",
+          },
+          at || 0,
+        );
         return tl;
       },
     };
