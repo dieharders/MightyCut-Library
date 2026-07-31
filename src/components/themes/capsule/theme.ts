@@ -398,7 +398,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
         size: 15,
         rotate: -9,
         accent: "secondary",
-        layer: "front",
+        layer: "back",
       },
     },
   ],
