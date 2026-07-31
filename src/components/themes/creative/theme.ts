@@ -63,23 +63,7 @@ import timelineCss from "./timeline.css" with { type: "text" };
 // signature offset is `1.25cqw 1.25cqw 0 orange` under a `0.2cqw` ink spread, and every skin +
 // the decoration engine names `var(--secondary)` for it. That is why orange is `secondary` and
 // not an accent-N — the role a skin reaches for most after the ink.
-//
-// Two roles differ from the reference frame.css, which spent them on duplicates (accent-3 = the
-// same green as accent-2, muted-3 = the same oat as muted-2). Both are wasted slots: accent-3
-// sits OUTSIDE the accent cycle and muted-3 is nobody's canonical ground, so each is a free
-// surface. accent-3 carries a VIOLET — the one cool hue in an otherwise entirely warm palette,
-// and safe to be that precisely BECAUSE it is off-cycle: no auto-coloured badge, dot or bar can
-// reach it, so it appears only where a scene or a decoration asks for it by name.
-//
-// muted-1 and muted-2 are a RAISED/RECESSED PAIR, and muted-1 must stay the lighter of the two:
-// cover, chart and bar-ranking ground on the cream while timeline and agenda ground on the oat, so
-// if the two converge the deck loses one of its six planes. They were once set to the same hex,
-// which collapsed the pair to 1.00:1 — and back when the plates also filled muted-1, that flattened
-// every card, stat and step into the ground it sat on, visible only by its ink border. THE PLATES
-// NO LONGER DEPEND ON THAT GAP: card, stat and step fill --light (white), one clear step above both
-// surfaces, which is what keeps them reading as objects on the oat and on the saturated planes
-// alike. Keeping real daylight between cream and oat is now a plane-rotation call, not a
-// legibility one.
+
 const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "Pink",
@@ -118,27 +102,20 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
     note: "canvas",
     varName: "muted-2",
   },
-  // Ink 2 — creative's secondary body text. Nothing pins muted-3 as a ground, so this role is
-  // free to be a TYPE colour rather than a surface (the reference wasted it on a duplicate oat).
   {
-    name: "Dark",
+    name: "Ink",
     hex: "#2f2f2f",
     note: "secondary body text",
     varName: "muted-3",
   },
-  // White is THE PLATE FILL: card, stat and step — the theme's three plates — all fill --light,
-  // so a plate reads as raised on every ground the rotation puts it on (orange, green, oat) rather
-  // than nearly matching the cream/oat pair. It does NOT become a ground: the design rule that a
-  // frame never grounds on pure white still stands (see `rules.dont`), and cream (--muted-1) is
-  // still creative's "light ink" — the type colour every cream-on-accent line in the skins names.
   {
-    name: "White",
+    name: "Paper",
     hex: "#EFE9D9",
-    note: "plate fill — card · stat · step",
+    note: "light type on saturated + ink grounds",
     varName: "light",
   },
   {
-    name: "Ink",
+    name: "Dark",
     hex: "#2f2f2f",
     note: "borders + all display type",
     varName: "dark",
@@ -477,30 +454,26 @@ export const creativeTheme: ThemeTokens = {
   // reference frame.css reached the same rotation with two `background: … !important` overrides,
   // which the ground-resolution tripwire (rightly) bans because they make an explicit scene
   // ground impossible; the two frames those overrides touched are re-designed for the ground
-  // they actually land on (stat-grid's plates go white on green; the closer is a cream card on
+  // they actually land on (stat-grid's plates go milk on green; the closer is a cream card on
   // pink).
   //
   // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with one round
   // of long spiral arms sweeping out of it, turning continuously and very slowly across the scene,
-  // counter to the arms' own curl (MC.washSpin, −24° total). Painted in ink through
-  // --sunburst-ink (frame.css) at 16%, so
-  // it reads as a poster's screen-printed sunray field behind the content rather than as a
-  // picture — and stays legible on every one of the six grounds above. This is the design
+  // counter to the arms' own curl (MC.sunburstBg, −24° total). It paints a fixed GREY artwork into
+  // a canvas and lets `mix-blend-mode: luminosity` colour it against whatever plane the frame lands
+  // on, so it reads as a poster's screen-printed sunray field behind the content rather than as a
+  // picture — and stays legible on every one of the six grounds above. There is no ink hook to set:
+  // the ground supplies the hue (see the note in primitives/backdrops.ts). This is the design
   // creative CONTRIBUTES to the shared pool; a default is not ownership, so a scene may pick any
-  // other design and any theme may set this one (all five now state a --sunburst-ink).
+  // other design and any theme may set this one.
   backdrop: "sunburst",
-  // Showcase/editor preview surface — the RECESSED oat (--muted-2), NOT the canvas.
+  // Showcase/editor preview surface — the oat (--muted-2), NOT the milk the plates fill.
   //
-  // Capsule and professional both take muted-1 here, and for them that is right: their plates are
-  // white or a translucent tint, so they still read against it. Creative's plates once filled
-  // muted-1 ITSELF, so deriving the preview surface from the same role made every component in the
-  // Components grid exactly the colour of the panel behind it — the cards looked like they had lost
-  // their background, visible only by their ink borders.
-  //
-  // The plates are white now, so that particular collision is gone either way; the oat stays
-  // because it reproduces the real deck — a raised plate on a recessed ground, which is precisely
-  // what the timeline and agenda frames show — and because muted-1 would put the Components grid on
-  // a canvas no component in it actually lands on.
+  // It MUST be the role the plates do not use. Creative's plates fill muted-1, so deriving this
+  // from muted-1 would make every component in the Components grid exactly the colour of the panel
+  // behind it — the cards would look like they had lost their background, visible only by their ink
+  // borders. That has shipped before. The oat also reproduces the real deck (a plate on a recessed
+  // ground, which is precisely what the timeline and agenda frames show).
   previewBg: palette.find((p) => p.varName === "muted-2")!.hex.toLowerCase(),
   // …and creative is a LIGHT theme, stated outright (not inferred from previewBg).
   previewScheme: "light",
