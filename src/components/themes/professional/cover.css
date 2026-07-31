@@ -14,9 +14,6 @@
   letter-spacing: 0.065em;
 }
 .cover h3 {
-  /* The DISPLAY step — professional's biggest type, and the size --font-size-4xl is derived FROM;
-     the closing plate shares it. Baskerville sets wider than the grotesque it replaced, so this
-     hero runs smaller than its siblings' to hold the same two-line measure without overflowing. */
   font-size: var(--font-size-max);
   line-height: 1.12;
   letter-spacing: -0.01em;

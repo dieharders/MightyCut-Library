@@ -40,7 +40,7 @@ every theme**. A theme supplies the CSS those class names resolve against.
    element renders completely unstyled — and still passes a "does it compose" smoke.
    Enforced: `theme-parity.test.ts` → _"skin coverage"_.
 4. **rem on a 0.125rem grid.** Never px for geometry (see §5).
-5. **A skin never writes a font size.** Name a step of your theme's 8-step scale
+5. **A skin never writes a font size.** Name a step of your theme's 9-step scale
    (`var(--font-size-lg)`); the numbers live in `theme.ts`'s `sizeTokens` and nowhere else.
    Enforced: `theme-parity.test.ts` → _"type scale"_.
 6. **A theme adds no motion code.** If you want movement, it belongs in a backdrop design or
@@ -264,7 +264,7 @@ document sets a viewport-derived root font-size so authored numbers are canvas-r
 sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raster_ effects (a
 1px hairline gradient stop, a text-shadow blur) may stay px on purpose.
 
-**Type sizes are steps, always.** Your theme declares an 8-step scale in `theme.ts`:
+**Type sizes are steps, always.** Your theme declares a 9-step scale in `theme.ts`:
 
 ```css
 .card-title {
@@ -277,7 +277,7 @@ sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raste
 
 The scale is **yours**, not the library's. Only the shape is shared:
 
-- Eight steps, `--font-size-xs` through `--font-size-4xl`, ascending, on the 0.125rem grid.
+- Eight steps, `--font-size-xs` through `--font-size-4xl`, then `--font-size-max` ascending, on the 0.125rem grid.
 - No adjacent pair closer than **0.25rem**.
 
 **Colours are roles, always.** Anything lighter/darker/translucent is `color-mix()`:
@@ -653,9 +653,11 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** This theme's 8-step type scale (§5) — the size half of the type system. Steps ascend, sit
- *  on the 0.125rem grid, and stay ≥1.10x apart. `3xl` is your content-frame h3 and `4xl` your
- *  cover/closing display size; derive the middle six from the sizes your skins already want. */
+/** This theme's 9-step type scale (§5) — the size half of the type system. Steps ascend, sit on
+ *  the 0.125rem grid, and stay ≥1.10x apart. Three are anchored to frames: `3xl` is the
+ *  content-frame h3 every content treatment shares, `4xl` is the stat figure's base, `max` is the
+ *  cover (and the closing plate, unless its measure is narrower — see §5). Derive the six below
+ *  them with `node scripts/audit-font-scale.mjs --derive --theme <yours>`. */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.25rem",
   "font-size-sm": "1.5rem",
@@ -664,7 +666,8 @@ const sizeTokens: Record<string, string> = {
   "font-size-xl": "2.625rem",
   "font-size-2xl": "3.25rem",
   "font-size-3xl": "4.375rem",
-  "font-size-4xl": "8.25rem",
+  "font-size-4xl": "6.5rem",
+  "font-size-max": "8.25rem",
 };
 
 /** :root, derived — every hex and every size written down exactly once. Copy verbatim. */
@@ -861,22 +864,22 @@ Copy the real bodies from `decoration-shapes.ts` (solid/box shapes) or
 **A ported theme needs no new test file for the shared contract.** Adding it to `ALL_THEMES`
 subjects it to every sweep in `src/components/theme-parity.test.ts`:
 
-| Sweep                     | Catches                                                                                                                                                                                           |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                                                                                             |
-| skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                                                                                                    |
-| anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                                                                                                     |
-| headline accent           | a missing (or device-less) `.headline-accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                                                                        |
-| per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                                                                                                 |
-| shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                                                                                      |
-| default backdrop          | your `backdrop` names a registered design                                                                                                                                                         |
-| decoration ownership      | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's**                                                                                         |
-| theme decoration defaults | every hero frame (cover/closing-plate/quote) is dressed, and **every** frame you dress uses **your own** roster and renders                                                                       |
-| ground resolution         | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`                                                                                          |
-| caption alignment parity  | your caption doesn't drift from the reference                                                                                                                                                     |
-| type scale                | all 8 steps declared, ascending, on-grid, ≥1.10× apart; no skin writes a font-size number outside your declared display sizes; no dead step; your content `h3`s are `3xl` and cover/closing `4xl` |
-| font coverage             | you named a family with no `@font-face` in the staged set                                                                                                                                         |
-| palette completeness      | all 10 roles filled                                                                                                                                                                               |
+| Sweep                     | Catches                                                                                                                                                                                                                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                                                                                                                                                                        |
+| skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                                                                                                                                                                               |
+| anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                                                                                                                                                                                |
+| headline accent           | a missing (or device-less) `.headline-accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                                                                                                                                                   |
+| per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                                                                                                                                                                            |
+| shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                                                                                                                                                                 |
+| default backdrop          | your `backdrop` names a registered design                                                                                                                                                                                                                                    |
+| decoration ownership      | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's**                                                                                                                                                                    |
+| theme decoration defaults | every hero frame (cover/closing-plate/quote) is dressed, and **every** frame you dress uses **your own** roster and renders                                                                                                                                                  |
+| ground resolution         | `groundDefault` pins every treatment; an explicit scene ground still wins; no `background: … !important`                                                                                                                                                                     |
+| caption alignment parity  | your caption doesn't drift from the reference                                                                                                                                                                                                                                |
+| type scale                | all 9 steps declared, ascending, on-grid, ≥1.10× apart (and evenly spaced up to the headline); **no skin writes a font-size number at all**; no dead step; all seven content `h3`s share one step, `.cover h3` is `max`, `.closing-plate h3` names a step above the headline |
+| font coverage             | you named a family with no `@font-face` in the staged set                                                                                                                                                                                                                    |
+| palette completeness      | all 10 roles filled                                                                                                                                                                                                                                                          |
 
 Add theme-SPECIFIC cases to `src/components/registry.test.ts` — one `describe` per theme, in
 the shape of the existing `future theme (tripwire)` block: your template overrides preserve

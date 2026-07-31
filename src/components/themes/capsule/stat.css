@@ -32,11 +32,6 @@
 .stat-number {
   font-family: var(--disp);
   font-weight: 800;
-  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a 4-column
-     row doesn't crowd; unset ⇒ 1, i.e. the base size everywhere else.
-     The size sits in the GAP between --font-size-3xl (4.5rem, the headline) and --font-size-4xl
-     (13rem, the display step) — 22% above one and far below the other — so no step fits it, and it
-     stays stated. See theme.ts `sizeTokens`; allowlisted in the type-scale tripwire. */
   font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 1;
   letter-spacing: -0.03em;

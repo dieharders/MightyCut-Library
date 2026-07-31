@@ -44,9 +44,6 @@
    base size everywhere else. */
 .stat-number {
   font-family: var(--disp);
-  /* OFF-SCALE: the figure sits in the GAP between --font-size-3xl (4.375rem, the headline) and
-     --font-size-4xl (12rem, the cover display size) — 66% above one, 40% below the other — so no
-     step fits it. See theme.ts `sizeTokens`; allowlisted in the type-scale tripwire. */
   font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 0.88;
   letter-spacing: -0.02em;

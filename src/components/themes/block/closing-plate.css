@@ -15,9 +15,6 @@
   align-items: center;
 }
 .closing-plate h3 {
-  /* The DISPLAY step, shared with the cover — one size for the two frames that carry a
-     statement rather than a headline. Was 6.75rem; `4xl` is 9rem, so this plate now closes
-     at the same weight the deck opened at, which is the point of the pairing. */
   font-size: var(--font-size-max);
   letter-spacing: -0.03em;
   line-height: 0.95;

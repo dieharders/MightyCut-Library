@@ -20,12 +20,6 @@
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  /* --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
-     crowd; unset ⇒ 1.
-     The size is one of the two font-sizes professional still writes as a literal: the figure sits
-     in the GAP between --font-size-3xl (4rem, the headline) and --font-size-4xl (7rem, the display
-     step) — 25% above one, 29% below the other — so no step fits it. See theme.ts `sizeTokens`;
-     the type-scale tripwire allowlists this selector. */
   font-size: calc(var(--font-size-4xl) * var(--dense-scale, 1));
   line-height: 1;
   letter-spacing: -0.02em;
