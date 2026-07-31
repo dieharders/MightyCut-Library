@@ -122,7 +122,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   // free to be a TYPE colour rather than a surface (the reference wasted it on a duplicate oat).
   {
     name: "Dark",
-    hex: "#0F0F0F",
+    hex: "#2f2f2f",
     note: "secondary body text",
     varName: "muted-3",
   },
@@ -139,7 +139,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   {
     name: "Ink",
-    hex: "#2A2A2A",
+    hex: "#2f2f2f",
     note: "borders + all display type",
     varName: "dark",
   },
