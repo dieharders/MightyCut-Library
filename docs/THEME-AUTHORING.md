@@ -278,7 +278,7 @@ sizes computed from params use `remGrid(n)` (`runtime/css.ts`). Sub-pixel _raste
 The scale is **yours**, not the library's. Only the shape is shared:
 
 - Eight steps, `--font-size-xs` through `--font-size-4xl`, ascending, on the 0.125rem grid.
-- No adjacent pair closer than **0.125rem**.
+- No adjacent pair closer than **0.25rem**.
 
 **Colours are roles, always.** Anything lighter/darker/translucent is `color-mix()`:
 

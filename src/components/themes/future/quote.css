@@ -21,18 +21,17 @@
 /* The mark is a WATERMARK, so its line-height is doing layout, not leading: a fraction under 1
    crops the block box well inside the glyph, letting the mark read large while occupying little
    vertical space above the card. That makes the crop a function of BOTH numbers — the box is
-   line-height × font-size — so the two have to move together. The mark grew 8.375rem → 10rem;
-   0.42 holds the box at the 4.1875rem the 0.5 gave it before, so the composition below (and the
-   1.25rem margin tuned against it) is unchanged and only the mark itself is bigger. Resize this
-   again and recompute: line-height = 4.1875 / new-size-in-rem.
-   OFF-SCALE, and doubly so: it is 21% above --font-size-4xl, and the line-height above is derived
-   from this exact number — a step would silently change the crop as well as the mark. Stated, and
-   allowlisted in the type-scale tripwire. */
+   line-height × font-size — so the two have to move together, and the CONSTANT is the box: 4.1875rem,
+   which the composition below (and the 1.25rem margin tuned against it) is built on.
+   The mark has been 8.375rem @ 0.5 and 10rem @ 0.42; it now takes --font-size-4xl (8.25rem), so
+   0.508 restores the same box (8.25 × 0.508 = 4.191rem, within 0.06px). This is the one place in
+   the theme where a step change is NOT self-contained — re-point this at another step and
+   recompute: line-height = 4.1875 / the new step's rem value. */
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 10rem;
-  line-height: 0.42;
+  font-size: var(--font-size-4xl);
+  line-height: 0.508;
   color: var(--primary);
   opacity: 0.6;
   margin-bottom: 1.25rem;
