@@ -27,11 +27,6 @@
 .agenda-item .t {
   font-family: var(--disp);
   font-weight: 600;
-  /* A literal INSIDE the ramp, which is unusual and deliberate. Professional's scale has no step
-     within 10% of this size: `2xl` (3.25rem) is +13% and `xl` (2.375rem) is −17%. Taking `2xl`
-     would put the title on the same step as the numeral above it and flatten the hierarchy the
-     comment there depends on — the numeral has to stay the tallest thing on the row. So the size
-     stays stated and the type-scale tripwire allowlists this selector. */
   font-size: var(--font-size-xl);
   color: var(--dark);
 }

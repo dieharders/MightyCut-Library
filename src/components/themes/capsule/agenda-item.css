@@ -25,10 +25,6 @@
   /* Bodoni, sentence case, ink — never uppercase, never coloured. */
   font-family: var(--disp);
   font-weight: 700;
-  /* A literal INSIDE the ramp, deliberately: capsule's scale has no step within 10% of this size
-     (`xl` is −13%, `2xl` is +17%), and a didone title losing 13% on a warm ground is exactly where
-     Bodoni's hairlines start to disappear. Stated, and allowlisted in the type-scale tripwire —
-     professional's `.agenda-item .t` is the only other one in the library. */
   font-size: var(--font-size-xl);
   color: var(--dark);
 }
