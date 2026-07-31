@@ -107,9 +107,9 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
-    name: "Teal",
-    hex: "#1f818a",
-    note: "canvas",
+    name: "Concrete",
+    hex: "#f3e1af",
+    note: "canvas & light ink",
     varName: "muted-1",
   },
   {
@@ -134,7 +134,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "White",
     hex: "#FFFFFF",
-    note: "plate fill — card · stat · step & light ink",
+    note: "plate fill — card · stat · step",
     varName: "light",
   },
   {
