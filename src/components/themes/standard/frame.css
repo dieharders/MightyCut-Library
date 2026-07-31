@@ -37,7 +37,6 @@
   --hatch-ink: var(--accent-3);
   --gradient-ink: var(--primary);
   --gradient-ink-2: var(--accent-3);
-  --sunburst-ink: var(--accent-3);
   container-type: size;
   font-family: var(--body);
   /* Body copy default: the warm gray (--muted-3). Headlines override to ink, labels to brownstone. */

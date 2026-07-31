@@ -68,6 +68,21 @@ const ctx = (compId: string): BuildContext => rootContext(compId, blockTheme, { 
  *  → "headline accent" is what holds the split itself. */
 const unaccent = (html: string): string => html.replace(/<span class="headline-accent">([^<]*)<\/span>/g, "$1");
 
+/** The backdrop designs that take NO `--<design>-ink` hook, because CSS does not paint their
+ *  pixels — both draw into a canvas, where a custom property cannot reach.
+ *    • `constellation` resolves its colour from the theme's --primary at build time (particleRgb).
+ *    • `sunburst` is a fixed GREY artwork recoloured by `mix-blend-mode` against whatever ground
+ *      the scene carries. It is the one design where having no hook means MORE themeability, not
+ *      less — it adapts to grounds no theme has authored yet. (It did once carry --sunburst-ink
+ *      plus build-time HSL maths; both are deleted, so a --sunburst-ink in a frame.css is dead.)
+ *
+ *  ONE list, shared by both sides of the convention — the registry check that a design must READ a
+ *  hook, and the per-theme checks that a frame.css must STATE one. They were separate literals and
+ *  drifted the moment sunburst went to canvas: the registry stopped requiring the hook while
+ *  standard's frame.css was still asserted to declare it. Adding a canvas design means adding it
+ *  here, once. */
+const HOOKLESS_DESIGNS: readonly string[] = ["constellation", "sunburst"];
+
 describe("registry vocabulary (tripwire)", () => {
   test("component registry == COMPONENT_NAMES, both directions", () => {
     expect(componentNames()).toEqual([...COMPONENT_NAMES].sort());
@@ -494,18 +509,8 @@ describe("backdrop registry (tripwire)", () => {
   // dark one. The hook name is DERIVED from the design name, not mapped: that is the whole
   // convention (§7 of docs/THEME-AUTHORING.md), and a design that coins its own hook spelling
   // fails here rather than silently ignoring what a theme author wrote in frame.css.
-  // TWO designs are exempt, both because their pixels are not painted by CSS at all:
-  //   • `constellation` paints into a canvas, so its colour comes from the theme's --primary
-  //     resolved at build time (particleRgb), not from CSS.
-  //   • `sunburst` also paints into a canvas, and is a fixed GREY artwork recoloured by
-  //     `mix-blend-mode` against whatever ground the scene carries. An ink hook could not reach
-  //     into canvas pixels, and would have nothing to do there: blending already gives the design
-  //     a per-ground colour, which is the outcome this convention exists to produce. It is the one
-  //     design where having no hook means MORE themeability, not less — it adapts to grounds no
-  //     theme has authored yet. (It did once carry --sunburst-ink plus build-time HSL maths; both
-  //     are deleted, so a --sunburst-ink left in a theme's frame.css is now dead.)
-  const HOOKLESS = ["constellation", "sunburst"];
-  const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => !HOOKLESS.includes(n));
+  // The canvas-painted designs are exempt — see HOOKLESS_DESIGNS at the top of this file.
+  const CSS_PAINTED = Object.keys(BACKDROPS).filter((n) => !HOOKLESS_DESIGNS.includes(n));
 
   // The assertion is on the CONTRACT, not on one literal spelling: the theme hook must be read
   // FIRST (so frame.css always wins) and the chain must bottom out at `var(--dark)` (so an
@@ -1249,10 +1254,11 @@ describe("standard theme (tripwire)", () => {
     // The pool is shared and a default is not a refusal: a slide may pick any design. Each paints
     // through `var(--<design>-ink, var(--dark))`, whose near-black fallback would read as a smudge
     // on stone — so frame.css must state a hook for every CSS-painted design, not just the ones
-    // standard happens to use (which is none of them).
-    const missing = BACKDROP_NAMES.filter((n) => n !== "plain" && n !== "constellation").filter(
-      (n) => !(standardTheme.frameCss ?? "").includes(`--${n}-ink:`),
-    );
+    // standard happens to use (which is none of them). The canvas designs take no hook and must
+    // NOT be listed: see HOOKLESS_DESIGNS at the top of this file.
+    const missing = BACKDROP_NAMES.filter(
+      (n) => n !== "plain" && !HOOKLESS_DESIGNS.includes(n),
+    ).filter((n) => !(standardTheme.frameCss ?? "").includes(`--${n}-ink:`));
     expect(
       missing,
       `standard's frame.css states no ink hook for: ${missing.join(", ")} — those masks would paint near-black on stone`,

@@ -736,7 +736,12 @@
     var ox = (o.originX || 0) * unit;
     var oy = (o.originY || 0) * unit;
 
-    /** An offscreen, frame-sized layer, or null where there is no document to make one in. */
+    /**
+     * An offscreen, frame-sized layer, or null where there is nothing to draw — no document to
+     * make one in, no 2D context, or a `draw` that returns false because its inputs are empty.
+     * Null MATTERS: paint() skips a null layer, so a layer that would be fully transparent costs
+     * neither the ~8MB backing store nor a per-frame drawImage of nothing.
+     */
     var layer = function (draw) {
       if (typeof document === "undefined" || typeof document.createElement !== "function") return null;
       var c = document.createElement("canvas");
@@ -744,8 +749,7 @@
       c.height = H;
       var cx = typeof c.getContext === "function" ? c.getContext("2d") : null;
       if (!cx) return null;
-      draw(cx);
-      return c;
+      return draw(cx) === false ? null : c;
     };
 
     /** The radial ramp, shared by the glow and the veil. */
@@ -773,7 +777,7 @@
     // on top of it. It is the one part that cannot fold into the glow — it is on the far side.
     var veilAlpha = o.veilAlpha != null ? o.veilAlpha : 0.6;
     var above = layer(function (cx) {
-      if (!ramp.length || veilAlpha <= 0) return;
+      if (!ramp.length || veilAlpha <= 0) return false; // nothing to veil — see `layer`
       cx.globalAlpha = veilAlpha;
       var g = cx.createRadialGradient(ox, oy, 0, ox, oy, outer);
       g.addColorStop(0, grey(o.veilInner != null ? o.veilInner : 212));

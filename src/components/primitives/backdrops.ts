@@ -277,30 +277,39 @@ const HATCH_STRIPES: string = (() => {
   }
   return parts.join("");
 })();
-/** sunburst — a RADIAL SPIRAL BURST ("sun tornado"): a soft central glow with three fans of long
- *  spiral arms sweeping out of it, the arms turning slowly and continuously across the scene while
- *  the glow stays put. Creative's signature design, contributed to the shared pool like every
- *  other. ANIMATED: one `backdrop` descriptor driving MC.washSpin — the same FX `gradient` already
- *  uses, so nothing is added to mc.js's BACKDROP_FX allowlist.
+/** sunburst — a RADIAL SPIRAL BURST ("sun tornado"): a soft central glow with a fan of long spiral
+ *  arms sweeping out of it, the arms turning slowly and continuously across the scene while the
+ *  glow stays put. Creative's signature design, contributed to the shared pool like every other.
+ *  ANIMATED: one `backdrop` descriptor driving MC.sunburstBg — the one design that needed an FX of
+ *  its own, so it IS an addition to mc.js's BACKDROP_FX allowlist.
  *
- *  THIS DESIGN IS THE SOURCE ARTWORK, VERBATIM. `SUNBURST_SVG` below is the authored file byte for
- *  byte — its own greys, its own ground rect, its own thirteen glow circles, its own three stacked
- *  arm fans. Nothing is re-drawn, re-coloured, re-centred or thinned out here. That is deliberate
- *  and it is a REVERSAL: earlier versions of this design pulled the artwork apart to fit the
- *  library's usual conventions (hooks, no colour literals, no ground rect) and to cut its fill
- *  count, and both efforts made it worse — the first washed the colour out, the second did not
- *  measurably help the scroll cost it was aimed at. The artwork ships as drawn.
+ *  IT PAINTS INTO A CANVAS, NOT AN SVG, and that is the whole point of the design's current shape.
+ *  It shipped first as inline SVG turned by MC.washSpin — both by turning the layer and by turning
+ *  a group inside it — and neither was viable: an SVG transform DIRTIES THE PAINT of the scaled
+ *  slide around it, so every frame re-rastered the whole thing. A canvas owns its backing surface.
+ *  The full argument, including what was tried and why cutting the fill count didn't help, lives on
+ *  MC.sunburstBg in assets/fx/mc.js — read it there before "simplifying" this back to washSpin.
  *
- *  HOW IT COLOURS ITSELF: GREY + `mix-blend-mode`. This is the whole trick, and it is why the
- *  artwork can keep its literal colours without becoming un-themeable.
+ *  The artwork itself is the source file's, unchanged in look: its greys, its glow falloff, its arm
+ *  path, its scale/angle ladder. What changed is only HOW it is drawn — see SUNBURST_FAN and
+ *  SUNBURST_GLOW_RAMP, which fold the source's three stacked fans and thirteen concentric circles
+ *  into one fan and one gradient without altering the result.
  *
- *  The source is painted entirely in greys around a mid-grey (#878787) ground. Under `overlay`,
- *  a 50%-grey blend layer is the IDENTITY — it leaves the backdrop exactly as it found it — and
- *  everything lighter or darker than mid-grey lightens or darkens the backdrop PROPORTIONALLY,
- *  keeping the backdrop's own hue. So the artwork stops being "a grey picture on top of the slide"
- *  and becomes "the slide's own ground colour, lit by a sun". The burst reads amber on creative's
- *  cream, rose on its pink, and green on its green, with no colour arithmetic anywhere: the ground
- *  supplies every hue and the artwork supplies only light and shade.
+ *  HOW IT COLOURS ITSELF: GREY + `mix-blend-mode: luminosity`. This is the trick that lets the
+ *  artwork keep its literal greys without becoming un-themeable. `luminosity` takes the HUE and
+ *  SATURATION of what is underneath and the LIGHTNESS of what is on top — so the scene's plane
+ *  supplies every hue and the burst supplies only light and shade. The same grey artwork reads
+ *  amber on creative's cream, rose on its pink and green on its green, with no colour arithmetic
+ *  anywhere.
+ *
+ *  BE CLEAR ABOUT WHAT THAT COSTS, because it is the one thing to know before touching SB_DARK.
+ *  Unlike `overlay`/`soft-light`, luminosity has NO identity value: mid-grey is not a no-op, it
+ *  REPLACES the ground's own lightness. The layer covers the frame, so SB_DARK (the artwork's
+ *  ambient tone, #878787) sets the lightness of the whole plane, not just of the burst. Raising or
+ *  lowering that one number moves the entire slide lighter or darker. If a ground needs to keep its
+ *  authored lightness and only be lit locally, `overlay` and `soft-light` are the anchored-at-
+ *  mid-grey alternatives and are a one-word swap; `lighten` is NOT (per-channel MAX flattens every
+ *  ground darker than mid-grey — it would erase future's navy and block's near-black).
  *
  *  That replaces the whole `--sunburst-ink` / `sunburstTones()` apparatus this design used to
  *  carry (a theme hook, plus HSL maths that derived a two-tone complement from the scene's ground
@@ -308,45 +317,35 @@ const HATCH_STRIPES: string = (() => {
  *  declaration, and gets it for grounds nobody has authored yet. Those hooks and that maths are
  *  deleted, not deprecated; `--sunburst-ink` in a theme's frame.css is now dead and does nothing.
  *
- *  WHY `overlay` AND NOT `lighten`. `lighten` takes the per-channel MAX of artwork and ground, so
- *  a mid-grey artwork would flatten every ground DARKER than mid-grey to flat grey — it would
- *  erase future's navy and block's near-black entirely, which is the opposite of gelling with the
- *  slide. `overlay` is anchored at mid-grey and therefore works in BOTH directions: it lightens a
- *  dark ground and darkens a light one, always through the ground's own hue. If it reads too
- *  strong on some ground, `soft-light` is the same idea with a gentler curve and is a one-word
- *  swap; `opacity` on the layer is the blunt fallback.
+ *  GEOMETRY. Every circle in the source is `r=…` with no cx/cy, so the burst is anchored at the
+ *  artwork's ORIGIN, which this design pins to the FRAME's TOP-LEFT corner (originX/originY in the
+ *  descriptor); the arms sweep down and right across the slide from there. The artwork is authored
+ *  against a 2000-unit-wide space (viewW) and the FX scales it by canvasWidth/viewW, so the frame's
+ *  16:9 maps to 2000 x 1125 artwork units. The only requirement is that the artwork COVER the frame
+ *  at every angle: the glow disc is radially symmetric at r=3000, and the arms reach 1.6 x 1550 =
+ *  2480 units against a farthest frame corner at sqrt(2000^2 + 1125^2) = 2294.
  *
- *  GEOMETRY. Every circle in the artwork is `r=…` with no cx/cy, so the burst is anchored at the
- *  viewBox ORIGIN, which this design pins to the FRAME's TOP-LEFT corner; the arms sweep down and
- *  right across the slide from there. The viewBox is restated 16:9 so it fills the frame exactly at
- *  the artwork's authored scale (see `sunburstSvg`).
+ *  THE LAYER IS EXACTLY THE FRAME, and that is worth understanding because the alternative shipped
+ *  as a bug. Rotating the ELEMENT swings its own corners into view, so it must be oversized until
+ *  its inscribed circle covers the frame from the rotation origin — with the burst on a corner that
+ *  reach is sqrt(120^2 + 67.5^2) = 137.7rem against a 120 x 67.5rem frame, i.e. a 280rem square,
+ *  ~9.7x the frame's area, ~90% of it never visible. At showcase widths that measured ~24MP of
+ *  raster PER treatment card and made the treatments grid stutter on scroll. Here the rotation is a
+ *  transform on the drawing CONTEXT, so nothing is oversized. A `280rem` reappearing in this file's
+ *  CSS means someone has gone back to rotating the layer; registry.test.ts asserts it does not.
  *
- *  ONLY THE ARMS TURN, AND THAT IS A GEOMETRY DECISION, NOT A STYLISTIC ONE. The rotation is a
- *  transform on the arm group INSIDE the SVG. The glow circles never move — they are concentric
- *  with the burst, so turning them would be a no-op anyway — and the SVG element itself never
- *  moves.
+ *  THE THREE PIECES THE FX COMPOSITES, bottom to top — the arms are the only one that moves, so the
+ *  other two are pre-rendered ONCE at setup and blitted:
+ *    • BELOW — the ambient ground tone, with the glow disc (SUNBURST_GLOW_RAMP) over it.
+ *    • THE ARMS — SUNBURST_FAN, one gradient-filled fill per entry, re-drawn every frame.
+ *    • ABOVE — the VEIL: the same radial ramp again at `veilAlpha`, which is what keeps the arms
+ *      sitting IN the light rather than on top of it. It is the one part that cannot fold into the
+ *      glow, because it is on the far side of the arms. Drop veilAlpha to 0 and the arms read as
+ *      cut-out shapes laid over the burst instead of as light within it.
  *
- *  This is what keeps the layer FRAME-SIZED, and it is worth understanding why, because the
- *  alternative is expensive enough to have shipped as a bug. If you rotate the ELEMENT, its own
- *  corners swing into view, so it must be oversized until its inscribed circle covers the frame
- *  from the rotation origin. With the burst on a corner that reach is sqrt(120^2 + 67.5^2) =
- *  137.7rem against a 120 x 67.5rem frame — a 280rem square, ~9.7x the frame's area, ~90% of it
- *  never visible. At showcase widths that measured ~24MP of raster PER treatment card and made the
- *  treatments grid stutter on scroll. Rotating an inner `<g>` does not move the SVG's own box at
- *  all, so none of that is needed: the element stays exactly the frame, and the arms sweep within
- *  it. The only requirement is that the artwork COVER the frame at every angle, which it does —
- *  the glow disc is radially symmetric and the arms reach 2480 units against a farthest frame
- *  corner at 2294.
- *
- *  WHY INLINE AND NOT A data: URI. This shipped briefly as a background image, which is cheaper —
- *  the browser rasterises an SVG image once per used size and caches it, so scrolling re-blits a
- *  bitmap instead of re-running ~59 vector fills. That is unavailable here for one reason: nothing
- *  can reach INSIDE a background image. No CSS, no script, no timeline — so no way to turn one part
- *  of it. Animating the arms requires the markup to be in the document. The trade is deliberate:
- *  live vector, but over the FRAME's area rather than a 280rem square (~7x less than the rotating-
- *  element version cost), and mount.ts caps how many previews rasterise at once.
- *
- *  The other cost of going inline is id collision — see `sunburstSvg` for the scoping. */
+ *  Deterministic, like every other backdrop FX: the angle is a pure function of timeline position
+ *  via a proxy tween — no rAF, no wall clock, no repeat — so the renderer, which SEEKS a paused
+ *  timeline frame by frame, repaints identically for a given frame. */
 /** One spiral arm — the `d` of the source's `<path id='s'>`, verbatim. A 1550-unit tapering sweep
  *  that curls roughly a quarter turn out of the core. Everything else in the tornado is this one
  *  path re-used at a different scale and angle. */
@@ -467,9 +466,11 @@ const sunburst: BackdropDesign = {
       css: `${BACKDROP_BASE}
 .mc-backdrop--sunburst {
   /* The design's whole colour story — see the note on the design above. The artwork is grey; this
-     is what turns it into light on the SLIDE'S OWN ground colour instead of a grey film over it.
-     soft-light is the gentler curve if this reads too strong; lighten is NOT a substitute
-     (it flattens every ground darker than mid-grey). */
+     takes the ground's hue and saturation and the artwork's LIGHTNESS, so the burst reads as light
+     on the slide's own plane colour instead of as a grey film over it. Note there is no identity
+     value here: the layer sets the lightness of the whole frame, so SB_DARK moves the entire plane.
+     overlay / soft-light are the anchored-at-mid-grey alternatives if that is not wanted; lighten
+     is NOT a substitute (it flattens every ground darker than mid-grey). */
   mix-blend-mode: luminosity;
 }
 .mc-backdrop--sunburst canvas {
