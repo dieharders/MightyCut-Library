@@ -43,7 +43,7 @@
 .hud .hud-brand-name {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   color: var(--dark);
 }
 .hud .hud-tagline {

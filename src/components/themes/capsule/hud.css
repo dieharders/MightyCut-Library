@@ -60,7 +60,7 @@
   box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
   font-family: var(--body);
   font-weight: 600;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--dark);
