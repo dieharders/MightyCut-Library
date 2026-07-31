@@ -29,7 +29,7 @@
   justify-content: space-around;
   gap: 2.875rem;
   height: 27rem;
-  padding: 0 2.375rem;
+  padding: 0 2.375rem 1.875rem;
   border-bottom: 0.5rem solid var(--dark);
 }
 /* The Bar primitive is a fixed box by default (so it reads bare in the showcase, where nothing
