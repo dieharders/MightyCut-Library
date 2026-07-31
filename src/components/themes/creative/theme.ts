@@ -107,13 +107,13 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
-    name: "Oat",
-    hex: "#EFE9D9",
+    name: "Teal",
+    hex: "#1f818a",
     note: "canvas",
     varName: "muted-1",
   },
   {
-    name: "Concrete",
+    name: "Oat",
     hex: "#EFE9D9",
     note: "canvas",
     varName: "muted-2",
