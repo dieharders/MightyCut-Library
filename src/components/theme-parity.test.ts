@@ -12,6 +12,7 @@ import { TREATMENT_NAMES } from "../types/components";
 import { PALETTE_VARS } from "../types/palette";
 import { BACKDROP_NAMES } from "../types/storyboard";
 import "./registry"; // populate the registry
+import { REM_GRID } from "./runtime/css";
 import { scrubDeterminism } from "./runtime/determinism";
 import { renderScene } from "./runtime/emit";
 import { rootContext } from "./runtime";
@@ -358,6 +359,202 @@ describe("caption alignment parity (block is the reference)", () => {
   });
 });
 
+// -------------------------------------------------------------------- type scale ---
+// A theme's font sizes are TOKENS, the same way its colours are: `theme.ts` declares an 8-step
+// scale in `sizeTokens`, `tokensCss` emits it into the same `:root`, and a skin NAMES a step
+// instead of writing a number. Before this, all 270 font-sizes in the library were hand-typed
+// rem literals, which is why "normalize all title font sizes" (8fb19d7) had to be a 60-file
+// manual sweep — there was nothing to normalize AGAINST.
+//
+// The scale is PER THEME. Only the shape is shared: 8 steps, ascending, on the 0.125rem grid,
+// no two closer than 1.10x. The steps themselves are the theme's own ramp — block starts at
+// 1.75rem because it has no small copy, creative's display step is 12rem — and nothing here
+// compares one theme's numbers to another's. That is deliberate: the cross-theme thing being
+// guarded is the DISCIPLINE, not the sizes.
+//
+// The two top steps are ANCHORED to real frames rather than chosen freely, which is what makes
+// the scale re-derivable: `3xl` IS the content-frame h3 (8fb19d7's normalisation, previously
+// guarded by nothing at all) and `4xl` IS the cover + closing display size. The jump between
+// them is a leap, not a step, so only the WORKING ramp carries the 1.45x cap.
+const TEXT_STEPS = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "max"] as const;
+const CONTENT_TREATMENTS = [
+  "agenda", "bar-ranking", "chart", "comparison", "feature-cards", "stat-grid", "timeline",
+] as const;
+/** Where a step name sits in the ramp; -1 for an unknown/undefined name. */
+const stepIndex = (s: string | undefined): number =>
+  TEXT_STEPS.indexOf(s as (typeof TEXT_STEPS)[number]);
+
+/** All six themes are on the scale, so every case below covers ALL_THEMES unconditionally. (This
+ *  was a staged rollout — one theme at a time, each render-verified before the next — behind a
+ *  `SCALE_PENDING` set that has now emptied and been removed.) */
+const SCALED = ALL_THEMES;
+
+/** `hud` is excluded from the scale by decision, not by oversight — it is being reworked
+ *  separately. Skipped at the FILE level rather than allowlisted selector-by-selector, so that
+ *  rework doesn't have to touch this test. */
+const SKIP_SKINS = new Set(["hud"]);
+
+/** Selectors allowed to keep a font-size literal instead of naming a step.
+ *
+ *  IT IS EMPTY, and that is the point: every font-size in every skin now names a step. It was the
+ *  stat figure in all six themes — that size sits between the content headline and the display
+ *  size, and nothing else in a deck wants type in that band — until `4xl` was given to it outright
+ *  and the cover moved up to `max`. Keep it empty if you can; an entry here is a decision to
+ *  review, not a place to park a number. */
+const OFF_SCALE: Record<string, readonly string[]> = {};
+
+/** The theme's scale, read off its emitted `:root`. `css` IS the contract — size tokens ride it
+ *  exactly like --disp/--body/--mono do, so there is no ThemeTokens field to drift from. */
+const sizeScale = (theme: ThemeTokens): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const m of theme.css.matchAll(/--font-size-([a-z0-9]+):\s*([\d.]+)rem;/g)) {
+    out[m[1]!] = Number(m[2]);
+  }
+  return out;
+};
+
+/** Resolve a font-size VALUE to rem — a `var(--font-size-*)` through the scale, a literal as
+ *  itself. Throws on a step the theme's `:root` doesn't define: that typo renders at the
+ *  browser default (16px) and reads as a layout bug, not as a missing variable. */
+const resolveFontSize = (theme: ThemeTokens, value: string): number => {
+  const tok = /var\(\s*--font-size-([a-z0-9]+)\s*\)/.exec(value);
+  if (tok) {
+    const rem = sizeScale(theme)[tok[1]!];
+    if (rem === undefined) {
+      throw new Error(`${theme.name}: a skin names --font-size-${tok[1]}, which its :root does not define`);
+    }
+    return rem;
+  }
+  const lit = /([\d.]+)rem/.exec(value);
+  if (!lit) throw new Error(`${theme.name}: unparseable font-size '${value}'`);
+  return Number(lit[1]);
+};
+
+/** Every font-size declaration in a stylesheet as [selector, value]. Skins are FLAT — one rule
+ *  per selector, one declaration per line, no nesting or at-rules (runtime/css.ts requires it so
+ *  `scopeCss`'s tokenizer stays sufficient) — so a line walk is exact and needs no CSS parser.
+ *  Comments are stripped FIRST: several skins discuss font sizes in prose. */
+const fontSizeDecls = (css: string): Array<{ selector: string; value: string }> => {
+  const out: Array<{ selector: string; value: string }> = [];
+  let selector = "";
+  for (const raw of css.replace(/\/\*[\s\S]*?\*\//g, "").split("\n")) {
+    const line = raw.trim();
+    const open = line.indexOf("{");
+    if (open >= 0) selector = line.slice(0, open).trim();
+    const m = /\bfont-size\s*:\s*([^;]+);/.exec(line);
+    if (m) out.push({ selector, value: m[1]!.trim() });
+  }
+  return out;
+};
+
+/** The step a treatment's `h3` names, e.g. "3xl" — or undefined if it writes a literal. */
+const h3Step = (theme: ThemeTokens, treatment: string): string | undefined => {
+  const value = fontSizeDecls(theme.skins?.[treatment] ?? "").find(
+    (d) => d.selector === `.${treatment} h3`,
+  )?.value;
+  return /var\(\s*--font-size-([a-z0-9]+)\s*\)/.exec(value ?? "")?.[1];
+};
+
+/** Every stylesheet a theme owns, named — frame + each skin, minus the ones off the scale. */
+const scaledSheets = (theme: ThemeTokens): Array<{ name: string; css: string }> => [
+  ...(theme.frameCss ? [{ name: "frame", css: theme.frameCss }] : []),
+  ...Object.entries(theme.skins ?? {})
+    .filter(([name]) => !SKIP_SKINS.has(name))
+    .map(([name, css]) => ({ name, css })),
+];
+
+describe("type scale (tripwire)", () => {
+  // Runs for EVERY theme, migrated or not — a theme part-way onto the scale is worse than one
+  // fully off it, because the missing steps resolve to nothing and render at 16px.
+  test.each(ALL_THEMES)("$name declares the whole scale", (theme) => {
+    expect(
+      Object.keys(sizeScale(theme)).sort(),
+      `${theme.name}'s :root steps don't match the 8-step vocabulary`,
+    ).toEqual([...TEXT_STEPS].sort());
+  });
+
+  test.each(SCALED)("$name's steps ascend, sit on the grid, and stay 1.10x apart", (theme) => {
+    const scale = sizeScale(theme);
+    const rems = TEXT_STEPS.map((s) => scale[s]!);
+    const contentStep = h3Step(theme, "stat-grid");
+
+    for (const [i, rem] of rems.entries()) {
+      expect(
+        Math.abs(rem / REM_GRID - Math.round(rem / REM_GRID)),
+        `${theme.name}'s --font-size-${TEXT_STEPS[i]} (${rem}rem) is off the ${REM_GRID}rem grid`,
+      ).toBeLessThan(1e-9);
+    }
+
+    for (let i = 1; i < rems.length; i++) {
+      const ratio = rems[i]! / rems[i - 1]!;
+      const pair = `${TEXT_STEPS[i - 1]}→${TEXT_STEPS[i]}`;
+      expect(
+        ratio,
+        `${theme.name}'s ${pair} ratio is ${ratio.toFixed(3)} — a step you can't tell from its neighbour isn't a step`,
+      ).toBeGreaterThanOrEqual(1.1);
+      // Only the WORKING ramp is capped — the steps up to and including the content headline.
+      // Above it are DISPLAY sizes, and the gaps between them are supposed to be leaps: most
+      // themes leap once (headline → cover), creative twice (headline → statement → cover).
+      if (i <= stepIndex(contentStep)) {
+        expect(ratio, `${theme.name}'s ${pair} ratio is ${ratio.toFixed(3)} — too big a gap to be one step`).toBeLessThanOrEqual(1.45);
+      }
+    }
+  });
+
+  test.each(SCALED)("$name writes no font-size literal outside its declared display sizes", (theme) => {
+    const allowed = new Set(OFF_SCALE[theme.name] ?? []);
+    const strays: string[] = [];
+    for (const { name, css } of scaledSheets(theme)) {
+      for (const { selector, value } of fontSizeDecls(css)) {
+        if (value.includes("var(--font-size-")) continue;
+        if (allowed.has(selector)) continue;
+        strays.push(`${name}.css → ${selector} { font-size: ${value} }`);
+      }
+    }
+    expect(strays, `${theme.name} writes a font-size number instead of naming a step:\n  ${strays.join("\n  ")}`).toEqual([]);
+  });
+
+  test.each(SCALED)("$name uses every step it declares", (theme) => {
+    const used = new Set<string>();
+    for (const { css } of scaledSheets(theme)) {
+      for (const m of css.matchAll(/var\(\s*--font-size-([a-z0-9]+)\s*\)/g)) used.add(m[1]!);
+    }
+    const dead = TEXT_STEPS.filter((s) => !used.has(s));
+    expect(dead, `${theme.name} declares --font-size-${dead.join(", --font-size-")} but no skin names it`).toEqual([]);
+  });
+
+  // The normalisations the scale is anchored to. Nothing guarded either before: 8fb19d7 put all
+  // seven content headlines on one size by hand, and a later edit could quietly undo it.
+  //
+  // What's asserted is the RELATIONSHIP, not a step name. Which name the content headline lands on
+  // is a per-theme consequence of how many display sizes that theme needs — five themes spend two
+  // slots up there and land on `3xl`, creative spends three and lands on `2xl`. Pinning the name
+  // would forbid that without protecting anything.
+  test.each(SCALED)("$name anchors its headlines to the scale", (theme) => {
+    const contentStep = h3Step(theme, "stat-grid");
+    expect(contentStep, `${theme.name}'s .stat-grid h3 must name a step`).toBeDefined();
+    if (!contentStep) return; // unreachable — the assertion above throws; this narrows the type
+
+    // 1. All seven content treatments share ONE headline size. This is 8fb19d7's normalisation.
+    for (const t of CONTENT_TREATMENTS) {
+      expect(h3Step(theme, t), `${theme.name}'s .${t} h3 diverges from the shared content headline`).toBe(
+        contentStep,
+      );
+    }
+    // 2. The cover takes the TOP step, which exists for it alone — `max` is the one size in the
+    //    scale sized against the full frame rather than against a component or a plate.
+    expect(h3Step(theme, "cover"), `${theme.name}'s .cover h3 must be --font-size-max`).toBe("max");
+    // 3. The closing plate is a display frame too: it names a step, and one above the headline.
+    //    Most themes share the cover's; creative's measure is narrower, so it takes its own.
+    const closing = h3Step(theme, "closing-plate");
+    expect(closing, `${theme.name}'s .closing-plate h3 must name a step`).toBeDefined();
+    expect(
+      stepIndex(closing),
+      `${theme.name}'s .closing-plate h3 (${closing}) must sit above the content headline (${contentStep})`,
+    ).toBeGreaterThan(stepIndex(contentStep));
+  });
+});
+
 // ------------------------------------------------------------------ caption scale ---
 // A caption is ROOT CHROME: the consumer stamps one box per VO line into a rail laid OVER
 // live scene content (see block/caption.css for the full rule). It is therefore sized
@@ -371,11 +568,14 @@ describe("caption alignment parity (block is the reference)", () => {
 describe("caption scale (tripwire)", () => {
   const MIN_REM = 1.4;
   const MAX_REM = 2.0;
+  // Resolved, not read literally: a skin names a step now (see "type scale" above), so the band
+  // has to be measured on what the step RESOLVES to. Matching `[^;]+` rather than `[\d.]+rem`
+  // is what keeps this working for a tokenized skin and a not-yet-migrated one alike.
   const capTextRem = (theme: ThemeTokens): number => {
     const css = theme.skins?.caption ?? "";
-    const m = css.match(/\.cap-text\s*\{[^}]*\bfont-size\s*:\s*([\d.]+)rem/s);
+    const m = css.match(/\.cap-text\s*\{[^}]*\bfont-size\s*:\s*([^;]+);/s);
     if (!m) throw new Error(`${theme.name}'s caption skin declares no .cap-text font-size`);
-    return Number(m[1]);
+    return resolveFontSize(theme, m[1]!.trim());
   };
   const reference = capTextRem(blockTheme);
 
