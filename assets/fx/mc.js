@@ -406,7 +406,7 @@
     // The backdrop FX a `backdrop` descriptor may name (see the backdrop arm below).
     // particleBg paints a canvas; washSpin turns a plain element; hueShift drifts a plain
     // element's hue. All answer the same factory contract — fx(el, opts).addTo(tl, atSec, durationSec).
-    var BACKDROP_FX = { particleBg: 1, washSpin: 1, hueShift: 1 };
+    var BACKDROP_FX = { particleBg: 1, washSpin: 1, hueShift: 1, sunburstBg: 1 };
     var revealed = [];
     // display:contents lookups, memoized per call. getComputedStyle FLUSHES pending style,
     // and a scene runs one applyAnims over every descriptor — without this, a scene with N
@@ -668,6 +668,166 @@
     };
   };
 
+  /* ------------------------------------------------------------ sunburst --- */
+
+  /**
+   * The `sunburst` backdrop — a radial glow with spiral arm fans turning slowly out of it —
+   * painted into a <canvas> instead of composed as SVG. Same factory contract as MC.particleBg.
+   *
+   * WHY A CANVAS, WHEN THE ARTWORK IS VECTOR. This shipped as an inline SVG rotating one inner
+   * <g>, which was smooth to scroll but stuttered badly the moment it animated — and stayed
+   * slow after the fill count was cut 59 -> 18 and after mix-blend-mode was removed, so neither
+   * was the cause. The cause is that an SVG transform DIRTIES THE PAINT of the subtree it lives
+   * in: the preview stage renders a 1920x1080 slide and scales it down, so every frame of the
+   * rotation re-rastered the backdrop AND everything around it. Nothing inside one SVG is static
+   * from the rasteriser's point of view once any part of it moves — which is exactly why cutting
+   * fills did nothing, since the two survivors are the full-frame ones.
+   *
+   * A canvas has its OWN backing surface. Writing pixels into it does not invalidate the paint
+   * of anything else, so the slide is untouched by the animation — the same reason the
+   * `constellation` backdrop is smooth on the same page while this one was not.
+   *
+   * IT ALSO REMOVES THE OVERSIZE. Rotating an ELEMENT means its own corners swing into frame, so
+   * it has to be grown until its inscribed circle covers the frame from the pivot — with the
+   * burst anchored at a corner that is a 280rem square, ~9.7x the frame's area, and it is what
+   * made scrolling slow when the layer itself was the thing turning. Here the rotation is a
+   * transform on the DRAWING CONTEXT, so the canvas is exactly the frame and nothing is oversized.
+   *
+   * COST PER FRAME. Two drawImage blits of pre-rendered, frame-sized layers (the ground+glow
+   * beneath the arms, the veil disc above them — both static, so they are rendered ONCE at setup)
+   * plus one fill per arm. For scale, particleBg paints ~1300 line strokes and ~50 radial
+   * gradients every frame and is smooth, so a dozen-odd path fills has ample headroom.
+   *
+   * DETERMINISM. Identical to particleBg: the angle is a pure function of timeline position via a
+   * proxy tween — no rAF, no wall clock, no repeat — so the renderer, which SEEKS a paused
+   * timeline frame by frame, repaints identically for a given frame.
+   *
+   * The artwork itself is NOT hardcoded here. Path, fan and glow ramp all arrive through opts so
+   * primitives/backdrops.ts stays the single source of truth for the design; this function only
+   * knows how to draw what it is handed.
+   */
+  MC.sunburstBg = function (canvas, opts) {
+    var o = opts || {};
+    var W = canvas.width || 1920;
+    var H = canvas.height || 1080;
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return { addTo: function (tl) { return tl; } };
+
+    var deg = o.deg != null ? o.deg : -24;
+    // Artwork units -> canvas pixels. The design authors against a 2000-unit-wide viewBox; the
+    // canvas is 1920 wide, so everything below is drawn through this one factor.
+    var unit = W / (o.viewW || 2000);
+    var outer = (o.outer || 3000) * unit; // the glow disc's radius
+    var parse = function (s, dflt) {
+      try { return JSON.parse(s); } catch (_e) { return dflt; }
+    };
+    var fan = parse(o.fan, []); // [[scale, rotateDeg], …] — one entry per arm
+    var ramp = parse(o.glow, []); // [[offset, grey], …] — the glow's stop ladder
+    var grey = function (v) { return "rgb(" + v + "," + v + "," + v + ")"; };
+
+    // The burst is anchored at the artwork's ORIGIN, which the design pins to a frame corner.
+    var ox = (o.originX || 0) * unit;
+    var oy = (o.originY || 0) * unit;
+
+    /** An offscreen, frame-sized layer. Both static layers are built once, at setup. */
+    var layer = function (draw) {
+      var c = document.createElement("canvas");
+      c.width = W;
+      c.height = H;
+      var cx = c.getContext("2d");
+      if (cx) draw(cx);
+      return c;
+    };
+
+    /** The radial ramp, shared by the glow and the veil. */
+    var discGradient = function (cx) {
+      var g = cx.createRadialGradient(ox, oy, 0, ox, oy, outer);
+      for (var i = 0; i < ramp.length; i++) {
+        // Offsets must be non-decreasing; the ladder deliberately repeats one to make a hard
+        // edge (the artwork's concentric banding), which addColorStop handles as-is.
+        g.addColorStop(Math.min(1, Math.max(0, ramp[i][0])), grey(ramp[i][1]));
+      }
+      return g;
+    };
+
+    // BENEATH the arms: the ground tone, then the glow disc over it.
+    var below = layer(function (cx) {
+      cx.fillStyle = grey(o.ground != null ? o.ground : 135);
+      cx.fillRect(0, 0, W, H);
+      if (ramp.length) {
+        cx.fillStyle = discGradient(cx);
+        cx.fillRect(0, 0, W, H);
+      }
+    });
+
+    // ABOVE the arms: the veil disc, which is what keeps them sitting IN the light rather than
+    // on top of it. It is the one part that cannot fold into the glow — it is on the far side.
+    var veilAlpha = o.veilAlpha != null ? o.veilAlpha : 0.6;
+    var above = layer(function (cx) {
+      if (!ramp.length || veilAlpha <= 0) return;
+      cx.globalAlpha = veilAlpha;
+      var g = cx.createRadialGradient(ox, oy, 0, ox, oy, outer);
+      g.addColorStop(0, grey(o.veilInner != null ? o.veilInner : 212));
+      g.addColorStop(1, grey(o.veilOuter != null ? o.veilOuter : 135));
+      cx.fillStyle = g;
+      cx.fillRect(0, 0, W, H);
+    });
+
+    // The arm, as a reusable path in ARTWORK units. Path2D caches the parsed geometry, so the
+    // per-frame cost is the fill, not re-parsing 60 bezier segments per arm per frame.
+    var arm = typeof Path2D === "function" && o.armPath ? new Path2D(o.armPath) : null;
+    var armLen = o.armLen || 1550;
+
+    var paint = function (rot) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(below, 0, 0);
+      if (arm && fan.length) {
+        ctx.save();
+        ctx.translate(ox, oy);
+        ctx.rotate((rot * Math.PI) / 180);
+        for (var i = 0; i < fan.length; i++) {
+          ctx.save();
+          ctx.rotate((fan[i][1] * Math.PI) / 180);
+          ctx.scale(fan[i][0] * unit, fan[i][0] * unit);
+          // Built INSIDE the transform so it scales and turns with the arm — the canvas
+          // equivalent of the source gradient's gradientUnits="userSpaceOnUse".
+          var g = ctx.createLinearGradient(0, 0, armLen, 0);
+          g.addColorStop(0, grey(o.armInner != null ? o.armInner : 174));
+          g.addColorStop(1, grey(o.armOuter != null ? o.armOuter : 135));
+          ctx.fillStyle = g;
+          ctx.fill(arm);
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+      ctx.drawImage(above, 0, 0);
+    };
+
+    paint(0);
+
+    return {
+      /** Turn the arms from 0 to `deg` over durationSec, starting at atSec. */
+      addTo: function (tl, at, durationSec) {
+        var proxy = { r: 0 };
+        tl.to(
+          proxy,
+          {
+            r: deg,
+            duration: durationSec,
+            ease: "none",
+            onUpdate: function () {
+              paint(proxy.r);
+            },
+          },
+          at || 0,
+        );
+        return tl;
+      },
+    };
+  };
+
   /* ----------------------------------------------------------- wash spin --- */
 
   /**
@@ -697,18 +857,26 @@
     // Degrees swept across the WHOLE scene, not per second: `deg` is a total, so a longer
     // slide turns more slowly rather than further. Keep it small — this is atmosphere.
     var deg = o.deg != null ? o.deg : 10;
+    // svgOrigin (optional) — the pivot, in the SVG's own USER-SPACE coordinates, e.g. "0 0".
+    //
+    // Only meaningful when the target is inside an SVG, and load-bearing when it is. For an SVG
+    // element GSAP defaults its pivot to the target's BOUNDING-BOX centre, which is wrong for any
+    // radial field whose centre is not its bbox centre: rotating about the bbox makes the artwork
+    // ORBIT rather than spin. The `sunburst` backdrop rotates its arm fans about the burst's
+    // anchor at user-space (0,0) — which sits at a CORNER of the group's bbox — so it passes
+    // "0 0" here. Omitted for a plain HTML element (gradient/hatch), where it does not apply and
+    // GSAP's normal transform-origin handling is correct.
+    var svgOrigin = o.svgOrigin;
     return {
       /** Turn from the element's resting angle to `deg` over durationSec, starting at atSec. */
       addTo: function (tl, at, durationSec) {
-        tl.to(
-          el,
-          {
-            rotation: deg,
-            duration: durationSec,
-            ease: "none",
-          },
-          at || 0,
-        );
+        var vars = {
+          rotation: deg,
+          duration: durationSec,
+          ease: "none",
+        };
+        if (svgOrigin) vars.svgOrigin = svgOrigin;
+        tl.to(el, vars, at || 0);
         return tl;
       },
     };

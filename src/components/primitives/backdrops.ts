@@ -278,8 +278,10 @@ const HATCH_STRIPES: string = (() => {
   return parts.join("");
 })();
 /** sunburst — a RADIAL SPIRAL BURST ("sun tornado"): a soft central glow with three fans of long
- *  spiral arms sweeping out of it. Creative's signature design, contributed to the shared pool like
- *  every other. STATIC for now — see "ROTATION IS NOT WIRED YET" at the bottom of this note.
+ *  spiral arms sweeping out of it, the arms turning slowly and continuously across the scene while
+ *  the glow stays put. Creative's signature design, contributed to the shared pool like every
+ *  other. ANIMATED: one `backdrop` descriptor driving MC.washSpin — the same FX `gradient` already
+ *  uses, so nothing is added to mc.js's BACKDROP_FX allowlist.
  *
  *  THIS DESIGN IS THE SOURCE ARTWORK, VERBATIM. `SUNBURST_SVG` below is the authored file byte for
  *  byte — its own greys, its own ground rect, its own thirteen glow circles, its own three stacked
@@ -314,126 +316,209 @@ const HATCH_STRIPES: string = (() => {
  *  strong on some ground, `soft-light` is the same idea with a gentler curve and is a one-word
  *  swap; `opacity` on the layer is the blunt fallback.
  *
- *  WHY A data: URI AND NOT INLINE MARKUP. The artwork is ~59 gradient-filled, near-full-frame
- *  vector shapes. Inline, every one of them is re-rasterised per paint, per scene — with ten
- *  treatment previews on screen at showcase widths past 1800px (each card's burst rasterising at
- *  ~4900px on a side) that is what made the treatments section stutter on scroll. As a background
- *  IMAGE the browser rasterises the SVG ONCE per used size and caches the result, so the 59 fills
- *  collapse to a single cached decode and scrolling re-blits a bitmap. It also makes this file
- *  much smaller: no mini-dom SVG construction, and no per-scene id scoping (an inline SVG's `#a`,
- *  `#b`, `#s`, `#g` would collide across scenes in the shared render DOM — a background image has
- *  no document ids at all, so that entire class of bug is gone).
+ *  GEOMETRY. Every circle in the artwork is `r=…` with no cx/cy, so the burst is anchored at the
+ *  viewBox ORIGIN, which this design pins to the FRAME's TOP-LEFT corner; the arms sweep down and
+ *  right across the slide from there. The viewBox is restated 16:9 so it fills the frame exactly at
+ *  the artwork's authored scale (see `sunburstSvg`).
  *
- *  The cost is that CSS can no longer reach inside the artwork — no custom property can repaint a
- *  stop in a background image. That is exactly the tradeoff we WANT here: the blend mode does the
- *  colouring, so there is nothing left inside worth reaching for.
+ *  ONLY THE ARMS TURN, AND THAT IS A GEOMETRY DECISION, NOT A STYLISTIC ONE. The rotation is a
+ *  transform on the arm group INSIDE the SVG. The glow circles never move — they are concentric
+ *  with the burst, so turning them would be a no-op anyway — and the SVG element itself never
+ *  moves.
  *
- *  GEOMETRY. The source's viewBox is 4:3 (2000x1500) and the frame is 16:9, so the image is sized
- *  `cover` (fill the frame, crop the overflow, never distort the spiral — the arms are only round
- *  because their aspect is preserved). Every circle in the artwork is `r=…` with no cx/cy, i.e.
- *  anchored at the viewBox ORIGIN, so the burst centre is the image's top-left corner; with
- *  `background-position: left top` that corner pins to the FRAME's top-left and the arms sweep down
- *  and right across the slide. Moving the sun is one keyword (`left bottom`, `right top`, …).
+ *  This is what keeps the layer FRAME-SIZED, and it is worth understanding why, because the
+ *  alternative is expensive enough to have shipped as a bug. If you rotate the ELEMENT, its own
+ *  corners swing into view, so it must be oversized until its inscribed circle covers the frame
+ *  from the rotation origin. With the burst on a corner that reach is sqrt(120^2 + 67.5^2) =
+ *  137.7rem against a 120 x 67.5rem frame — a 280rem square, ~9.7x the frame's area, ~90% of it
+ *  never visible. At showcase widths that measured ~24MP of raster PER treatment card and made the
+ *  treatments grid stutter on scroll. Rotating an inner `<g>` does not move the SVG's own box at
+ *  all, so none of that is needed: the element stays exactly the frame, and the arms sweep within
+ *  it. The only requirement is that the artwork COVER the frame at every angle, which it does —
+ *  the glow disc is radially symmetric and the arms reach 2480 units against a farthest frame
+ *  corner at 2294.
  *
- *  ROTATION IS NOT WIRED YET, and the geometry above is why it cannot simply be switched on. A
- *  `cover` background pinned to a corner is not concentric with the layer's centre, so rotating
- *  this layer would make the burst ORBIT — the arms would visibly swing across the frame and the
- *  image's cropped edges would sweep into view. Turning it needs the same treatment the previous
- *  implementation used: an oversized SQUARE inner div centred on the burst's anchor point (large
- *  enough that its inscribed circle still covers the frame at every angle), carrying the
- *  background, with the layer clipping the overflow — then `MC.washSpin` drives that inner div.
- *  Deliberately left for the follow-up so the still frame can be judged first. */
+ *  WHY INLINE AND NOT A data: URI. This shipped briefly as a background image, which is cheaper —
+ *  the browser rasterises an SVG image once per used size and caches it, so scrolling re-blits a
+ *  bitmap instead of re-running ~59 vector fills. That is unavailable here for one reason: nothing
+ *  can reach INSIDE a background image. No CSS, no script, no timeline — so no way to turn one part
+ *  of it. Animating the arms requires the markup to be in the document. The trade is deliberate:
+ *  live vector, but over the FRAME's area rather than a 280rem square (~7x less than the rotating-
+ *  element version cost), and mount.ts caps how many previews rasterise at once.
+ *
+ *  The other cost of going inline is id collision — see `sunburstSvg` for the scoping. */
+/** One spiral arm — the `d` of the source's `<path id='s'>`, verbatim. A 1550-unit tapering sweep
+ *  that curls roughly a quarter turn out of the core. Everything else in the tornado is this one
+ *  path re-used at a different scale and angle. */
+const SUNBURST_ARM =
+  "M1549.2 51.6c-5.4 99.1-20.2 197.6-44.2 293.6c-24.1 96-57.4 189.4-99.3 278.6c-41.9 89.2-92.4 174.1-150.3 253.3c-58 79.2-123.4 152.6-195.1 219c-71.7 66.4-149.6 125.8-232.2 177.2c-82.7 51.4-170.1 94.7-260.7 129.1c-90.6 34.4-184.4 60-279.5 76.3C192.6 1495 96.1 1502 0 1500c96.1-2.1 191.8-13.3 285.4-33.6c93.6-20.2 185-49.5 272.5-87.2c87.6-37.7 171.3-83.8 249.6-137.3c78.4-53.5 151.5-114.5 217.9-181.7c66.5-67.2 126.4-140.7 178.6-218.9c52.3-78.3 96.9-161.4 133-247.9c36.1-86.5 63.8-176.2 82.6-267.6c18.8-91.4 28.6-184.4 29.6-277.4c0.3-27.6 23.2-48.7 50.8-48.4s49.5 21.8 49.2 49.5c0 0.7 0 1.3-0.1 2L1549.2 51.6z";
 
-/** The source artwork, verbatim (`grey-tornado.svg`). Kept as one string rather than a file read so
- *  the build stays pure and the emitted CSS is byte-identical every time.
+/** The source's palette. Three greys, and that is the entire artwork — see the blend-mode note on
+ *  the design above for why grey is the point rather than a placeholder. */
+const SB_LIGHT = 0xd4; // #D4D4D4 — the glow's hot centre
+const SB_DARK = 0x87; // #878787 — the ground tone, and every gradient's outer stop
+const SB_MID = 0xae; // #aeaeae — where an arm leaves the core
+
+
+/** The fan: the source's fifteen scale/angle pairs, PAINTED ONCE.
  *
- *  DO NOT "TIDY" THIS. The greys are load-bearing (see the blend-mode note above): re-saturating
- *  them, dropping the `#878787` ground rect, or collapsing the stacked glow circles all change what
- *  `overlay` computes against the slide's ground. It is a picture, not a stylesheet. */
-const SUNBURST_SVG =
-  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2000 1500'>` +
-  `<rect fill='#878787' width='2000' height='1500'/>` +
-  `<defs>` +
-  `<radialGradient id='a' gradientUnits='objectBoundingBox'>` +
-  `<stop offset='0' stop-color='#D4D4D4'/><stop offset='1' stop-color='#878787'/>` +
-  `</radialGradient>` +
-  `<linearGradient id='b' gradientUnits='userSpaceOnUse' x1='0' y1='750' x2='1550' y2='750'>` +
-  `<stop offset='0' stop-color='#aeaeae'/><stop offset='1' stop-color='#878787'/>` +
-  `</linearGradient>` +
-  `<path id='s' fill='url(#b)' d='M1549.2 51.6c-5.4 99.1-20.2 197.6-44.2 293.6c-24.1 96-57.4 189.4-99.3 278.6c-41.9 89.2-92.4 174.1-150.3 253.3c-58 79.2-123.4 152.6-195.1 219c-71.7 66.4-149.6 125.8-232.2 177.2c-82.7 51.4-170.1 94.7-260.7 129.1c-90.6 34.4-184.4 60-279.5 76.3C192.6 1495 96.1 1502 0 1500c96.1-2.1 191.8-13.3 285.4-33.6c93.6-20.2 185-49.5 272.5-87.2c87.6-37.7 171.3-83.8 249.6-137.3c78.4-53.5 151.5-114.5 217.9-181.7c66.5-67.2 126.4-140.7 178.6-218.9c52.3-78.3 96.9-161.4 133-247.9c36.1-86.5 63.8-176.2 82.6-267.6c18.8-91.4 28.6-184.4 29.6-277.4c0.3-27.6 23.2-48.7 50.8-48.4s49.5 21.8 49.2 49.5c0 0.7 0 1.3-0.1 2L1549.2 51.6z'/>` +
-  `<g id='g'>` +
-  `<use href='#s' transform='scale(0.12) rotate(60)'/>` +
-  `<use href='#s' transform='scale(0.2) rotate(10)'/>` +
-  `<use href='#s' transform='scale(0.25) rotate(40)'/>` +
-  `<use href='#s' transform='scale(0.3) rotate(-20)'/>` +
-  `<use href='#s' transform='scale(0.4) rotate(-30)'/>` +
-  `<use href='#s' transform='scale(0.5) rotate(20)'/>` +
-  `<use href='#s' transform='scale(0.6) rotate(60)'/>` +
-  `<use href='#s' transform='scale(0.7) rotate(10)'/>` +
-  `<use href='#s' transform='scale(0.835) rotate(-40)'/>` +
-  `<use href='#s' transform='scale(0.9) rotate(40)'/>` +
-  `<use href='#s' transform='scale(1.05) rotate(25)'/>` +
-  `<use href='#s' transform='scale(1.2) rotate(8)'/>` +
-  `<use href='#s' transform='scale(1.333) rotate(-60)'/>` +
-  `<use href='#s' transform='scale(1.45) rotate(-30)'/>` +
-  `<use href='#s' transform='scale(1.6) rotate(10)'/>` +
-  `</g>` +
-  `</defs>` +
-  `<g transform='rotate(0 0 0)'><g transform='rotate(0 0 0)'>` +
-  `<circle fill='url(#a)' r='3000'/>` +
-  `<g opacity='0.5'>` +
-  `<circle fill='url(#a)' r='2000'/><circle fill='url(#a)' r='1800'/><circle fill='url(#a)' r='1700'/>` +
-  `<circle fill='url(#a)' r='1651'/><circle fill='url(#a)' r='1450'/><circle fill='url(#a)' r='1250'/>` +
-  `<circle fill='url(#a)' r='1175'/><circle fill='url(#a)' r='900'/><circle fill='url(#a)' r='750'/>` +
-  `<circle fill='url(#a)' r='500'/><circle fill='url(#a)' r='380'/><circle fill='url(#a)' r='250'/>` +
-  `</g>` +
-  `<g transform='rotate(0 0 0)'>` +
-  `<use href='#g' transform='rotate(10)'/>` +
-  `<use href='#g' transform='rotate(120)'/>` +
-  `<use href='#g' transform='rotate(240)'/>` +
-  `</g>` +
-  `<circle fill-opacity='0.6' fill='url(#a)' r='3000'/>` +
-  `</g></g></svg>`;
-
-/** SVG markup → a `data:` URI safe to drop inside a double-quoted CSS `url("…")`.
+ *  The source draws this fan THREE times — `<use href='#g' transform='rotate(10|120|240)'>` — which
+ *  is 45 gradient-filled 1550-unit paths per scene. It needs three copies because its fifteen
+ *  anchors all sit inside a ±60° wedge, so one pass would leave two thirds of the circle bare.
  *
- *  Left UNENCODED on purpose: the artwork's single-quoted attributes (which is why the source uses
- *  `'` throughout — swapping them for `"` would break the CSS string), and everything else that is
- *  already a valid URL character. Encoded: `%` first (so it cannot double-encode the escapes added
- *  after it), then `#` — which would otherwise start a URL FRAGMENT and truncate the image at the
- *  first colour literal — then the angle brackets and double quotes, which some parsers and CSP
- *  filters object to inside a url(). Pure and deterministic. */
-const svgDataUri = (svg: string): string =>
-  `data:image/svg+xml,${svg
-    .replace(/%/g, "%25")
-    .replace(/#/g, "%23")
-    .replace(/</g, "%3C")
-    .replace(/>/g, "%3E")
-    .replace(/"/g, "%22")}`;
+ *  The copies are folded in here instead: arm i takes the sector `[10, 120, 240][i % 3]`, i.e. the
+ *  source's own three offsets, distributed across the fan rather than stacked on top of it. Same
+ *  scale ladder, same base angles, same 3-fold spread, a THIRD of the fills. The resulting anchors
+ *  run 50/70/70/90/90/130/130/145/200/248/250/260/280/310/350 — no gap wider than 60°, which each
+ *  arm's own ~90° sweep closes.
+ *
+ *  This is what makes the rotation affordable: the arms are the only part of the artwork that
+ *  moves, so they are the part that re-rasterises every frame. */
+const SUNBURST_FAN: readonly (readonly [number, number])[] = [
+  [0.12, 70],
+  [0.2, 130],
+  [0.25, 280],
+  [0.3, -10],
+  [0.4, 90],
+  [0.5, 260],
+  [0.6, 70],
+  [0.7, 130],
+  [0.835, 200],
+  [0.9, 50],
+  [1.05, 145],
+  [1.2, 248],
+  [1.333, -50],
+  [1.45, 90],
+  [1.6, 250],
+];
 
-const SUNBURST_URI: string = svgDataUri(SUNBURST_SVG);
+/** The core's falloff, as ONE gradient's stop ladder — DERIVED, not redrawn.
+ *
+ *  The source builds its core from THIRTEEN concentric circles: a base disc at r=3000 plus a stack
+ *  of twelve rings (r=2000…250) inside a `<g opacity='0.5'>`. Eight of those cover the whole frame.
+ *  That is ~9 full-frame gradient fills plus an offscreen buffer to composite the group — every one
+ *  of them re-run on every frame of the rotation, purely to shape a falloff curve that a single
+ *  radial gradient can simply STATE.
+ *
+ *  THE CURVE IS REPRODUCED EXACTLY, INCLUDING ITS BANDING. The ring stack does not fade smoothly:
+ *  the rings are OPAQUE (gradient `a` has no stop-opacity), drawn largest-first, so at any radius
+ *  the SMALLEST ring still covering it wins outright — and where a ring ends, the tone jumps. Those
+ *  twelve hard steps are a real feature of the artwork, the concentric rings you can see in it. A
+ *  naive single gradient would smooth them away. This ladder keeps them by emitting a PAIR of stops
+ *  at each ring boundary (two stops at one offset is a hard edge in SVG): the inner value, then the
+ *  outer one.
+ *
+ *  So the maths below is not a fit or an approximation — it is the source's own compositing
+ *  arithmetic, evaluated at build time instead of by the rasteriser on every frame. Change a radius
+ *  in SUNBURST_RINGS and the gradient follows automatically. */
+const SUNBURST_RINGS: readonly number[] = [
+  2000, 1800, 1700, 1651, 1450, 1250, 1175, 900, 750, 500, 380, 250,
+];
 
+/** The burst's outer radius, in artwork units — the disc every glow stop is stated against. */
+const SB_OUTER = 3000;
+
+/** The derived ramp as DATA: `[offset, greyLevel]` pairs, offsets ascending with a deliberate
+ *  repeat at each ring boundary (a repeated offset is a hard edge — the artwork's banding).
+ *  This is the single source for both renderers: the canvas FX consumes it directly. */
+const SUNBURST_GLOW_RAMP: readonly (readonly [number, number])[] = (() => {
+  const OUTER = SB_OUTER;
+  const GROUP_ALPHA = 0.5; // the source's <g opacity='0.5'> around the ring stack
+  const asc = [...SUNBURST_RINGS].sort((a, b) => a - b);
+  // Gradient `a` is objectBoundingBox on a circle centred at the origin, so its offset at radius r
+  // of a disc of radius R is exactly r/R — a straight ramp from the hot centre to the ground tone.
+  const tone = (r: number, R: number): number => SB_LIGHT + (SB_DARK - SB_LIGHT) * (r / R);
+  // The stack renders opaque and largest-first, so the smallest ring still covering r is on top.
+  const ringAt = (r: number): number | null => {
+    const R = asc.find((x) => x >= r);
+    return R === undefined ? null : tone(r, R);
+  };
+  const mix = (base: number, ring: number | null): number =>
+    ring === null ? base : base * (1 - GROUP_ALPHA) + ring * GROUP_ALPHA;
+  const stop = (r: number, v: number): readonly [number, number] => [
+    Number((r / OUTER).toFixed(4)),
+    Math.round(v),
+  ];
+
+  const parts: (readonly [number, number])[] = [stop(0, mix(tone(0, OUTER), ringAt(0)))];
+  for (const R of asc) {
+    // Approaching R from INSIDE: ring R is the one on top, at its own outer edge (the dark end).
+    parts.push(stop(R, mix(tone(R, OUTER), tone(R, R))));
+    // Immediately OUTSIDE R: the next ring up takes over, which is lighter at this radius — the
+    // step that makes the band. Past the largest ring there is none, so the base shows alone.
+    const next = asc.find((x) => x > R);
+    parts.push(stop(R, mix(tone(R, OUTER), next === undefined ? null : tone(R, next))));
+  }
+  parts.push(stop(OUTER, tone(OUTER, OUTER)));
+  return parts;
+})();
 const sunburst: BackdropDesign = {
   name: "sunburst",
-  build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--sunburst"></div>`),
-    css: `${BACKDROP_BASE}
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop). The canvas
+    // MUST carry a per-scene class: `backdrop` anims are not run through qualifyAnim and the
+    // render's `q` is document-wide (sub-composition.ts), so an unscoped selector would let one
+    // scene's paint loop grab another scene's canvas in the shared render DOM.
+    const canvasClass = `${ctx.idPrefix}-sun`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+      ),
+      css: `${BACKDROP_BASE}
 .mc-backdrop--sunburst {
   /* The design's whole colour story — see the note on the design above. The artwork is grey; this
      is what turns it into light on the SLIDE'S OWN ground colour instead of a grey film over it.
      soft-light is the gentler curve if this reads too strong; lighten is NOT a substitute
      (it flattens every ground darker than mid-grey). */
   mix-blend-mode: luminosity;
-  /* cover + a corner anchor, not 100% 100%: the source is 4:3 and the frame is 16:9, so
-     stretching would visibly oval the spiral arms. The burst's centre is the image's top-left
-     corner (every circle is r= with no cx/cy), so "left top" pins the sun to the frame's corner. */
-  background-image: url("${SUNBURST_URI}");
-  background-size: cover;
-  background-position: left top;
-  background-repeat: no-repeat;
+}
+.mc-backdrop--sunburst canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }`,
-    anims: [],
-  }),
+      anims: [
+        {
+          kind: "backdrop",
+          target: canvasClass,
+          time: { at: "seconds", t: 0 },
+          // THE ARTWORK TRAVELS IN THE DESCRIPTOR. mc.js knows how to draw a sunburst but not
+          // what this one looks like — the path, the fan and the glow ramp all ship from here, so
+          // this file stays the single source of truth for the design and the FX stays generic.
+          // (`opts` values are string | number | boolean, so the two lists go as JSON.)
+          opts: {
+            fn: "sunburstBg",
+            // One ease-less turn across the whole scene — constant rate, never starting or
+            // stopping, which is what reads as a continuous loop. `deg` is a TOTAL, not a rate,
+            // so a long slide turns more GENTLY rather than further (a 6s slide and a 20s slide
+            // both end at -24°). Negative = counter to the arms' own curl, so they read as
+            // unwinding outward rather than the picture being dragged around; flip to reverse.
+            deg: -24,
+            // The artwork's own coordinate system: a 2000-unit-wide authoring space, the burst
+            // anchored at its ORIGIN — which, with the canvas filling the frame, puts the sun on
+            // the frame's TOP-LEFT corner. Move it by moving these.
+            viewW: 2000,
+            originX: 0,
+            originY: 0,
+            outer: SB_OUTER,
+            armPath: SUNBURST_ARM,
+            armLen: 1550,
+            fan: JSON.stringify(SUNBURST_FAN),
+            glow: JSON.stringify(SUNBURST_GLOW_RAMP),
+            // The three greys, and the veil's alpha — the whole palette (see SB_LIGHT/MID/DARK).
+            ground: SB_DARK,
+            armInner: SB_MID,
+            armOuter: SB_DARK,
+            veilInner: SB_LIGHT,
+            veilOuter: SB_DARK,
+            veilAlpha: 0.6,
+          },
+        },
+      ],
+    };
+  },
 };
 
 // --- The one colour outside the CSS custom-property system ------------------
