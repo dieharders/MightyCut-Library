@@ -54,7 +54,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.065em;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

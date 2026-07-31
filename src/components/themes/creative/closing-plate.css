@@ -34,7 +34,9 @@
   background: var(--muted-1);
   border: 0.5rem solid var(--dark);
   padding: 5.375rem 7.25rem;
-  box-shadow: 1.5rem 1.5rem 0 var(--secondary), 1.5rem 1.5rem 0 0.25rem var(--dark);
+  box-shadow:
+    1.5rem 1.5rem 0 var(--secondary),
+    1.5rem 1.5rem 0 0.25rem var(--dark);
 }
 /* The reference capped the closer at 80cqw, but that assumed a .cardf with no padding; the plate's
    own 7.25rem inset now binds tighter than that ceiling ever would, so the cap drops to 80rem to do
@@ -52,7 +54,7 @@
    measure here is 80rem against the cover's 103.25rem, so the two frames cannot carry the same
    type. Allowlisted in the type-scale tripwire. */
 .closing-plate h3 {
-  font-size: 7.5rem;
+  font-size: var(--font-size-4xl);
   line-height: 0.86;
   color: var(--dark);
   max-width: 80rem;
