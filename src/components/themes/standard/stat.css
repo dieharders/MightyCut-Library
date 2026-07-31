@@ -2,8 +2,7 @@
    else. Every other theme makes this cell an object (block's shadowed tile, capsule's candy card,
    professional's tinted plate); standard's is deliberately not one. Its structure is borrowed
    from the single hairline drawn above the whole row in stat-grid.css, so giving the cell a fill
-   or a border here would double-draw the frame's one rule and cost the theme its restraint.
-   Ported from the showcase .bf-stat-grid .sc / .n / .l (cqw × 1.2). */
+   or a border here would double-draw the frame's one rule and cost the theme its restraint. */
 .stat {
   display: flex;
   flex-direction: column;
@@ -15,19 +14,6 @@
 .stat-dot {
   display: none;
 }
-/* The figure is INK by default, not the accent. Brownstone is standard's LABEL colour — the source
-   sets .n on the ink and .l on the brownstone — so a tinted numeral would read as a demoted caption
-   rather than as emphasis, and emphasis is carried by type contrast here, never by hue. --dot is
-   emitted only when a stat carries an explicit accent (primitives/stat/index.ts layout()), which
-   makes the fallback the honest default for content that doesn't pick one; when an author does
-   pick, all four cycle slots resolve to the one brownstone, so the row tints together or not at all.
-   --dense-scale (emitted by stat-grid at 4+ stats) shrinks the figure so a dense row doesn't
-   crowd; unset ⇒ 1, i.e. the base size everywhere else.
-   The size is the one font-size in standard still written as a literal, on purpose: the figure
-   sits in the GAP between --font-size-3xl (4.75rem, the headline) and --font-size-4xl (9.5rem, the
-   display step) — 26% above one, 37% below the other — so no step fits it, and inventing one would
-   spend a slot on a single declaration. See theme.ts `sizeTokens`; the type-scale tripwire
-   allowlists this selector. */
 .stat-number {
   font-family: var(--disp);
   font-weight: 600;
@@ -35,10 +21,6 @@
   line-height: 1;
   color: var(--dot, var(--dark));
 }
-/* The brownstone label voice at the tighter IN-FRAME tracking: 0.15em rather than the eyebrow's
-   0.22em, which is the source's own distinction. A caption sitting directly under the stat figure
-   has to stay a caption, and the wide eyebrow tracking at this size starts to read as a second
-   display line competing with the figure. */
 .stat-label {
   font-family: var(--mono);
   font-weight: 500;

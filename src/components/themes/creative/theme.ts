@@ -169,12 +169,6 @@ const fontTokens: Record<string, string> = {
   mono: '"JetBrains Mono", monospace',
 };
 
-/** Type-SIZE tokens — creative's own 8-step scale. This is to `font-size` what `palette` is to
- *  colour: a skin NAMES a step, it never writes a number. The steps are CREATIVE's — every theme
- *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
- *  grid, no adjacent pair closer than 1.10x) is shared.
- *
- */
 const sizeTokens: Record<string, string> = {
   "font-size-xs": "1.375rem",
   "font-size-sm": "1.75rem",

@@ -1,8 +1,7 @@
 /* 5 · Quote — a centered statement with a cyan quote mark, the attribution below the card
    (templates/quote.html). The eyebrow sits above the card as future's `label` type role
    (mono, uppercase, wide-tracked, cyan) and self-removes when the slide sets none — the
-   template used to DROP the slot, so typing an eyebrow silently did nothing.
-   Ported from legacy .bf-quote (cqw × 1.2). */
+   template used to DROP the slot, so typing an eyebrow silently did nothing. */
 .quote > .body {
   justify-content: center;
   align-items: center;
@@ -18,15 +17,6 @@
   color: var(--primary);
   margin-bottom: 3.625rem;
 }
-/* The mark is a WATERMARK, so its line-height is doing layout, not leading: a fraction under 1
-   crops the block box well inside the glyph, letting the mark read large while occupying little
-   vertical space above the card. That makes the crop a function of BOTH numbers — the box is
-   line-height × font-size — so the two have to move together, and the CONSTANT is the box: 4.1875rem,
-   which the composition below (and the 1.25rem margin tuned against it) is built on.
-   The mark has been 8.375rem @ 0.5 and 10rem @ 0.42; it now takes --font-size-4xl (8.25rem), so
-   0.508 restores the same box (8.25 × 0.508 = 4.191rem, within 0.06px). This is the one place in
-   the theme where a step change is NOT self-contained — re-point this at another step and
-   recompute: line-height = 4.1875 / the new step's rem value. */
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;

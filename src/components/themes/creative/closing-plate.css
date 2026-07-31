@@ -2,19 +2,7 @@
    cream plate, ink-outlined and thrown forward by the orange+ink hard offset shadow, centred on the
    pink ground, carrying a hero ink headline and a green sealed stamp. FRAME.md reserves the scarce
    gestures for the closer, and the shadow is the scarcest of them: one featured block per frame,
-   and this is the block.
-
-   GROUND: pink (--primary), stamped inline by the emitter. THIS DEVIATES FROM THE REFERENCE, which
-   forced a green ground with !important (banned here) and inverted the plate — cream type straight
-   on green with an orange stamp. Under the port the closer lands on pink and the composition flips:
-   the plate becomes a real cream object ON the coloured plane rather than a hole in it, and green
-   moves from the ground to the stamp, where it still reads as "the last colour of the deck". The
-   swap also buys the shadow a ground it can be seen against — orange on pink separates cleanly,
-   and the 0.25rem ink spread in the second layer draws a hard rule between the two warm hues so
-   they never smear into each other.
-
-   Ported from the showcase .bf-closing-plate (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
-   grid); the plate's own padding is new, since the reference .cardf was a bare transparent stack. */
+   and this is the block. */
 .closing-plate > .body {
   justify-content: center;
   align-items: center;
@@ -38,26 +26,7 @@
     1.5rem 1.5rem 0 var(--secondary),
     1.5rem 1.5rem 0 0.25rem var(--dark);
 }
-/* The reference capped the closer at 80cqw, but that assumed a .cardf with no padding; the plate's
-   own 7.25rem inset now binds tighter than that ceiling ever would, so the cap drops to 80rem to do
-   real work — it keeps the sign-off to a compact two-or-three-word stack and stops the plate
-   stretching to the full content box, which would flatten the object the shadow is lifting. */
-/* Sized to the longest word, like the cover — and tighter, because the plate's own 7.25rem inset
-   leaves a NARROWER measure (80rem) than the cover's 103.25rem. Archivo Black runs ~0.72em per
-   cap, so at 7.5rem the 80rem measure holds ~14 characters on a line; at the reference-derived
-   12rem a single 12-character sign-off already overruns the plate and pushes through the ink
-   border. That headroom is the whole reason for the cap — recompute it (chars ≈ max-width /
-   (font-size × 0.72)) whenever either number moves, or the constraint stops being checked. */
-/* OFF-SCALE, and the one closing plate in the library that does NOT take --font-size-4xl. Every
-   other theme's closer shares the cover's display step; creative's cannot, because its cover step
-   is 12rem and the paragraph above is the record of that exact size overrunning this plate. The
-   measure here is 80rem against the cover's 103.25rem, so the two frames cannot carry the same
-   type. Allowlisted in the type-scale tripwire. */
 .closing-plate h3 {
-  /* --font-size-3xl (7.5rem), NOT the cover's 4xl. Creative is the one theme whose two display
-     frames can't share a size: the measure here is 80rem against the cover's 103.25rem, and the
-     paragraph above is the record of 12rem overrunning this plate. 3xl exists for exactly this —
-     the pull quote takes it too. */
   font-size: var(--font-size-4xl);
   line-height: 0.86;
   color: var(--dark);
