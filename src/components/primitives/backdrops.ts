@@ -423,7 +423,7 @@ const sunburst: BackdropDesign = {
      is what turns it into light on the SLIDE'S OWN ground colour instead of a grey film over it.
      soft-light is the gentler curve if this reads too strong; lighten is NOT a substitute
      (it flattens every ground darker than mid-grey). */
-  mix-blend-mode: overlay;
+  mix-blend-mode: luminosity;
   /* cover + a corner anchor, not 100% 100%: the source is 4:3 and the frame is 16:9, so
      stretching would visibly oval the spiral arms. The burst's centre is the image's top-left
      corner (every circle is r= with no cx/cy), so "left top" pins the sun to the frame's corner. */
