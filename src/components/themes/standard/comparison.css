@@ -14,7 +14,7 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .comparison h3 {
-  font-size: 4.75rem;
+  font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;
 }
 /* NO GAP in either axis — the departure from professional's gapped chip ledger, and the reason this
@@ -37,14 +37,14 @@
    heads are typographically identical and the emphasis is deferred to row.css, where the .b cells go
    ink against warm gray. Tracking is 0.1em rather than the frame eyebrow's 0.22em: the reference
    tightens its small in-frame labels so a two-word head still reads as one word at this size — and
-   this head now sets at 1.75rem, so the ratio is damped off the 0.12em it carried at 1.25rem (see
-   bar.css for the rule). */
+   this head sets at --font-size-md, so the ratio is damped off the 0.12em it carried at the
+   eyebrow's --font-size-xs (see bar.css for the rule). */
 .comparison .ch {
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   padding: 1.5rem 1.625rem;
   color: var(--primary);
 }

@@ -31,7 +31,7 @@
   place-items: center;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: var(--font-size-lg);
   /* The tile's box is fixed (4.125rem square), so leading can't change its size — but
      `place-items: center` centres the LINE BOX, and an unstated `normal` line box is asymmetric
      (a face's ascent and descent are not equal), which seats the glyph a little high in the tile.
@@ -43,14 +43,14 @@
 .card-title {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: var(--font-size-md);
   line-height: 1.15;
   color: var(--light);
 }
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xs);
   line-height: 1.55;
   color: var(--muted-1);
   margin-top: 1rem;

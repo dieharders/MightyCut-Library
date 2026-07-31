@@ -41,7 +41,7 @@
   font-family: var(--disp);
   font-variant-numeric: tabular-nums;
   font-weight: 400;
-  font-size: 3.25rem;
+  font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--dark);
 }
@@ -60,9 +60,10 @@
 }
 /* The label is the theme's small in-frame label: brownstone, uppercase, tracked 0.095em rather than
    the eyebrow's 0.22em — at this size the wider tracking would break a two-word category apart.
-   TRACKING IS SIZE-DEPENDENT, and this label is the largest in the theme (2.5rem, matching every
-   other theme's bar label). An em value holds a CONSTANT RATIO, so carrying the small-label 0.12em
-   up to 2.5rem would open the letters to ~4.8px of air — a spaced-out caption, not a label. The
+   TRACKING IS SIZE-DEPENDENT, and this label is the largest in the theme (--font-size-xl, the step
+   every other theme's bar label also lands on). An em value holds a CONSTANT RATIO, so carrying the
+   small-label 0.12em up to that size would open the letters to ~5px of air — a spaced-out caption,
+   not a label. The
    value is the small-label tracking damped by √(old size / new size), the standard optical rule:
    absolute tracking still grows with the type, just sub-linearly. Same reasoning in rank.css,
    comparison.css, step.css and quote.css, each damped off its OWN starting point so standard stays
@@ -74,7 +75,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.095em;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   color: var(--primary);
   text-align: center;
 }

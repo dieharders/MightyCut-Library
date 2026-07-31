@@ -15,7 +15,7 @@
   color: var(--light);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   margin-bottom: 1.75rem;
 }
 /* The connector: a hairline from the disc's right edge across the gap to the next step. Positioned
@@ -33,14 +33,14 @@
 .step-title {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   line-height: 1.2;
   color: var(--dark);
 }
 .step-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.625rem;
+  font-size: var(--font-size-md);
   line-height: 1.5;
   color: var(--muted-3);
   margin-top: 1rem;

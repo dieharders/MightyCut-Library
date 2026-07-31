@@ -16,7 +16,7 @@
      (4.375rem here, 4.75rem on feature-cards / stat-grid / timeline) is gone, so a heading that
      differs from its neighbours is now a mistake rather than a variant. Only the MARGIN varies
      per treatment, which is the rhythm each frame needs under its own headline. */
-  font-size: 4.5rem;
+  font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.875rem;
 }
 .agenda .alist {

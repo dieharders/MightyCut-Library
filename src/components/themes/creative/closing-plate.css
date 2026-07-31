@@ -46,6 +46,11 @@
    12rem a single 12-character sign-off already overruns the plate and pushes through the ink
    border. That headroom is the whole reason for the cap — recompute it (chars ≈ max-width /
    (font-size × 0.72)) whenever either number moves, or the constraint stops being checked. */
+/* OFF-SCALE, and the one closing plate in the library that does NOT take --font-size-4xl. Every
+   other theme's closer shares the cover's display step; creative's cannot, because its cover step
+   is 12rem and the paragraph above is the record of that exact size overrunning this plate. The
+   measure here is 80rem against the cover's 103.25rem, so the two frames cannot carry the same
+   type. Allowlisted in the type-scale tripwire. */
 .closing-plate h3 {
   font-size: 7.5rem;
   line-height: 0.86;
@@ -65,6 +70,6 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 2.25rem;
+  font-size: var(--font-size-lg);
   line-height: 1.2;
 }

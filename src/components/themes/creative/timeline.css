@@ -34,7 +34,7 @@
    and no font-weight is stated anywhere in this theme, because Archivo Black ships a single
    weight (400) and asking for a bolder one renders a synthetic. Size, rhythm and alignment only. */
 .timeline h3 {
-  font-size: 4.375rem;
+  font-size: var(--font-size-3xl);
   margin: 0 0 2.875rem;
   text-align: center;
 }

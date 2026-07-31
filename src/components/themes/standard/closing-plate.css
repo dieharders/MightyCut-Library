@@ -32,7 +32,10 @@
 /* 700, one weight above the frame base's 600 — the cover and the closer are the only two places
    standard sets Playfair that heavy, and the tighter 1.04 leading goes with it. */
 .closing-plate h3 {
-  font-size: 8rem;
+  /* The DISPLAY step, shared with the cover — the two frames that carry a statement rather than a
+     headline are the two that take it. Was 8rem; --font-size-4xl is 9.5rem, so the closer now
+     signs off at the weight the deck opened at. */
+  font-size: var(--font-size-4xl);
   font-weight: 700;
   line-height: 1.04;
 }
@@ -47,7 +50,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   color: var(--primary);
 }
 /* THE ONE INK RULE. The reference draws it as a separate .ha node — its "horizontal accent"

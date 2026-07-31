@@ -36,7 +36,7 @@
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 3.25rem;
+  font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--primary);
 }
@@ -63,7 +63,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   color: var(--muted-3);
   text-align: center;
 }

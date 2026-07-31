@@ -128,11 +128,36 @@ const fontTokens: Record<string, string> = {
   mono: '"Inter", sans-serif',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future, capsule, professional and creative). */
+/** Type-SIZE tokens — standard's own 8-step scale. This is to `font-size` what `palette` is to
+ *  colour: a skin NAMES a step, it never writes a number. The steps are STANDARD's — every theme
+ *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
+ *  grid, no adjacent pair closer than 1.10x) is shared. Standard's runs the widest of the six,
+ *  because a catalogue voice needs a real 1.25rem label AND a 9.5rem display statement.
+ *
+ *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote also takes) and `4xl` IS the cover/closing
+ *  display size. The jump between them is a leap rather than a step — display type is supposed to
+ *  break the ramp. The one size still written as a literal is the stat figure, deliberately in the
+ *  gap between them; see stat.css. Re-derive with `node scripts/audit-font-scale.mjs --derive`. */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.25rem",
+  "font-size-sm": "1.5rem",
+  "font-size-md": "1.75rem",
+  "font-size-lg": "2.125rem",
+  "font-size-xl": "2.625rem",
+  "font-size-2xl": "3.375rem",
+  "font-size-3xl": "4.75rem",
+  "font-size-4xl": "9.5rem",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
+ *  down exactly once (matching block, future, capsule, professional and creative). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

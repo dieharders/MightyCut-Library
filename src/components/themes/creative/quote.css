@@ -27,7 +27,7 @@
 }
 .quote .eyebrow {
   margin-bottom: 2.875rem;
-  font-size: 1.75rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.085em;
 }
 .quote .qcard {
@@ -42,7 +42,10 @@
 .quote .qt {
   font-family: var(--disp);
   text-transform: uppercase;
-  font-size: 7rem;
+  /* The statement takes the same step as every content frame's headline — a pull quote IS the
+     headline of its slide. This is the largest single reduction in the migration (7rem → 4.375rem):
+     creative's quote was set as a display size, and it is now a headline like the others. */
+  font-size: var(--font-size-3xl);
   line-height: 0.9;
   letter-spacing: -0.01em;
   color: var(--muted-1);
@@ -51,7 +54,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.065em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

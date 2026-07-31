@@ -39,7 +39,7 @@
   display: grid;
   place-items: center;
   font-family: var(--disp);
-  font-size: 1.875rem;
+  font-size: var(--font-size-md);
   color: var(--ic, var(--primary));
   margin-bottom: 1.625rem;
 }
@@ -48,7 +48,7 @@
 .card-title {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: 2.25rem;
+  font-size: var(--font-size-lg);
   line-height: 1.15;
   color: var(--dark);
 }
@@ -59,7 +59,7 @@
 .card-body {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--muted-3);
   margin-top: 1rem;

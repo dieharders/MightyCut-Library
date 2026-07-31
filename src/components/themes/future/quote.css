@@ -14,7 +14,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 1.75rem;
+  font-size: var(--font-size-sm);
   color: var(--primary);
   margin-bottom: 3.625rem;
 }
@@ -24,7 +24,10 @@
    line-height × font-size — so the two have to move together. The mark grew 8.375rem → 10rem;
    0.42 holds the box at the 4.1875rem the 0.5 gave it before, so the composition below (and the
    1.25rem margin tuned against it) is unchanged and only the mark itself is bigger. Resize this
-   again and recompute: line-height = 4.1875 / new-size-in-rem. */
+   again and recompute: line-height = 4.1875 / new-size-in-rem.
+   OFF-SCALE, and doubly so: it is 21% above --font-size-4xl, and the line-height above is derived
+   from this exact number — a step would silently change the crop as well as the mark. Stated, and
+   allowlisted in the type-scale tripwire. */
 .quote .qmark {
   font-family: var(--disp);
   font-weight: 700;
@@ -42,7 +45,7 @@
   font-family: var(--disp);
   font-weight: 700;
   letter-spacing: -0.02em;
-  font-size: 4.5rem;
+  font-size: var(--font-size-3xl);
   line-height: 1.12;
   color: var(--light);
 }
@@ -51,7 +54,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.135em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   color: var(--muted-1);
   margin-top: 2.875rem;
 }

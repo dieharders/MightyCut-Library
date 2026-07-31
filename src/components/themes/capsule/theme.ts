@@ -86,6 +86,28 @@ const fontTokens: Record<string, string> = {
   mono: '"Space Grotesk", sans-serif',
 };
 
+/** Type-SIZE tokens — capsule's own 8-step scale. This is to `font-size` what `palette` is to
+ *  colour: a skin NAMES a step, it never writes a number. The steps are CAPSULE's — every theme
+ *  derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the 0.125rem
+ *  grid, no adjacent pair closer than 1.10x) is shared. Capsule's spans the widest range in the
+ *  library — 1.25rem to 13rem — because a didone cover is meant to be the loudest thing here.
+ *
+ *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote now joins) and `4xl` IS the cover/closing
+ *  display size, so the 3xl→4xl jump is a LEAP by design. Two sizes stay literal — the stat figure
+ *  in the gap between them, and the agenda title (see agenda-item.css). Re-derive with
+ *  `node scripts/audit-font-scale.mjs --derive --theme capsule`. */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.25rem",
+  "font-size-sm": "1.5rem",
+  "font-size-md": "1.75rem",
+  "font-size-lg": "2.125rem",
+  "font-size-xl": "2.5rem",
+  "font-size-2xl": "3.375rem",
+  "font-size-3xl": "4.5rem",
+  "font-size-4xl": "13rem",
+};
+
 /**
  * The theme's `:root` block, DERIVED from `palette` + `fontTokens` (matching block and
  * future), so each hex is written down exactly once. Capsule authors no identity layer beside
@@ -95,6 +117,9 @@ const fontTokens: Record<string, string> = {
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

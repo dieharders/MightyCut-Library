@@ -10,7 +10,7 @@
    frame rather than punched out of it — the tracing-paper sheet the decorations are named for.
 
    UNITS. The reference authored this block in px (the rail lives outside the cqw frame) and the
-   port now follows it: 24px → 1.5rem, exact on the 0.125rem grid. An earlier port pinned it to
+   port follows it: 24px → 1.5rem, which is standard's --font-size-sm. An earlier port pinned it to
    3.625rem (58px) as a "cross-theme caption convention" and grew the box to match; a caption is
    root chrome laid over live scene content, and at that size it swallowed the frame. The scale
    rule lives in block/caption.css. The BORDER is the one constant here — 0.125rem is the theme's
@@ -40,7 +40,7 @@
 .caption .cap-text {
   font-family: var(--body);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
   line-height: 1.4;
   color: var(--dark);
 }

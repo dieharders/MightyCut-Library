@@ -44,7 +44,7 @@
   display: grid;
   place-items: center;
   font-family: var(--disp);
-  font-size: 2.375rem;
+  font-size: var(--font-size-lg);
   line-height: 1;
   text-transform: uppercase;
   margin-bottom: 1.625rem;
@@ -55,7 +55,7 @@
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  font-size: 2.5rem;
+  font-size: var(--font-size-xl);
   line-height: 1;
   color: var(--dark);
 }
@@ -65,7 +65,7 @@
    step back from the display type without introducing a fifth grey. */
 .card-body {
   font-family: var(--body);
-  font-size: 1.75rem;
+  font-size: var(--font-size-sm);
   line-height: 1.4;
   color: var(--muted-3);
   margin-top: 1rem;

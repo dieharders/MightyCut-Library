@@ -27,7 +27,7 @@
    0.92 leading come from .block-frame h3 in frame.css — and no font-weight, here or anywhere:
    Archivo Black ships one weight (400). */
 .agenda h3 {
-  font-size: 4.375rem;
+  font-size: var(--font-size-3xl);
   margin: 0 0 2.875rem;
 }
 /* A plain column — the list has no gap because consecutive rows must SHARE the ink line between

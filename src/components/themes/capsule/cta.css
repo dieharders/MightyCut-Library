@@ -15,7 +15,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-size: 2.375rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .cta-c .cta-arrow {

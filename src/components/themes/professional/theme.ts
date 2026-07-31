@@ -94,11 +94,37 @@ const fontTokens: Record<string, string> = {
   mono: '"IBM Plex Sans", sans-serif',
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` — every hex written down exactly once (matching
- *  block, future and capsule). */
+/** Type-SIZE tokens — professional's own 8-step scale. This is to `font-size` what `palette` is to
+ *  colour: a skin NAMES a step, it never writes a number. The steps are PROFESSIONAL's — every
+ *  theme derives its own from its own ramp, and only the SHAPE (8 steps, ascending, on the
+ *  0.125rem grid, no adjacent pair closer than 1.10x) is shared. Professional's is the most
+ *  compressed of the six: its `4xl` is 7rem where creative's is 12rem, because a consulting deck
+ *  states things rather than shouts them.
+ *
+ *  The two top steps are ANCHORED, not chosen: `3xl` IS the content-frame h3 (the seven-treatment
+ *  normalisation 8fb19d7 landed, which the pull quote already sat on) and `4xl` IS the
+ *  cover/closing display size. The one size still written as a literal is the stat figure,
+ *  deliberately in the gap between them; see stat.css. Re-derive the middle six with
+ *  `node scripts/audit-font-scale.mjs --derive --theme professional`. */
+const sizeTokens: Record<string, string> = {
+  "font-size-xs": "1.25rem",
+  "font-size-sm": "1.5rem",
+  "font-size-md": "1.75rem",
+  "font-size-lg": "2rem",
+  "font-size-xl": "2.375rem",
+  "font-size-2xl": "3.25rem",
+  "font-size-3xl": "4rem",
+  "font-size-4xl": "7rem",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
+ *  down exactly once (matching block, future and capsule). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;

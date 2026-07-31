@@ -5,9 +5,9 @@
    ruled underneath, in the Line brownstone (--accent-3) that draws every border, track and ring in the
    theme — the same weight as the rule under a comparison column head, because there is only one.
 
-   Same recipe as closing-plate's own .cta node, one rung larger. That one sits under an 8.375rem
+   Same recipe as closing-plate's own .cta node, one rung larger. That one sits under a display-step
    Playfair headline which lends it scale and context; a dropped .cta-c stands alone with neither, so
-   it goes to 1.75rem — the only place standard's label ramp climbs past the 1.25rem eyebrow.
+   it goes to --font-size-md — the only place standard's label ramp climbs past the eyebrow's `xs`.
 
    The rule is a BOTTOM BORDER rather than text-decoration: an underline is bound to the face's own
    baseline metrics, can't be held off the descenders, and can't be pinned to the hairline weight —
@@ -24,7 +24,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   color: var(--primary);
 }
 .cta-c .cta-arrow {

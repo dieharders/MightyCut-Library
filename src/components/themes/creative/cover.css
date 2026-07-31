@@ -24,7 +24,7 @@
 }
 .cover .eyebrow {
   margin-bottom: 2.375rem;
-  font-size: 1.75rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.085em;
 }
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
@@ -46,7 +46,9 @@
    max-width equals the body's content box exactly (120rem frame − 2 × 8.375rem), i.e. the headline
    is allowed the full measure and is held only by the padding. */
 .cover h3 {
-  font-size: 12rem;
+  /* The DISPLAY step — creative's biggest type, and the size --font-size-4xl is derived FROM. It
+     is the only frame that takes it: the closing plate's narrower measure can't (closing-plate.css). */
+  font-size: var(--font-size-4xl);
   line-height: 0.86;
   letter-spacing: -0.02em;
   max-width: 103.25rem;
@@ -57,7 +59,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   line-height: 1.5;
   color: var(--muted-3);
   margin-top: 2.875rem;

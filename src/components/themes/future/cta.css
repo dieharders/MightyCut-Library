@@ -9,7 +9,7 @@
   padding: 2rem 5rem;
   font-family: var(--disp);
   font-weight: 700;
-  font-size: 3rem;
+  font-size: var(--font-size-xl);
   color: var(--primary);
 }
 .cta-c .cta-arrow {

@@ -5,7 +5,7 @@
   padding: 8.125rem 6rem 13.5rem;
 }
 .comparison h3 {
-  font-size: 4.375rem;
+  font-size: var(--font-size-3xl);
   margin: 0 0 3.125rem;
 }
 .comparison h3::after {
@@ -36,7 +36,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.105em;
-  font-size: 2rem;
+  font-size: var(--font-size-md);
   color: var(--muted-1);
   padding: 0.75rem 1.25rem;
   align-self: end;

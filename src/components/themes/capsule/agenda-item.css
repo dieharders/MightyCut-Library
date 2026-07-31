@@ -17,7 +17,7 @@
      value); every other Bodoni run in the theme stays ink. */
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 3.5rem;
+  font-size: var(--font-size-2xl);
   color: var(--primary);
   min-width: 6rem;
 }
@@ -25,6 +25,10 @@
   /* Bodoni, sentence case, ink — never uppercase, never coloured. */
   font-family: var(--disp);
   font-weight: 700;
+  /* A literal INSIDE the ramp, deliberately: capsule's scale has no step within 10% of this size
+     (`xl` is −13%, `2xl` is +17%), and a didone title losing 13% on a warm ground is exactly where
+     Bodoni's hairlines start to disappear. Stated, and allowlisted in the type-scale tripwire —
+     professional's `.agenda-item .t` is the only other one in the library. */
   font-size: 2.875rem;
   color: var(--dark);
 }
@@ -33,7 +37,7 @@
      reading copy rather than a label — capsule uppercases labels, not sentences. */
   font-family: var(--body);
   font-weight: 500;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-left: auto;
   align-self: center;

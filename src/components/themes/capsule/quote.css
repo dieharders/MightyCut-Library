@@ -19,7 +19,7 @@
   align-self: flex-start;
   background: var(--light);
   margin-bottom: 2.875rem;
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
 }
 .quote .qcard {
   background: transparent;
@@ -29,7 +29,7 @@
   font-family: var(--disp);
   font-weight: 600;
   letter-spacing: -0.02em;
-  font-size: 4.75rem;
+  font-size: var(--font-size-3xl);
   line-height: 1.3;
   color: var(--dark);
 }
@@ -48,7 +48,7 @@
   font-family: var(--body);
   font-style: normal;
   font-weight: 600;
-  font-size: 3.625rem;
+  font-size: var(--font-size-2xl);
   letter-spacing: 0;
   color: var(--dark);
 }
@@ -57,7 +57,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   color: color-mix(in srgb, var(--dark) 60%, transparent);
   margin-top: 2.875rem;
 }

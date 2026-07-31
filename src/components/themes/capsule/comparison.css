@@ -11,7 +11,7 @@
   padding: 8.125rem 7.25rem 13.5rem;
 }
 .comparison h3 {
-  font-size: 4.5rem;
+  font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;
 }
 .comparison .ledger {
@@ -34,7 +34,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.085em;
-  font-size: 1.75rem;
+  font-size: var(--font-size-md);
   color: var(--dark);
   padding: 0.875rem 1.5rem;
   border-radius: 9999px;
