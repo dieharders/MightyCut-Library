@@ -107,20 +107,13 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   },
   { name: "Teal", hex: "#1f818a", note: "depth", varName: "accent-3" },
   {
-    name: "Concrete",
-    hex: "#FFFFFF",
-    note: "canvas + the light ink",
+    name: "Oat",
+    hex: "#EFE9D9",
+    note: "canvas",
     varName: "muted-1",
   },
-  // Oat — the RECESSED surface: the timeline/agenda ground, the rank track, the ledger fill, the
-  // HUD well. It must stay DARKER than muted-1, because every plate in the theme (card, stat,
-  // step) fills with muted-1 and has to read as sitting ON this, not in it. When muted-1 became
-  // Concrete this was left at the same hex, which collapsed that separation to 1.00:1 — the
-  // timeline's step plates and the whole showcase Components grid went flat, visible only by their
-  // ink borders. Deepened to restore the raised/recessed pair (now ~1.16:1, a touch clearer than
-  // the cream/oat it replaces).
   {
-    name: "Oat",
+    name: "Concrete",
     hex: "#EFE9D9",
     note: "canvas",
     varName: "muted-2",
@@ -141,7 +134,7 @@ const palette: NonNullable<ThemeTokens["palette"]> = [
   {
     name: "White",
     hex: "#FFFFFF",
-    note: "plate fill — card · stat · step",
+    note: "plate fill — card · stat · step & light ink",
     varName: "light",
   },
   {
