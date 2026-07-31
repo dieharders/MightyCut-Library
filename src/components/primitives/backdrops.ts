@@ -285,13 +285,17 @@ const HATCH_STRIPES: string = (() => {
  *  same FX `gradient` already uses, so nothing new is added to mc.js's BACKDROP_FX allowlist.
  *
  *  IT IS PAINTED ONCE. Every element of this design exists exactly once in the markup: ONE fan of
- *  fifteen arms (not three stacked copies of it) and TWO gradient circles (not thirteen inside an
- *  opacity group). The design as ported was ~59 gradient-filled, near-full-frame vector fills plus
- *  two compositing layers PER SCENE, which is the most expensive backdrop in the registry by an
- *  order of magnitude and showed up as scroll jank in the showcase's treatment grid at widths past
- *  1800px (where each card's burst square rasterises at ~4900px on a side). It is 17 fills and one
- *  compositing layer now. SUNBURST_FAN and SUNBURST_GLOW_STOPS carry the details of how each
- *  collapse preserves what it replaced — read those before adding anything back.
+ *  fifteen arms (not three stacked copies of it) and ONE glow disc (not thirteen concentric circles
+ *  inside an opacity group). The design as ported was ~59 gradient-filled, near-full-frame vector
+ *  fills plus two compositing layers PER SCENE, which is the most expensive backdrop in the
+ *  registry by an order of magnitude and showed up as scroll jank in the showcase's treatment grid
+ *  at widths past 1800px (where each card's burst square rasterises at ~4900px on a side). It is 16
+ *  fills (15 arms + the one disc) and one compositing layer now.
+ *
+ *  The two collapses are NOT approximations — SUNBURST_FAN and SUNBURST_GLOW_STOPS each record how
+ *  they reproduce what they replaced (the fan's 3-fold spread, the stack's fitted falloff curve).
+ *  Read those before adding anything back; both look like things you could pad out for "richness",
+ *  and both are the reason this design is affordable.
  *
  *  HOW IT WAS MADE THEME-NEUTRAL, AND WHY IT IS TWO-TONE. The source is a fully hand-coloured
  *  artwork: an `#ee5522` ground rect, a `#FB3 → #ee5522` radial gradient for the glow and an
@@ -339,7 +343,7 @@ const HATCH_STRIPES: string = (() => {
  *  formula is for a field centred in the frame, and this one is not.
  *
  *  WHY THE SCOPED IDS + CLASS. Sub-compositions are imported into ONE shared DOM, so the SVG's
- *  internal ids (`#s`, the three gradients) would collide across scenes and every scene would
+ *  internal ids (`#s`, the two gradients) would collide across scenes and every scene would
  *  silently resolve to whichever one parsed first. They are prefixed with `ctx.idPrefix`, as is
  *  the rotation target — backdrop anims are NOT run through qualifyAnim and the render's selector
  *  is document-wide. The CSS stays STRUCTURAL (`> div`, element selectors) so the stylesheet
@@ -453,16 +457,10 @@ const sunburst: BackdropDesign = {
           // frame's corner, so the artwork's centre and the rotation origin are the same point.
           `<svg viewBox="0 0 5000 5000" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">` +
           `<defs>` +
-          // The glow: ONE multi-stop falloff from a near-solid core out to nothing at the rim.
-          // Colour comes from CSS; the stop ladder is SUNBURST_GLOW_STOPS (see the note there).
+          // The glow: ONE multi-stop falloff carrying the whole light — a near-solid hot core, the
+          // shoulder that reads as a source rather than a flat disc, and the fade to nothing at the
+          // rim. Colour comes from CSS; the stop ladder is SUNBURST_GLOW_STOPS (see the note there).
           `<radialGradient id="${p}-glow" gradientUnits="objectBoundingBox">${SUNBURST_GLOW_STOPS}</radialGradient>` +
-          // The hot core — the second and LAST gradient circle. It is what reads as a light
-          // SOURCE rather than a flat disc: a tight bloom sitting inside the broad falloff.
-          // Concentric like everything else, so the spin cannot make it orbit.
-          `<radialGradient id="${p}-core" gradientUnits="objectBoundingBox">` +
-          `<stop class="sb-a" offset="0" stop-opacity="0.45"></stop>` +
-          `<stop class="sb-a" offset="1" stop-opacity="0"></stop>` +
-          `</radialGradient>` +
           // The arms: near-solid where they leave the core, thinning out along their length. This
           // ramp carries the whole design's tonal range (one ink, varying alpha), so it runs much
           // wider than a gradient's would.
@@ -476,7 +474,6 @@ const sunburst: BackdropDesign = {
           // bottom-left corner. Concentric with the rotation origin (see the note above).
           `<g transform="translate(2500 2500)">` +
           `<circle fill="url(#${p}-glow)" r="3000"></circle>` +
-          `<circle fill="url(#${p}-core)" r="750"></circle>` +
           // ONE fan, painted once — no stacked copies. SUNBURST_FAN already carries the
           // round-the-clock spread the three 120° copies used to supply.
           `<g transform="rotate(-86.4)">${SUNBURST_FAN.map((t) => `<use href="#${p}-s" transform="${t}"></use>`).join("")}</g>` +
@@ -583,28 +580,39 @@ const SUNBURST_FAN: readonly string[] = [
   "scale(1.6) rotate(250)",
 ];
 
-/** The core's falloff, as ONE gradient's stop ladder.
+/** The whole core, as ONE gradient's stop ladder on ONE disc.
  *
- *  This replaces a stack of twelve concentric translucent discs (r = 2000…250, all sharing the
- *  glow gradient, all inside a `<g opacity="0.32">`). Eight of those discs covered the entire
- *  frame, and the group's opacity forced an offscreen transparency buffer to composite them — so
- *  the core alone cost ~8 full-frame gradient fills plus a compositing layer, per scene, purely to
- *  shape a curve a single gradient can state directly.
+ *  This replaces THIRTEEN concentric circles: a base disc at r=3000 plus a stack of twelve
+ *  translucent rings (r = 2000…250, all sharing the glow gradient, all inside a
+ *  `<g opacity="0.32">`). Eight of those covered the entire frame, and the group's opacity forced
+ *  an offscreen transparency buffer to composite them — so the core alone cost ~8 full-frame
+ *  gradient fills plus a compositing layer, per scene, purely to shape a falloff curve that a
+ *  single gradient can simply STATE. A radial gradient's stop list IS an arbitrary falloff curve;
+ *  stacking discs to build one is paying the rasteriser to integrate what you could have written
+ *  down.
  *
- *  The stops are FITTED to what that stack actually painted: the composited alpha of the twelve
- *  discs plus the base disc, sampled at r = 0/250/500/750/1000/1500/2000/2500/3000, came out at
- *  0.97/0.92/0.84/0.73/0.63/0.38/0.20/0.10/0. The ladder below plus the `-core` bloom reproduces
- *  that to within ~0.02 at every sample, so the design's read is unchanged — this is a cost fix,
- *  not a redesign.
+ *  THE STOPS ARE FITTED, NOT EYEBALLED. The old stack's composited alpha —
+ *  `1 - (1 - base(r)) * Π(1 - 0.192 * (1 - r/Rᵢ))` — was sampled at
+ *  r = 0/250/500/750/1000/1500/2000/2500/3000 and came out at
+ *  0.97/0.92/0.84/0.73/0.63/0.38/0.20/0.10/0. Those nine samples are the nine stops below, at
+ *  offset r/3000. So the curve is reproduced EXACTLY at every sample and interpolated linearly
+ *  between them, where the stack's own curve was near-linear anyway. This is a cost fix, not a
+ *  redesign: the design's read is unchanged.
  *
- *  The COLOUR crossover sits at the ladder's middle (the inner four stops take the bright core
+ *  Note the shape those numbers describe — a hot, nearly solid plateau out to ~r/6, then a long
+ *  even fade. That knee is what reads as a light SOURCE rather than a flat tinted disc, and it is
+ *  the reason the ladder needs stops at 0.0833/0.1667/0.25 rather than starting its fade at 0.
+ *  Thin the ladder there and the sun goes flat.
+ *
+ *  The COLOUR crossover sits at the ladder's middle (the inner five stops take the bright core
  *  tone, the outer four the deep rim tone), which is where the old stack's a→b mix landed. */
 const SUNBURST_GLOW_STOPS: string = [
-  ["0", "0.93", "sb-a"],
-  ["0.0833", "0.9", "sb-a"],
-  ["0.1667", "0.82", "sb-a"],
-  ["0.3333", "0.61", "sb-a"],
-  ["0.5", "0.37", "sb-b"],
+  ["0", "0.97", "sb-a"],
+  ["0.0833", "0.92", "sb-a"],
+  ["0.1667", "0.84", "sb-a"],
+  ["0.25", "0.73", "sb-a"],
+  ["0.3333", "0.63", "sb-a"],
+  ["0.5", "0.38", "sb-b"],
   ["0.6667", "0.2", "sb-b"],
   ["0.8333", "0.1", "sb-b"],
   ["1", "0", "sb-b"],
