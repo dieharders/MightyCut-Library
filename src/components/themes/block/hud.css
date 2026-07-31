@@ -25,7 +25,7 @@
 .hud .hud-brand-name {
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.75rem;
+  font-size: var(--font-size-lg);
   letter-spacing: 0.022em;
   text-transform: uppercase;
   color: var(--dark);
@@ -33,7 +33,7 @@
 .hud .hud-tagline {
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 1.75rem;
+  font-size: var(--font-size-xs);
   color: var(--dark);
   opacity: 0.6;
 }
@@ -47,7 +47,7 @@
   box-shadow: 0.5rem 0.5rem 0 var(--dark);
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: var(--font-size-xs);
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--dark);
@@ -61,7 +61,7 @@
   white-space: nowrap;
   font-family: var(--disp);
   font-weight: 900;
-  font-size: 2.25rem;
+  font-size: var(--font-size-md);
   color: var(--dark);
 }
 .hud .hud-track {

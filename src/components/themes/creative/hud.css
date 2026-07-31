@@ -1,50 +1,4 @@
-/* Creative HUD skin — ROOT CHROME, not a frame element. The harness stamps the HUD into the root
-   overlay, OUTSIDE .block-frame, so unlike every other skin in this folder it sits on NO ground of
-   its own: it floats over whichever plane the current scene rotated to. Creative rotates six of
-   them (cream · oat · yellow · pink · orange · green), and that one fact drives every colour
-   decision below — the HUD has to read identically on all six, so it is built from the two things
-   that survive the whole rotation: INK line-work, and accent that is always ink-ringed. Nothing
-   here may lean on the ground being light.
-
-   The consequences are worth spelling out, because they are exactly where this departs from
-   professional's HUD (one fixed cream canvas, so it could tint freely):
-     · The tagline is quieted with the --muted-3 ROLE, never an opacity on ink. An alpha composites
-       against an unknown ground — 60% ink is a soft grey on cream and a muddy bruise on orange —
-       whereas a role is the same ink-2 everywhere. The reference's `opacity: 0.6` was a stand-in
-       for precisely this role.
-     · The brand mark is PINK and lands on a PINK frame twice per deck (quote, closing-plate). It
-       survives because it is never bare colour: the 0.5rem ink ring plus the hard ink offset hold
-       the square off any ground it happens to match.
-     · Same argument for the track. A pink fill would disappear on the pink plane, so the WELL is
-       oat (--muted-2) inside an ink ring — the read is fill-against-oat-inside-ink, never
-       fill-against-ground.
-
-   The title is the KICKER-BLOCK, creative's most repeated atom (frame.css .eyebrow, pill.css): an
-   inverted ink plate carrying cream, wide-tracked mono. No border and no shadow, deliberately — it
-   is the calm counterweight to the outlined-and-shadowed brand mark in the opposite corner, and it
-   is what most separates this HUD from block's (a white plate, bordered AND shadowed).
-
-   Type: Archivo Black for the wordmark and the counter, JetBrains Mono for the title, Space
-   Grotesk for the tagline — and NO font-weight anywhere in this file. The display face ships one
-   weight (400), so a declared bold would be synthesised; and creative's mono/body taxonomy runs at
-   regular throughout (see cta.css, pill.css), which is why the reference's 700/600 are dropped
-   rather than converted. The wordmark is the ONE display item that opens its tracking (+0.01em)
-   instead of tightening: the atom's −0.01em is tuned for headline sizes, and Archivo Black set at
-   2.75rem needs air between uppercase counters. The reference does the same.
-
-   GEOMETRY (cqw × 1.2, snapped to the 0.125rem grid) and where it drifts from the reference: the
-   0.38cqw borders land on 0.5rem, so the mark and the track both carry the frame-scale ink outline
-   rather than the 0.375rem inner-chrome rule — the HUD IS frame-scale chrome, it is not inside a
-   card. box-sizing: border-box on both, as the showcase's global reset assumed, so the ring eats
-   inward instead of growing the box. That makes the track's height its OUTER height, and the
-   converted 1.125rem would leave a 0.125rem sliver of fill between two 0.5rem rules — so the track
-   opens to 1.75rem (0.75rem of visible fill) and the counter lifts from the converted 5rem to
-   5.625rem to clear it. Every other value is the straight conversion.
-
-   The harness owns placement and the #hud-progress / #ctr-N ids in the render; this file is only
-   the look. Note also that the shared template nests .hud-counter-item INSIDE .hud-counter — the
-   reference absolutely positioned the item, but here the wrapper is already the bottom-right
-   anchor, so the item only needs to refuse to wrap. */
+/* Creative HUD skin */
 .hud {
   position: absolute;
   inset: 0;
@@ -73,7 +27,7 @@
 }
 .hud .hud-brand-name {
   font-family: var(--disp);
-  font-size: 2.75rem;
+  font-size: var(--font-size-lg);
   text-transform: uppercase;
   letter-spacing: 0.01em;
   color: var(--dark);
@@ -82,7 +36,7 @@
   font-family: var(--body);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xs);
   color: var(--muted-3);
 }
 .hud .hud-title {
@@ -92,7 +46,7 @@
   padding: 1.125rem 2rem;
   background: var(--dark);
   font-family: var(--mono);
-  font-size: 1.625rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.3;
@@ -106,7 +60,7 @@
 .hud .hud-counter-item {
   white-space: nowrap;
   font-family: var(--disp);
-  font-size: 2.5rem;
+  font-size: var(--font-size-lg);
   text-transform: uppercase;
   color: var(--dark);
 }

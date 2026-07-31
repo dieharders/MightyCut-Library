@@ -43,7 +43,7 @@
 .hud .hud-brand-name {
   font-family: var(--disp);
   font-weight: 400;
-  font-size: 2.75rem;
+  font-size: var(--font-size-xl);
   color: var(--dark);
 }
 .hud .hud-tagline {
@@ -51,7 +51,7 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  font-size: 1.375rem;
+  font-size: var(--font-size-xs);
   color: var(--muted-3);
 }
 /* The title is a bare brownstone LABEL — no pill, no border, no fill, exactly the treatment frame.css
@@ -64,7 +64,7 @@
   right: 9.125rem;
   font-family: var(--mono);
   font-weight: 500;
-  font-size: 1.375rem;
+  font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--primary);
@@ -84,7 +84,7 @@
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-weight: 500;
-  font-size: 1.875rem;
+  font-size: var(--font-size-md);
   letter-spacing: 0.05em;
   color: var(--muted-3);
 }
