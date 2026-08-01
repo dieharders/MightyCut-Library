@@ -8,14 +8,12 @@
 }
 /* The row label is a PILL too — block renders no label as bare text (theme rule: "pill or
    nothing"), and on the comparison's yellow ground the old plain label was the only text in
-   the ledger without a backing. It takes the pink --primary role so it reads as the label
-   voice rather than a third data column, and `justify-self: start` keeps it shrink-to-fit:
-   full-column-width would make it look like another cell. Border/shadow are the cells' own
-   weights so the three boxes on a line sit at the same depth. */
+   the ledger without a backing. Same white ground + border/shadow weights as the cells, and
+   it STRETCHES (the grid default — don't add justify-self) so it fills its 1.3fr column and
+   runs right up to the gap before the "them" cell: three boxes on a line, no ragged edge. */
 .row .rl {
-  justify-self: start;
   border: 0.25rem solid var(--dark);
-  background: var(--primary);
+  background: var(--light);
   box-shadow: 0.375rem 0.375rem 0 var(--dark);
   padding: 0.75rem 1.25rem;
   font-family: var(--disp);
