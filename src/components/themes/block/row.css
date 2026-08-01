@@ -6,7 +6,18 @@
 .row {
   display: contents;
 }
+/* The row label is a PILL too — block renders no label as bare text (theme rule: "pill or
+   nothing"), and on the comparison's yellow ground the old plain label was the only text in
+   the ledger without a backing. It takes the pink --primary role so it reads as the label
+   voice rather than a third data column, and `justify-self: start` keeps it shrink-to-fit:
+   full-column-width would make it look like another cell. Border/shadow are the cells' own
+   weights so the three boxes on a line sit at the same depth. */
 .row .rl {
+  justify-self: start;
+  border: 0.25rem solid var(--dark);
+  background: var(--primary);
+  box-shadow: 0.375rem 0.375rem 0 var(--dark);
+  padding: 0.75rem 1.25rem;
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
