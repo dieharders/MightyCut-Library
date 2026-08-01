@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { z } from "zod";
 import { serialize } from "../../pipeline/mini-dom";
 import { PALETTE_VARS } from "../../types/palette";
+import { BACKDROPS_CSS } from "../primitives/backdrops";
 import { serializeAnims, offsetAnim, qualifyAnim, toSlot, type AnimDescriptor } from "./anim";
 import { component } from "./component";
 import { scopeCss, collectCss, swapGround } from "./css";
@@ -261,7 +262,11 @@ describe("backdrop mask", () => {
   test("the theme's canonical backdrop paints the mask overlay", () => {
     const html = renderScene(StatGrid(), dotsCtx("s"));
     expect(html).toContain("mc-backdrop mc-backdrop--dots");
-    expect(html).toContain("background-size: 3.625rem 3.625rem");
+    // The RULES are not in the scene — they ship in the shared BACKDROPS_CSS sheet, staged as
+    // a project's read-only assets/backdrops.css so the polish agent can't rewrite a mask's
+    // geometry inside an agent-writable composition (see backdrops.ts).
+    expect(html).not.toContain("background-size: 3.625rem 3.625rem");
+    expect(BACKDROPS_CSS).toContain("background-size: 3.625rem 3.625rem");
     // mask overlays the ground; the ground colour is still stamped
     expect(html).toContain("background: var(--primary)");
     expect(() => scrubDeterminism(html)).not.toThrow();
