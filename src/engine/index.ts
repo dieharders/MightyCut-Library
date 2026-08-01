@@ -87,9 +87,7 @@ export { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 // Deck contracts (the editor edits + round-trips these).
 export {
   DeckDocumentSchema,
-  applySceneEdit,
   type DeckDocument,
   type DeckScene,
   type DeckVoLine,
-  type SceneEdit,
 } from "../types/deck";

@@ -6,7 +6,16 @@
 .row {
   display: contents;
 }
+/* The row label is a PILL too — block renders no label as bare text (theme rule: "pill or
+   nothing"), and on the comparison's yellow ground the old plain label was the only text in
+   the ledger without a backing. Same white ground + border/shadow weights as the cells, and
+   it STRETCHES (the grid default — don't add justify-self) so it fills its 1.3fr column and
+   runs right up to the gap before the "them" cell: three boxes on a line, no ragged edge. */
 .row .rl {
+  border: 0.25rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.375rem 0.375rem 0 var(--dark);
+  padding: 0.75rem 1.25rem;
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
