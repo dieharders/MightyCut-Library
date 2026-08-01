@@ -7,13 +7,14 @@
 // Extensible by design: the document is version-stamped and every object is
 // LENIENT (`.loose()` — unknown keys survive validation), so the format can gain
 // per-slide fields later (VO/caption params, transition timings/anims, …) without
-// breaking existing files or the current editor. The editor edits only a subset of
-// a scene's fields; everything else round-trips untouched (see `applySceneEdit`).
+// breaking existing files or the current editor. An editor edits only a subset of a
+// scene's fields and merges over the loaded scene, so everything it doesn't own
+// round-trips untouched — the merge itself belongs to whichever editor owns the
+// controls (the web UI patches per control), not here.
 import { z } from "zod";
 import { AnimDescriptorSchema } from "../components/runtime/anim";
-import type { ChildSpec } from "../components/compose";
-import { BACKDROP_NAMES, FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS, type BackdropName, type FrameGround } from "./storyboard";
-import { TIMING_PRESETS, TRANSITION_NAMES, TransitionSpecSchema, type TransitionSpec } from "./transitions";
+import { BACKDROP_NAMES, FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS } from "./storyboard";
+import { TIMING_PRESETS, TRANSITION_NAMES, TransitionSpecSchema } from "./transitions";
 
 /** A resolved child (or decoration) instance: a registered component name + its
  *  params. Structurally identical to compose.ts's `ChildSpec` (all variation lives
@@ -89,37 +90,10 @@ export type DeckMeta = z.infer<typeof DeckMetaSchema>;
 export type DeckDocument = z.infer<typeof DeckDocumentSchema>;
 export type DeckVoLine = z.infer<typeof DeckVoLineSchema>;
 
-/** The subset of a scene the editor owns and overwrites on save. */
-export type SceneEdit = {
-  params: Record<string, unknown>;
-  children: ChildSpec[];
-  decorations?: ChildSpec[];
-  ground?: FrameGround;
-  backdrop?: BackdropName;
-  transition?: TransitionSpec;
-  vo?: DeckVoLine[];
-};
-
-/**
- * Merge an editor edit over the originally-loaded scene: overwrite ONLY the fields
- * the editor owns (`params`/`children`/`decorations`/`ground`/`backdrop`) and carry
- * everything else through untouched — `id`, `treatment`, `anim`, `voIds`, and any field
- * not surfaced in the editor. Empty decorations / unset ground / unset backdrop mirror
- * "absent", so a scene that inherited treatment defaults stays identical on an unedited round-trip.
- */
-export const applySceneEdit = (original: DeckScene, edit: SceneEdit): DeckScene => {
-  const next: DeckScene = { ...original, params: edit.params, children: edit.children };
-  if (edit.decorations && edit.decorations.length) next.decorations = edit.decorations;
-  else delete next.decorations;
-  if (edit.ground) next.ground = edit.ground;
-  else delete next.ground;
-  if (edit.backdrop) next.backdrop = edit.backdrop;
-  else delete next.backdrop;
-  if (edit.transition) next.transition = edit.transition;
-  else delete next.transition;
-  // `vo` is always present (from specToDeck) — the `{ ...original }` spread carries an
-  // unedited list through; an edited list from the Captions section overrides it. Unlike
-  // decorations/ground/transition it is never stripped (losing it would drop caption data).
-  if (edit.vo) next.vo = edit.vo;
-  return next;
-};
+// `SceneEdit` + `applySceneEdit` used to live here: the merge helper for the vanilla bundled
+// editor (`bun cli editor`), whose only caller went away when the deck editor was rewritten as
+// React in the web UI. They were deleted rather than kept "just in case" — the surviving copy
+// collapsed an EMPTY `decorations` list to absent, which the render path reads as "inherit the
+// theme's shapes" rather than the intended bare frame, so a helper nothing called was still
+// encoding a rule that contradicts `composeTreatment` (and had tests asserting it). Merging an
+// edit belongs to whichever editor owns the controls; the web UI patches per control.
