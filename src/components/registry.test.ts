@@ -480,13 +480,18 @@ describe("backdrop registry (tripwire)", () => {
     }
     expect(BACKDROPS_CSS, "the shared overlay base must be stated once").toContain(".mc-backdrop {");
 
-    // A real scene on a real mask (block's default is `dots`): the ELEMENT is present, its
-    // RULES are not.
-    const html = renderScene(getTreatment("cover")(), ctx("s01-bd-scene"));
-    expect(html, "the scene must still mount the mask element").toContain("mc-backdrop--");
-    expect(html, "a scene must not carry backdrop CSS — it belongs to assets/backdrops.css").not.toContain(
-      ".mc-backdrop",
-    );
+    // EVERY design against a real scene, not just block's default: a scene-level override
+    // (ctx.backdrop, the storyboard's per-scene mask) selects each in turn, so a design that
+    // reintroduces its rules by some path of its own — a build that pushes a css part back, an
+    // inline style stamped on the node — fails here too. The ELEMENT is present, its RULES are not.
+    for (const name of Object.keys(BACKDROPS)) {
+      const html = renderScene(getTreatment("cover")(), { ...ctx(`s01-bd-${name}`), backdrop: name });
+      expect(html, `the scene must still mount the '${name}' mask element`).toContain(`mc-backdrop--${name}`);
+      expect(
+        html,
+        `a scene must not carry '${name}' backdrop CSS — it belongs to assets/backdrops.css`,
+      ).not.toContain(".mc-backdrop");
+    }
   });
 
   // FOUR designs are animated: constellation paints a seeded particle canvas (particleBg),
