@@ -264,8 +264,16 @@ describe("decoration ownership (tripwire)", () => {
 // Decoration defaults live on the THEME (theme.decorationDefaults), keyed by treatment —
 // the only place that can name shapes from a theme's own exclusive roster. That is also
 // what replaced the old `suppressDefaultDecorations` flag: nothing off-theme can leak in,
-// so there is nothing left to suppress. Every theme must dress the three hero frames with
-// its OWN families, and an explicit (even empty) addDecorations() must still win.
+// so there is nothing left to suppress. Every theme must have DECIDED about the three hero
+// frames — dressing them from its OWN families — and an explicit (even empty) addDecorations()
+// must still win.
+//
+// A DECISION, NOT A COUNT. `cover: []` is a theme saying "this hero frame wears nothing", which
+// is a legitimate design call (future's cover is deliberately bare). Omitting the key entirely is
+// a different thing: nobody considered that frame. The sweep below therefore requires the KEY,
+// not a non-empty set — that keeps the guard that catches an overlooked hero frame while leaving
+// "bare on purpose" expressible. Asserting length > 0 conflated the two and made the deliberate
+// choice unrepresentable.
 //
 // The map's KEY is `FrameTreatment` (runtime/types.ts), so a misspelled frame name is a
 // compile error rather than a set that sits there rendering nothing — which is why the
@@ -278,10 +286,17 @@ const dressedFrames = (theme: ThemeTokens): DressedFrame[] =>
   Object.keys(theme.decorationDefaults ?? {}) as DressedFrame[];
 
 describe("theme decoration defaults (tripwire)", () => {
-  test.each(ALL_THEMES)("$name dresses every hero frame", (theme) => {
+  test.each(ALL_THEMES)("$name has decided about every hero frame", (theme) => {
+    const defaults = theme.decorationDefaults ?? {};
     for (const t of HERO_TREATMENTS) {
-      const declared = theme.decorationDefaults?.[t]?.length;
-      expect(declared, `${theme.name}/${t} declares no default decorations`).toBeGreaterThan(0);
+      expect(
+        Object.prototype.hasOwnProperty.call(defaults, t),
+        `${theme.name}/${t} has no decorationDefaults entry — dress it, or state \`${t}: []\` to ` +
+          `declare it deliberately bare`,
+      ).toBe(true);
+      // A stated entry must be an array (`[]` is fine); `undefined` under an existing key is the
+      // half-written state the key check alone would wave through.
+      expect(Array.isArray(defaults[t]), `${theme.name}/${t} declares a non-array default`).toBe(true);
     }
   });
 

@@ -7,7 +7,7 @@ import { describe, expect, test } from "bun:test";
 import { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 import { PALETTE_VARS, uniquePaletteEntries } from "../types/palette";
 import { BACKDROP_NAMES, FRAME_GROUNDS } from "../types/storyboard";
-import { BACKDROPS, buildBackdrop } from "./primitives/backdrops";
+import { BACKDROPS, BACKDROPS_CSS, buildBackdrop } from "./primitives/backdrops";
 import { DECORATION_VARIANTS } from "./primitives/decoration-shapes";
 import {
   FUTURE_DECORATION_COMPONENTS,
@@ -461,8 +461,36 @@ describe("backdrop registry (tripwire)", () => {
       const r = design.build(input);
       expect(r.node.tag, `design '${name}' must build an element`).toBe("div");
       expect(r.node.attrs.class).toContain(`mc-backdrop--${name}`);
-      expect(r.css).toContain(".mc-backdrop");
+      expect(design.css).toContain(`.mc-backdrop--${name}`);
       expect(Array.isArray(r.anims)).toBe(true);
+    }
+  });
+
+  // THE SHEET IS THE ONLY HOME FOR MASK CSS. A backdrop's rules must reach a deck through the
+  // staged, read-only assets/backdrops.css and NOT through the scene sub-composition, which the
+  // Pi polish agent can write. This is not a style preference: a shipped deck came back with the
+  // gradient wash's oversized inner div (-25%/150%, sized so a centre rotation never swings a
+  // corner into frame) rewritten in place to 2.5%/95% + `max-width: 100vw`, which inset the wash
+  // 2.5% on every side and left a ring of bare ground around two slides for their whole
+  // duration. Emitting the rules back into the scene would re-open that door silently, so it
+  // fails here instead.
+  test("BACKDROPS_CSS carries every design, and a built scene carries none of it", () => {
+    for (const name of Object.keys(BACKDROPS)) {
+      expect(BACKDROPS_CSS, `BACKDROPS_CSS is missing design '${name}'`).toContain(`.mc-backdrop--${name}`);
+    }
+    expect(BACKDROPS_CSS, "the shared overlay base must be stated once").toContain(".mc-backdrop {");
+
+    // EVERY design against a real scene, not just block's default: a scene-level override
+    // (ctx.backdrop, the storyboard's per-scene mask) selects each in turn, so a design that
+    // reintroduces its rules by some path of its own — a build that pushes a css part back, an
+    // inline style stamped on the node — fails here too. The ELEMENT is present, its RULES are not.
+    for (const name of Object.keys(BACKDROPS)) {
+      const html = renderScene(getTreatment("cover")(), { ...ctx(`s01-bd-${name}`), backdrop: name });
+      expect(html, `the scene must still mount the '${name}' mask element`).toContain(`mc-backdrop--${name}`);
+      expect(
+        html,
+        `a scene must not carry '${name}' backdrop CSS — it belongs to assets/backdrops.css`,
+      ).not.toContain(".mc-backdrop");
     }
   });
 
@@ -520,7 +548,7 @@ describe("backdrop registry (tripwire)", () => {
   // contract more completely, not less, and which an exact-string match would have rejected.
   test.each(CSS_PAINTED)("%s paints through its --<design>-ink hook (theme-recolourable)", (name) => {
     const hook = `--${name}-ink`;
-    const css = BACKDROPS[name].build(input).css;
+    const css = BACKDROPS[name].css;
     expect(css, `design '${name}' must read var(${hook}, …) — the theme's override comes first`).toContain(
       `var(${hook},`,
     );
@@ -533,7 +561,7 @@ describe("backdrop registry (tripwire)", () => {
   // `.mc-bg--*` layer these were ported from could not be themed at all.
   test("no design carries a colour literal or a legacy theme-css token", () => {
     for (const [name, design] of Object.entries(BACKDROPS)) {
-      const css = design.build(input).css;
+      const css = design.css;
       expect(css, `design '${name}' has a colour literal`).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(/);
       // Closing paren required: the ink hooks legitimately START with a retired name
       // (`var(--grid-ink, …)` is the themeable hook, `var(--grid)` the retired token).
@@ -1023,16 +1051,20 @@ describe("creative theme (tripwire)", () => {
     expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
     expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
     expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
+    // The three CSS assertions read the DESIGN's own sheet, not the scene's: a backdrop
+    // contributes no CSS to the sub-composition any more (its rules are staged as
+    // assets/backdrops.css — see BACKDROPS_CSS), so asserting on `built.css` would pass
+    // vacuously forever.
+    //
     // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
     // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
     // mean someone had gone back to rotating the layer, which is the expensive shape.
-    expect(built.css).not.toContain("280rem");
+    expect(BACKDROPS.sunburst.css).not.toContain("280rem");
     // Colour comes from blending grey artwork against the scene's ground, not from a hook.
-    // (Asserted on the DESIGN's own css, not the scene's — creative's frame.css mentions
-    // --sunburst-ink in prose to explain why it deliberately states nothing for this design.)
-    expect(built.css).toContain("mix-blend-mode");
-    expect(BACKDROPS.sunburst.build({ ground: "muted-1", theme: creativeTheme, ctx: crctx("c01-x") }).css)
-      .not.toContain("--sunburst-ink");
+    // (Creative's frame.css mentions --sunburst-ink in prose to explain why it deliberately
+    // states nothing for this design.)
+    expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
+    expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
   });
 
   test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
@@ -1744,9 +1776,7 @@ describe("ground resolution (tripwire)", () => {
 
   // The dot grid is ink-on-light by default; a dark theme must be able to repaint it.
   test("the dots mask is theme-recolourable via --dots-ink", () => {
-    expect(BACKDROPS.dots.build({ ground: "muted-2", theme: futureTheme, ctx: fctx("d") }).css).toContain(
-      "var(--dots-ink",
-    );
+    expect(BACKDROPS.dots.css).toContain("var(--dots-ink");
     expect(futureTheme.frameCss ?? "").toContain("--dots-ink");
   });
 

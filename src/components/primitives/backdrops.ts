@@ -27,14 +27,24 @@ export type BackdropInput = {
 export type BackdropResult = {
   /** The full-bleed overlay element, inserted behind the content (z-index 0). */
   node: ElementNode;
-  /** Authored (unscoped) CSS — the emitter scopes it under `.<compId>-root`. */
-  css: string;
   /** Timeline hooks for animated masks (empty for static designs). */
   anims: AnimDescriptor[];
 };
 
 export type BackdropDesign = {
   name: string;
+  /**
+   * The design's authored CSS — a STATIC module constant, deliberately NOT produced by
+   * `build`. Every design's rules are per-scene invariant (each addresses its inner parts
+   * structurally, e.g. `> div` / `svg` / `canvas`, precisely so the sheet dedupes by name
+   * across scenes), and this shape makes that a type-level fact instead of a convention a
+   * future edit could quietly break: there is no `ctx` in scope here to interpolate.
+   *
+   * It is collected into `BACKDROPS_CSS` and staged as a project's read-only
+   * `assets/backdrops.css`. It is NOT emitted into the scene sub-composition — see
+   * BACKDROPS_CSS for why that matters.
+   */
+  css: string;
   build: (input: BackdropInput) => BackdropResult;
 };
 
@@ -52,16 +62,15 @@ const BACKDROP_BASE = `.mc-backdrop {
  *  now a shareable, theme-recoloured mask. Static (pure CSS radial-gradient). */
 const dots: BackdropDesign = {
   name: "dots",
-  build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--dots"></div>`),
-    css: `${BACKDROP_BASE}
-.mc-backdrop--dots {
+  css: `.mc-backdrop--dots {
   opacity: 0.32;
   /* --dots-ink lets a theme repaint the grid: block's ink dots vanish on a dark ground
      (future's --dark abyss on navy is invisible), so future re-points it to cyan. */
   background-image: radial-gradient(circle, var(--dots-ink, var(--dark)) 0.125rem, transparent 0.125rem);
   background-size: 3.625rem 3.625rem;
 }`,
+  build: () => ({
+    node: rootElement(`<div class="mc-backdrop mc-backdrop--dots"></div>`),
     anims: [],
   }),
 };
@@ -104,15 +113,7 @@ const dots: BackdropDesign = {
  *  given compId and seeking any frame lands on the same angle. */
 const gradient: BackdropDesign = {
   name: "gradient",
-  build: ({ ctx }) => {
-    // idPrefix === compId for a treatment root (children never build the backdrop).
-    const washClass = `${ctx.idPrefix}-wash`;
-    return {
-      node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--gradient"><div class="${washClass}"></div></div>`,
-      ),
-      css: `${BACKDROP_BASE}
-.mc-backdrop--gradient {
+  css: `.mc-backdrop--gradient {
   overflow: hidden;
 }
 .mc-backdrop--gradient > div {
@@ -154,6 +155,13 @@ const gradient: BackdropDesign = {
       transparent 70%
     );
 }`,
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop).
+    const washClass = `${ctx.idPrefix}-wash`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--gradient"><div class="${washClass}"></div></div>`,
+      ),
       anims: [
         {
           kind: "backdrop",
@@ -172,10 +180,7 @@ const gradient: BackdropDesign = {
 /** grid — a 4rem ruled line grid (the old `.mc-bg--grid`). Static. */
 const grid: BackdropDesign = {
   name: "grid",
-  build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--grid"></div>`),
-    css: `${BACKDROP_BASE}
-.mc-backdrop--grid {
+  css: `.mc-backdrop--grid {
   opacity: 0.14;
   /* --grid-ink: the rule colour. 0.125rem keeps the hairline on the authoring grid. */
   background-image:
@@ -183,6 +188,8 @@ const grid: BackdropDesign = {
     linear-gradient(90deg, var(--grid-ink, var(--dark)) 0.125rem, transparent 0.125rem);
   background-size: 4rem 4rem;
 }`,
+  build: () => ({
+    node: rootElement(`<div class="mc-backdrop mc-backdrop--grid"></div>`),
     anims: [],
   }),
 };
@@ -215,15 +222,7 @@ const grid: BackdropDesign = {
  *  aspect ratios match), so the −22° stripe angle renders true rather than sheared. */
 const hatch: BackdropDesign = {
   name: "hatch",
-  build: ({ ctx }) => {
-    // idPrefix === compId for a treatment root (children never build the backdrop).
-    const hueClass = `${ctx.idPrefix}-hue`;
-    return {
-      node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--hatch ${hueClass}"><svg viewBox="0 0 192 108" preserveAspectRatio="none"><g transform="rotate(-22 96 54)">${HATCH_STRIPES}</g></svg></div>`,
-      ),
-      css: `${BACKDROP_BASE}
-.mc-backdrop--hatch {
+  css: `.mc-backdrop--hatch {
   opacity: 0.18;
   overflow: hidden;
 }
@@ -239,6 +238,13 @@ const hatch: BackdropDesign = {
 .mc-backdrop--hatch rect {
   fill: var(--hatch-ink, var(--dark));
 }`,
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop).
+    const hueClass = `${ctx.idPrefix}-hue`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--hatch ${hueClass}"><svg viewBox="0 0 192 108" preserveAspectRatio="none"><g transform="rotate(-22 96 54)">${HATCH_STRIPES}</g></svg></div>`,
+      ),
       anims: [
         {
           kind: "backdrop",
@@ -453,18 +459,7 @@ const SUNBURST_GLOW_RAMP: readonly (readonly [number, number])[] = (() => {
 })();
 const sunburst: BackdropDesign = {
   name: "sunburst",
-  build: ({ ctx }) => {
-    // idPrefix === compId for a treatment root (children never build the backdrop). The canvas
-    // MUST carry a per-scene class: `backdrop` anims are not run through qualifyAnim and the
-    // render's `q` is document-wide (sub-composition.ts), so an unscoped selector would let one
-    // scene's paint loop grab another scene's canvas in the shared render DOM.
-    const canvasClass = `${ctx.idPrefix}-sun`;
-    return {
-      node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
-      ),
-      css: `${BACKDROP_BASE}
-.mc-backdrop--sunburst {
+  css: `.mc-backdrop--sunburst {
   /* The design's whole colour story — see the note on the design above. The artwork is grey; this
      takes the ground's hue and saturation and the artwork's LIGHTNESS, so the burst reads as light
      on the slide's own plane colour instead of as a grey film over it. Note there is no identity
@@ -480,6 +475,16 @@ const sunburst: BackdropDesign = {
   height: 100%;
   display: block;
 }`,
+  build: ({ ctx }) => {
+    // idPrefix === compId for a treatment root (children never build the backdrop). The canvas
+    // MUST carry a per-scene class: `backdrop` anims are not run through qualifyAnim and the
+    // render's `q` is document-wide (sub-composition.ts), so an unscoped selector would let one
+    // scene's paint loop grab another scene's canvas in the shared render DOM.
+    const canvasClass = `${ctx.idPrefix}-sun`;
+    return {
+      node: rootElement(
+        `<div class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+      ),
       anims: [
         {
           kind: "backdrop",
@@ -562,6 +567,12 @@ const particleRgb = (theme: ThemeTokens): string => {
  *  scene's `q(".<compId>-bg")` resolving to its OWN canvas in the shared render DOM. */
 const constellation: BackdropDesign = {
   name: "constellation",
+  css: `.mc-backdrop--constellation canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}`,
   build: ({ ctx, theme }) => {
     // idPrefix === compId for a treatment root (children never build the backdrop).
     const canvasClass = `${ctx.idPrefix}-bg`;
@@ -569,13 +580,6 @@ const constellation: BackdropDesign = {
       node: rootElement(
         `<div class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
       ),
-      css: `${BACKDROP_BASE}
-.mc-backdrop--constellation canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}`,
       anims: [
         {
           kind: "backdrop",
@@ -597,6 +601,32 @@ const constellation: BackdropDesign = {
  *  there is no per-theme roster here. A theme names only its DEFAULT, `ThemeTokens.backdrop`.
  *  (Contrast `ThemeTokens.decorations`, which IS an exclusive roster.) */
 export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation, gradient, grid, hatch, sunburst };
+
+/**
+ * EVERY design's rules in one sheet — the shared overlay base once, then each design's
+ * own block. Staged by the harness as a project's read-only `assets/backdrops.css` and
+ * linked from the root; injected into the WebUI preview shadow by engine/mount.ts. The
+ * whole sheet ships regardless of which design a deck uses: it is ~1KB, it costs one
+ * link, and a deck whose storyboard re-points a scene's backdrop then needs no restaging.
+ *
+ * WHY IT IS A STAGED SHEET AND NOT PART OF THE SCENE. It used to be emitted into each
+ * `compositions/sNN-*.html` `<style>`, scoped under `.<compId>-root`. That file is
+ * WRITABLE by the Pi polish agent, and a shipped deck came back with the gradient wash's
+ * deliberately-oversized inner div (`-25%` / `150%`, sized so a centre rotation never
+ * swings a corner into frame) rewritten to `2.5%` / `95%` with a `max-width: 100vw`
+ * clamp — an "overflow fix" that instead inset the wash by 2.5% on every side and left a
+ * ring of bare ground around two slides for their whole duration. `assets/` is read-only
+ * to the agent, so moving the rules here makes that edit structurally impossible rather
+ * than merely discouraged. (`theme/custom.css` is still linked last and can still
+ * override these rules deck-wide — that is its job, and unlike a per-scene edit it is one
+ * visible file rather than a silent divergence baked into a hand-locked composition.)
+ *
+ * Ordering note: these rules are theme-agnostic structure. Each design paints through its
+ * own `--<design>-ink` hook, which the active theme sets on `.block-frame` in its
+ * frame.css — a custom property resolved at use time, so this sheet may be linked before
+ * or after tokens.css without changing the result.
+ */
+export const BACKDROPS_CSS = [BACKDROP_BASE, ...Object.values(BACKDROPS).map((d) => d.css)].join("\n");
 
 /**
  * Resolve a backdrop design to its built parts, or null when there is no mask to

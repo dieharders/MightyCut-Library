@@ -204,12 +204,17 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // Its anims (empty for static masks) are absolute-timed — NOT run through toSlot.
         // Resolve the effective ground (scene override → treatment canonical) so a
         // ground-tinted mask recolours against what the scene actually paints.
+        //
+        // ONLY the node and its anims come from the design: a backdrop contributes NO CSS to
+        // the scene. Every design's rules live in the shared BACKDROPS_CSS sheet, staged as a
+        // project's read-only assets/backdrops.css (see backdrops.ts for why that sheet exists
+        // and what edit it prevents). A scene sub-composition is agent-writable; this keeps the
+        // mask's geometry out of it.
         const backdropName = ctx.backdrop ?? ctx.theme.backdrop ?? "plain";
         const backdrop = buildBackdrop(backdropName, { ground: groundFor(ctx, def.ground), theme: ctx.theme, ctx });
         const backdropAnims: AnimDescriptor[] = [];
         if (backdrop) {
           root.children.unshift(backdrop.node);
-          cssParts.push({ name: `backdrop:${backdropName}`, css: backdrop.css });
           for (const a of backdrop.anims) backdropAnims.push(a);
         }
 

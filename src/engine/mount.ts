@@ -7,6 +7,7 @@
 // Isolation: each preview mounts in its own Shadow DOM so the host app's CSS reset
 // (Tailwind Preflight) can't bleed into the vanilla render, and the theme `:root`
 // tokens are re-scoped to `:host`. Fonts are injected document-level by loadTheme.
+import { BACKDROPS_CSS } from "../components/primitives/backdrops";
 import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
@@ -176,7 +177,12 @@ export const mountPreview = (
   const dark = theme.previewScheme === "dark";
   const fg = dark ? "var(--light, #fff)" : "var(--dark, #000)";
   const scheme = dark ? "dark" : "light";
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId)}\n${css}`;
+  // BACKDROPS_CSS rides along explicitly: a scene's built CSS no longer carries its mask's
+  // rules (they are staged as assets/backdrops.css on the render side — see backdrops.ts), so
+  // without this the showcase/editor preview would mount the mask element unstyled. Unscoped
+  // is correct here — the shadow root already isolates it, and the rules are per-scene
+  // invariant by construction.
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId)}\n${BACKDROPS_CSS}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
