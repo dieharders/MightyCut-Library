@@ -303,7 +303,7 @@ const SHAPES: Record<CreativeDecorationVariant, ShapeSpec> = {
  *  engine's `--cr-shadow` is a bare offset+colour list, so whichever stylesheet lost the cascade
  *  would render its marks unshadowed (or with an invalid filter). Distinct prefixes make that
  *  combination merely unusual instead of broken. Keep the prefix unique when adding an engine. */
-export const CR_DECO_TEMPLATE = `<div class="cr-deco" data-anim="item"><i class="cr-deco-shape" data-html="shape"></i></div>`;
+export const CR_DECO_TEMPLATE = `<div class="cr-deco" data-anim="item" data-layout-allow-overflow><i class="cr-deco-shape" data-html="shape"></i></div>`;
 export const CR_DECO_CSS = `.cr-deco {
   position: absolute;
   left: var(--cr-x, 50%);

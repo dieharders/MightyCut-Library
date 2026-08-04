@@ -114,7 +114,7 @@ export const FUTURE_DECORATION_VARIANTS = {
 /** The shared, var-driven future decoration element (one `.fx-deco`, styled entirely by
  *  inline custom properties from futureDecorationLayout). Transparent box — the SVG carries
  *  the luminous shape and the div casts the accent glow via `--fd-glow`. */
-export const FX_DECO_TEMPLATE = `<div class="fx-deco" data-anim="item"><i class="fx-deco-shape" data-html="shape"></i></div>`;
+export const FX_DECO_TEMPLATE = `<div class="fx-deco" data-anim="item" data-layout-allow-overflow><i class="fx-deco-shape" data-html="shape"></i></div>`;
 export const FX_DECO_CSS = `.fx-deco {
   position: absolute;
   left: var(--fd-x, 50%);

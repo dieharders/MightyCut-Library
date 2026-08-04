@@ -143,7 +143,7 @@ export const CAPSULE_DECORATION_VARIANTS = {
 /** The shared, var-driven capsule decoration element (one `.cd-deco`, styled entirely by
  *  inline custom properties from capsuleDecorationLayout). Transparent box — the SVG
  *  carries the filled shape and its ink outline, and the div casts the offset shadow. */
-export const CD_DECO_TEMPLATE = `<div class="cd-deco" data-anim="item"><i class="cd-deco-shape" data-html="shape"></i></div>`;
+export const CD_DECO_TEMPLATE = `<div class="cd-deco" data-anim="item" data-layout-allow-overflow><i class="cd-deco-shape" data-html="shape"></i></div>`;
 export const CD_DECO_CSS = `.cd-deco {
   position: absolute;
   left: var(--cd-x, 50%);

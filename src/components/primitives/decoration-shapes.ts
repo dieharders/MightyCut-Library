@@ -106,8 +106,25 @@ const patternBg = (kind: "stripe" | "bars" | "grid", color: string): string => {
 };
 
 /** The shared, var-driven decoration element (one `.deco`, styled entirely by
- *  inline custom properties from decorationLayout). */
-export const DECO_TEMPLATE = `<div class="deco" data-anim="item"><i class="deco-shape" data-html="shape"></i></div>`;
+ *  inline custom properties from decorationLayout).
+ *
+ *  `data-layout-allow-overflow` DECLARES WHAT THE PLACEMENT ENGINE ALREADY DOES. A decoration is
+ *  ambient garnish placed by explicit x/y/size, and themes deliberately hang them off the edge —
+ *  "cropped by the edge", "quartered by the frame edge" (see each theme's decorationDefaults).
+ *  Overflow is the design, not a defect, and every deco engine's wrapper carries this flag.
+ *
+ *  It matters because `hyperframes inspect` gates the render pipeline on errorCount, and its
+ *  overflow rules are unconfigurable — there is no severity config, no per-rule ignore, and
+ *  `--strict` only tightens (layout-audit.browser.js). The attribute is the ONE in-markup escape
+ *  hatch, resolved with `element.closest(...)`, so putting it on the WRAPPER (not the `<i>` shape
+ *  host) covers all three rules at once: the wrapper's own `container_overflow` warning plus
+ *  `text_box_overflow` / `canvas_overflow` on anything drawn inside it.
+ *
+ *  It was standard's `sorts` family that forced the issue — a Playfair glyph set at watermark
+ *  scale, whose INK is fitted inside its box but whose `<text>` LAYOUT box is ~2.4x it, which the
+ *  auditor measures and reports as a hard ERROR. That failed real jobs on a decoration that draws
+ *  correctly. Scope note: this exempts only what is inside a decoration, never content. */
+export const DECO_TEMPLATE = `<div class="deco" data-anim="item" data-layout-allow-overflow><i class="deco-shape" data-html="shape"></i></div>`;
 export const DECO_CSS = `.deco {
   position: absolute;
   left: var(--d-x, 50%);
