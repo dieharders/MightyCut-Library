@@ -8,9 +8,13 @@
   height: 28.25rem;
   /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
      value label's changing text width drives the bar width, and the width:100% column tracks
-     it and "wiggles". A wide value label just overflows this box (centred) without resizing
-     it. The chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+     it and "wiggles". The chart overrides flex:1 (flex-basis 0), so this only applies to the
+     standalone. A wide value label used to just overflow this box (centred) without resizing
+     it — `min-width: min-content` is the escape hatch: .bv reserves its finished figure's
+     width (below), so the column now GROWS to hold a long one rather than spilling out of
+     its own box. The label still wraps, so min-content is the widest word, not the caption. */
   width: 12rem;
+  min-width: min-content;
 }
 /* The column track. The value label + column live here; the column height is --fill% of the
    track BELOW the reserved top padding, so it maps LINEARLY to --fill (0–100%) — instead of
@@ -37,6 +41,13 @@
      the column reserves above a full bar; unstated, its box is set by Inter's `normal` metrics
      and eats into that reserve. A figure never wraps. */
   line-height: 1;
+  /* Reserve the FINISHED figure's width up front — --vlen is that width in `ch`
+     (runtime/value.ts). Sized for the end state from frame 0, so counting up never
+     resizes the box, and the column's min-content grows with it instead of the label
+     hanging over the neighbouring bar. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .bar .bcol {
   flex: 0 0 auto;

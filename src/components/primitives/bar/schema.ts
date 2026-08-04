@@ -17,6 +17,13 @@ export const BarSchema = z.object({
     .max(12)
     .optional()
     .describe('Trailing unit appended to the value, e.g. "%", "k"'),
+  decimals: z
+    .number()
+    .int()
+    .min(0)
+    .max(2)
+    .default(0)
+    .describe("Decimal places shown while counting — 1.2 needs one, or it reads as 1"),
   leader: z
     .boolean()
     .default(false)

@@ -16,9 +16,12 @@
   align-items: center;
   flex: 0 0 auto;
   /* Standalone plot height (chart.css's .bars overrides flex/height so bars share the real plot);
-     fixed width so the column stays constant as the value label's text width changes. */
+     fixed width so the column stays constant as the value label's text width changes, with
+     min-content letting a LONG finished figure widen it rather than overflow it (.bv reserves
+     that width below — see block/bar.css). */
   height: 25.625rem;
   width: 7.25rem;
+  min-width: min-content;
 }
 .bar .btrack {
   flex: 1 1 auto;
@@ -44,6 +47,9 @@
   font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--dark);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
 }
 .bar .bcol {
   flex: 0 0 auto;

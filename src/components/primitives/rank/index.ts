@@ -2,6 +2,7 @@ import template from "./template.html" with { type: "text" };
 import { component } from "../../runtime/component";
 import { rankAnim } from "./anim";
 import { RankSchema } from "./schema";
+import { valueReserveCh, zeroValueText } from "../../runtime/value";
 
 /** A neobrutalist ranked row: a mono label, a bordered white track whose pastel fill
  *  grows out from the left, and a count-up value. The leader takes --accent-1, the rest --secondary. */
@@ -12,7 +13,7 @@ export const Rank = component({
   example: { value: 83, label: "Acme", max: 100, unitSuffix: "%" },
   fill: (p) => ({
     "bar-label": p.label,
-    "bar-value": `${p.unitPrefix ?? ""}0${p.unitSuffix ?? ""}`,
+    "bar-value": zeroValueText(p),
   }),
   layout: (p) => ({
     // Fill = value/max, clamped to 0–100% (value ≥ max = full track). No minimum floor,
@@ -26,6 +27,11 @@ export const Rank = component({
     // Leadership as a 0/1 number so a skin can scale emphasis arithmetically
     // (calc() on a glow spread) — the flag, never the row's DOM position.
     "--lead": p.leader ? "1" : "0",
+    // Room the value label needs once it has finished counting, in `ch`. Every skin
+    // floors .bv at max(its own column width, --vlen ch), so a long figure widens the
+    // box (the flex:1 track yields) instead of spilling past the canvas edge, and it
+    // is sized for the FINAL string from frame 0 so counting never resizes it.
+    "--vlen": `${valueReserveCh(p)}`,
   }),
   animIn: "fade",
   anim: rankAnim,

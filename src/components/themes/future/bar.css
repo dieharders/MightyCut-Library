@@ -14,7 +14,11 @@
   align-items: center;
   flex: 0 0 auto;
   height: 28.25rem;
+  /* Fixed width so the counting label's changing text width can't drive the column;
+     min-content lets a LONG finished figure widen it rather than overflow it (.bv
+     reserves that width below — see block/bar.css). */
   width: 8.375rem;
+  min-width: min-content;
 }
 .bar .btrack {
   flex: 1 1 auto;
@@ -38,6 +42,10 @@
      Space Grotesk's `normal` metrics and eats into that reserve. A figure never wraps. */
   line-height: 1;
   color: var(--primary);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .bar .bcol {
   flex: 0 0 auto;

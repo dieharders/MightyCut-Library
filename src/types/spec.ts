@@ -68,6 +68,11 @@ export const ChartContentSchema = z.object({
   type: z.enum(["bar", "line"]).describe("bar for category comparison, line for trends"),
   unitPrefix: z.string().max(6).optional().describe("Leading unit on each value, e.g. \"$\""),
   unitSuffix: z.string().max(12).optional().describe("Trailing unit on each value, e.g. \"%\", \"k\""),
+  // Without this every value counts up through toFixed(0), so a series of 0.5 and 1.2
+  // renders "$1B" on BOTH bars — not merely rounded, but indistinguishable, on a slide
+  // whose entire job is comparing them. Set it whenever the series has a fractional part.
+  decimals: z.number().int().min(0).max(2).optional()
+    .describe("Decimal places on every value — REQUIRED when any value is fractional (1.2 reads as 1 without it)"),
   series: z
     .array(z.object({ label: z.string().min(1).max(28), value: z.number() }))
     .min(2)

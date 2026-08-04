@@ -24,12 +24,15 @@
   flex: 0 0 auto;
   height: 27rem;
   width: 11.5rem;
+  min-width: min-content;
 }
 /* Standalone plot height above matches chart.css's `.bars` exactly, so a bare Bar in the showcase
    stands as tall as it does in a real plot; inside the chart, `.chart .bars .bar` overrides
    flex/height so columns share the row. The FIXED width matters: without it the bar is
    shrink-to-fit, the counting value label's changing text width drives the box, and the width:100%
-   column visibly wiggles as the number climbs. A long value just overflows this box, centred. */
+   column visibly wiggles as the number climbs. `min-width: min-content` is what keeps a LONG value
+   from overflowing that fixed box: .bv reserves its finished figure's width (below), so the column
+   grows to hold it. The label still wraps, so min-content is its widest word, not the whole caption. */
 .bar .btrack {
   flex: 1 1 auto;
   min-height: 0;
@@ -57,6 +60,9 @@
   font-size: var(--font-size-xl);
   line-height: 1;
   color: var(--dark);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
 }
 /* box-sizing:border-box so the 0.5rem outline is INSIDE the --fill height — otherwise a 0% column
    still shows 1rem of border sitting on the baseline. --fill carries the same 4% fallback rank.css

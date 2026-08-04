@@ -19,9 +19,11 @@
   height: 28.25rem;
   /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
      value label's changing text width drives the bar width and the width:100% column
-     tracks it and "wiggles". A wide value label just overflows this box (centred). The
-     chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+     tracks it and "wiggles". The chart overrides flex:1 (flex-basis 0), so this only applies
+     to the standalone. `min-width: min-content` keeps a WIDE label from overflowing the box:
+     .bv reserves its finished figure's width (below), so the column grows to hold it. */
   width: 9.625rem;
+  min-width: min-content;
 }
 /* The column track. Value label + column live here; the column height is --fill% of the
    track BELOW the reserved top padding, so it maps LINEARLY to --fill (0-100%) instead of
@@ -48,6 +50,10 @@
   font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--primary);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .bar .bcol {
   flex: 0 0 auto;

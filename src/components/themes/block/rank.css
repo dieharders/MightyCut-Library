@@ -39,7 +39,13 @@
      derived from the FACE's own metrics — so the row's height would differ per theme purely
      because the families differ. A figure needs no leading: it never wraps. */
   line-height: 1;
-  width: 7.75rem;
+  /* A FLOOR, not a fixed width: --vlen is the room the finished figure needs, in `ch`
+     (runtime/value.ts). A long label widens the box and the flex:1 track yields, instead
+     of spilling off the canvas edge this row is right-aligned against — and it is sized
+     for the final string from frame 0, so counting up never resizes it. */
+  min-width: max(7.75rem, calc(var(--vlen, 4) * 1ch));
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
   text-align: right;
   flex-shrink: 0;
 }
