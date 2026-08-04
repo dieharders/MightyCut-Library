@@ -30,7 +30,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 3rem; /* headroom the floating value label occupies when the column is full */
+  /* Headroom the floating value label occupies when the column is full. MEASURED, not
+     estimated: `line-height: 1` sets the label's LINE BOX to 1em, but the layout auditor
+     measures the text's client rect, which is the face's ascent+descent — 1.29x of the
+     font-size here (52px -> 67px). So the reserve must hold
+     line box + margin-bottom + the rect's half-leading = 73.5px, and at 3rem it held only
+     48px, leaving the label 26px above the plot at 100% fill (a hard inspect ERROR on a
+     chart that looked fine, since .bars has no visible top edge). 4.75rem is that minimum
+     rounded up to the 0.125rem grid plus one step of slack. Re-measure if the type scale,
+     the margin below, or the display face moves. */
+  padding-top: 4.75rem;
   box-sizing: border-box;
 }
 .bar .bv {
