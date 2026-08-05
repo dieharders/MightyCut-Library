@@ -67,6 +67,13 @@
   /* Reserve the finished figure's width up front — see block/bar.css. */
   min-width: calc(var(--vlen, 3) * 1ch);
   white-space: nowrap;
+  /* Centre the TEXT inside that reservation. The column centres the BOX (align-items),
+     but the box is deliberately wider than most of the figures it holds — it is sized for
+     the series scale, not for this column's value — and an unstated text-align leaves all
+     of the slack on one side, so a "$42M" in a box cut for "$100M" sits visibly left of the
+     bar it labels. Centring makes the reservation invisible: every figure reads as centred
+     over its own column whatever its digit count. */
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 .bar .bcol {

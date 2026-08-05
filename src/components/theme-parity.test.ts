@@ -804,3 +804,40 @@ describe("palette completeness (tripwire)", () => {
     expect(missing, `${theme.name} is missing palette role(s): ${missing.join(", ")}`).toEqual([]);
   });
 });
+
+// ------------------------------------------------------- plotted-figure reservation ---
+// The value box on a bar/rank is sized for the SERIES SCALE (runtime/value.ts,
+// seriesReserveCh), not for the figure it happens to hold, so every column in a plot
+// reserves the same width and the plot stays comparable by height alone. Two consequences
+// have to be honoured by EVERY theme's skin or the reservation shows through as a defect —
+// and both were originally fixed one theme at a time, which is what this file exists to stop.
+describe("plotted-figure reservation (tripwire)", () => {
+  /** The declarations inside `selector { … }`, or "" when the skin does not state the rule. */
+  const ruleBody = (css: string, selector: string): string => {
+    const open = css.indexOf(selector + " {");
+    if (open === -1) return "";
+    const close = css.indexOf("}", open);
+    return close === -1 ? "" : css.slice(open + selector.length + 2, close);
+  };
+
+  // The reserved box is wider than most figures it holds. The column centres the BOX, so
+  // without an explicit text-align the slack all lands on one side and a short figure sits
+  // visibly off-centre from the bar it labels ("$42M" in a box cut for "$100M").
+  test.each(ALL_THEMES)("$name: the chart column's value text is centred in its reservation", (theme) => {
+    const bv = ruleBody(theme.skins?.bar ?? "", ".bar .bv");
+    expect(bv, `${theme.name}: .bar .bv reserves --vlen but never states text-align`).toContain(
+      "text-align: center",
+    );
+  });
+
+  // The standalone bar keeps `min-width: min-content` so a long finished figure widens it
+  // rather than spilling out. Inside a chart that is backwards: `flex: 1` columns must be
+  // able to shrink to share a fixed plot, and left at min-content a wide series overflows
+  // `.bars` as a row, off the canvas edge — a hard `hyperframes inspect` error.
+  test.each(ALL_THEMES)("$name: the chart re-clamps the column's min-width to 0", (theme) => {
+    const rule = ruleBody(theme.skins?.chart ?? "", ".chart .bars .bar");
+    expect(rule, `${theme.name}: .chart .bars .bar does not reset the standalone min-content`).toContain(
+      "min-width: 0",
+    );
+  });
+});
