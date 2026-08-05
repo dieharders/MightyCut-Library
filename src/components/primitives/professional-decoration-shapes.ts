@@ -117,7 +117,7 @@ const SHAPES: Record<ProfessionalDecorationVariant, ShapeFn> = {
  *  inline custom properties from the layout). Transparent box — the SVG carries the shape; there
  *  is NO shadow layer (professional casts none), which is what sets this engine apart from the
  *  other three. */
-export const PD_DECO_TEMPLATE = `<div class="pd-deco" data-anim="item"><i class="pd-deco-shape" data-html="shape"></i></div>`;
+export const PD_DECO_TEMPLATE = `<div class="pd-deco" data-anim="item" data-layout-allow-overflow><i class="pd-deco-shape" data-html="shape"></i></div>`;
 export const PD_DECO_CSS = `.pd-deco {
   position: absolute;
   left: var(--pd-x, 50%);

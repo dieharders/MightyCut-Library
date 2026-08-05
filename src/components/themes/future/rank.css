@@ -56,7 +56,12 @@
      state it. A figure never wraps. */
   line-height: 1;
   color: var(--primary);
-  width: 6rem;
+  /* A FLOOR, not a fixed width — see block/rank.css. --vlen (runtime/value.ts) is the
+     finished figure's room in `ch`, so a long label widens the box rather than
+     overflowing it, and the reservation is stable across the whole count-up. */
+  min-width: max(6rem, calc(var(--vlen, 4) * 1ch));
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
   text-align: right;
   flex-shrink: 0;
 }

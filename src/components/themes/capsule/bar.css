@@ -19,9 +19,11 @@
   height: 28.25rem;
   /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the
      value label's changing text width drives the bar width and the width:100% column
-     tracks it and "wiggles". A wide value label just overflows this box (centred). The
-     chart overrides flex:1 (flex-basis 0), so this only applies to the standalone. */
+     tracks it and "wiggles". The chart overrides flex:1 (flex-basis 0), so this only applies
+     to the standalone. `min-width: min-content` keeps a WIDE label from overflowing the box:
+     .bv reserves its finished figure's width (below), so the column grows to hold it. */
   width: 9.625rem;
+  min-width: min-content;
 }
 /* The column track. Value label + column live here; the column height is --fill% of the
    track BELOW the reserved top padding, so it maps LINEARLY to --fill (0-100%) instead of
@@ -34,12 +36,26 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 4rem; /* headroom the floating value label occupies when the column is full */
+  /* Headroom the floating value label occupies when the column is full. MEASURED, not
+     estimated: `line-height: 1` sets the label's LINE BOX to 1em, but the layout auditor
+     measures the text's client rect, which is the face's ascent+descent — 1.54x of the
+     font-size here (54px -> 83px). So the reserve must hold
+     line box + margin-bottom + the rect's half-leading = 86.5px, and at 4rem it held only
+     64px, leaving the label 23px above the plot at 100% fill (a hard inspect ERROR on a
+     chart that looked fine, since .bars has no visible top edge). 5.625rem is that minimum
+     rounded up to the 0.125rem grid plus one step of slack. Re-measure if the type scale,
+     the margin below, or the display face moves. */
+  padding-top: 5.625rem;
   box-sizing: border-box;
 }
 /* One of the three sanctioned colour-on-Bodoni spots (with the stat figure and the agenda
-   numeral); everywhere else the serif is ink. line-height 1 + the 1.125rem margin sum to
-   exactly the 4rem of headroom above — change one, change the other. */
+   numeral); everywhere else the serif is ink.
+   The old note here claimed line-height 1 + the 1.125rem margin summed to exactly the headroom
+   above. It did not, twice over: --font-size-2xl is 3.375rem (the note was written against a
+   2.875rem token), so the line box + margin alone already exceeded the old 4rem reserve — and
+   the reserve has to hold the text's MEASURED rect, which for Bodoni Moda runs 1.54x the
+   font-size, the widest metric gap of the six themes. See the headroom note above; if this
+   margin or the token moves, re-measure rather than re-deriving from the line box. */
 .bar .bv {
   flex: 0 0 auto;
   margin-bottom: 1.125rem;
@@ -48,6 +64,17 @@
   font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--primary);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  /* Centre the TEXT inside that reservation. The column centres the BOX (align-items),
+     but the box is deliberately wider than most of the figures it holds — it is sized for
+     the series scale, not for this column's value — and an unstated text-align leaves all
+     of the slack on one side, so a "$42M" in a box cut for "$100M" sits visibly left of the
+     bar it labels. Centring makes the reservation invisible: every figure reads as centred
+     over its own column whatever its digit count. */
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 .bar .bcol {
   flex: 0 0 auto;

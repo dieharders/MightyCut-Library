@@ -340,11 +340,11 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
     {
       name: "slab",
       params: {
-        variant: "rectangle",
-        x: 90,
-        y: 79,
-        size: 25,
-        rotate: -13,
+        variant: "cross",
+        x: 88,
+        y: 78,
+        size: 20,
+        rotate: 31,
         accent: "secondary",
         layer: "back",
       },
@@ -355,21 +355,9 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // offset is the shape that reads in front, so nothing here competes with it.
   "closing-plate": [
     {
-      name: "slab",
-      params: {
-        variant: "rectangle",
-        x: 5,
-        y: 73,
-        size: 15,
-        rotate: -10,
-        accent: "secondary",
-        layer: "back",
-      },
-    },
-    {
       name: "starburst",
       params: {
-        variant: "star",
+        variant: "triangle",
         x: 12,
         y: 79,
         size: 12,

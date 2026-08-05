@@ -15,9 +15,12 @@
   align-items: center;
   flex: 0 0 auto;
   /* Standalone plot height (chart.css's .bars is 27rem and overrides flex/height so bars share
-     the plot); fixed width so the column stays constant as the value label's text width changes. */
+     the plot); fixed width so the column stays constant as the value label's text width changes,
+     with min-content letting a LONG finished figure widen it rather than overflow it (.bv reserves
+     that width below — see block/bar.css). */
   height: 28.25rem;
   width: 9.625rem;
+  min-width: min-content;
 }
 .bar .btrack {
   flex: 1 1 auto;
@@ -27,7 +30,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 3rem; /* headroom the floating value label occupies when the column is full */
+  /* Headroom the floating value label occupies when the column is full. MEASURED, not
+     estimated: `line-height: 1` sets the label's LINE BOX to 1em, but the layout auditor
+     measures the text's client rect, which is the face's ascent+descent — 1.29x of the
+     font-size here (52px -> 67px). So the reserve must hold
+     line box + margin-bottom + the rect's half-leading = 73.5px, and at 3rem it held only
+     48px, leaving the label 26px above the plot at 100% fill (a hard inspect ERROR on a
+     chart that looked fine, since .bars has no visible top edge). 4.75rem is that minimum
+     rounded up to the 0.125rem grid plus one step of slack. Re-measure if the type scale,
+     the margin below, or the display face moves. */
+  padding-top: 4.75rem;
   box-sizing: border-box;
 }
 .bar .bv {
@@ -39,6 +51,16 @@
   font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--primary);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  /* Centre the TEXT inside that reservation. The column centres the BOX (align-items),
+     but the box is deliberately wider than most of the figures it holds — it is sized for
+     the series scale, not for this column's value — and an unstated text-align leaves all
+     of the slack on one side, so a "$42M" in a box cut for "$100M" sits visibly left of the
+     bar it labels. Centring makes the reservation invisible: every figure reads as centred
+     over its own column whatever its digit count. */
+  text-align: center;
 }
 .bar .bcol {
   flex: 0 0 auto;

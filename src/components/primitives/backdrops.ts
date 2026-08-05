@@ -10,6 +10,14 @@
 // a scoped-later CSS string + anim descriptors. Static designs return `anims: []`;
 // the field is kept so an animated mask (e.g. a seeded constellation driven off the
 // scene timeline) drops in later without changing this interface or its callers.
+//
+// …and it mirrors it in one more way: every backdrop root carries
+// `data-layout-allow-overflow`, for the same reason the decoration wrappers do. A backdrop is
+// full-bleed decoration by definition, and its inner layers are deliberately LARGER than it —
+// the gradient's wash is oversized so its slow rotation never swings a corner into view, which
+// the layout auditor reports as the layer overflowing its clipping parent by ~586x478px. The
+// flag is read with `element.closest(...)`, so stating it once on the root covers the wash, the
+// canvases and any layer a future design adds. Scope: it exempts only what is INSIDE a backdrop.
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { BackdropName, FrameGround } from "../../types/storyboard";
 import { rootElement } from "../runtime/dom";
@@ -70,7 +78,7 @@ const dots: BackdropDesign = {
   background-size: 3.625rem 3.625rem;
 }`,
   build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--dots"></div>`),
+    node: rootElement(`<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--dots"></div>`),
     anims: [],
   }),
 };
@@ -160,7 +168,7 @@ const gradient: BackdropDesign = {
     const washClass = `${ctx.idPrefix}-wash`;
     return {
       node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--gradient"><div class="${washClass}"></div></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--gradient"><div class="${washClass}"></div></div>`,
       ),
       anims: [
         {
@@ -189,7 +197,7 @@ const grid: BackdropDesign = {
   background-size: 4rem 4rem;
 }`,
   build: () => ({
-    node: rootElement(`<div class="mc-backdrop mc-backdrop--grid"></div>`),
+    node: rootElement(`<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--grid"></div>`),
     anims: [],
   }),
 };
@@ -243,7 +251,7 @@ const hatch: BackdropDesign = {
     const hueClass = `${ctx.idPrefix}-hue`;
     return {
       node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--hatch ${hueClass}"><svg viewBox="0 0 192 108" preserveAspectRatio="none"><g transform="rotate(-22 96 54)">${HATCH_STRIPES}</g></svg></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--hatch ${hueClass}"><svg viewBox="0 0 192 108" preserveAspectRatio="none"><g transform="rotate(-22 96 54)">${HATCH_STRIPES}</g></svg></div>`,
       ),
       anims: [
         {
@@ -483,7 +491,7 @@ const sunburst: BackdropDesign = {
     const canvasClass = `${ctx.idPrefix}-sun`;
     return {
       node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
       ),
       anims: [
         {
@@ -578,7 +586,7 @@ const constellation: BackdropDesign = {
     const canvasClass = `${ctx.idPrefix}-bg`;
     return {
       node: rootElement(
-        `<div class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
       ),
       anims: [
         {

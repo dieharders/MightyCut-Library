@@ -315,8 +315,16 @@ const SHAPES: Record<StandardDecorationVariant, ShapeSpec> = {
  *  (here). scopeCss prefixes each scene's CSS with its own `.<compId>-root`, so two THEMES never
  *  collide — but two ENGINES inside ONE scene would, and `addDecorations()` takes any registered
  *  component, so a treatment CAN be handed a capsule blob and a standard compass together. Keep
- *  the prefix unique when adding an engine. */
-export const SD_DECO_TEMPLATE = `<div class="sd-deco" data-anim="item"><i class="sd-deco-shape" data-html="shape"></i></div>`;
+ *  the prefix unique when adding an engine.
+ *
+ *  `data-layout-allow-overflow`: see DECO_TEMPLATE in decoration-shapes.ts for the full rationale.
+ *  This engine is the one that forced it — `sorts` is the library's ONLY text-bearing decoration,
+ *  and a glyph fitted by its INK (SHAPES below) has a `<text>` layout box far larger than the box
+ *  the ink sits in, which the layout auditor reports as a hard ERROR against the scene frame.
+ *  The svg's own `overflow: visible` (SD_DECO_CSS) is what lets the walk reach that frame; do NOT
+ *  "fix" this by clipping the svg instead — that trades this rule for `clipped_text`, which this
+ *  attribute cannot suppress. */
+export const SD_DECO_TEMPLATE = `<div class="sd-deco" data-anim="item" data-layout-allow-overflow><i class="sd-deco-shape" data-html="shape"></i></div>`;
 export const SD_DECO_CSS = `.sd-deco {
   position: absolute;
   left: var(--sd-x, 50%);

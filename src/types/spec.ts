@@ -68,6 +68,11 @@ export const ChartContentSchema = z.object({
   type: z.enum(["bar", "line"]).describe("bar for category comparison, line for trends"),
   unitPrefix: z.string().max(6).optional().describe("Leading unit on each value, e.g. \"$\""),
   unitSuffix: z.string().max(12).optional().describe("Trailing unit on each value, e.g. \"%\", \"k\""),
+  // Without this every value counts up through toFixed(0), so a series of 0.5 and 1.2
+  // renders "$1B" on BOTH bars — not merely rounded, but indistinguishable, on a slide
+  // whose entire job is comparing them. Set it whenever the series has a fractional part.
+  decimals: z.number().int().min(0).max(2).optional()
+    .describe("Decimal places on every value — REQUIRED when any value is fractional (1.2 reads as 1 without it)"),
   series: z
     .array(z.object({ label: z.string().min(1).max(28), value: z.number() }))
     .min(2)
@@ -319,8 +324,13 @@ export const HudOverrideSchema = HudSchema.extend({
 }).strict();
 export type HudOverride = z.infer<typeof HudOverrideSchema>;
 
-export const MAX_SLIDES = 12;
-export const MAX_VO_WORDS = 700;
+// NOTE: there are deliberately no MAX_SLIDES / MAX_VO_WORDS constants here.
+// Deck length is GENERATION POLICY, not part of the visual contract — a deck's
+// slide count and word budget follow from the caller's chosen runtime target,
+// which only the harness knows. That policy lives in MightyCut's
+// src/pipeline/brief.ts (word targets, per-job runtime caps); this schema keeps
+// only the STRUCTURAL invariants below (title/outro bookends, unique ids, slot
+// arity, narration coverage, VO ordering).
 
 export const VideoSpecSchema = z
   .object({
@@ -353,7 +363,9 @@ export const VideoSpecSchema = z
       caption: CaptionStyleSchema.optional(),
       hud: HudSchema.optional(),
     }),
-    slides: z.array(SlideSpecSchema).min(3).max(MAX_SLIDES),
+    // No upper bound: the deck runs as many slides as its runtime target needs.
+    // min(3) is structural — a title and an outro with at least one slide between.
+    slides: z.array(SlideSpecSchema).min(3),
     voiceover: z.array(VOLineSchema).min(3),
   })
   .superRefine((spec, ctx) => {
@@ -442,14 +454,9 @@ export const VideoSpecSchema = z
       }
       prevIdx = idx;
     }
-    const words = spec.voiceover.reduce((n, l) => n + l.text.trim().split(/\s+/).length, 0);
-    if (words > MAX_VO_WORDS) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["voiceover"],
-        message: `voiceover total is ${words} words; must be <= ${MAX_VO_WORDS} to stay under 5:00`,
-      });
-    }
+    // No word-count gate: the voiceover budget is derived from the caller's
+    // runtime target and enforced by the harness (brief.ts + the post-TTS
+    // length loop), not by this contract.
   });
 export type VideoSpec = z.infer<typeof VideoSpecSchema>;
 export type ThemeName = VideoSpec["meta"]["theme"];

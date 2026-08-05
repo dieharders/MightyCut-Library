@@ -24,12 +24,15 @@
   flex: 0 0 auto;
   height: 27rem;
   width: 11.5rem;
+  min-width: min-content;
 }
 /* Standalone plot height above matches chart.css's `.bars` exactly, so a bare Bar in the showcase
    stands as tall as it does in a real plot; inside the chart, `.chart .bars .bar` overrides
    flex/height so columns share the row. The FIXED width matters: without it the bar is
    shrink-to-fit, the counting value label's changing text width drives the box, and the width:100%
-   column visibly wiggles as the number climbs. A long value just overflows this box, centred. */
+   column visibly wiggles as the number climbs. `min-width: min-content` is what keeps a LONG value
+   from overflowing that fixed box: .bv reserves its finished figure's width (below), so the column
+   grows to hold it. The label still wraps, so min-content is its widest word, not the whole caption. */
 .bar .btrack {
   flex: 1 1 auto;
   min-height: 0;
@@ -38,13 +41,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 3rem;
+  /* Headroom the floating value label occupies when the column is full. MEASURED, not
+     estimated: `line-height: 1` sets the label's LINE BOX to 1em, but the layout auditor
+     measures the text's client rect, which is the face's ascent+descent — 1.35x of the
+     font-size here (54px -> 73px). So the reserve must hold
+     line box + margin-bottom + the rect's half-leading = 75.5px, and at 3rem it held only
+     48px, leaving the label 28px above the plot at 100% fill (a hard inspect ERROR on a
+     chart that looked fine, since .bars has no visible top edge). 4.875rem is that minimum
+     rounded up to the 0.125rem grid plus one step of slack. Re-measure if the type scale,
+     the margin below, or the display face moves. */
+  padding-top: 4.875rem;
   box-sizing: border-box;
 }
-/* The padding-top above is the headroom the floating value occupies when the column is full. It is
-   load-bearing: the column is --fill% of the track BELOW that reserved band, so height maps
-   LINEARLY to --fill (0% empty → 100% full) instead of the labels eating the plot and clamping a
-   full column to ~78%. Copied wholesale from professional/bar.css — same geometry, different skin.
+/* The padding-top above is load-bearing beyond holding the label: the column is --fill% of the
+   track BELOW that reserved band, so height maps LINEARLY to --fill (0% empty → 100% full)
+   instead of the labels eating the plot and clamping a full column to ~78%. The geometry came
+   wholesale from professional/bar.css — same structure, different skin — which is why both
+   carried the same undersized reserve until it was measured per face.
    tabular-nums keeps the count-up from re-centring on every digit change (a no-op on faces that
    ship no tnum table). */
 .bar .bv {
@@ -57,6 +70,16 @@
   font-size: var(--font-size-xl);
   line-height: 1;
   color: var(--dark);
+  /* Reserve the finished figure's width up front — see block/bar.css. */
+  min-width: calc(var(--vlen, 3) * 1ch);
+  white-space: nowrap;
+  /* Centre the TEXT inside that reservation. The column centres the BOX (align-items),
+     but the box is deliberately wider than most of the figures it holds — it is sized for
+     the series scale, not for this column's value — and an unstated text-align leaves all
+     of the slack on one side, so a "$42M" in a box cut for "$100M" sits visibly left of the
+     bar it labels. Centring makes the reservation invisible: every figure reads as centred
+     over its own column whatever its digit count. */
+  text-align: center;
 }
 /* box-sizing:border-box so the 0.5rem outline is INSIDE the --fill height — otherwise a 0% column
    still shows 1rem of border sitting on the baseline. --fill carries the same 4% fallback rank.css
