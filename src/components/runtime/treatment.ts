@@ -30,6 +30,7 @@ import {
   stampAnims,
   stripAnnotations,
   styleProps,
+  takeStyleProp,
 } from "./dom";
 import type {
   BuildContext,
@@ -175,11 +176,30 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // Children — each child occupies ONE cascade slot; all of its anims ride that slot,
         // each keeping its own internal `plus` so the child owns its entrance + internal timing.
         const childAnims: AnimDescriptor[] = [];
+        // SIBLING-UNIFORM WIDTH RESERVATION. `bar` and `rank` each set `--vlen` — the room
+        // their finished figure needs, in `ch` — on THEMSELVES. The skins turn it into the
+        // value box's min-width, and in a rank row the label + box are fixed while the track
+        // takes the remainder, so children reserving DIFFERENT widths get tracks of different
+        // LENGTHS; since each fill is a percentage OF ITS OWN TRACK, a lower row can then
+        // paint a longer bar than the leader and the ranking reads inverted. In a chart the
+        // same divergence just makes the columns unequal.
+        //
+        // The children already avoid this themselves by sizing off the series `max` rather
+        // than their own value (runtime/value.ts, seriesReserveCh), which is uniform by
+        // construction. This is the BACKSTOP for the case that defeats it: nothing forces
+        // siblings to share a max — the deck editor can set one row's scale independently —
+        // and the alignment must not depend on that. So take each child's --vlen, drop it,
+        // and re-declare the MAX on the container root, where it inherits into every child's
+        // skin. Generic rather than per-treatment: it is a property of ANY repeated child
+        // that reserves width, and it costs nothing when the children already agree.
+        const reserved: number[] = [];
         if (container) {
           container.children = [];
           children.forEach((child, i) => {
             const childCtx: BuildContext = { ...ctx, idPrefix: `${ctx.compId}__c${i}` };
             const bn = child.buildNode(childCtx);
+            const own = takeStyleProp(bn.node, "--vlen");
+            if (own !== null && Number.isFinite(Number(own))) reserved.push(Number(own));
             container.children.push(bn.node);
             cssParts.push({ name: child.name, css: bn.css });
             for (const a of bn.anims) childAnims.push(toSlot(a, childBase + i, delay));
@@ -218,7 +238,16 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
           for (const a of backdrop.anims) backdropAnims.push(a);
         }
 
-        if (def.layout) mergeStyle(root, styleProps(def.layout(children.length, p)));
+        // The hoisted reservation rides with the layout props so it lands in ONE style
+        // string (a treatment's own layout never names --vlen; if one ever does, the
+        // sibling max wins, because the children are the thing being sized).
+        mergeStyle(
+          root,
+          styleProps({
+            ...(def.layout ? def.layout(children.length, p) : {}),
+            ...(reserved.length ? { "--vlen": String(Math.max(...reserved)) } : {}),
+          }),
+        );
         stripAnnotations(root);
 
         // Own anims → cascade slots by their declared time: a `leadIn` frame rides the title slot;

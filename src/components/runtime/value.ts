@@ -55,14 +55,45 @@ export const zeroValueText = (p: ValueParams): string =>
  * 1 builds in slack. Anything else is a UNIT the caller chose — letters, and in a heavy
  * display cut an uppercase letter runs half again a digit's width, so they cost 1.5.
  *
+ * `%` is a UNIT, not punctuation, and it is the widest glyph in a figure — MEASURED off
+ * the library's own woff2 faces, its advance relative to "0" is 1.24–1.61ch across the six
+ * display cuts (Playfair the narrowest, Bodoni Moda the widest). Charging it 1 under-reserved
+ * every percentage figure in the library, which is the single most common unit a deck plots:
+ * `reserveCh("100%")` came to 4.25ch where the text renders ~4.6ch wide. It sits with the
+ * letters at 1.5.
+ *
  * Deliberately an over-estimate: the cost of reserving too much is a slightly narrower
  * bar track, the cost of reserving too little is the overflow this exists to prevent.
  */
 export const reserveCh = (text: string): number => {
   let ch = 0;
-  for (const c of text) ch += /[0-9.,$€£%+\-\s]/.test(c) ? 1 : 1.5;
+  for (const c of text) ch += /[0-9.,$€£+\-\s]/.test(c) ? 1 : 1.5;
   return Math.round((ch + 0.25) * 100) / 100; // + a hair of bearing, 2dp for stable bytes
 };
 
 /** `reserveCh(finalValueText(p))` — the width to reserve for a counted-up figure. */
 export const valueReserveCh = (p: ValueParams): number => reserveCh(finalValueText(p));
+
+/**
+ * The reservation for a figure plotted AGAINST A SCALE — sized off the series `max`, not
+ * off the row's own value.
+ *
+ * Reserving per-value is uniform only by accident. The skins turn the reservation into the
+ * value box's min-width, and in a ranking the label and the box are fixed while the track
+ * takes what is left, so a row whose figure has more digits gets a WIDER box and therefore a
+ * SHORTER track. The tracks then end on ragged vertical lines, and because each fill is a
+ * percentage OF ITS OWN TRACK, the rows stop being comparable by length — a 999% row on a
+ * short track can paint a longer bar than a 1000% row on a shorter one. A chart shows the
+ * same thing as columns of unequal width.
+ *
+ * `max` is the fix because every child in a series shares it — `defaultChildren` and
+ * `spec-map` both derive one max for the whole series — so every row reserves the same width
+ * without any child knowing about its siblings, and the alignment holds even for a row
+ * rendered on its own. It is also the width the figure is HEADED for: a full row reads
+ * `max`, so this is the widest string the series can ever paint.
+ *
+ * Takes the larger of the two reservations because nothing binds `value <= max` (the schemas
+ * only clamp the FILL to 100%), and a value past the scale must still fit its box.
+ */
+export const seriesReserveCh = (p: ValueParams & { max: number }): number =>
+  Math.max(valueReserveCh(p), valueReserveCh({ ...p, value: p.max }));

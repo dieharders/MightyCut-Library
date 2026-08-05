@@ -2,7 +2,7 @@ import template from "./template.html" with { type: "text" };
 import { component } from "../../runtime/component";
 import { barAnim } from "./anim";
 import { BarSchema } from "./schema";
-import { valueReserveCh, zeroValueText } from "../../runtime/value";
+import { seriesReserveCh, zeroValueText } from "../../runtime/value";
 
 /** A neobrutalist vertical chart column: a bordered pastel bar that grows from the
  *  baseline while its value counts up. The leader column takes --accent-1, the rest --secondary. */
@@ -32,7 +32,11 @@ export const Bar = component({
     // figure widens the COLUMN rather than overhanging its neighbours — and because
     // the reservation is for the final string, the width is fixed from frame 0, which
     // is what the fixed width below was defending against in the first place.
-    "--vlen": `${valueReserveCh(p)}`,
+    //
+    // Sized off the SERIES MAX, not this column's value: columns share a max, so they all
+    // reserve the same width and the plot stays comparable by height alone — see
+    // seriesReserveCh. (The container additionally reconciles any divergence.)
+    "--vlen": `${seriesReserveCh(p)}`,
   }),
   animIn: "fade",
   anim: barAnim,

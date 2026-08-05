@@ -43,6 +43,31 @@ export const styleProps = (props: Record<string, string>): string =>
     .map(([k, v]) => `${k}: ${v}`)
     .join("; ");
 
+/**
+ * Read a declaration out of an element's inline style AND remove it, returning its value
+ * (or null if absent). Used to lift a custom property a child set on itself up to its
+ * container — see the sibling-uniform reservation in treatment.ts.
+ *
+ * Deliberately literal: the styles it parses are the ones `styleProps` wrote, `"k: v"`
+ * joined by `"; "`, so a split on `;` is exact. It is not a general CSS parser and must
+ * not be pointed at authored style attributes.
+ */
+export const takeStyleProp = (el: ElementNode, prop: string): string | null => {
+  const raw = el.attrs.style;
+  if (!raw) return null;
+  const kept: string[] = [];
+  let found: string | null = null;
+  for (const decl of raw.split(";")) {
+    const i = decl.indexOf(":");
+    if (i > -1 && decl.slice(0, i).trim() === prop) found = decl.slice(i + 1).trim();
+    else if (decl.trim()) kept.push(decl.trim());
+  }
+  if (found === null) return null;
+  if (kept.length) el.attrs.style = kept.join("; ");
+  else delete el.attrs.style;
+  return found;
+};
+
 /** Split a headline into [head-with-trailing-space, final word]. Requires a non-space
  *  BEFORE the whitespace, so a single-word value never matches — accenting a whole
  *  one-word line is not the effect. Trailing punctuation rides with the last word
