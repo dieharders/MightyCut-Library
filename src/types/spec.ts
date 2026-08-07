@@ -23,30 +23,52 @@ export const VOLineSchema = z.object({
 export type VOLine = z.infer<typeof VOLineSchema>;
 
 export const HeaderSpecSchema = z.object({
-  kicker: z.string().max(60).optional()
-    .describe("Short section label shown in the HUD top-right for this slide (e.g. \"RESULTS\", \"HOW IT WORKS\"); falls back to the deck-wide meta.header.right when omitted"),
+  kicker: z
+    .string()
+    .max(60)
+    .optional()
+    .describe(
+      'Short section label shown in the HUD top-right for this slide (e.g. "RESULTS", "HOW IT WORKS"); falls back to the deck-wide meta.header.right when omitted',
+    ),
   title: z.string().min(1).max(80),
 });
 export type HeaderSpec = z.infer<typeof HeaderSpecSchema>;
 
-const transition = z.union([z.enum(["fade", "slide", "wipe"]), TransitionSpecSchema]).optional()
-  .describe("Transition INTO this slide — legacy fade|slide|wipe, or { animIn, animOut, timeIn, timeOut }");
+const transition = z
+  .union([z.enum(["fade", "slide", "wipe"]), TransitionSpecSchema])
+  .optional()
+  .describe(
+    "Transition INTO this slide — legacy fade|slide|wipe, or { animIn, animOut, timeIn, timeOut }",
+  );
 
-const backgroundKind = z.enum(["gradient", "particles", "grid", "solid", "pattern"]);
+const backgroundKind = z.enum([
+  "gradient",
+  "particles",
+  "grid",
+  "solid",
+  "pattern",
+]);
 /** Per-slide backdrop override (default: the deck-wide meta.background). */
-const background = backgroundKind.optional()
+const background = backgroundKind
+  .optional()
   .describe("Backdrop behind this slide only (default: deck-wide background)");
 
-const icon = z.string().optional()
-  .describe("Icon name from the core Icon set (e.g. \"shield\", \"database\")");
+const icon = z
+  .string()
+  .optional()
+  .describe('Icon name from the core Icon set (e.g. "shield", "database")');
 
 /* ----- reusable content shapes (used by single-kind slides AND composed slots) --- */
 
 const StatSchema = z.object({
   value: z.number(),
   label: z.string().min(1).max(40),
-  unitPrefix: z.string().max(6).optional().describe("Leading unit, e.g. \"$\""),
-  unitSuffix: z.string().max(10).optional().describe("Trailing unit, e.g. \"%\", \"x\", \"hrs\""),
+  unitPrefix: z.string().max(6).optional().describe('Leading unit, e.g. "$"'),
+  unitSuffix: z
+    .string()
+    .max(10)
+    .optional()
+    .describe('Trailing unit, e.g. "%", "x", "hrs"'),
   decimals: z.number().int().min(0).max(2).optional(),
 });
 
@@ -57,22 +79,42 @@ const BulletSchema = z.object({
 });
 
 export const CardContentSchema = z.object({
-  kicker: z.string().max(26).optional()
-    .describe("Small mono label above the text, e.g. \"PROPERTY GRAPH\""),
+  kicker: z
+    .string()
+    .max(26)
+    .optional()
+    .describe('Small mono label above the text, e.g. "PROPERTY GRAPH"'),
   icon,
   title: z.string().max(40).optional(),
   text: z.string().min(1).max(150),
 });
 
 export const ChartContentSchema = z.object({
-  type: z.enum(["bar", "line"]).describe("bar for category comparison, line for trends"),
-  unitPrefix: z.string().max(6).optional().describe("Leading unit on each value, e.g. \"$\""),
-  unitSuffix: z.string().max(12).optional().describe("Trailing unit on each value, e.g. \"%\", \"k\""),
+  type: z
+    .enum(["bar", "line"])
+    .describe("bar for category comparison, line for trends"),
+  unitPrefix: z
+    .string()
+    .max(6)
+    .optional()
+    .describe('Leading unit on each value, e.g. "$"'),
+  unitSuffix: z
+    .string()
+    .max(12)
+    .optional()
+    .describe('Trailing unit on each value, e.g. "%", "k"'),
   // Without this every value counts up through toFixed(0), so a series of 0.5 and 1.2
   // renders "$1B" on BOTH bars — not merely rounded, but indistinguishable, on a slide
   // whose entire job is comparing them. Set it whenever the series has a fractional part.
-  decimals: z.number().int().min(0).max(2).optional()
-    .describe("Decimal places on every value — REQUIRED when any value is fractional (1.2 reads as 1 without it)"),
+  decimals: z
+    .number()
+    .int()
+    .min(0)
+    .max(2)
+    .optional()
+    .describe(
+      "Decimal places on every value — REQUIRED when any value is fractional (1.2 reads as 1 without it)",
+    ),
   series: z
     .array(z.object({ label: z.string().min(1).max(28), value: z.number() }))
     .min(2)
@@ -99,17 +141,26 @@ export const LAYOUTS_META = {
   "wide-left": { slots: [ALL_COMP, NO_CHART] },
   "wide-right": { slots: [NO_CHART, ALL_COMP] },
   "trio-row": { slots: [NO_CHART, NO_CHART, NO_CHART] },
-  "quad": { slots: [NO_CHART, NO_CHART, NO_CHART, NO_CHART] },
+  quad: { slots: [NO_CHART, NO_CHART, NO_CHART, NO_CHART] },
 } as const satisfies Record<string, { slots: ComponentType[][] }>;
 export type LayoutId = keyof typeof LAYOUTS_META;
-export const LAYOUT_IDS = Object.keys(LAYOUTS_META) as [LayoutId, ...LayoutId[]];
+export const LAYOUT_IDS = Object.keys(LAYOUTS_META) as [
+  LayoutId,
+  ...LayoutId[],
+];
 
 /** One slot's content — a primitive plus its data. */
 const SlotSchema = z.discriminatedUnion("component", [
   z.object({ component: z.literal("card"), card: CardContentSchema }),
   z.object({ component: z.literal("chart"), chart: ChartContentSchema }),
-  z.object({ component: z.literal("stat"), stats: z.array(StatSchema).min(1).max(3) }),
-  z.object({ component: z.literal("bullets"), bullets: z.array(BulletSchema).min(2).max(4) }),
+  z.object({
+    component: z.literal("stat"),
+    stats: z.array(StatSchema).min(1).max(3),
+  }),
+  z.object({
+    component: z.literal("bullets"),
+    bullets: z.array(BulletSchema).min(2).max(4),
+  }),
 ]);
 
 export const SlideSpecSchema = z.discriminatedUnion("kind", [
@@ -117,8 +168,13 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     id,
     kind: z.literal("title"),
     transition,
-    kicker: z.string().max(60).optional()
-      .describe("Short section label shown in the HUD top-right for this slide; falls back to the deck-wide meta.header.right when omitted"),
+    kicker: z
+      .string()
+      .max(60)
+      .optional()
+      .describe(
+        'The cover\'s EYEBROW — a short label in a pill above the headline (e.g. "PRODUCT LAUNCH", "IN CONFIDENCE"). Omit unless the cover wants one.',
+      ),
     title: z.string().min(1).max(80),
     subtitle: z.string().max(140).optional(),
     background: backgroundKind,
@@ -136,6 +192,22 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     kind: z.literal("statement"),
     transition,
     background,
+    // The HUD's top-right SECTION label for this slide — the one kind with no `header` object
+    // that still needs somewhere to put one, so it carries the kicker itself. root-html reads
+    // `slide.header?.kicker ?? slide.kicker`, so this lands in the corner like every other
+    // content slide's does.
+    //
+    // NOTE for anyone wiring the quote treatment's `eyebrow` param later: do NOT feed it from
+    // here. That is exactly the mistake the TITLE slide embodies — its kicker is the cover's
+    // eyebrow, so a section name written there prints on the opening frame instead of in the
+    // corner. spec-map deliberately passes no eyebrow for `quote`.
+    kicker: z
+      .string()
+      .max(60)
+      .optional()
+      .describe(
+        'Short section label shown in the HUD top-right for this slide (e.g. "RESULTS", "HOW IT WORKS").',
+      ),
     text: z.string().min(1).max(200),
     attribution: z.string().max(80).optional(),
   }),
@@ -171,7 +243,11 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema,
-    stats: z.array(StatSchema).min(1).max(4).describe("Big animated count-up numbers"),
+    stats: z
+      .array(StatSchema)
+      .min(1)
+      .max(4)
+      .describe("Big animated count-up numbers"),
     caption: z.string().max(140).optional(),
   }),
   z.object({
@@ -190,7 +266,9 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       )
       .min(2)
       .max(5)
-      .describe("Numbered process steps, rendered as a connected card sequence"),
+      .describe(
+        "Numbered process steps, rendered as a connected card sequence",
+      ),
   }),
   z.object({
     id,
@@ -198,7 +276,9 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema,
-    layout: z.enum(["column", "row"]).optional()
+    layout: z
+      .enum(["column", "row"])
+      .optional()
       .describe("column (stacked, default) or row (side by side)"),
     cards: z.array(CardContentSchema).min(2).max(4),
   }),
@@ -218,9 +298,16 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
         z.object({
           label: z.string().min(1).max(32),
           sublabel: z.string().max(50).optional(),
-          values: z.array(z.boolean()).min(2).max(5)
-            .describe("values[i] answers criteria[i] — same length as criteria"),
-          highlight: z.boolean().optional()
+          values: z
+            .array(z.boolean())
+            .min(2)
+            .max(5)
+            .describe(
+              "values[i] answers criteria[i] — same length as criteria",
+            ),
+          highlight: z
+            .boolean()
+            .optional()
             .describe("Mark the proposer's row true (put it last)"),
         }),
       )
@@ -234,10 +321,20 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema.optional(),
-    concept: z.string().min(10).max(400)
-      .describe("Plain-language description of the visual to build (the slide engineer hand-builds it)"),
+    concept: z
+      .string()
+      .min(10)
+      .max(400)
+      .describe(
+        "Plain-language description of the visual to build (the slide engineer hand-builds it)",
+      ),
     data: z
-      .array(z.object({ label: z.string().min(1).max(24), value: z.string().max(24).optional() }))
+      .array(
+        z.object({
+          label: z.string().min(1).max(24),
+          value: z.string().max(24).optional(),
+        }),
+      )
       .max(6)
       .optional()
       .describe("Optional label/value pairs shown as pills"),
@@ -248,10 +345,18 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema.optional(),
-    layout: z.enum(LAYOUT_IDS)
-      .describe("Fixed slot layout (split-lr/split-tb/wide-left/wide-right/trio-row/quad)"),
-    slots: z.array(SlotSchema).min(1).max(4)
-      .describe("One primitive per slot, in slot order; count + types must match the layout"),
+    layout: z
+      .enum(LAYOUT_IDS)
+      .describe(
+        "Fixed slot layout (split-lr/split-tb/wide-left/wide-right/trio-row/quad)",
+      ),
+    slots: z
+      .array(SlotSchema)
+      .min(1)
+      .max(4)
+      .describe(
+        "One primitive per slot, in slot order; count + types must match the layout",
+      ),
   }),
   z.object({
     id,
@@ -266,9 +371,25 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
 export type SlideSpec = z.infer<typeof SlideSpecSchema>;
 
 export const HeaderBandSchema = z.object({
-  brand: z.string().max(60).optional().describe("Left wordmark (default: meta.title)"),
-  tagline: z.string().max(60).optional().describe("Muted descriptor after the wordmark — the company, product category, or program. MUST differ from the brand (never repeat it); omit if there's nothing distinct to say. Defaults to meta.requester, but a repeat of the brand is dropped at render."),
-  right: z.string().max(40).optional().describe("Deck-wide top-right HUD label — the default shown on any slide whose own kicker is omitted (per-slide kickers override it)"),
+  brand: z
+    .string()
+    .max(60)
+    .optional()
+    .describe("Left wordmark (default: meta.title)"),
+  tagline: z
+    .string()
+    .max(60)
+    .optional()
+    .describe(
+      "Muted descriptor after the wordmark — the company, product category, or program. MUST differ from the brand (never repeat it); omit if there's nothing distinct to say. Defaults to meta.requester, but a repeat of the brand is dropped at render.",
+    ),
+  right: z
+    .string()
+    .max(40)
+    .optional()
+    .describe(
+      "Deck-wide top-right HUD label — the default shown on any slide whose own kicker is omitted (per-slide kickers override it)",
+    ),
   rightSub: z.string().max(40).optional(),
   show: z.boolean().optional().describe("false hides the whole band"),
 });
@@ -280,7 +401,7 @@ export type HeaderBandSpec = z.infer<typeof HeaderBandSchema>;
 // rather than left as a lie; an older spec.json carrying it still parses (Zod strips the
 // unknown key). Add a footer slot to primitives/hud if the line is ever wanted back.
 export const FooterSchema = z.object({
-  slideNumbers: z.boolean().optional().describe("Show \"NN / TT\" slide counter"),
+  slideNumbers: z.boolean().optional().describe('Show "NN / TT" slide counter'),
 });
 export type FooterSpec = z.infer<typeof FooterSchema>;
 
@@ -291,9 +412,20 @@ export type FooterSpec = z.infer<typeof FooterSchema>;
 export const CaptionStyleSchema = z.object({
   size: z.enum(["small", "medium", "large"]).optional(),
   weight: z.enum(["normal", "medium", "semibold", "bold"]).optional(),
-  outline: z.boolean().optional().describe("Dark text outline for busy backdrops"),
-  accentBar: z.boolean().optional().describe("Accent bar on the caption box (default true)"),
-  show: z.boolean().optional().describe("false hides the caption rail (default true; an accessibility feature — keep on unless asked)"),
+  outline: z
+    .boolean()
+    .optional()
+    .describe("Dark text outline for busy backdrops"),
+  accentBar: z
+    .boolean()
+    .optional()
+    .describe("Accent bar on the caption box (default true)"),
+  show: z
+    .boolean()
+    .optional()
+    .describe(
+      "false hides the caption rail (default true; an accessibility feature — keep on unless asked)",
+    ),
 });
 export type CaptionStyleSpec = z.infer<typeof CaptionStyleSchema>;
 
@@ -306,11 +438,20 @@ export type CaptionStyleSpec = z.infer<typeof CaptionStyleSchema>;
  * fallback (see FooterSchema). Captions are NOT part of the HUD (see caption.show).
  */
 export const HudSchema = z.object({
-  show: z.boolean().optional().describe("Master switch — false hides the entire HUD (default true)"),
-  brand: z.boolean().optional().describe("Show the brand band (mark + wordmark + tagline)"),
+  show: z
+    .boolean()
+    .optional()
+    .describe("Master switch — false hides the entire HUD (default true)"),
+  brand: z
+    .boolean()
+    .optional()
+    .describe("Show the brand band (mark + wordmark + tagline)"),
   title: z.boolean().optional().describe("Show the top-right title/label"),
   progress: z.boolean().optional().describe("Show the timeline/progress bar"),
-  slideCount: z.boolean().optional().describe("Show the \"NN / TT\" slide counter"),
+  slideCount: z
+    .boolean()
+    .optional()
+    .describe('Show the "NN / TT" slide counter'),
 });
 export type HudSpec = z.infer<typeof HudSchema>;
 
@@ -320,7 +461,10 @@ export type HudSpec = z.infer<typeof HudSchema>;
  * choices. `captions` is separate from the HUD (accessibility) → caption.show.
  */
 export const HudOverrideSchema = HudSchema.extend({
-  captions: z.boolean().optional().describe("Show/hide the caption rail (maps to caption.show)"),
+  captions: z
+    .boolean()
+    .optional()
+    .describe("Show/hide the caption rail (maps to caption.show)"),
 }).strict();
 export type HudOverride = z.infer<typeof HudOverrideSchema>;
 
@@ -356,7 +500,8 @@ export const VideoSpecSchema = z
       fps: z.literal(30),
       width: z.literal(1920),
       height: z.literal(1080),
-      background: backgroundKind.optional()
+      background: backgroundKind
+        .optional()
         .describe("Deck-wide backdrop behind every slide (default particles)"),
       header: HeaderBandSchema.optional(),
       footer: FooterSchema.optional(),
@@ -370,7 +515,11 @@ export const VideoSpecSchema = z
   })
   .superRefine((spec, ctx) => {
     if (spec.slides[0]?.kind !== "title") {
-      ctx.addIssue({ code: "custom", path: ["slides", 0], message: "first slide must be kind 'title'" });
+      ctx.addIssue({
+        code: "custom",
+        path: ["slides", 0],
+        message: "first slide must be kind 'title'",
+      });
     }
     if (spec.slides[spec.slides.length - 1]?.kind !== "outro") {
       ctx.addIssue({
@@ -381,7 +530,11 @@ export const VideoSpecSchema = z
     }
     const slideIds = new Set(spec.slides.map((s) => s.id));
     if (slideIds.size !== spec.slides.length) {
-      ctx.addIssue({ code: "custom", path: ["slides"], message: "slide ids must be unique" });
+      ctx.addIssue({
+        code: "custom",
+        path: ["slides"],
+        message: "slide ids must be unique",
+      });
     }
     // Matrix rows must answer every criteria column.
     for (const [i, slide] of spec.slides.entries()) {
@@ -421,7 +574,11 @@ export const VideoSpecSchema = z
     const lineIds = new Set<string>();
     for (const [i, line] of spec.voiceover.entries()) {
       if (lineIds.has(line.id)) {
-        ctx.addIssue({ code: "custom", path: ["voiceover", i, "id"], message: `duplicate line id '${line.id}'` });
+        ctx.addIssue({
+          code: "custom",
+          path: ["voiceover", i, "id"],
+          message: `duplicate line id '${line.id}'`,
+        });
       }
       lineIds.add(line.id);
       if (!slideIds.has(line.slideId)) {
@@ -436,7 +593,11 @@ export const VideoSpecSchema = z
     const narrated = new Set(spec.voiceover.map((l) => l.slideId));
     for (const [i, slide] of spec.slides.entries()) {
       if (!narrated.has(slide.id)) {
-        ctx.addIssue({ code: "custom", path: ["slides", i], message: `slide '${slide.id}' has no voiceover lines` });
+        ctx.addIssue({
+          code: "custom",
+          path: ["slides", i],
+          message: `slide '${slide.id}' has no voiceover lines`,
+        });
       }
     }
     // VO lines must be grouped per slide, in slide order, so timing is contiguous.
@@ -448,7 +609,8 @@ export const VideoSpecSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["voiceover", i],
-          message: "voiceover lines must be ordered by slide order (all lines of a slide contiguous)",
+          message:
+            "voiceover lines must be ordered by slide order (all lines of a slide contiguous)",
         });
         break;
       }
@@ -466,7 +628,13 @@ export const voWordCount = (spec: VideoSpec): number =>
   spec.voiceover.reduce((n, l) => n + l.text.trim().split(/\s+/).length, 0);
 
 /** script.json line format consumed by video-assets/scripts/generate-tts.mjs. */
-export type ScriptLine = { id: string; scene: string; text: string; say?: string; voice?: string };
+export type ScriptLine = {
+  id: string;
+  scene: string;
+  text: string;
+  say?: string;
+  voice?: string;
+};
 
 export const toScriptLines = (spec: VideoSpec): ScriptLine[] =>
   spec.voiceover.map((l) => ({
