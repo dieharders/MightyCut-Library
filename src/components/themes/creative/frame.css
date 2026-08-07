@@ -20,19 +20,6 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  /* Backdrop ink hooks — how creative restyles the SHARED mask designs (backdrops are a pool
-     every theme draws from; see primitives/backdrops.ts). The line-work designs run on --dark:
-     ink is legible on EVERY ground creative rotates through (cream, oat, yellow, pink, orange
-     and green are all mid-to-light saturated). The wash is two-tone, so it takes a genuine
-     second hue: pink leading, yellow counter-glow in the opposite corner.
-
-     NOTHING IS STATED FOR `sunburst`, creative's signature default, and there is nothing to
-     state: that design has NO ink hook at all. It paints a fixed GREY artwork into a canvas and
-     lets `mix-blend-mode` colour it against whatever plane the frame lands on, so the ground
-     supplies every hue and the artwork supplies only light and shade — which is the only way one
-     field reads on all six of them. (It once carried --sunburst-ink plus build-time HSL maths
-     that derived a two-tone complement per ground; both are gone, and a --sunburst-ink written
-     here now would do nothing.) */
   --dots-ink: var(--dark);
   --grid-ink: var(--dark);
   --hatch-ink: var(--dark);

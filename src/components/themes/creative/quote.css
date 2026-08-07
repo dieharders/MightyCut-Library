@@ -50,13 +50,13 @@
   font-size: var(--font-size-4xl);
   line-height: 0.9;
   letter-spacing: -0.01em;
-  color: var(--light);
+  color: var(--dark);
 }
 .quote .attr {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.065em;
   font-size: var(--font-size-md);
-  color: var(--light);
+  color: var(--dark);
   margin-top: 2.875rem;
 }

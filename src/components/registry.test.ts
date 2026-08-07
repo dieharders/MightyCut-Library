@@ -583,6 +583,68 @@ describe("backdrop registry (tripwire)", () => {
   });
 });
 
+
+// SUNBURST — the one design with a canvas FX and an artwork payload, so it gets its own coverage
+// here rather than inside a theme's tripwire. It used to live in the creative block because
+// creative DEFAULTED to it; creative defaults to `grid` now, and a design's contract is not a
+// theme's fact — leaving these there would have meant the creative tripwire asserting behaviour
+// creative no longer has. Selected explicitly, so no theme's default can silently stop testing it.
+describe("sunburst backdrop (tripwire)", () => {
+  const sunctx = (compId: string): BuildContext =>
+    rootContext(compId, creativeTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"], backdrop: "sunburst" });
+
+  test("the sunburst backdrop emits a valid, compId-scoped canvas descriptor", () => {
+    const built = getTreatment("cover")().build(sunctx("c01-cover-a"));
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "a sunburst scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
+    expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
+    expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
+    // The three CSS assertions read the DESIGN's own sheet, not the scene's: a backdrop
+    // contributes no CSS to the sub-composition any more (its rules are staged as
+    // assets/backdrops.css — see BACKDROPS_CSS), so asserting on `built.css` would pass
+    // vacuously forever.
+    //
+    // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
+    // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
+    // mean someone had gone back to rotating the layer, which is the expensive shape.
+    expect(BACKDROPS.sunburst.css).not.toContain("280rem");
+    // Colour comes from blending grey artwork against the scene's ground, not from a hook.
+    // (Creative's frame.css mentions --sunburst-ink in prose to explain why it deliberately
+    // states nothing for this design; no theme sets the hook, because there isn't one.)
+    expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
+    expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
+  });
+
+  test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
+    // The FX in mc.js is GENERIC — it knows how to draw a sunburst but not what this one looks
+    // like. Path, fan and glow ramp all travel in opts so primitives/backdrops.ts stays the single
+    // source of truth; if that link breaks the backdrop silently paints nothing.
+    const built = getTreatment("cover")().build(sunctx("c01-a"));
+    const o = built.anims.find((a) => a.kind === "backdrop")?.opts ?? {};
+    expect(String(o.armPath)).toMatch(/^M[\d.]/); // an SVG path, not a transform or a name
+    const fan = JSON.parse(String(o.fan)) as [number, number][];
+    const glow = JSON.parse(String(o.glow)) as [number, number][];
+    // [scale, degrees] pairs — NOT the `scale(…) rotate(…)` strings an SVG <use> would take. The
+    // canvas multiplies these, so a string here draws no arms at all and fails silently.
+    expect(fan.length).toBeGreaterThan(0);
+    for (const [s, d] of fan) {
+      expect(typeof s === "number" && typeof d === "number").toBe(true);
+    }
+    // The glow ramp must stay non-decreasing (a gradient's stops cannot go backwards) and keep the
+    // repeated offsets that reproduce the source's concentric BANDING — a repeat is a hard edge.
+    expect(glow.every(([off], i) => i === 0 || off >= glow[i - 1][0])).toBe(true);
+    expect(glow.filter(([off], i) => i > 0 && off === glow[i - 1][0]).length).toBeGreaterThan(0);
+
+    // Sub-comps share ONE DOM, so the canvas class must not leak between scenes.
+    const b = getTreatment("cover")().build(sunctx("c01-b")).html;
+    expect(built.html).toContain("c01-a-sun");
+    expect(b).not.toContain("c01-a-sun");
+  });
+
+});
+
 // FUTURE theme (tripwire) — the second live component theme. Proves the per-theme skin +
 // template-override seams and the animated constellation backdrop, mirroring the block
 // smoke coverage above but with futureTheme. The shared element trios are reused verbatim;
@@ -1002,7 +1064,6 @@ describe("professional theme (tripwire)", () => {
 describe("creative theme (tripwire)", () => {
   const crctx = (compId: string): BuildContext =>
     rootContext(compId, creativeTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
-
   // Treatment → the ground creative lands it on. This IS the rotation: six distinct planes across
   // the ten treatments, every one of them a palette role the theme also uses as an accent or a
   // canvas. Written out rather than derived so the intended deck rhythm is legible here.
@@ -1031,8 +1092,15 @@ describe("creative theme (tripwire)", () => {
       expect(html, `${name} did not land on its canonical ground --${GROUND[name]}`).toContain(
         `background: var(--${GROUND[name]})`,
       );
-      // …and carries the turning sunburst as its default backdrop.
-      expect(html).toContain("mc-backdrop--sunburst");
+      // …and carries the flat ruled GRID as its default backdrop. It was the turning sunburst,
+      // which paints a full-frame grey canvas under `mix-blend-mode: luminosity` — and luminosity
+      // has no identity value, so it replaced every ground's lightness and left creative's planes
+      // murky. A flat line field is also what the theme's own rules ask for ("no gradients, no
+      // blurred shadows, no glow"). Sunburst is not gone — it stays creative's contribution to
+      // the shared pool and is selectable per scene; its own contract is pinned in the
+      // "sunburst backdrop (tripwire)" block, which selects it explicitly rather than relying
+      // on any theme's default.
+      expect(html).toContain("mc-backdrop--grid");
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");
@@ -1053,56 +1121,6 @@ describe("creative theme (tripwire)", () => {
     const html = renderScene(getTreatment("cover")(), crctx("c01-g"), { ground: "accent-3" });
     expect(html).toContain("background: var(--accent-3)");
     expect(html).not.toContain("background: var(--muted-1)");
-  });
-
-  test("the sunburst backdrop emits a valid, compId-scoped canvas descriptor", () => {
-    const built = getTreatment("cover")().build(crctx("c01-cover-a"));
-    const bd = built.anims.find((a) => a.kind === "backdrop");
-    expect(bd, "creative scene must carry a backdrop anim").toBeDefined();
-    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
-    expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
-    expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
-    expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
-    // The three CSS assertions read the DESIGN's own sheet, not the scene's: a backdrop
-    // contributes no CSS to the sub-composition any more (its rules are staged as
-    // assets/backdrops.css — see BACKDROPS_CSS), so asserting on `built.css` would pass
-    // vacuously forever.
-    //
-    // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
-    // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
-    // mean someone had gone back to rotating the layer, which is the expensive shape.
-    expect(BACKDROPS.sunburst.css).not.toContain("280rem");
-    // Colour comes from blending grey artwork against the scene's ground, not from a hook.
-    // (Creative's frame.css mentions --sunburst-ink in prose to explain why it deliberately
-    // states nothing for this design.)
-    expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
-    expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
-  });
-
-  test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
-    // The FX in mc.js is GENERIC — it knows how to draw a sunburst but not what this one looks
-    // like. Path, fan and glow ramp all travel in opts so primitives/backdrops.ts stays the single
-    // source of truth; if that link breaks the backdrop silently paints nothing.
-    const built = getTreatment("cover")().build(crctx("c01-a"));
-    const o = built.anims.find((a) => a.kind === "backdrop")?.opts ?? {};
-    expect(String(o.armPath)).toMatch(/^M[\d.]/); // an SVG path, not a transform or a name
-    const fan = JSON.parse(String(o.fan)) as [number, number][];
-    const glow = JSON.parse(String(o.glow)) as [number, number][];
-    // [scale, degrees] pairs — NOT the `scale(…) rotate(…)` strings an SVG <use> would take. The
-    // canvas multiplies these, so a string here draws no arms at all and fails silently.
-    expect(fan.length).toBeGreaterThan(0);
-    for (const [s, d] of fan) {
-      expect(typeof s === "number" && typeof d === "number").toBe(true);
-    }
-    // The glow ramp must stay non-decreasing (a gradient's stops cannot go backwards) and keep the
-    // repeated offsets that reproduce the source's concentric BANDING — a repeat is a hard edge.
-    expect(glow.every(([off], i) => i === 0 || off >= glow[i - 1][0])).toBe(true);
-    expect(glow.filter(([off], i) => i > 0 && off === glow[i - 1][0]).length).toBeGreaterThan(0);
-
-    // Sub-comps share ONE DOM, so the canvas class must not leak between scenes.
-    const b = getTreatment("cover")().build(crctx("c01-b")).html;
-    expect(built.html).toContain("c01-a-sun");
-    expect(b).not.toContain("c01-a-sun");
   });
 
   test("creative ships NO template overrides (the whole look is CSS alone)", () => {
