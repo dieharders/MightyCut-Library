@@ -246,7 +246,18 @@ describe("new library components", () => {
   });
   test("hud renders own text fields + gates each part by its boolean", () => {
     const full = build("hud").html;
-    for (const s of ["MightyCut", "Overview", "01 / 06"]) expect(full).toContain(s);
+    // Derived from the example, not hardcoded: these three strings are consumed OUTSIDE this
+    // repo — the harness's gen-theme-previews.ts captions every theme-picker thumbnail from
+    // `brandName`/`tagline` — so they are expected to change, and a literal here just fails the
+    // suite for a copy edit. What is being asserted is that each field REACHES its slot.
+    const ex = getComponent("hud").defaults() as {
+      brandName: string;
+      tagline?: string;
+      titleText: string;
+      counterText: string;
+    };
+    for (const s of [ex.brandName, ex.titleText, ex.counterText]) expect(full).toContain(s);
+    if (ex.tagline) expect(full).toContain(ex.tagline);
     expect(full).toContain("hud-brand");
     expect(full).toContain("hud-title");
     const noBrand = build("hud", { brand: false }).html;

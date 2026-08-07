@@ -23,8 +23,13 @@ export const Hud = component({
     title: true,
     counter: true,
     progress: true,
-    brandName: "MightyCut",
-    tagline: "// themed decks",
+    // These three are not just showcase filler — the harness's `gen-theme-previews.ts` reads
+    // them to caption the theme-picker thumbnails, so this is the ONE place that text lives.
+    // They name what the card IS ("the Cover of a Sample Deck") rather than carrying invented
+    // branding: the band is identical on all six thumbnails, so anything brand-shaped there
+    // reads as content the user is choosing between when it is the same on every card.
+    brandName: "Cover",
+    tagline: "Sample Deck",
     titleText: "Overview",
     counterText: "01 / 06",
     progressPct: 60,
