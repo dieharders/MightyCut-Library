@@ -1,7 +1,7 @@
 /* Capsule label pill: the neutral tag capsule — WHITE by default, not an accent. Block and
    future both fall back to var(--primary) here; capsule must not. A bare chip is the theme's
-   quiet label (the legacy `.bframe .pill` base is white; only the declarative frames' eyebrows
-   and the HUD title are yellow), and a coral default would read as a CTA everywhere one is
+   quiet label (the legacy `.bframe .pill` base is white; only the closer's CTA capsule and the
+   HUD title are yellow), and a coral default would read as a CTA everywhere one is
    dropped into a slide. Geometry, outline and label are identical to frame.css's base eyebrow
    — the two are the same capsule, differing only in fill. The accent param (--pillbg) floods
    the FILL, which is what a candy pill wants; future re-points the same param at its hairline.

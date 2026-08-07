@@ -201,7 +201,6 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       headline: "Strong, committed, consultation.",
       subtitle:
         "A consulting-grade theme — one saturated cobalt, soft tinted cards that never shout.",
-      eyebrow: "Professional",
     },
   },
   quote: {

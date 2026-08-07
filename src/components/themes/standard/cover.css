@@ -1,5 +1,5 @@
-/* 1 · Cover — standard's identity plate: the bare brownstone eyebrow, a very large Playfair Display
-   headline in ink set to a narrow measure, and one quiet line of warm-gray Inter beneath it, all
+/* 1 · Cover — standard's identity plate: a very large Playfair Display headline in ink set to a
+   narrow measure, and one quiet line of warm-gray Inter beneath it, all
    LEFT-aligned and vertically centred on the sandstone canvas the emitter stamps (never painted
    here). The compass ring the showcase floats off the right edge is a DECORATION component under
    the port — standard's own compass family, opt-in per scene via addDecorations — so there is no
@@ -11,18 +11,6 @@
   justify-content: center;
   align-items: flex-start;
   padding: 0 8.375rem;
-}
-/* frame.css's base eyebrow ALREADY is standard's label — Inter 500, uppercase, 0.22em, brownstone, no
-   chip and no fill — so this layers spacing and SCALE and nothing else. The restraint is the
-   statement: the theme's loudest frame opens on its quietest voice.
-   The tracking override is not a second opinion about the label, it is the SAME label held at a
-   bigger size: 0.22em was drawn for the base --font-size-xs, and an em value keeps the ratio, so at
-   --font-size-md it would open to ~6.2px of air. 0.185em is that tracking damped by √(1.25/1.75) —
-   the optical rule bar.css writes up. Change the step here and this value has to move with it. */
-.cover .eyebrow {
-  margin-bottom: 2.375rem;
-  font-size: var(--font-size-md);
-  letter-spacing: 0.185em;
 }
 /* The display voice. Weight 700 rather than the shared h3's 600 — the cover and the closing plate
    are the only two frames that step up — with the leading pulled to 1.04 and the tracking left at

@@ -1,6 +1,9 @@
 /* 1 · Cover — creative's opening plate, and the theme's clearest statement of restraint: an
-   inverted ink kicker-block, an enormous Archivo Black headline jammed to the left edge of the
-   measure, and one line of tracked mono underneath. Nothing else. FRAME.md asks the sparse frames
+   enormous Archivo Black headline jammed to the left edge of the measure, and one line of
+   tracked mono underneath. Nothing else — the inverted ink kicker-block that used to open the
+   frame is gone with the cover's eyebrow slot, since the deck's section label is HUD chrome and
+   the plate was printing it twice. That leaves the frame sparser, which is the direction it was
+   already pulling: FRAME.md asks the sparse frames
    (cover · claim · closer) to read 45–60% EMPTY, so the cover earns no card, no rule, and — note —
    NO hard offset shadow: the signature is spent elsewhere in the run, and there is no block here
    to cast it.
@@ -21,12 +24,6 @@
   justify-content: center;
   align-items: flex-start;
   padding: 9.5rem 8.375rem 13.5rem;
-}
-.cover .eyebrow {
-  margin-bottom: 2.375rem;
-  font-size: var(--font-size-sm);
-  letter-spacing: 0.085em;
-  color: var(--light);
 }
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
    family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and

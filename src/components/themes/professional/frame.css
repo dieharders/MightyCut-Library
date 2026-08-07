@@ -64,8 +64,10 @@
 /* Base eyebrow — professional's quiet cobalt pill: a faint (single-digit-percent) cobalt tint
    fill carrying an uppercase, wide-tracked cobalt IBM Plex Sans label, fully rounded, no border,
    no shadow. The shared fallback so ANY eyebrow-bearing treatment reads on-theme even without
-   its own eyebrow skin; per-treatment skins (cover) layer only scale + spacing over this. It
-   self-removes when the slide sets no eyebrow (pruneRemoved). */
+   its own eyebrow skin; the one per-treatment skin (quote) layers only scale + spacing over
+   this. It self-removes when the slide sets no eyebrow (pruneRemoved). Quote is the ONLY
+   eyebrow-bearing treatment now — the cover's slot was removed, since the deck's section label
+   is HUD chrome and the opening frame was printing it twice. */
 .block-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;

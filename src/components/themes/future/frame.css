@@ -52,9 +52,11 @@
 }
 /* Base eyebrow — future's `label` type role (mono, uppercase, wide-tracked, cyan). The
    shared fallback so ANY eyebrow-bearing treatment reads on-theme even without its own
-   eyebrow skin (block/frame.css provides the analogous chip base). Per-treatment skins
-   (cover/quote) layer only positional margins over this; it self-removes when the slide
-   sets no eyebrow (pruneRemoved). */
+   eyebrow skin (block/frame.css provides the analogous chip base). The one per-treatment skin
+   (quote) layers only positional margins over this; it self-removes when the slide
+   sets no eyebrow (pruneRemoved). Quote is the ONLY eyebrow-bearing treatment now — the
+   cover's slot was removed, since the deck's section label is HUD chrome and the opening
+   frame was printing it twice. */
 .block-frame .eyebrow {
   font-family: var(--mono);
   font-weight: 500;

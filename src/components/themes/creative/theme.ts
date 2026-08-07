@@ -237,7 +237,6 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Loud, bordered, creative.",
       subtitle: "A neo-brutalist editorial theme.",
-      eyebrow: "Creative Mode",
     },
   },
   quote: {

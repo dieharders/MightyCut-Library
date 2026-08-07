@@ -1,9 +1,15 @@
 // VideoSpec — the single source of truth for what a generated video contains.
 // The LLM produces this JSON; the harness generators render it to HyperFrames
-// HTML; the Pi agent customizes the slide sub-compositions. Render-side
-// mirrors that must stay in sync with these shapes: src/pipeline/theme-css.ts
-// (palette/style tokens) and src/pipeline/slide-templates.ts (kind dispatch) —
-// both guarded by tripwire tests in spec.test.ts.
+// HTML; the Pi agent customizes the slide sub-compositions. The render-side mirror
+// that must stay in sync with these shapes is the kind→treatment map
+// (components/storyboard-defaults.ts · defaultTreatmentForKind), guarded by tripwire
+// tests in the harness's spec.test.ts / storyboard.test.ts. (The two modules this
+// note used to name — pipeline/theme-css.ts and pipeline/slide-templates.ts' kind
+// dispatch — are both deleted; every theme is a component theme now.)
+//
+// Every `.describe()` in this file is PROMPT COPY, not documentation: the whole schema
+// ships verbatim to the writer via z.toJSONSchema(VideoSpecSchema). Edit them as
+// instructions to a model, and keep them true — a stale one steers every create.
 import { z } from "zod";
 import { FRAME_THEME_NAMES } from "./storyboard";
 import { TransitionSpecSchema } from "./transitions";
@@ -22,14 +28,36 @@ export const VOLineSchema = z.object({
 });
 export type VOLine = z.infer<typeof VOLineSchema>;
 
+/**
+ * The per-slide SECTION LABEL, drawn in the HUD's top-right corner and NOWHERE ELSE.
+ *
+ * ONE definition, reused by every slide kind that can carry one, because the alternative is a
+ * set of near-identical `.describe()` strings that drift — and these strings are PROMPT COPY,
+ * not documentation: `z.toJSONSchema(VideoSpecSchema)` ships them verbatim inside the buildSpec
+ * prompt, so a stale one is an active instruction to the writer on every create. That is not
+ * hypothetical. The title slide's copy used to read "The cover's EYEBROW — a short label in a
+ * pill above the headline", describing a cover slot that no longer exists; while it did exist,
+ * the harness fed this one field to BOTH the eyebrow and the corner, so every deck's opening
+ * frame printed its section name twice. The slot is gone (treatments/cover), and this field
+ * means only the corner.
+ *
+ * Kinds with a `header` object hold it at `header.kicker`; the five without one (title,
+ * statement, outro, custom, composed) hold it top-level. The renderer reads
+ * `slide.header?.kicker ?? slide.kicker`, so a header — where there is one — WINS. Coverage is
+ * deliberately total: every kind has somewhere to put it, which is what lets the plan editor
+ * offer the field on every row and the harness route it with one rule instead of a per-kind
+ * exclusion list (a list would have to be mirrored across three repos, and would rot).
+ */
+const sectionKicker = z
+  .string()
+  .max(60)
+  .optional()
+  .describe(
+    'Short section label for the HUD top-right corner (e.g. "RESULTS", "HOW IT WORKS") — which PART of the deck this slide is in, not a restatement of its own title. Consecutive slides in the same section share one label. It is NOT printed on the slide itself. Set one on every slide where a section applies; omitting it falls back to the deck-wide meta.header.right, which is usually not what you want.',
+  );
+
 export const HeaderSpecSchema = z.object({
-  kicker: z
-    .string()
-    .max(60)
-    .optional()
-    .describe(
-      'Short section label shown in the HUD top-right for this slide (e.g. "RESULTS", "HOW IT WORKS"); falls back to the deck-wide meta.header.right when omitted',
-    ),
+  kicker: sectionKicker,
   title: z.string().min(1).max(80),
 });
 export type HeaderSpec = z.infer<typeof HeaderSpecSchema>;
@@ -168,13 +196,11 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     id,
     kind: z.literal("title"),
     transition,
-    kicker: z
-      .string()
-      .max(60)
-      .optional()
-      .describe(
-        'The cover\'s EYEBROW — a short label in a pill above the headline (e.g. "PRODUCT LAUNCH", "IN CONFIDENCE"). Omit unless the cover wants one.',
-      ),
+    // The HUD corner label, and nothing else. It USED to be double-duty — the cover treatment's
+    // eyebrow pill was filled from this same field — so a section name landed on the opening
+    // frame as well as in the corner, printing twice. The cover's eyebrow slot is gone; if the
+    // cover ever wants a label of its own it needs its own field, not this one.
+    kicker: sectionKicker,
     title: z.string().min(1).max(80),
     subtitle: z.string().max(140).optional(),
     background: backgroundKind,
@@ -192,22 +218,11 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     kind: z.literal("statement"),
     transition,
     background,
-    // The HUD's top-right SECTION label for this slide — the one kind with no `header` object
-    // that still needs somewhere to put one, so it carries the kicker itself. root-html reads
-    // `slide.header?.kicker ?? slide.kicker`, so this lands in the corner like every other
-    // content slide's does.
-    //
     // NOTE for anyone wiring the quote treatment's `eyebrow` param later: do NOT feed it from
-    // here. That is exactly the mistake the TITLE slide embodies — its kicker is the cover's
-    // eyebrow, so a section name written there prints on the opening frame instead of in the
-    // corner. spec-map deliberately passes no eyebrow for `quote`.
-    kicker: z
-      .string()
-      .max(60)
-      .optional()
-      .describe(
-        'Short section label shown in the HUD top-right for this slide (e.g. "RESULTS", "HOW IT WORKS").',
-      ),
+    // here. It would print the section name on the card AND in the corner — exactly the bug the
+    // cover had, which is why the cover's eyebrow slot was removed rather than re-plumbed. A
+    // quote card that wants its own eyebrow needs its own field. spec-map passes none.
+    kicker: sectionKicker,
     text: z.string().min(1).max(200),
     attribution: z.string().max(80).optional(),
   }),
@@ -321,6 +336,13 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema.optional(),
+    // Carried top-level as WELL as inside the optional header, because the header is optional:
+    // with only `header.kicker`, whether an approved section label rendered depended on whether
+    // the writer happened to emit a header object at all — the same blueprint, the same label,
+    // renders or doesn't on an unrelated model choice. It cannot be conjured server-side either,
+    // since HeaderSpec's `title` is required and inventing one is inventing content. The reader
+    // is `header?.kicker ?? kicker`, so a header still wins where one exists.
+    kicker: sectionKicker,
     concept: z
       .string()
       .min(10)
@@ -345,6 +367,8 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     transition,
     background,
     header: HeaderSpecSchema.optional(),
+    // Top-level as well as in the optional header — see the identical note on `custom`.
+    kicker: sectionKicker,
     layout: z
       .enum(LAYOUT_IDS)
       .describe(
@@ -363,6 +387,12 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     kind: z.literal("outro"),
     transition,
     background,
+    // The closing slide's corner label. It had NO slot of any kind until now — no header, no
+    // kicker — so a section label on the last slide was silently dropped: every slide member is
+    // a plain `z.object`, and Zod's default strip mode discards an unknown key without error, so
+    // nothing ever surfaced the gap. The closing plate carries no eyebrow (it never has), so
+    // unlike the cover there is no duplication risk here — the corner is the only place it goes.
+    kicker: sectionKicker,
     title: z.string().min(1).max(80),
     cta: z.string().min(1).max(120),
     contact: z.string().max(120).optional(),
@@ -388,7 +418,7 @@ export const HeaderBandSchema = z.object({
     .max(40)
     .optional()
     .describe(
-      "Deck-wide top-right HUD label — the default shown on any slide whose own kicker is omitted (per-slide kickers override it)",
+      "Deck-wide top-right HUD label — the fallback for any slide whose own kicker is omitted (per-slide kickers override it). Prefer per-slide kickers: a deck approved through plan mode clears this field, so only the per-slide labels survive.",
     ),
   rightSub: z.string().max(40).optional(),
   show: z.boolean().optional().describe("false hides the whole band"),

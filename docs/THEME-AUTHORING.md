@@ -212,11 +212,24 @@ no dot), a theme may supply a replacement template keyed by element name. The ov
 
 - **may** re-wrap, rename, or ADD nodes;
 - **may not** drop a `data-slot` — the schema field survives, so the editor keeps rendering a
-  control that silently does nothing (future's cover and quote both did this with `eyebrow`).
+  control that silently does nothing (future's quote did exactly this with `eyebrow`).
   Style an unwanted slot away instead; it already self-removes when empty;
 - **may not** drop a `data-anim` id that a descriptor targets — that reveal silently no-ops.
 
 Both are enforced generically in `theme-parity.test.ts` → _"anim-target resolution"_.
+
+> **If a slot shouldn't exist, delete the FIELD — don't drop it per theme.** The rule above is
+> about themes disagreeing with the shared template; it is not a way to retire a slot. The cover
+> used to carry an `eyebrow`, and it was removed the other way round — schema, shared template,
+> both theme overrides and all six skins, in one change — because the harness fed it from the
+> title slide's `kicker`, which is **also** what the HUD's top-right corner reads. Every deck's
+> opening frame printed its section name twice. A theme that had merely dropped the node would
+> have left the field, the control and the duplication in place everywhere else.
+>
+> `quote` keeps its `eyebrow` and is now the **only** eyebrow-bearing treatment, which is why
+> every theme still needs the `.block-frame .eyebrow` base in its `frame.css` (§9). The corner
+> label itself is root chrome (`primitives/hud` · `titleText`), drawn on every scene including
+> the cover and the closing plate — a treatment never renders it.
 
 ---
 
@@ -574,7 +587,17 @@ Every theme must dress the three hero frames (`cover`, `closing-plate`, `quote`)
 from its own roster; a tripwire in `theme-parity.test.ts` fails otherwise, and it holds any
 FURTHER frame you dress to the same roster + render rules. Keep each set **small — 1–2 is the
 norm, 4 the most any theme spends**: every decoration consumes a reveal cascade slot, so the
-count is how late the headline lands. If your look lives elsewhere — future's constellation
+count is how late the headline lands.
+
+On the **cover** that is now the whole story. Decorations own slots `0..n-1` and the headline
+takes slot `n` exactly — there is nothing between them, because `titleOffset` (`runtime/
+treatment.ts`) only inserts a beat when a treatment has a `leadIn` own-anim, and the cover's
+sole one went with its eyebrow pill. `quote` and `closing-plate` still have theirs (the pill,
+the backing card), so their headline still lands one beat after their decorations. Practical
+consequence for a theme author: on the cover, your deco count IS the delay before the headline —
+budget it directly. Pinned by _"cover's cascade leaves no dead beat"_ in `registry.test.ts`.
+
+If your look lives elsewhere — future's constellation
 backdrop carries the mood, professional spends its cobalt on type — go
 sparse (one instrument) rather than none. An explicit `addDecorations()` replaces the whole
 set, **including an empty call**, which is how the showcase expresses "deliberately bare".
@@ -760,6 +783,9 @@ export const neonTheme: ThemeTokens = {
   display: flex;
   flex-direction: column;
 }
+/* THE BASE EYEBROW — required. Only `quote` carries an eyebrow slot now (the cover's was
+   removed, §3), but this base is what its per-treatment skin layers over, so a theme without
+   this rule renders the quote label unstyled. It self-removes when the slide sets none. */
 .block-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;

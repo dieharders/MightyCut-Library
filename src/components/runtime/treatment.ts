@@ -167,8 +167,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const titleSlot = decorations.length; // decos own slots 0..titleSlot-1
         // Framing own-anims keyed to `leadIn` (an eyebrow pill, a backing card) take the title
         // slot; the title itself (a `line-0` reveal) then falls to the NEXT beat, so it doesn't
-        // pop simultaneously with its own frame. Only childless treatments (quote/cover/closing)
-        // carry leadIn own-anims, so child-bearing treatments are unaffected (titleOffset 0).
+        // pop simultaneously with its own frame. Only QUOTE and CLOSING-PLATE carry leadIn
+        // own-anims now — cover deliberately does not (its eyebrow pill was removed with the
+        // schema field; see treatments/cover/anim.ts), so cover is titleOffset 0 like every
+        // child-bearing treatment, and its headline takes the title slot itself.
         const ownAnimsRaw = animOverride ?? (def.anim ? def.anim(p, children.length) : []);
         const titleOffset = ownAnimsRaw.some((a) => a.time.at === "leadIn") ? 1 : 0;
         const childBase = titleSlot + titleOffset + 1; // children follow the frame + title

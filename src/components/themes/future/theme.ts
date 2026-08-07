@@ -187,7 +187,6 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Future Systems",
       subtitle: "Self-healing edge communications for contested environments.",
-      eyebrow: "Atlas Dynamics",
     },
   },
   quote: {

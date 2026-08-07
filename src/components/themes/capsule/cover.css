@@ -1,6 +1,7 @@
-/* 1 · Cover — capsule's identity plate: a yellow eyebrow capsule, an oversized
-   sentence-case Bodoni headline in ink, the coral accent rule, and a wide-tracked
-   grotesk subtitle, all centred. The cream ground is stamped by the emitter, so it is
+/* 1 · Cover — capsule's identity plate: an oversized sentence-case Bodoni headline in ink,
+   the coral accent rule, and a wide-tracked grotesk subtitle, all centred. The cover carries
+   no eyebrow capsule — the deck's section label is HUD chrome, and the plate used to print it
+   a second time. The cream ground is stamped by the emitter, so it is
    never re-authored here; the floating candy pills around the plate are decoration
    components, not markup. Ported from legacy .bf-cover (cqw × 1.2 → the 0.125rem grid). */
 .cover > .body {
@@ -8,20 +9,6 @@
   align-items: center;
   text-align: center;
   padding: 6.75rem 9.625rem 9.5rem;
-}
-/* frame.css's base eyebrow already supplies the yellow fill, the ink outline, the 9999px
-   radius and the uppercase grotesk label, so this layers only the cover's own scale, its
-   heavier shadow rung and its spacing over that base. The fill is restated deliberately: the
-   cover capsule is one of the two the theme pins to yellow (the HUD title is the other), so
-   it should not silently follow a change to the shared eyebrow default. */
-.cover .eyebrow {
-  align-self: center;
-  background: var(--accent-1);
-  box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
-  padding: 1rem 2.625rem;
-  letter-spacing: 0.18em;
-  font-size: var(--font-size-sm);
-  margin-bottom: 3.625rem;
 }
 .cover h3 {
   font-weight: 800;

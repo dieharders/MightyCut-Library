@@ -83,10 +83,11 @@ export type ThemeTokens = {
    *  schema/anim/fill/layout keep working — it may only re-wrap, rename or ADD nodes.
    *
    *  It may NOT drop a data-slot. The schema field survives a dropped slot, so the editor
-   *  still renders a control for it that silently does nothing — future's cover AND quote
-   *  both dropped `eyebrow`, and typing one had no effect. A slot a theme doesn't want
-   *  should be styled away; it already self-removes when the slide leaves it empty.
-   *  Enforced by a tripwire in registry.test.ts. */
+   *  still renders a control for it that silently does nothing — future's quote dropped
+   *  `eyebrow`, and typing one had no effect. A slot a theme doesn't want should be styled
+   *  away; it already self-removes when the slide leaves it empty. To RETIRE a slot, delete
+   *  the schema field (as the cover's eyebrow was) — dropping it per theme leaves the dead
+   *  control everywhere else. Enforced by a tripwire in registry.test.ts. */
   templates?: Record<string, string>;
   /** The ground this theme falls back to when a scene sets none, OVERRIDING the
    *  treatment's canonical `ground`. A monochrome theme (future: every frame on navy)
