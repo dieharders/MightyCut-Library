@@ -611,8 +611,9 @@ describe("sunburst backdrop (tripwire)", () => {
     // mean someone had gone back to rotating the layer, which is the expensive shape.
     expect(BACKDROPS.sunburst.css).not.toContain("280rem");
     // Colour comes from blending grey artwork against the scene's ground, not from a hook.
-    // (Creative's frame.css mentions --sunburst-ink in prose to explain why it deliberately
-    // states nothing for this design; no theme sets the hook, because there isn't one.)
+    // No theme sets --sunburst-ink because there is no such hook to set: this asserts the
+    // absence directly rather than pointing at prose. (Creative's frame.css used to carry that
+    // explanation; the note went with the sunburst default, so this line is now the record.)
     expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
     expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
   });

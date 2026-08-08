@@ -446,6 +446,11 @@ export const creativeTheme: ThemeTokens = {
     "A neo-brutalist punk-zine editorial theme. A rotation of full-bleed color planes, one constant ink outline on every block, a signature orange hard-offset shadow. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
+  // NO `groundDefault` — deliberately, and this note is the only record of it: an absent field
+  // reads as an oversight otherwise. See the header note: the per-treatment ground rotation IS
+  // creative's identity, so each treatment keeps its shared canonical ground and each skin is authored against it.
+  //
+  // Creative's DEFAULT backdrop: the shared `grid` design.
   backdrop: "grid",
   // Showcase/editor preview surface — the oat (--muted-2), NOT the milk the plates fill.
   //
