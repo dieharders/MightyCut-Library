@@ -1,5 +1,5 @@
-/* 1 · Cover — professional's identity plate: a quiet cobalt eyebrow pill, a large near-black
-   Libre Baskerville headline set to measure, and a muted-gray IBM Plex Sans subtitle, all LEFT-aligned on the
+/* 1 · Cover — professional's identity plate: a large near-black Libre Baskerville headline set
+   to measure, and a muted-gray IBM Plex Sans subtitle, all LEFT-aligned on the
    cream canvas the emitter stamps. The diagonal accent panel and dot grille the showcase floats
    here are decoration components (panel · grille), opt-in per scene — the always-on atmosphere is
    the hatch backdrop. Ported from the showcase .bf-cover (cqw × 1.2 → the 0.125rem grid). */
@@ -7,11 +7,6 @@
   justify-content: center;
   align-items: flex-start;
   padding: 0 8.375rem;
-}
-.cover .eyebrow {
-  margin-bottom: 2.125rem;
-  font-size: var(--font-size-lg);
-  letter-spacing: 0.065em;
 }
 .cover h3 {
   font-size: var(--font-size-max);

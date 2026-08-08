@@ -3,7 +3,7 @@
    (cqw × 1.2, cqh × 0.675). The card look, the numeral disc and the connector all live in
    step.css; this file owns only the body padding, the headline rhythm and the grid.
    One legacy rule is DELIBERATELY dropped: `.bf-timeline .pill { background: lavender }` —
-   this template carries no eyebrow slot (only cover and quote do), so it would be dead. */
+   this template carries no eyebrow slot (only quote does), so it would be dead. */
 .timeline > .body {
   justify-content: center;
   padding: 8.125rem 7.25rem 13.5rem;

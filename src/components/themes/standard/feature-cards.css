@@ -4,7 +4,7 @@
    grid, and nothing else.
 
    The reference hangs a 1.4cqw gap off this frame's eyebrow (`.bf-feature-cards .pill`), but the
-   shared template carries no eyebrow slot on any treatment except cover and quote — so that rule
+   shared template carries no eyebrow slot on any treatment except quote — so that rule
    has no target here and is dropped rather than written as CSS that styles nothing. The headline
    therefore leads the block and takes no top margin; the body is vertically centred, so the
    generous top/bottom padding is what gives it room, not a lead-in gap.

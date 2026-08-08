@@ -8,9 +8,6 @@
   align-items: flex-start;
   padding: 8.125rem 7.25rem 13.5rem;
 }
-.cover .eyebrow {
-  margin-bottom: 2.5rem;
-}
 .cover h3 {
   font-size: var(--font-size-max);
   letter-spacing: -0.04em;

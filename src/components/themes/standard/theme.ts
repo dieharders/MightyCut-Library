@@ -236,7 +236,6 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       headline: "The standard in restraint.",
       subtitle:
         "A quiet museum-catalog system in motion — warm stone, one hairline, compass-drafted geometry.",
-      eyebrow: "Standard",
     },
   },
   quote: {

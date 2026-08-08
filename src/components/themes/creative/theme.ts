@@ -237,7 +237,6 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Loud, bordered, creative.",
       subtitle: "A neo-brutalist editorial theme.",
-      eyebrow: "Creative Mode",
     },
   },
   quote: {
@@ -447,26 +446,12 @@ export const creativeTheme: ThemeTokens = {
     "A neo-brutalist punk-zine editorial theme. A rotation of full-bleed color planes, one constant ink outline on every block, a signature orange hard-offset shadow. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
   frameCss,
-  // NO `groundDefault` — deliberately. See the header note: the per-treatment ground rotation IS
-  // creative's identity, so each treatment keeps its shared canonical ground (cover cream,
-  // feature-cards orange, stat-grid green, closing-plate + quote pink, timeline + agenda oat,
-  // comparison yellow, chart + bar-ranking cream) and each skin is authored against it. The
-  // reference frame.css reached the same rotation with two `background: … !important` overrides,
-  // which the ground-resolution tripwire (rightly) bans because they make an explicit scene
-  // ground impossible; the two frames those overrides touched are re-designed for the ground
-  // they actually land on (stat-grid's plates go milk on green; the closer is a cream card on
-  // pink).
+  // NO `groundDefault` — deliberately, and this note is the only record of it: an absent field
+  // reads as an oversight otherwise. See the header note: the per-treatment ground rotation IS
+  // creative's identity, so each treatment keeps its shared canonical ground and each skin is authored against it.
   //
-  // Creative's DEFAULT backdrop: the shared `sunburst` design — a soft central glow with one round
-  // of long spiral arms sweeping out of it, turning continuously and very slowly across the scene,
-  // counter to the arms' own curl (MC.sunburstBg, −24° total). It paints a fixed GREY artwork into
-  // a canvas and lets `mix-blend-mode: luminosity` colour it against whatever plane the frame lands
-  // on, so it reads as a poster's screen-printed sunray field behind the content rather than as a
-  // picture — and stays legible on every one of the six grounds above. There is no ink hook to set:
-  // the ground supplies the hue (see the note in primitives/backdrops.ts). This is the design
-  // creative CONTRIBUTES to the shared pool; a default is not ownership, so a scene may pick any
-  // other design and any theme may set this one.
-  backdrop: "sunburst",
+  // Creative's DEFAULT backdrop: the shared `grid` design.
+  backdrop: "grid",
   // Showcase/editor preview surface — the oat (--muted-2), NOT the milk the plates fill.
   //
   // It MUST be the role the plates do not use. Creative's plates fill muted-1, so deriving this

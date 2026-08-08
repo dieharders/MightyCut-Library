@@ -12,9 +12,12 @@
   padding: 8.125rem 9.625rem 10.75rem;
 }
 /* The quote's eyebrow is the plain WHITE capsule, not the yellow one frame.css bases every
-   eyebrow on — yellow is reserved for the two declarative frames (cover, closing) and the HUD
-   title, and it would fight the coral ground here. Everything else (the ink outline, the
-   9999px radius, the uppercase grotesk label, the soft offset shadow) comes from the base. */
+   eyebrow on — yellow is reserved for the closer's CTA capsule and the HUD title, and it would
+   fight the coral ground here. Everything else (the ink outline, the 9999px radius, the
+   uppercase grotesk label, the soft offset shadow) comes from the base.
+   Quote is now the ONLY treatment that reaches that base at all: the cover's eyebrow slot was
+   removed (the deck's section label is HUD chrome, and the opening frame printed it twice), so
+   this white override is the only eyebrow capsule the theme actually paints. */
 .quote .eyebrow {
   align-self: flex-start;
   background: var(--light);

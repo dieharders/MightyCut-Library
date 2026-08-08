@@ -3,7 +3,7 @@
    card.css; this file owns only the body padding, the headline size/rhythm and the grid.
    Two legacy rules are DELIBERATELY dropped:
      · `.bf-feature-cards .pill { background: lavender }` — this template carries no eyebrow
-       slot (only cover and quote do), so the selector would be dead.
+       slot (only quote does), so the selector would be dead.
      · `.bf-feature-cards::before` (the white 84→93% wash over the saturated sky ground) —
        grounds are scene-configurable now, so whitening the ground would make the ground
        picker look broken. The two-glow atmosphere on .block-frame is the only wash left. */

@@ -246,7 +246,18 @@ describe("new library components", () => {
   });
   test("hud renders own text fields + gates each part by its boolean", () => {
     const full = build("hud").html;
-    for (const s of ["MightyCut", "Overview", "01 / 06"]) expect(full).toContain(s);
+    // Derived from the example, not hardcoded: these three strings are consumed OUTSIDE this
+    // repo — the harness's gen-theme-previews.ts captions every theme-picker thumbnail from
+    // `brandName`/`tagline` — so they are expected to change, and a literal here just fails the
+    // suite for a copy edit. What is being asserted is that each field REACHES its slot.
+    const ex = getComponent("hud").defaults() as {
+      brandName: string;
+      tagline?: string;
+      titleText: string;
+      counterText: string;
+    };
+    for (const s of [ex.brandName, ex.titleText, ex.counterText]) expect(full).toContain(s);
+    if (ex.tagline) expect(full).toContain(ex.tagline);
     expect(full).toContain("hud-brand");
     expect(full).toContain("hud-title");
     const noBrand = build("hud", { brand: false }).html;
@@ -572,6 +583,69 @@ describe("backdrop registry (tripwire)", () => {
   });
 });
 
+
+// SUNBURST — the one design with a canvas FX and an artwork payload, so it gets its own coverage
+// here rather than inside a theme's tripwire. It used to live in the creative block because
+// creative DEFAULTED to it; creative defaults to `grid` now, and a design's contract is not a
+// theme's fact — leaving these there would have meant the creative tripwire asserting behaviour
+// creative no longer has. Selected explicitly, so no theme's default can silently stop testing it.
+describe("sunburst backdrop (tripwire)", () => {
+  const sunctx = (compId: string): BuildContext =>
+    rootContext(compId, creativeTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"], backdrop: "sunburst" });
+
+  test("the sunburst backdrop emits a valid, compId-scoped canvas descriptor", () => {
+    const built = getTreatment("cover")().build(sunctx("c01-cover-a"));
+    const bd = built.anims.find((a) => a.kind === "backdrop");
+    expect(bd, "a sunburst scene must carry a backdrop anim").toBeDefined();
+    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
+    expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
+    expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
+    expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
+    // The three CSS assertions read the DESIGN's own sheet, not the scene's: a backdrop
+    // contributes no CSS to the sub-composition any more (its rules are staged as
+    // assets/backdrops.css — see BACKDROPS_CSS), so asserting on `built.css` would pass
+    // vacuously forever.
+    //
+    // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
+    // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
+    // mean someone had gone back to rotating the layer, which is the expensive shape.
+    expect(BACKDROPS.sunburst.css).not.toContain("280rem");
+    // Colour comes from blending grey artwork against the scene's ground, not from a hook.
+    // No theme sets --sunburst-ink because there is no such hook to set: this asserts the
+    // absence directly rather than pointing at prose. (Creative's frame.css used to carry that
+    // explanation; the note went with the sunburst default, so this line is now the record.)
+    expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
+    expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
+  });
+
+  test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
+    // The FX in mc.js is GENERIC — it knows how to draw a sunburst but not what this one looks
+    // like. Path, fan and glow ramp all travel in opts so primitives/backdrops.ts stays the single
+    // source of truth; if that link breaks the backdrop silently paints nothing.
+    const built = getTreatment("cover")().build(sunctx("c01-a"));
+    const o = built.anims.find((a) => a.kind === "backdrop")?.opts ?? {};
+    expect(String(o.armPath)).toMatch(/^M[\d.]/); // an SVG path, not a transform or a name
+    const fan = JSON.parse(String(o.fan)) as [number, number][];
+    const glow = JSON.parse(String(o.glow)) as [number, number][];
+    // [scale, degrees] pairs — NOT the `scale(…) rotate(…)` strings an SVG <use> would take. The
+    // canvas multiplies these, so a string here draws no arms at all and fails silently.
+    expect(fan.length).toBeGreaterThan(0);
+    for (const [s, d] of fan) {
+      expect(typeof s === "number" && typeof d === "number").toBe(true);
+    }
+    // The glow ramp must stay non-decreasing (a gradient's stops cannot go backwards) and keep the
+    // repeated offsets that reproduce the source's concentric BANDING — a repeat is a hard edge.
+    expect(glow.every(([off], i) => i === 0 || off >= glow[i - 1][0])).toBe(true);
+    expect(glow.filter(([off], i) => i > 0 && off === glow[i - 1][0]).length).toBeGreaterThan(0);
+
+    // Sub-comps share ONE DOM, so the canvas class must not leak between scenes.
+    const b = getTreatment("cover")().build(sunctx("c01-b")).html;
+    expect(built.html).toContain("c01-a-sun");
+    expect(b).not.toContain("c01-a-sun");
+  });
+
+});
+
 // FUTURE theme (tripwire) — the second live component theme. Proves the per-theme skin +
 // template-override seams and the animated constellation backdrop, mirroring the block
 // smoke coverage above but with futureTheme. The shared element trios are reused verbatim;
@@ -598,17 +672,18 @@ describe("future theme (tripwire)", () => {
     });
   }
 
-  test("template override: cover adds an ANIMATED cyan rule + preserves the eyebrow slot", () => {
+  test("template override: cover adds an ANIMATED cyan rule + preserves headline/subtitle", () => {
     const built = getTreatment("cover")().build(fctx("f01-cover"));
     const html = built.html;
-    const ex = getTreatment("cover").defaults() as { headline: string; subtitle?: string; eyebrow?: string };
+    const ex = getTreatment("cover").defaults() as { headline: string; subtitle?: string };
     // future's cover template adds a `.rule` underline (block's shared template has none) and
     // it now animates in via the shared coverAnim's `rule` descriptor — the element carries its
     // scoped anim class AND a `rule` descriptor targets it (was painted statically at t=0 before).
     expect(html).toContain('class="rule f01-cover-rule"');
     expect(built.anims.some((a) => a.kind === "rule" && a.target === "f01-cover-rule")).toBe(true);
-    // the eyebrow slot is PRESERVED (future used to drop it entirely) — it renders when set.
-    if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
+    // No eyebrow assertion: the cover has no such slot. Slot preservation across overrides is
+    // covered generically by the data-slot tripwire below; the cover's ABSENCE of an eyebrow is
+    // covered by "no theme's cover renders an eyebrow".
     // shared markers preserved → headline still renders (accent-split, hence unaccent)
     expect(unaccent(html)).toContain(ex.headline);
     expect(html).toContain('<span class="headline-accent">'); // the override carries data-accent forward
@@ -712,13 +787,12 @@ describe("capsule theme (tripwire)", () => {
     expect(bd?.target).toBe("c01-cover-a-wash"); // the rotating layer is compId-scoped
   });
 
-  test("template override: cover adds an ANIMATED coral rule + preserves every shared slot", () => {
+  test("template override: cover adds an ANIMATED coral rule + preserves headline/subtitle", () => {
     const built = getTreatment("cover")().build(cctx("c01-cover"));
     const html = built.html;
     const ex = getTreatment("cover").defaults() as {
       headline: string;
       subtitle?: string;
-      eyebrow?: string;
     };
     // The shared coverAnim ALREADY emits a `rule`-kind descriptor that no-ops wherever no node
     // stamps the id (block). Capsule's override adds the node, so the accent bar draws itself
@@ -728,7 +802,8 @@ describe("capsule theme (tripwire)", () => {
     expect(html).toContain('class="rule c01-cover-rule"');
     expect(built.anims.some((a) => a.kind === "rule" && a.target === "c01-cover-rule")).toBe(true);
     // Additive only: every shared data-slot survives the override, so no editor control no-ops.
-    if (ex.eyebrow) expect(html).toContain(ex.eyebrow);
+    // (Asserted generically by the data-slot tripwire below — the cover's own slots are just
+    // headline + subtitle now, both checked here.)
     expect(unaccent(html)).toContain(ex.headline);
     expect(html).toContain('<span class="headline-accent">'); // the override carries data-accent forward
     if (ex.subtitle) expect(html).toContain(ex.subtitle);
@@ -990,7 +1065,6 @@ describe("professional theme (tripwire)", () => {
 describe("creative theme (tripwire)", () => {
   const crctx = (compId: string): BuildContext =>
     rootContext(compId, creativeTheme, { voIds: ["l1", "l2", "l3", "l4", "l5"] });
-
   // Treatment → the ground creative lands it on. This IS the rotation: six distinct planes across
   // the ten treatments, every one of them a palette role the theme also uses as an accent or a
   // canvas. Written out rather than derived so the intended deck rhythm is legible here.
@@ -1019,8 +1093,15 @@ describe("creative theme (tripwire)", () => {
       expect(html, `${name} did not land on its canonical ground --${GROUND[name]}`).toContain(
         `background: var(--${GROUND[name]})`,
       );
-      // …and carries the turning sunburst as its default backdrop.
-      expect(html).toContain("mc-backdrop--sunburst");
+      // …and carries the flat ruled GRID as its default backdrop. It was the turning sunburst,
+      // which paints a full-frame grey canvas under `mix-blend-mode: luminosity` — and luminosity
+      // has no identity value, so it replaced every ground's lightness and left creative's planes
+      // murky. A flat line field is also what the theme's own rules ask for ("no gradients, no
+      // blurred shadows, no glow"). Sunburst is not gone — it stays creative's contribution to
+      // the shared pool and is selectable per scene; its own contract is pinned in the
+      // "sunburst backdrop (tripwire)" block, which selects it explicitly rather than relying
+      // on any theme's default.
+      expect(html).toContain("mc-backdrop--grid");
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");
@@ -1041,56 +1122,6 @@ describe("creative theme (tripwire)", () => {
     const html = renderScene(getTreatment("cover")(), crctx("c01-g"), { ground: "accent-3" });
     expect(html).toContain("background: var(--accent-3)");
     expect(html).not.toContain("background: var(--muted-1)");
-  });
-
-  test("the sunburst backdrop emits a valid, compId-scoped canvas descriptor", () => {
-    const built = getTreatment("cover")().build(crctx("c01-cover-a"));
-    const bd = built.anims.find((a) => a.kind === "backdrop");
-    expect(bd, "creative scene must carry a backdrop anim").toBeDefined();
-    expect(AnimDescriptorSchema.safeParse(bd).success).toBe(true);
-    expect(bd?.opts?.fn).toBe("sunburstBg"); // a canvas FX — see ANIMATED_DESIGNS for why
-    expect(bd?.target).toBe("c01-cover-a-sun"); // the canvas is compId-scoped
-    expect(built.html).toContain('<canvas class="c01-cover-a-sun"');
-    // The three CSS assertions read the DESIGN's own sheet, not the scene's: a backdrop
-    // contributes no CSS to the sub-composition any more (its rules are staged as
-    // assets/backdrops.css — see BACKDROPS_CSS), so asserting on `built.css` would pass
-    // vacuously forever.
-    //
-    // THE ELEMENT IS THE FRAME. The rotation is a transform on the drawing CONTEXT, not on the
-    // element, so nothing is oversized to keep its corners out of view. A `280rem` here would
-    // mean someone had gone back to rotating the layer, which is the expensive shape.
-    expect(BACKDROPS.sunburst.css).not.toContain("280rem");
-    // Colour comes from blending grey artwork against the scene's ground, not from a hook.
-    // (Creative's frame.css mentions --sunburst-ink in prose to explain why it deliberately
-    // states nothing for this design.)
-    expect(BACKDROPS.sunburst.css).toContain("mix-blend-mode");
-    expect(BACKDROPS.sunburst.css).not.toContain("--sunburst-ink");
-  });
-
-  test("the sunburst ships its artwork in the descriptor, scoped per scene", () => {
-    // The FX in mc.js is GENERIC — it knows how to draw a sunburst but not what this one looks
-    // like. Path, fan and glow ramp all travel in opts so primitives/backdrops.ts stays the single
-    // source of truth; if that link breaks the backdrop silently paints nothing.
-    const built = getTreatment("cover")().build(crctx("c01-a"));
-    const o = built.anims.find((a) => a.kind === "backdrop")?.opts ?? {};
-    expect(String(o.armPath)).toMatch(/^M[\d.]/); // an SVG path, not a transform or a name
-    const fan = JSON.parse(String(o.fan)) as [number, number][];
-    const glow = JSON.parse(String(o.glow)) as [number, number][];
-    // [scale, degrees] pairs — NOT the `scale(…) rotate(…)` strings an SVG <use> would take. The
-    // canvas multiplies these, so a string here draws no arms at all and fails silently.
-    expect(fan.length).toBeGreaterThan(0);
-    for (const [s, d] of fan) {
-      expect(typeof s === "number" && typeof d === "number").toBe(true);
-    }
-    // The glow ramp must stay non-decreasing (a gradient's stops cannot go backwards) and keep the
-    // repeated offsets that reproduce the source's concentric BANDING — a repeat is a hard edge.
-    expect(glow.every(([off], i) => i === 0 || off >= glow[i - 1][0])).toBe(true);
-    expect(glow.filter(([off], i) => i > 0 && off === glow[i - 1][0]).length).toBeGreaterThan(0);
-
-    // Sub-comps share ONE DOM, so the canvas class must not leak between scenes.
-    const b = getTreatment("cover")().build(crctx("c01-b")).html;
-    expect(built.html).toContain("c01-a-sun");
-    expect(b).not.toContain("c01-a-sun");
   });
 
   test("creative ships NO template overrides (the whole look is CSS alone)", () => {
@@ -1780,29 +1811,72 @@ describe("ground resolution (tripwire)", () => {
     expect(futureTheme.frameCss ?? "").toContain("--dots-ink");
   });
 
-  // future's cover template dropped the eyebrow slot entirely, so typing one did nothing.
-  test("future's cover renders an eyebrow when the slide sets one", () => {
-    const withEyebrow = renderScene(
-      getTreatment("cover")({ headline: "H", subtitle: "S", eyebrow: "Hello there" } as never),
-      fctx("g-e"),
-    );
-    expect(withEyebrow).toContain("Hello there");
-    // …and the ELEMENT still self-removes when unset (the word "eyebrow" survives in the
-    // CSS rule + anim target either way, so assert on the markup, not the whole document).
-    const noEyebrow = renderScene(getTreatment("cover")({ headline: "H", subtitle: "S" } as never), fctx("g-e2"));
-    expect(noEyebrow).not.toContain('<div class="eyebrow"');
-    expect(withEyebrow).toContain("eyebrow");
+  // THE COVER HAS NO EYEBROW, ON ANY THEME — the inverse of the tripwire that used to live
+  // here. The slot existed, and the harness fed it from the title slide's `kicker`, which is
+  // ALSO what the HUD's top-right corner reads: every deck's opening frame printed its section
+  // name twice, once in the corner and once in a pill above the headline. The fix was to delete
+  // the slot rather than stop feeding it, because a schema field with nothing to fill it is a
+  // dead control in the editor — the exact defect the override tripwire below exists to catch.
+  //
+  // Asserted against EVERY theme, not just future: capsule and future ship their own cover
+  // template, so a re-added slot could come back in one theme alone. And asserted with a param
+  // FORCED past the schema (`as never`), because CoverSchema is a plain z.object — Zod strips
+  // an unknown key silently, so a leftover `eyebrow` anywhere fails nothing on its own.
+  test("no theme's cover renders an eyebrow, even when one is forced past the schema", () => {
+    for (const theme of ALL_THEMES) {
+      const html = renderScene(
+        getTreatment("cover")({ headline: "H", subtitle: "S", eyebrow: "SECTION NAME" } as never),
+        rootContext(`g-nb-${theme.name}`, theme, { voIds: ["l1", "l2"] }),
+      );
+      expect(html, `${theme.name}: cover printed a forced eyebrow`).not.toContain("SECTION NAME");
+      expect(html, `${theme.name}: cover still stamps an .eyebrow node`).not.toContain(
+        '<div class="eyebrow"',
+      );
+    }
+  });
+
+  // Cover is the one childless treatment with NO `leadIn` own-anim, which is load-bearing and
+  // otherwise unasserted. treatment.ts derives `titleOffset` from the presence of a leadIn
+  // descriptor — a framing element (quote's pill, closing-plate's card) takes the title slot so
+  // the title doesn't pop with its own frame. Deleting the eyebrow removed cover's only leadIn
+  // anim, so the headline now takes slot 0 instead of slot 1 and the subtitle slot 1 instead of
+  // 2. That compaction is CORRECT (there is no frame left to wait for), but nothing else pins
+  // it: re-adding any leadIn descriptor here would silently reinstate an empty beat and delay
+  // the headline on every deck's opening frame.
+  test("cover's cascade leaves no dead beat where the eyebrow used to be", () => {
+    // Assert the INVARIANT, not literal slot numbers: decorations own slots 0..n-1, so with no
+    // leadIn frame anim the headline takes slot n exactly — the deco count itself. A re-added
+    // leadIn descriptor pushes it to n+1 and this fails, whatever a theme's deco roster is.
+    const slotOf = (html: string, target: string): number => {
+      const m = html.match(new RegExp(`"target":"${target}","time":\\{"at":"slot","n":(\\d+)`));
+      if (!m) throw new Error(`no slot anim emitted for ${target}`);
+      return Number(m[1]);
+    };
+    const decoCount = (html: string): number =>
+      new Set([...html.matchAll(/"target":"[^"]*__d(\d+)-/g)].map((m) => m[1])).size;
+
+    for (const [label, ctx] of [
+      ["future (no cover decorations)", fctx("g-slot-f")],
+      ["block (two cover decorations)", bctx("g-slot-b")],
+    ] as const) {
+      const html = renderScene(getTreatment("cover")({ headline: "H", subtitle: "S" }), ctx);
+      const id = ctx.compId;
+      const decos = decoCount(html);
+      expect(slotOf(html, `${id}-headline`), `${label}: headline is not on the title slot`).toBe(decos);
+      expect(slotOf(html, `${id}-subtitle`), `${label}: subtitle is not one beat after`).toBe(decos + 1);
+    }
   });
 });
 
 // --------------------------------------------------- theme template overrides ---
 // A theme template override may re-wrap, rename or ADD nodes, but must never DROP a
 // data-slot: the schema field survives, so the editor keeps rendering a control that
-// does nothing. Future shipped exactly that twice — cover and quote both dropped
-// `eyebrow`, and typing one silently had no effect.
+// does nothing. Future shipped exactly that — its quote dropped `eyebrow`, and typing
+// one silently had no effect. (The cover shipped the same defect and was fixed the other
+// way: the slot was RETIRED from the schema, so there is no control left to strand.)
 describe("theme template overrides preserve the shared markers (tripwire)", () => {
   // data-slot ids are STRICT-preserve (id-keyed): a dropped data-slot leaves the editor
-  // rendering a dead control (future shipped this twice — cover + quote dropped `eyebrow`).
+  // rendering a dead control (future shipped this with quote's `eyebrow`).
   // data-children is a VALUELESS marker (`<div data-children>`), so it's presence-preserve:
   // an override of a child-bearing treatment must keep the container (else treatment.ts
   // throws on child injection). data-anim is deliberately NOT blanket-checked: an override
@@ -1847,8 +1921,8 @@ describe("theme template overrides preserve the shared markers (tripwire)", () =
 // ------------------------------------------------------- showcase example parity ---
 // Each live theme supplies its OWN showcase sample copy. When one theme seeds a param
 // and another doesn't, that theme's showcase card renders the field empty — it reads as
-// a broken control rather than a deliberate choice, which is how future shipped a cover
-// and a quote with no eyebrow. Parity is the default; genuine differences go in the
+// a broken control rather than a deliberate choice, which is how future shipped a quote
+// with no eyebrow. Parity is the default; genuine differences go in the
 // allowlist below WITH a reason, so the omission is a decision rather than an oversight.
 describe("showcase example parity across live themes (tripwire)", () => {
   const THEMES = ALL_THEMES;

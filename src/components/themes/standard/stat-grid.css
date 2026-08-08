@@ -12,8 +12,8 @@
        library (the emitter stamps the ground, and pinning it makes an explicit scene ground
        silently do nothing), so a deck that wants the deeper stone asks for it by name with
        `ground: "muted-2"` — the case frame.css already anticipates.
-     · `.bf-stat-grid .pill` — the shared stat-grid template carries no eyebrow slot (only cover
-       and quote do), so there is no label to space.
+     · `.bf-stat-grid .pill` — the shared stat-grid template carries no eyebrow slot (only quote
+       does), so there is no label to space.
 
    The figures live in stat.css; this file owns the body padding, the headline rhythm and the
    grid. Ported from the showcase .bf-stat-grid (cqw × 1.2, cqh × 0.675). */

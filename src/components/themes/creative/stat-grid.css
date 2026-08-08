@@ -28,7 +28,7 @@
 }
 /* Header block centred, content grid full-width — the reference's shared rule for the six content
    treatments. As on feature-cards the eyebrow half is a forward guard: the SHARED template has no
-   eyebrow slot (only cover and quote do), so it styles nothing until a template override adds
+   eyebrow slot (only quote does), so it styles nothing until a template override adds
    one, and without it frame.css's `align-self: flex-start` would strand a left ink kicker over a
    centred headline. */
 .stat-grid .eyebrow {
