@@ -425,3 +425,111 @@ describe("every box-less element, in every theme, cascades", () => {
     },
   );
 });
+
+/* ------------------------------------- (4) design pixels -> canvas pixels --- */
+//
+// Every tween distance in mc.js is a DESIGN pixel — authored against a 1920-wide frame, like
+// the CSS around it — and gsap pixels do not follow rem. The MC factories convert their own
+// travel through `u()`; the `from` kind cannot, because its opts are raw gsap vars that the
+// interpreter hands to `tl.from()` verbatim. That makes the five `from`-style transitions
+// (slide-left/right/up/down, fall) the ONE path where motion can silently stay 1920-sized
+// inside a smaller frame while every rem beside it scales — a 120px slide is 6.3% of the
+// design frame and 9.4% of a 1280 one, so the element overshoots its own layout.
+//
+// Driven through the REAL interpreter at a real root font-size: `document` is passed in as a
+// parameter rather than left to the ambient test environment, because `u()` degrades to
+// identity when there is no document and these assertions would then pass vacuously (or
+// depend on which other suite ran first).
+describe("raw `from` travel is converted to canvas pixels", () => {
+  /** The render document stamps `16 * canvas.width / 1920`; 1280 wide gives 10.666…px. */
+  const fontSizeFor = (canvasWidth: number) => (16 * canvasWidth) / 1920;
+
+  const runAtWidth = (anims: AnimDescriptor[], canvasWidth: number): Tween[] => {
+    const win: Record<string, unknown> = {};
+    const el = { display: "block", getContext: () => null };
+    const root = {};
+    const gcs = (node: unknown) =>
+      node === el ? { display: "block" } : { fontSize: `${fontSizeFor(canvasWidth)}px` };
+    new Function("window", "getComputedStyle", "document", MC_SRC)(win, gcs, { documentElement: root });
+    const mc = win.MC as { applyAnims: (tl: unknown, a: unknown, c: unknown) => unknown };
+
+    const tweens: Tween[] = [];
+    const tl: Record<string, unknown> = {};
+    const record = (target: unknown, vars: Record<string, unknown>, at: number) => {
+      tweens.push({ target, vars, at });
+      return tl;
+    };
+    tl.from = record;
+    tl.to = record;
+    tl.fromTo = (t: unknown, _f: unknown, vars: Record<string, unknown>, at: number) => record(t, vars, at);
+
+    mc.applyAnims(tl, anims, {
+      q: () => el,
+      qa: () => [el],
+      at: (_id: string, fb: number) => fb ?? 0,
+      atIndex: (n: number) => 0.4 + 0.2 * n,
+      lineId: () => "",
+      leadIn: 0.4,
+      voCount: 2,
+      dur: 8,
+      page: {},
+    });
+    return tweens;
+  };
+
+  /** The catalog's own descriptor, so the travel under test is the shipped number. */
+  const varsFor = (name: TransitionName, canvasWidth: number): Record<string, unknown> => {
+    const anim = elementIn(name, "t");
+    expect(anim, `${name} has no element entrance`).not.toBeNull();
+    const tweens = runAtWidth([anim!], canvasWidth);
+    expect(tweens.length, `${name} scheduled nothing`).toBe(1);
+    return tweens[0]!.vars;
+  };
+
+  // 1280 is two thirds of the design width, so every design pixel lands on two thirds of
+  // itself. Asserted against the RATIO rather than a transcribed number: the point is that
+  // travel is a constant fraction of the frame, whatever the catalog's distance happens to be.
+  const RATIO = 1280 / 1920;
+
+  test.each(["slide-left", "slide-right", "slide-up", "slide-down", "fall"] as const)(
+    "%s travels the same FRACTION of the frame at 1280 as at 1920",
+    (name) => {
+      const design = varsFor(name, 1920);
+      const small = varsFor(name, 1280);
+      for (const key of ["x", "y"] as const) {
+        if (typeof design[key] !== "number") continue;
+        expect(small[key], `${name}.${key} kept its design-pixel travel`).toBeCloseTo(
+          (design[key] as number) * RATIO,
+          6,
+        );
+      }
+      // The travel keys are the only ones touched — a scaled opacity would blow the reveal.
+      expect(small.opacity).toBe(design.opacity);
+      expect(small.duration).toBe(design.duration);
+      expect(small.ease).toBe(design.ease);
+    },
+  );
+
+  test("a `from` with no travel (wipe) is passed through untouched", () => {
+    const design = varsFor("wipe", 1920);
+    const small = varsFor("wipe", 1280);
+    expect(small).toEqual(design);
+    expect(design.clipPath, "wipe's inset is relative and must not be scaled").toBe(
+      "inset(0 100% 0 0)",
+    );
+  });
+
+  // The whole point of the conversion is that the two reveal paths agree. A factory-style
+  // entrance has always scaled; this pins that the raw one now scales by the SAME ratio,
+  // which is what keeps a deck's motion coherent when half its elements pick each.
+  test("factory-style and raw-style entrances scale by the same ratio", () => {
+    const rise = { design: varsFor("rise", 1920).y as number, small: varsFor("rise", 1280).y as number };
+    const slide = { design: varsFor("slide-up", 1920).y as number, small: varsFor("slide-up", 1280).y as number };
+    expect(slide.small / slide.design).toBeCloseTo(rise.small / rise.design, 6);
+  });
+
+  test("at the design canvas the conversion is the identity", () => {
+    const vars = varsFor("slide-left", 1920);
+    expect(vars.x, "the catalog's own ELEM_DIST, unmodified").toBe(-120);
+  });
+});

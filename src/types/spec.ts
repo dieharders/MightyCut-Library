@@ -465,8 +465,15 @@ export type HeaderBandSpec = z.infer<typeof HeaderBandSchema>;
 
 /**
  * Visibility toggles — the ONLY source of truth for what chrome renders, and now the only
- * place visibility lives at all. Every switch defaults to visible (omitted → shown) EXCEPT
- * `slideCount`, which defaults off.
+ * place visibility lives at all.
+ *
+ * ONE default rule, no exceptions: every switch defaults to visible (omitted → shown),
+ * `slideCount` included. It used to be the one opt-in switch, and nothing ever shipped it
+ * off — three separate places conspired to force it back on (a `slideCount: true` seed on
+ * the web create form, the writer prompt, the sample deck's own hand-set), each of which
+ * only existed to defeat the exception. All three are gone with it, and the seed's
+ * precedence subtlety went too (it had to layer UNDER a blueprint or it would outrank a
+ * deck that deliberately turned the counter off).
  *
  * `header.show`, `footer.slideNumbers` and `caption.show` were all folded in here. Splitting
  * one control across two objects is what let the writer be told about `footer.slideNumbers`

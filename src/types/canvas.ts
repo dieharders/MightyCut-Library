@@ -24,11 +24,13 @@ export type CanvasSize = { readonly width: number; readonly height: number };
 /**
  * The canvas presets a deck may be composed at.
  *
- * `landscape-720` is WIRED BUT NOT YET USABLE as a default. It will render at the correct
- * SIZE — every `data-width`/`data-height`/`#stage` box derives from here — but the layout
- * inside it stays anchored to 1920, because the library's rem sizes only rescale with the
- * canvas once the render document sets a canvas-derived root font-size, which it does not
- * (see DESIGN_CANVAS). It exists so the threading has a second value to be proven against.
+ * `landscape-720` is the second value the threading is proven against, and it now composes
+ * correctly rather than merely sizing correctly: the render document stamps a canvas-derived
+ * root font-size (rootFontSizePx, below), so every authored rem is a fraction of the frame
+ * and the layout rescales with it. The two things rem cannot carry are handled beside it —
+ * GSAP tween distances go through `MC.u` at apply time, and canvas-2D backdrops paint through
+ * a scaled context — so the only sizes still anchored to 1920 are the raster effects that
+ * SHOULD be (hairlines, shadow blurs).
  *
  * No 4K entries: the renderer reaches 4K by SUPERSAMPLING a 1080-class composition
  * (`--resolution landscape-4k`), which is a different axis from the composition canvas and
@@ -108,3 +110,21 @@ export const canvasFor = (name?: string, fps: Fps = DEFAULT_FPS): Canvas => {
   const resolved: CanvasPresetName = isCanvasPreset(name) ? name : DEFAULT_CANVAS_PRESET;
   return { name: resolved, ...CANVAS_PRESETS[resolved], fps };
 };
+
+/**
+ * The reverse lookup: which preset, if any, a pair of dimensions IS.
+ *
+ * A composed deck records its canvas as pixels, not as a name — the root stage's
+ * `data-width`/`data-height` are what the renderer sizes the output from — so anything
+ * reading a canvas back off an artifact (the harness's render gate) has dimensions in hand
+ * and needs the name to describe them. It lives here, beside the table, because a lookup
+ * kept away from the data it looks up is the drift this module exists to end.
+ *
+ * `undefined` for dimensions no preset has, which is a real answer and not an error: a deck
+ * composed before a preset was retired, or by a hand-edited root, still renders — the caller
+ * decides whether to warn.
+ */
+export const canvasPresetForSize = (size: CanvasSize): CanvasPresetName | undefined =>
+  CANVAS_PRESET_NAMES.find(
+    (n) => CANVAS_PRESETS[n].width === size.width && CANVAS_PRESETS[n].height === size.height,
+  );
