@@ -42,6 +42,7 @@ export type {
   TypeSpec,
 } from "./types";
 
+import type { CanvasSize } from "../../types/canvas";
 import type { FrameGround } from "../../types/storyboard";
 import type { BuildContext, BuildMode, ThemeTokens } from "./types";
 
@@ -49,7 +50,13 @@ import type { BuildContext, BuildMode, ThemeTokens } from "./types";
 export const rootContext = (
   compId: string,
   theme: ThemeTokens,
-  opts?: { mode?: BuildMode; voIds?: string[]; backdrop?: string; ground?: FrameGround },
+  opts?: {
+    mode?: BuildMode;
+    voIds?: string[];
+    backdrop?: string;
+    ground?: FrameGround;
+    canvas?: CanvasSize;
+  },
 ): BuildContext => ({
   compId,
   idPrefix: compId,
@@ -58,4 +65,5 @@ export const rootContext = (
   backdrop: opts?.backdrop,
   ground: opts?.ground,
   voIds: opts?.voIds,
+  canvas: opts?.canvas,
 });

@@ -25,6 +25,12 @@ export {
 // address colours through it.
 export * from "./types/palette";
 
+// The canvas contract (the named preset table every dimension in the render, the
+// scene hosts and the preview stage derives from) — flat for the same reason as
+// the palette: both consumers address the canvas through it, not through a
+// namespace.
+export * from "./types/canvas";
+
 // Zod contracts (the params / spec / deck vocabulary).
 export * as spec from "./types/spec";
 export * as storyboard from "./types/storyboard";

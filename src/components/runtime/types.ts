@@ -2,6 +2,7 @@
 import type { z } from "zod";
 import type { ElementNode } from "../../pipeline/mini-dom";
 import type { SubComposition } from "../../pipeline/sub-composition";
+import type { CanvasSize } from "../../types/canvas";
 import type { PaletteVar } from "../../types/palette";
 import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { ComponentTransition, TransitionSpec } from "../../types/transitions";
@@ -178,6 +179,10 @@ export type BuildContext = {
   ground?: FrameGround;
   /** Render: this slide's VO line ids in narration order (for lineId parity). */
   voIds?: string[];
+  /** The canvas this scene is composed at — sizes the scene host's `data-width`/
+   *  `data-height`. Unset falls back to DESIGN_CANVAS (types/canvas.ts), which is what
+   *  keeps every existing caller byte-identical. */
+  canvas?: CanvasSize;
 };
 
 /** A built element, before serialization (treatments split this into page parts). */

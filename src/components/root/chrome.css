@@ -13,11 +13,16 @@
  * bottom 200px (captions + progress), left/right 80px. (The block treatments'
  * own body inset is tighter — ~130px top / 216px bottom / 96px sides.)
  *
- * Units: layout and type measures are rem (they define the composition and rescale
- * with the canvas via the render document's viewport-derived root font-size). Sub-pixel
- * RASTER effects — the 1px hairline gradient stops and the caption text-shadow blur —
- * stay px on purpose: they tune how the composition is drawn, not its geometry, and
- * would double in weight if snapped up to the 0.125rem (2px) grid.
+ * Units: layout and type measures are rem; sub-pixel RASTER effects — the 1px hairline
+ * gradient stops and the caption text-shadow blur — stay px on purpose, because they tune
+ * how the composition is DRAWN rather than its geometry and would double in weight if
+ * snapped up to the 0.125rem (2px) grid.
+ *
+ * Those rem measures do NOT currently rescale with the canvas, despite what an earlier
+ * version of this note claimed: nothing sets a root font-size, so 1rem is the browser's
+ * 16px and every measure here (including the safe area above) is anchored to
+ * DESIGN_CANVAS. See the long note in components/runtime/css.ts for why, and for what
+ * has to happen before a different canvas lays out correctly.
  */
 
 html,

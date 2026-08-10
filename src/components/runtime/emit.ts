@@ -43,12 +43,20 @@ export const buildScene = (
   return parts;
 };
 
-/** Render a scene to a complete sub-composition HTML document. */
+/**
+ * Render a scene to a complete sub-composition HTML document.
+ *
+ * The ctx's canvas is stamped onto the parts here rather than inside `buildScene`: a
+ * treatment builds CONTENT and has no business knowing the frame it lands in, while this
+ * is already the single seam where the component system meets the render pipeline. An
+ * unset ctx.canvas leaves `parts.canvas` undefined, so wrapSubComposition falls back to
+ * DESIGN_CANVAS and the emitted bytes are unchanged.
+ */
 export const renderScene = (
   treatment: TreatmentInstance,
   ctx: BuildContext,
   overrides?: SceneOverrides,
-): string => wrapSubComposition(buildScene(treatment, ctx, overrides));
+): string => wrapSubComposition({ ...buildScene(treatment, ctx, overrides), canvas: ctx.canvas });
 
 export type Preview = { html: string; css: string; anims: AnimDescriptor[] };
 

@@ -6,12 +6,23 @@
 // EVEN pixel — which minimizes sub-pixel jitter when an element is rotated or drawn off
 // the device-pixel/DPI grid; and it keeps the authored scale legible.
 //
-// The render document (the harness-generated index.html) sets a viewport-derived root
-// font-size, so authored numbers are CANVAS-relative, not pixel-absolute: the whole
-// composition rescales if the canvas ever moves off 1920x1080. The even-pixel property
-// therefore holds at the design size only — off it, jitter resistance comes from the
-// uniform scale factor instead. (The old "1.2rem = 1% of 1920" convention is retired:
-// 1.2rem rounds to 1.25rem on this grid, so the percentages no longer line up.)
+// REM IS NOT CANVAS-RELATIVE TODAY, and an earlier version of this comment claimed it was.
+// Nothing anywhere sets `html { font-size }` — not the harness-generated index.html, not the
+// runtime — so 1rem is the browser default 16px and every authored rem is effectively a fixed
+// px anchored to DESIGN_CANVAS (types/canvas.ts). A composition does NOT rescale when the
+// canvas moves off 1920x1080: it keeps its 1920-sized layout inside the new frame. The
+// even-pixel property therefore always holds, because the scale never changes.
+//
+// Making it true is a known, deliberately deferred piece of work: set a canvas-derived root
+// font-size in the RENDER document only (`calc(16px * width / 1920)`), which would rescale
+// every existing rem with no CSS edits. The blocker is preview parity — engine/mount.ts mounts
+// into a shadow root inside the WebUI document, and rem resolves against
+// document.documentElement across that boundary, so the same rule would leak into the host
+// app's layout (see the comment there). Until it lands, a harness tripwire pins the active
+// canvas to DESIGN_CANVAS so the default cannot be moved without doing this first.
+//
+// (The old "1.2rem = 1% of 1920" convention is retired: 1.2rem rounds to 1.25rem on this
+// grid, so the percentages no longer line up.)
 //
 // Because every sub-composition is imported into ONE shared
 // DOM (importNode, not iframes), those semantic classes would cross-match between

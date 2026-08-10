@@ -5,6 +5,7 @@
 // the model), so the agent self-corrects and the CLI prints a clear error.
 import { z } from "zod";
 import { issuesSummary } from "../util/issues";
+import type { CanvasSize } from "../types/canvas";
 import type { FrameGround } from "../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../types/transitions";
 import { AnimDescriptorSchema, type AnimDescriptor } from "./runtime/anim";
@@ -43,6 +44,8 @@ export type ComposeOpts = {
   ground?: FrameGround;
   /** Storyboard backdrop-mask override (else the theme's canonical backdrop). */
   backdrop?: string;
+  /** The canvas the scene is composed at (sizes its host). Unset ⇒ DESIGN_CANVAS. */
+  canvas?: CanvasSize;
 };
 
 /** Validate `data` against `schema`, throwing a formatted Zod-issue summary on failure. */
@@ -94,7 +97,7 @@ export const composeScene = (spec: SceneSpec, compId: string, opts: ComposeOpts 
     opts.ground || opts.backdrop ? { ground: opts.ground, backdrop: opts.backdrop } : undefined;
   return renderScene(
     inst,
-    rootContext(compId, opts.theme ?? blockTheme, { voIds: opts.voIds }),
+    rootContext(compId, opts.theme ?? blockTheme, { voIds: opts.voIds, canvas: opts.canvas }),
     overrides,
   );
 };

@@ -66,13 +66,17 @@ export const DeckSceneSchema = z
   })
   .loose();
 
+// `width` / `height` / `fps` are GONE, following the same three fields off VideoSpec.meta
+// (see the tombstone in types/spec.ts). They were only ever copied here by specToDeck from
+// spec literals that restated a constant, and NOTHING in any repo read them back — a deck
+// is a CONTENT document, while the canvas is a render parameter resolved from
+// types/canvas.ts at render time. Deleting them cannot break an older deck.json: this
+// schema is `.loose()`, so unknown keys pass through untouched, which is what actually
+// guarantees the round-trip (the fields being declared never did).
 export const DeckMetaSchema = z
   .object({
     title: z.string().optional(),
     requester: z.string().optional(),
-    width: z.number().optional(),
-    height: z.number().optional(),
-    fps: z.number().optional(),
   })
   .loose();
 

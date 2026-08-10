@@ -17,6 +17,7 @@ import type {
   ThemeTokens,
   TreatmentInstance,
 } from "../components/runtime/types";
+import { DESIGN_CANVAS, type CanvasSize } from "../types/canvas";
 import type { FrameGround } from "../types/storyboard";
 import { TIMING_SECONDS } from "../types/transitions";
 import { bootstrapFx } from "./fx";
@@ -53,8 +54,8 @@ export type PreviewHandle = {
 export type MountPreviewOptions = {
   /** CSS scope id (default `mc-preview`). Unique-ish per card avoids selector clashes if reused. */
   compId?: string;
-  /** Render inside a scaled 1920×1080 frame stage (treatments + full-frame components like the HUD).
-   *  Defaults to true for treatments, false for natural-size components. */
+  /** Render inside a scaled canvas-sized frame stage (treatments + full-frame components like
+   *  the HUD). Defaults to true for treatments, false for natural-size components. */
   frame?: boolean;
   /** Ground colour token override (deck scene ground) — swaps the treatment's canonical
    *  ground background the same way the renderer's buildScene does. */
@@ -62,6 +63,9 @@ export type MountPreviewOptions = {
   /** Backdrop-mask override (deck scene backdrop) — selects the full-bleed mask design;
    *  unset falls back to the theme's canonical backdrop (built into the node, like render). */
   backdrop?: string;
+  /** The canvas the framed stage represents. Defaults to DESIGN_CANVAS (types/canvas.ts) —
+   *  the same fallback the renderer's scene hosts use, so preview and MP4 agree. */
+  canvas?: CanvasSize;
 };
 
 // Base + stage styles injected into every preview shadow. `:host` pins the color /
@@ -71,7 +75,14 @@ export type MountPreviewOptions = {
 // preview but is near-invisible on future's dark one, so a dark theme flips to
 // `var(--light)`. Every element skin sets its own colour; this only backstops one that
 // forgets, so it must not be a fixed light-background assumption.
-const previewCss = (frame: boolean, surface: string, fg: string, scheme: string, compId: string): string => `
+const previewCss = (
+  frame: boolean,
+  surface: string,
+  fg: string,
+  scheme: string,
+  compId: string,
+  canvas: CanvasSize,
+): string => `
 :host { display: block; overflow: hidden; border-radius: inherit; color-scheme: ${scheme}; font-family: var(--disp, "Inter", system-ui, sans-serif); color: ${fg}; }
 /* The host app's global border-box reset (Tailwind Preflight) does NOT cross the shadow
    boundary, so the shadow defaults to content-box. Scope border-box to the SCAFFOLD only
@@ -93,13 +104,19 @@ const previewCss = (frame: boolean, surface: string, fg: string, scheme: string,
    its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
    is the surface the user actually sees (it fills the preview box, above the host card). */
 .mc-preview-stage { width: 100%; overflow: hidden; background: ${surface}; }
-.mc-preview-stage--frame { position: relative; aspect-ratio: 16 / 9; }
-/* Stays literal 1920x1080 + transform:scale (below), NOT the render document's
-   viewport-derived root font-size: this mounts into the HOST (WebUI) document, and rem
-   resolves against document.documentElement even across a shadow boundary — so a global
-   html font-size rule here would leak into the WebUI's own rem layout. We rely on the
-   host's 16px root instead. Do NOT set document.documentElement.style.fontSize here. */
-.mc-preview-stage--frame .mc-preview-stage-inner { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.mc-preview-stage--frame { position: relative; aspect-ratio: ${canvas.width} / ${canvas.height}; }
+/* Stays a literal canvas-sized box + transform:scale (below), and MUST NOT be swapped for a
+   canvas-derived root font-size: this mounts into the HOST (WebUI) document, and rem resolves
+   against document.documentElement even across a shadow boundary — so a global html font-size
+   rule here would leak into the WebUI's own rem layout. We rely on the host's 16px root
+   instead. Do NOT set document.documentElement.style.fontSize here.
+
+   That constraint is also why a non-DESIGN_CANVAS preview is only dimensionally right, not
+   layout-right: the library's rem sizes are anchored to DESIGN_CANVAS (types/canvas.ts) and
+   nothing rescales them, exactly as in the render. Fixing it means solving the leak first —
+   an iframe, or moving canvas geometry onto a custom-property multiplier. The dimensions
+   below and the scale() divisor derive from ONE value so they cannot drift apart. */
+.mc-preview-stage--frame .mc-preview-stage-inner { position: absolute; top: 0; left: 0; width: ${canvas.width}px; height: ${canvas.height}px; transform-origin: top left; }
 .mc-preview-stage--frame .mc-preview-stage-inner > * { position: absolute; inset: 0; }
 /* Component/decoration previews render at their natural rem size inside a wide canvas
    (64rem — wider than any component, so text like the card body stays one line), then
@@ -151,6 +168,7 @@ export const mountPreview = (
   bootstrapFx();
   const compId = opts.compId ?? "mc-preview";
   const frame = opts.frame ?? instance.kind === "treatment";
+  const canvas = opts.canvas ?? DESIGN_CANVAS;
   // opts.ground is a loosely-typed FrameGround from the WebUI deck; it rides the ctx so
   // the backdrop mask resolves against it, and still drives the visible-bg swap below.
   const ctx = rootContext(compId, theme, {
@@ -182,7 +200,7 @@ export const mountPreview = (
   // without this the showcase/editor preview would mount the mask element unstyled. Unscoped
   // is correct here — the shadow root already isolates it, and the rules are per-scene
   // invariant by construction.
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId)}\n${BACKDROPS_CSS}\n${css}`;
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId, canvas)}\n${BACKDROPS_CSS}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
@@ -199,8 +217,9 @@ export const mountPreview = (
   const MC = (window as unknown as { MC?: McGlobal }).MC;
   const scale = (): void => {
     if (frame) {
-      // Frame: scale the 1920px scene to the stage width (unchanged).
-      inner.style.transform = `scale(${stage.clientWidth / 1920})`;
+      // Frame: scale the canvas-sized scene to the stage width. The divisor MUST be the
+      // same value previewCss sized the inner box with — hence one `canvas` for both.
+      inner.style.transform = `scale(${stage.clientWidth / canvas.width})`;
       return;
     }
     // Component/decoration: measure the element at its natural rem size (it renders in the
