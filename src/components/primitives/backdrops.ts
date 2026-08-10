@@ -19,6 +19,7 @@
 // flag is read with `element.closest(...)`, so stating it once on the root covers the wash, the
 // canvases and any layer a future design adds. Scope: it exempts only what is INSIDE a backdrop.
 import type { ElementNode } from "../../pipeline/mini-dom";
+import { DESIGN_CANVAS } from "../../types/canvas";
 import type { BackdropName, FrameGround } from "../../types/storyboard";
 import { rootElement } from "../runtime/dom";
 import type { AnimDescriptor, BuildContext, ThemeTokens } from "../runtime/types";
@@ -489,9 +490,13 @@ const sunburst: BackdropDesign = {
     // render's `q` is document-wide (sub-composition.ts), so an unscoped selector would let one
     // scene's paint loop grab another scene's canvas in the shared render DOM.
     const canvasClass = `${ctx.idPrefix}-sun`;
+    // Backing-buffer resolution, not layout: the canvas is CSS-stretched to 100% of the
+    // backdrop, so this only decides how finely the paint loop is rasterized. Sized from
+    // the scene's canvas so a larger frame isn't upscaled from a smaller buffer.
+    const buffer = ctx.canvas ?? DESIGN_CANVAS;
     return {
       node: rootElement(
-        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--sunburst"><canvas class="${canvasClass}" width="${buffer.width}" height="${buffer.height}"></canvas></div>`,
       ),
       anims: [
         {
@@ -584,9 +589,11 @@ const constellation: BackdropDesign = {
   build: ({ ctx, theme }) => {
     // idPrefix === compId for a treatment root (children never build the backdrop).
     const canvasClass = `${ctx.idPrefix}-bg`;
+    // Backing-buffer resolution, not layout — see the sunburst backdrop above.
+    const buffer = ctx.canvas ?? DESIGN_CANVAS;
     return {
       node: rootElement(
-        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="1920" height="1080"></canvas></div>`,
+        `<div data-layout-allow-overflow class="mc-backdrop mc-backdrop--constellation"><canvas class="${canvasClass}" width="${buffer.width}" height="${buffer.height}"></canvas></div>`,
       ),
       anims: [
         {

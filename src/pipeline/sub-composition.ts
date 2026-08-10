@@ -13,6 +13,8 @@
 // This was extracted verbatim from slide-templates.ts so the four stock themes
 // stay byte-identical; a byte-stability check in generators.test.ts guards it.
 
+import { DESIGN_CANVAS, type CanvasSize } from "../types/canvas";
+
 /** Safe string literal for inline <script> (also breaks "</script" sequences). */
 const js = (s: string): string => JSON.stringify(s).replace(/<\//g, "<\\/");
 
@@ -39,6 +41,16 @@ export type SubComposition = {
   preBody?: string;
   /** HTML inserted right after the composition-id div opens (e.g. extra <link>s). */
   extraHead?: string;
+  /**
+   * The canvas this scene is composed at (the runtime sizes each scene host from the
+   * emitted `data-width`/`data-height`).
+   *
+   * OPTIONAL WITH A DEFAULT, deliberately: the byte-stability check noted above pins this
+   * function's exact output, so an unset canvas must keep reproducing today's 1920x1080
+   * attributes. Callers that thread a canvas (the harness render path) pass it; the
+   * showcase and every test that doesn't care simply omit it.
+   */
+  canvas?: CanvasSize;
 };
 
 /**
@@ -56,6 +68,7 @@ export const wrapSubComposition = (parts: SubComposition): string => {
   const pageStyle = parts.pageStyle ? ` style="${parts.pageStyle}"` : "";
   const preBody = parts.preBody ?? "";
   const extraHead = parts.extraHead ?? "";
+  const canvas = parts.canvas ?? DESIGN_CANVAS;
 
   return `<!doctype html>
 <html
@@ -68,7 +81,7 @@ export const wrapSubComposition = (parts: SubComposition): string => {
 >
   <body>
     <template id="${compId}-template">
-      <div data-composition-id="${compId}" data-width="1920" data-height="1080">${extraHead}
+      <div data-composition-id="${compId}" data-width="${canvas.width}" data-height="${canvas.height}">${extraHead}
         <style>
           .${cls}-root { position: absolute; inset: 0; overflow: hidden; }${bodyCss}
         </style>

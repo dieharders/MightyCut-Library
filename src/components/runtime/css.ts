@@ -6,12 +6,25 @@
 // EVEN pixel — which minimizes sub-pixel jitter when an element is rotated or drawn off
 // the device-pixel/DPI grid; and it keeps the authored scale legible.
 //
-// The render document (the harness-generated index.html) sets a viewport-derived root
-// font-size, so authored numbers are CANVAS-relative, not pixel-absolute: the whole
-// composition rescales if the canvas ever moves off 1920x1080. The even-pixel property
-// therefore holds at the design size only — off it, jitter resistance comes from the
-// uniform scale factor instead. (The old "1.2rem = 1% of 1920" convention is retired:
-// 1.2rem rounds to 1.25rem on this grid, so the percentages no longer line up.)
+// REM IS CANVAS-RELATIVE, and it is exactly one rule that makes it so: the render document
+// stamps `html { font-size: rootFontSizePx(canvas) }` (types/canvas.ts; emitted by the
+// harness's root-html), so 1rem is a fixed FRACTION of the frame rather than a fixed number
+// of pixels. Authored numbers are therefore canvas-relative and a whole composition rescales
+// when the canvas moves off 1920x1080 — with no CSS edits here or in any theme sheet.
+//
+// The even-pixel property holds at DESIGN_CANVAS, where 1rem is 16px by definition. Off it
+// the grid lands on fractional pixels and jitter resistance comes from the uniform scale
+// instead. Two things deliberately do NOT scale with it: sub-pixel RASTER effects (hairline
+// gradient stops, text-shadow blur) which are authored in px because they tune how the
+// composition is drawn rather than its geometry, and GSAP tween distances, which are plain
+// pixels — those are converted separately, at apply time, by `MC.u` in assets/fx/mc.js.
+//
+// The browser preview cannot use the rule (rem resolves against document.documentElement even
+// across a shadow boundary, so it would leak into the host app) and compensates by laying out
+// in design units instead — see engine/mount.ts.
+//
+// (The old "1.2rem = 1% of 1920" convention is retired: 1.2rem rounds to 1.25rem on this
+// grid, so the percentages no longer line up.)
 //
 // Because every sub-composition is imported into ONE shared
 // DOM (importNode, not iframes), those semantic classes would cross-match between

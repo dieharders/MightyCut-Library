@@ -11,6 +11,23 @@ export { THEMES, loadTheme, type ThemeName } from "./load-theme";
 export { mountPreview, type MountPreviewOptions, type PreviewHandle } from "./mount";
 export { bootstrapFx } from "./fx";
 
+// The canvas preset table — the preview stage sizes itself from the same source the
+// renderer's scene hosts do, so a deck previewed in the browser and the same deck in
+// the MP4 cannot disagree about its dimensions.
+export {
+  CANVAS_PRESETS,
+  CANVAS_PRESET_NAMES,
+  DEFAULT_CANVAS_PRESET,
+  DEFAULT_FPS,
+  DESIGN_CANVAS,
+  canvasFor,
+  isCanvasPreset,
+  type Canvas,
+  type CanvasPresetName,
+  type CanvasSize,
+  type Fps,
+} from "../types/canvas";
+
 // Registry introspection (element-free modules — keep the base chunk light).
 export {
   allComponents,

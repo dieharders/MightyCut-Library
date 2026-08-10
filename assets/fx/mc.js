@@ -125,6 +125,61 @@
     return vars;
   };
 
+  // DESIGN PIXELS -> CANVAS PIXELS.
+  //
+  // Every tween distance below (a 26px rise, a 140px page slide) is a plain GSAP pixel, and
+  // GSAP pixels do NOT follow rem. The render document sets a canvas-derived root font-size
+  // (types/canvas.ts rootFontSizePx) so authored rem sizes are a fixed fraction of the
+  // frame; without this conversion the MOTION would stay at its 1920-sized travel while the
+  // layout around it shrank — a 26px rise is a quarter of a card at 1920 and a third of one
+  // at 1280. Passing them through the same ratio keeps travel proportional to the frame.
+  //
+  // Reading the ratio back off the document, rather than being told it, is what keeps this
+  // working in BOTH consumers of this file with no extra plumbing: in the render the root is
+  // canvas-derived so the ratio is the canvas scale, and in the browser preview the root is
+  // the host's 16px and the scene is laid out in design units, so the ratio is exactly 1 and
+  // nothing moves. Deterministic (a static computed style), so the render stays reproducible.
+  // MEMOIZED: getComputedStyle flushes pending style, and the root font-size cannot change
+  // during a render (it is a static rule in the generated document), so reading it once per
+  // scene instead of once per tween keeps this off the per-anim path — the same reason
+  // applyAnims memoizes its display:contents lookup.
+  var BASE_FONT_PX = 16;
+  var remRatio = null;
+  var u = function (px) {
+    if (remRatio === null) {
+      remRatio = 1;
+      try {
+        var fs = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        if (fs > 0) remRatio = fs / BASE_FONT_PX;
+      } catch (_e) {
+        /* no document (unit tests, non-DOM hosts) — design pixels pass through unchanged */
+      }
+    }
+    return px * remRatio;
+  };
+  MC.u = u;
+
+  // The same conversion for a RAW GSAP vars object, which is the one way design pixels reach
+  // gsap without passing through a factory above: the `from`-style element transitions
+  // (transitions.ts's slide-*/fall) put their travel straight into the descriptor's opts as
+  // `x`/`y` literals, and applyAnims hands those to tl.from() verbatim. Unconverted, they
+  // travelled full 1920-sized distances inside a smaller frame while every MC-factory reveal
+  // beside them scaled — the exact split u() exists to prevent.
+  //
+  // Only the two translate keys. `opacity`/`scale` are unitless and `clipPath: inset(0 100% …)`
+  // is already relative, so a non-travel `from` (wipe) must pass through untouched — hence the
+  // early return, which also keeps those descriptors byte-identical. A COPY, never a mutation:
+  // the showcase replays one descriptor's opts over and over, so scaling in place would compound
+  // on every replay. String values ("100%", "+=20") are left alone; only numbers are design px.
+  var uVars = function (vars) {
+    if (!vars || (typeof vars.x !== "number" && typeof vars.y !== "number")) return vars;
+    var out = Object.assign({}, vars);
+    if (typeof out.x === "number") out.x = u(out.x);
+    if (typeof out.y === "number") out.y = u(out.y);
+    return out;
+  };
+  MC.uVars = uVars;
+
   // Entrance: fade + rise from below (the old riseIn spring).
   MC.riseIn = function (tl, target, at, opts) {
     var o = opts || {};
@@ -132,7 +187,7 @@
       target,
       withStagger(
         {
-          y: o.dist != null ? o.dist : 26,
+          y: u(o.dist != null ? o.dist : 26),
           opacity: 0,
           duration: o.dur != null ? o.dur : 0.65,
           ease: o.ease || "power3.out",
@@ -164,7 +219,7 @@
     tl.from(
       targets,
       {
-        y: o.dist != null ? o.dist : 26,
+        y: u(o.dist != null ? o.dist : 26),
         opacity: 0,
         duration: o.dur != null ? o.dur : 0.6,
         ease: o.ease || "power3.out",
@@ -196,7 +251,7 @@
     tl.to(
       target,
       {
-        y: o.dy != null ? o.dy : -8,
+        y: u(o.dy != null ? o.dy : -8),
         duration: dur,
         ease: "sine.inOut",
         yoyo: true,
@@ -252,7 +307,7 @@
     var o = opts || {};
     tl.from(
       target,
-      { x: o.x || 0, y: o.y || 0, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
+      { x: u(o.x || 0), y: u(o.y || 0), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
       at || 0,
     );
     return tl;
@@ -263,7 +318,7 @@
     var o = opts || {};
     tl.from(
       target,
-      { y: o.dist != null ? -o.dist : -40, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
+      { y: -u(o.dist != null ? o.dist : 40), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
       at || 0,
     );
     return tl;
@@ -295,7 +350,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { y: o.dist != null ? -o.dist : -26, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { y: -u(o.dist != null ? o.dist : 26), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -305,7 +360,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { y: o.dist != null ? o.dist : 26, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { y: u(o.dist != null ? o.dist : 26), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -325,7 +380,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { x: o.x || 0, y: o.y || 0, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { x: u(o.x || 0), y: u(o.y || 0), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -505,8 +560,10 @@
           when,
         );
       } else if (a.kind === "from") {
-        // `from` opts are raw gsap vars; `ro` is those plus the fan-out stagger.
-        tl.from(box, ro, when);
+        // `from` opts are raw gsap vars; `ro` is those plus the fan-out stagger. This is the
+        // ONLY arm whose distances never touched an MC factory, so it is where uVars converts
+        // them (see uVars above) — every other kind above is already canvas-relative.
+        tl.from(box, uVars(ro), when);
       } else if (a.kind === "backdrop") {
         // An animated full-bleed backdrop (the constellation's particle canvas, the gradient
         // wash's slow turn): an FX factory the DESIGN names via o.fn, driven off the scene
@@ -579,10 +636,26 @@
     var linkDistance = o.linkDistance || 230;
     var opacity = o.opacity != null ? o.opacity : 0.55;
     var rgb = o.colorRgb || "52,225,255";
-    var width = canvas.width || 1920;
-    var height = canvas.height || 1080;
-    canvas.width = width;
-    canvas.height = height;
+    // SCALE THE DRAWING, NOT THE NUMBERS.
+    //
+    // The backing buffer is canvas-sized and CSS-stretched to the frame 1:1, so every absolute
+    // number in this factory — drift amplitude, link distance, node radius, hairline width —
+    // is a fraction of the frame at 1920 and a LARGER fraction at any smaller canvas. Scaling
+    // them one by one is both a list to keep in sync and the wrong shape for a <canvas>: the
+    // context can carry the ratio for all of them at once. So the whole factory is authored in
+    // DESIGN units (a 1920-wide field, exactly as the CSS is) and paint() stamps one transform.
+    // Same trick sunburstBg plays with its `unit` factor, done once instead of per value.
+    //
+    // At the design canvas the scale is 1 and the transform is the identity, so the painted
+    // output is unchanged. The PRNG is untouched either way — nothing multiplies a rand()
+    // result now, so the seeded field is identical at every canvas, only drawn smaller.
+    var bufferW = canvas.width || 1920;
+    var bufferH = canvas.height || 1080;
+    canvas.width = bufferW;
+    canvas.height = bufferH;
+    var scale = bufferW / 1920;
+    var width = 1920; // design units — NOT bufferW/scale, which can land a float short
+    var height = bufferH / scale;
 
     var rand = MC.seededRandom(o.seed || "mightycut");
     var nodes = [];
@@ -602,6 +675,10 @@
 
     var paint = function (t) {
       if (!ctx) return;
+      // Design units -> buffer pixels, for everything below. setTransform (not scale) so a
+      // repaint never compounds on the last frame's matrix; clearRect then covers the whole
+      // buffer because width*scale === bufferW by construction.
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
       ctx.clearRect(0, 0, width, height);
       var pts = nodes.map(function (n) {
         return {

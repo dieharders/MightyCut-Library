@@ -13,11 +13,14 @@
  * bottom 200px (captions + progress), left/right 80px. (The block treatments'
  * own body inset is tighter — ~130px top / 216px bottom / 96px sides.)
  *
- * Units: layout and type measures are rem (they define the composition and rescale
- * with the canvas via the render document's viewport-derived root font-size). Sub-pixel
- * RASTER effects — the 1px hairline gradient stops and the caption text-shadow blur —
- * stay px on purpose: they tune how the composition is drawn, not its geometry, and
- * would double in weight if snapped up to the 0.125rem (2px) grid.
+ * Units: layout and type measures are rem, and they DO rescale with the canvas — the render
+ * document sets a canvas-derived root font-size (types/canvas.ts rootFontSizePx), so 1rem is
+ * a fixed fraction of the frame and the safe area above holds its proportions at any canvas.
+ * The px figures quoted there are therefore "at DESIGN_CANVAS".
+ *
+ * Sub-pixel RASTER effects — the 1px hairline gradient stops and the caption text-shadow blur
+ * — stay px on purpose and do NOT scale: they tune how the composition is DRAWN rather than
+ * its geometry, and would double in weight if snapped up to the 0.125rem (2px) grid.
  */
 
 html,
