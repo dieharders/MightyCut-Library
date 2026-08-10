@@ -49,18 +49,46 @@ export const DEFAULT_FPS: Fps = 30;
 
 /**
  * The canvas every authored rem and every "percent of the design width" in this library is
- * anchored to.
+ * expressed in. Component CSS is written as though the frame were exactly this size.
  *
- * DISTINCT FROM THE ACTIVE CANVAS, and the distinction is the whole point. Component CSS is
- * authored in rem on a 0.125rem grid, which would be canvas-relative IF the render document
- * set a root font-size derived from the canvas width. It does not — nothing anywhere sets
- * `html { font-size }`, so 1rem is the browser default 16px and every rem is effectively a
- * fixed px anchored to 1920. Until that is fixed, composing at any canvas other than this
- * one yields a correctly-sized video with a 1920-anchored layout inside it. A tripwire in
- * the harness asserts the active canvas still equals this, so the default cannot be moved
- * off `landscape` without the rem work being done first.
+ * It is NOT the active canvas — it is the UNIT the active canvas is measured in. The render
+ * document sets a root font-size of `rootFontSizePx(canvas)` so that 1rem means the same
+ * FRACTION OF THE FRAME at every canvas, which is what makes the authored numbers scale
+ * instead of being fixed pixels.
  */
 export const DESIGN_CANVAS: CanvasSize = CANVAS_PRESETS.landscape;
+
+/**
+ * The root font-size the design canvas is authored against. Every authored rem multiplies
+ * this, so `1rem === 16px` only at DESIGN_CANVAS — which is exactly the property that makes
+ * the 0.125rem grid land on even pixels there.
+ */
+export const BASE_FONT_PX = 16;
+
+/**
+ * How much larger the active canvas is than the canvas the library is authored for.
+ *
+ * WIDTH-ONLY, deliberately. Every "percent of the design width" convention in the library
+ * (decoration placement, icon sizing) is horizontal, and a uniform width ratio keeps those
+ * consistent with rem. It follows that a preset of a DIFFERENT ASPECT RATIO scales to fit
+ * the width and simply leaves vertical slack — that is honest rather than correct, because
+ * re-proportioning a 16:9 deck for a portrait frame is a reflow problem, not a scale one.
+ * Every preset today shares one aspect ratio, so the distinction has no effect yet.
+ */
+export const remScaleFor = (canvas: CanvasSize): number => canvas.width / DESIGN_CANVAS.width;
+
+/**
+ * The root font-size, in CSS px, that makes authored rem canvas-relative.
+ *
+ * This is the ONE number that turns the library's rem sizes from fixed pixels into fractions
+ * of the frame. The render document stamps it on `html` (see the harness's root-html), which
+ * rescales every rem in every staged sheet and every composed scene with no CSS edits.
+ *
+ * It must NOT be set by anything that renders into a HOST page: rem resolves against
+ * `document.documentElement` even across a shadow boundary, so the browser preview cannot
+ * use this and compensates by laying out in design units instead (see engine/mount.ts).
+ */
+export const rootFontSizePx = (canvas: CanvasSize): number => BASE_FONT_PX * remScaleFor(canvas);
 
 /** A fully resolved canvas: the preset's dimensions plus the frame rate to render at. */
 export type Canvas = { readonly name: CanvasPresetName } & CanvasSize & { readonly fps: Fps };

@@ -6,20 +6,22 @@
 // EVEN pixel — which minimizes sub-pixel jitter when an element is rotated or drawn off
 // the device-pixel/DPI grid; and it keeps the authored scale legible.
 //
-// REM IS NOT CANVAS-RELATIVE TODAY, and an earlier version of this comment claimed it was.
-// Nothing anywhere sets `html { font-size }` — not the harness-generated index.html, not the
-// runtime — so 1rem is the browser default 16px and every authored rem is effectively a fixed
-// px anchored to DESIGN_CANVAS (types/canvas.ts). A composition does NOT rescale when the
-// canvas moves off 1920x1080: it keeps its 1920-sized layout inside the new frame. The
-// even-pixel property therefore always holds, because the scale never changes.
+// REM IS CANVAS-RELATIVE, and it is exactly one rule that makes it so: the render document
+// stamps `html { font-size: rootFontSizePx(canvas) }` (types/canvas.ts; emitted by the
+// harness's root-html), so 1rem is a fixed FRACTION of the frame rather than a fixed number
+// of pixels. Authored numbers are therefore canvas-relative and a whole composition rescales
+// when the canvas moves off 1920x1080 — with no CSS edits here or in any theme sheet.
 //
-// Making it true is a known, deliberately deferred piece of work: set a canvas-derived root
-// font-size in the RENDER document only (`calc(16px * width / 1920)`), which would rescale
-// every existing rem with no CSS edits. The blocker is preview parity — engine/mount.ts mounts
-// into a shadow root inside the WebUI document, and rem resolves against
-// document.documentElement across that boundary, so the same rule would leak into the host
-// app's layout (see the comment there). Until it lands, a harness tripwire pins the active
-// canvas to DESIGN_CANVAS so the default cannot be moved without doing this first.
+// The even-pixel property holds at DESIGN_CANVAS, where 1rem is 16px by definition. Off it
+// the grid lands on fractional pixels and jitter resistance comes from the uniform scale
+// instead. Two things deliberately do NOT scale with it: sub-pixel RASTER effects (hairline
+// gradient stops, text-shadow blur) which are authored in px because they tune how the
+// composition is drawn rather than its geometry, and GSAP tween distances, which are plain
+// pixels — those are converted separately, at apply time, by `MC.u` in assets/fx/mc.js.
+//
+// The browser preview cannot use the rule (rem resolves against document.documentElement even
+// across a shadow boundary, so it would leak into the host app) and compensates by laying out
+// in design units instead — see engine/mount.ts.
 //
 // (The old "1.2rem = 1% of 1920" convention is retired: 1.2rem rounds to 1.25rem on this
 // grid, so the percentages no longer line up.)

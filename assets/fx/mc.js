@@ -125,6 +125,40 @@
     return vars;
   };
 
+  // DESIGN PIXELS -> CANVAS PIXELS.
+  //
+  // Every tween distance below (a 26px rise, a 140px page slide) is a plain GSAP pixel, and
+  // GSAP pixels do NOT follow rem. The render document sets a canvas-derived root font-size
+  // (types/canvas.ts rootFontSizePx) so authored rem sizes are a fixed fraction of the
+  // frame; without this conversion the MOTION would stay at its 1920-sized travel while the
+  // layout around it shrank — a 26px rise is a quarter of a card at 1920 and a third of one
+  // at 1280. Passing them through the same ratio keeps travel proportional to the frame.
+  //
+  // Reading the ratio back off the document, rather than being told it, is what keeps this
+  // working in BOTH consumers of this file with no extra plumbing: in the render the root is
+  // canvas-derived so the ratio is the canvas scale, and in the browser preview the root is
+  // the host's 16px and the scene is laid out in design units, so the ratio is exactly 1 and
+  // nothing moves. Deterministic (a static computed style), so the render stays reproducible.
+  // MEMOIZED: getComputedStyle flushes pending style, and the root font-size cannot change
+  // during a render (it is a static rule in the generated document), so reading it once per
+  // scene instead of once per tween keeps this off the per-anim path — the same reason
+  // applyAnims memoizes its display:contents lookup.
+  var BASE_FONT_PX = 16;
+  var remRatio = null;
+  var u = function (px) {
+    if (remRatio === null) {
+      remRatio = 1;
+      try {
+        var fs = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        if (fs > 0) remRatio = fs / BASE_FONT_PX;
+      } catch (_e) {
+        /* no document (unit tests, non-DOM hosts) — design pixels pass through unchanged */
+      }
+    }
+    return px * remRatio;
+  };
+  MC.u = u;
+
   // Entrance: fade + rise from below (the old riseIn spring).
   MC.riseIn = function (tl, target, at, opts) {
     var o = opts || {};
@@ -132,7 +166,7 @@
       target,
       withStagger(
         {
-          y: o.dist != null ? o.dist : 26,
+          y: u(o.dist != null ? o.dist : 26),
           opacity: 0,
           duration: o.dur != null ? o.dur : 0.65,
           ease: o.ease || "power3.out",
@@ -164,7 +198,7 @@
     tl.from(
       targets,
       {
-        y: o.dist != null ? o.dist : 26,
+        y: u(o.dist != null ? o.dist : 26),
         opacity: 0,
         duration: o.dur != null ? o.dur : 0.6,
         ease: o.ease || "power3.out",
@@ -196,7 +230,7 @@
     tl.to(
       target,
       {
-        y: o.dy != null ? o.dy : -8,
+        y: u(o.dy != null ? o.dy : -8),
         duration: dur,
         ease: "sine.inOut",
         yoyo: true,
@@ -252,7 +286,7 @@
     var o = opts || {};
     tl.from(
       target,
-      { x: o.x || 0, y: o.y || 0, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
+      { x: u(o.x || 0), y: u(o.y || 0), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
       at || 0,
     );
     return tl;
@@ -263,7 +297,7 @@
     var o = opts || {};
     tl.from(
       target,
-      { y: o.dist != null ? -o.dist : -40, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
+      { y: -u(o.dist != null ? o.dist : 40), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.out" },
       at || 0,
     );
     return tl;
@@ -295,7 +329,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { y: o.dist != null ? -o.dist : -26, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { y: -u(o.dist != null ? o.dist : 26), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -305,7 +339,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { y: o.dist != null ? o.dist : 26, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { y: u(o.dist != null ? o.dist : 26), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -325,7 +359,7 @@
     var o = opts || {};
     tl.to(
       target,
-      { x: o.x || 0, y: o.y || 0, opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
+      { x: u(o.x || 0), y: u(o.y || 0), opacity: 0, duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power3.in" },
       at || 0,
     );
     return tl;
@@ -590,7 +624,11 @@
       nodes.push({
         bx: rand() * width,
         by: rand() * height,
-        amp: 16 + rand() * 46,
+        // Drift amplitude is authored against the design width; the buffer is canvas-sized
+        // and CSS-stretched 1:1, so an unscaled amp would drift proportionally further on a
+        // smaller frame. The multiply happens AFTER rand() so the PRNG call order — and
+        // therefore the seeded field — is unchanged; at the design canvas the factor is 1.
+        amp: (16 + rand() * 46) * (width / 1920),
         phase: rand() * Math.PI * 2,
         speed: 0.2 + rand() * 0.5,
         r: 1.4 + rand() * 2.2,

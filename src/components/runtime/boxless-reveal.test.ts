@@ -303,15 +303,26 @@ describe("backdrop FX dispatch is allowlisted", () => {
 describe("display:contents is resolved once per target", () => {
   test("N descriptors on one target cost ONE getComputedStyle call", () => {
     let calls = 0;
+    let rootReads = 0;
+    const el = { display: "block" };
     const win: Record<string, unknown> = {};
-    const gcs = (el: { display?: string }) => {
-      calls++;
-      return { display: el.display ?? "block" };
+    // Two DIFFERENT lookups reach this stub, and only one of them is what this test guards.
+    // `el` is the display:contents probe — that is the per-target style flush being memoized.
+    // Anything else is MC.u reading the root font-size to convert design pixels to canvas
+    // pixels; it is memoized too, but whether it happens at all depends on a `document`
+    // existing in the test environment (it does in the full suite, not in isolation), so
+    // counting it in `calls` would make this assertion environment-dependent.
+    const gcs = (node: { display?: string }) => {
+      if (node === el) {
+        calls++;
+        return { display: node.display ?? "block" };
+      }
+      rootReads++;
+      return { fontSize: "16px" };
     };
     new Function("window", "getComputedStyle", MC_SRC)(win, gcs);
     const mc = win.MC as { applyAnims: (tl: unknown, a: unknown, c: unknown) => unknown };
 
-    const el = { display: "block" };
     const tl: Record<string, unknown> = {};
     tl.from = tl.to = () => tl;
     tl.fromTo = () => tl;
@@ -336,6 +347,8 @@ describe("display:contents is resolved once per target", () => {
       },
     );
     expect(calls).toBe(1);
+    // Memoized regardless of environment: four descriptors, at most one root read ever.
+    expect(rootReads).toBeLessThanOrEqual(1);
   });
 });
 
