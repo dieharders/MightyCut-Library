@@ -53,7 +53,7 @@ const sectionKicker = z
   .max(60)
   .optional()
   .describe(
-    'Short section label for the HUD top-right corner (e.g. "RESULTS", "HOW IT WORKS") — which PART of the deck this slide is in, not a restatement of its own title. Consecutive slides in the same section share one label. It is NOT printed on the slide itself. Set one on every slide where a section applies; omitting it falls back to the deck-wide meta.header.right, which is usually not what you want.',
+    'Short section label for the HUD top-right corner (e.g. "RESULTS", "HOW IT WORKS") — which PART of the deck this slide is in, not a restatement of its own title. Consecutive slides in the same section share one label. It is NOT printed on the slide itself. This is the ONLY source for that corner: a slide that omits it leaves the corner empty, so set one on every slide where a section applies.',
   );
 
 export const HeaderSpecSchema = z.object({
@@ -400,6 +400,25 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
 ]);
 export type SlideSpec = z.infer<typeof SlideSpecSchema>;
 
+/**
+ * The HUD brand band's CONTENT — and content only.
+ *
+ * Both remaining fields feed text the HUD cannot get anywhere else: `chromeHud` takes a
+ * `brandName` and a `tagline`, and `meta.hud` carries booleans. Whether the band DRAWS is
+ * `hud.brand`; whether the corner label draws is `hud.title`.
+ *
+ * Three fields were REMOVED, and the removals are all of a kind — a spec field is a control
+ * only if something reads it:
+ *  - `show` — a visibility flag, and a coarse one (it gated the band AND the top-right label
+ *    together). Superseded by `hud.brand` / `hud.title`, which say the same thing separately.
+ *  - `right` / `rightSub` — the deck-wide top-right label and its qualifier. `rightSub` never
+ *    had a reader at all: the library HUD has no slot for it (the same defect that retired
+ *    `footer.text`), so the writer was being asked on every create for a string that could not
+ *    appear. `right` did render, as the fallback for a slide with no kicker of its own — but
+ *    every slide kind now carries a `kicker`, plan mode deletes this field outright, and a
+ *    deck-wide default is exactly what makes an intentionally blank corner show a stale label.
+ *    The corner is now sourced from the per-slide kicker and nothing else.
+ */
 export const HeaderBandSchema = z.object({
   brand: z
     .string()
@@ -413,27 +432,15 @@ export const HeaderBandSchema = z.object({
     .describe(
       "Muted descriptor after the wordmark — the company, product category, or program. MUST differ from the brand (never repeat it); omit if there's nothing distinct to say. Defaults to meta.requester, but a repeat of the brand is dropped at render.",
     ),
-  right: z
-    .string()
-    .max(40)
-    .optional()
-    .describe(
-      "Deck-wide top-right HUD label — the fallback for any slide whose own kicker is omitted (per-slide kickers override it). Prefer per-slide kickers: a deck approved through plan mode clears this field, so only the per-slide labels survive.",
-    ),
-  rightSub: z.string().max(40).optional(),
-  show: z.boolean().optional().describe("false hides the whole band"),
 });
 export type HeaderBandSpec = z.infer<typeof HeaderBandSchema>;
 
-// `text` (small mono line above the progress bar) was REMOVED: it only ever rendered in
-// the root's generic `.mc-hud-*` fallback, and once every theme's HUD came from the
-// library — which has no footer slot — it silently stopped appearing. The field is gone
-// rather than left as a lie; an older spec.json carrying it still parses (Zod strips the
-// unknown key). Add a footer slot to primitives/hud if the line is ever wanted back.
-export const FooterSchema = z.object({
-  slideNumbers: z.boolean().optional().describe('Show "NN / TT" slide counter'),
-});
-export type FooterSpec = z.infer<typeof FooterSchema>;
+// `meta.footer` is GONE. It held one field, `slideNumbers`, and that was a visibility toggle
+// living outside the schema that owns visibility: the root read it only as
+// `hud.slideCount ?? footer.slideNumbers`, i.e. as a legacy fallback — while remaining the ONLY
+// counter switch the writer was told about, so the two halves of one control were split across
+// two objects. `hud.slideCount` is now the whole story, and the writer is instructed on it
+// directly. (Its sibling `footer.text` was retired earlier for the harder reason: no HUD slot.)
 
 // `backdrop` (blur | semi | solid | none) was REMOVED alongside footer.text and for the
 // same reason: it only ever styled the root's inline fallback caption box, and the theme's
@@ -460,12 +467,15 @@ export const CaptionStyleSchema = z.object({
 export type CaptionStyleSpec = z.infer<typeof CaptionStyleSchema>;
 
 /**
- * HUD visibility toggles — the source of truth for what chrome renders. All
- * default to visible (omitted → shown). `header.show` / `footer.slideNumbers`
- * remain honored as legacy fallbacks so existing LLM-generated specs still
- * render; `header` keeps supplying HUD *content* (brand/tagline/right label) and
- * `footer` is now visibility only — its `text` line went with the generic root
- * fallback (see FooterSchema). Captions are NOT part of the HUD (see caption.show).
+ * HUD visibility toggles — the ONLY source of truth for what chrome renders, and now the
+ * only place visibility lives at all. Every switch defaults to visible (omitted → shown)
+ * EXCEPT `slideCount`, which defaults off.
+ *
+ * `header.show` and `footer.slideNumbers` used to be honored here as legacy fallbacks; both
+ * are deleted. Splitting one control across two objects is what let the writer be told about
+ * `footer.slideNumbers` while the caller's overrides were being stamped onto `hud`, so the
+ * two could silently disagree. `meta.header` keeps supplying HUD *content* (brand/tagline)
+ * and nothing else. Captions are NOT part of the HUD (see caption.show).
  */
 export const HudSchema = z.object({
   show: z
@@ -527,14 +537,17 @@ export const VideoSpecSchema = z
           "en-US-MichelleNeural",
         ])
         .optional(),
-      fps: z.literal(30),
-      width: z.literal(1920),
-      height: z.literal(1080),
+      // `fps` / `width` / `height` are GONE. They were required literals — 30 / 1920 / 1080,
+      // the only values the schema ever accepted — so they carried no information: the writer
+      // spent three fields of every spec restating a constant, and a repair round on any of
+      // them was a round spent on nothing. Nothing consumed them either. The render canvas is
+      // config.limits (what validateFinal probes) and the root's own 1920×1080 stage; the one
+      // reader, specToDeck, merely copied them into a DeckMeta whose every field is optional
+      // and which nothing reads back.
       background: backgroundKind
         .optional()
         .describe("Deck-wide backdrop behind every slide (default particles)"),
       header: HeaderBandSchema.optional(),
-      footer: FooterSchema.optional(),
       caption: CaptionStyleSchema.optional(),
       hud: HudSchema.optional(),
     }),

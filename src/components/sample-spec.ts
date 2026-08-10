@@ -8,7 +8,7 @@ import type { SceneStoryboard } from "../types/storyboard";
 
 export const sampleSpec = (): VideoSpec =>
   VideoSpecSchema.parse({
-    meta: { title: "Component Deck", requester: "MightyCut", theme: "block", fps: 30, width: 1920, height: 1080 },
+    meta: { title: "Component Deck", requester: "MightyCut", theme: "block" },
     slides: [
       { id: "intro", kind: "title", title: "Block, componentized.", subtitle: "A neobrutalist component system.", kicker: "OVERVIEW", background: "solid" },
       { id: "pillars", kind: "cards", header: { title: "Platform Pillars" }, cards: [{ title: "Compose", text: "Typed, reusable components." }, { title: "Render", text: "Deterministic vanilla HTML." }, { title: "Ship", text: "Preview now, render on demand." }] },
