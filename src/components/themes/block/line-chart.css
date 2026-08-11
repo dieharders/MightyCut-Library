@@ -12,7 +12,7 @@
 .line-chart .caption {
   font-family: var(--mono);
   font-weight: 500;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--dark);
   margin-top: 2.5rem;
   align-self: center;
