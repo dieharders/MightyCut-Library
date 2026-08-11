@@ -28,5 +28,6 @@
   font-weight: 400;
   font-size: var(--font-size-md);
   color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
-  margin-top: 2.125rem;
+  margin-top: 2.5rem;
+  align-self: center;
 }

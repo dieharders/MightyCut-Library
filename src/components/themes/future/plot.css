@@ -25,6 +25,7 @@
   width: 100%;
   height: 24rem;
   clip-path: inset(0 0 0 0);
+  background: var(--muted-2); /* Fade this from top to bottom */
 }
 /* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
    which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
@@ -72,7 +73,8 @@
   height: 0.875rem;
   border-radius: 50%;
   background: var(--pcol, var(--primary));
-  box-shadow: 0 0 0.875rem color-mix(in srgb, var(--pcol, var(--primary)) 55%, transparent);
+  box-shadow: 0 0 0.875rem
+    color-mix(in srgb, var(--pcol, var(--primary)) 55%, transparent);
 }
 /* Absolutely positioned so the value floats ABOVE its dot without pushing it off the vertex —
    a flowed label would move the dot by half its own height. */

@@ -14,5 +14,6 @@
   font-weight: 400;
   font-size: var(--font-size-sm);
   color: var(--muted-3);
-  margin-top: 2.125rem;
+  margin-top: 2.5rem;
+  align-self: center;
 }
