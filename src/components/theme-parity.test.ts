@@ -138,7 +138,7 @@ describe("every treatment builds a clean scene under every theme", () => {
       const compId = `sc-${theme.name}-${name}`;
       const html = renderScene(getTreatment(name)(), pctx(theme, compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");

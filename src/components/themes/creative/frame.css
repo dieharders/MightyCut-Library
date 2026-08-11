@@ -1,6 +1,5 @@
-/* Creative's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
-   resolved ground onto (the class name is historical — read it as "the frame"); it is also the
-   scene's containment root.
+/* Creative's shared frame base. `.mc-frame` is the page wrapper the emitter stamps the
+   resolved ground onto; it is also the scene's containment root.
 
    THE IDENTITY IS THE GROUND SWAP. Unlike professional (one cream canvas via groundDefault),
    creative states NO groundDefault: every treatment lands on its own shared canonical ground and
@@ -16,7 +15,7 @@
    the `--cr-*` identity layer of the standalone showcase does NOT exist here. Sizes are rem on the
    0.125rem grid (runtime/css.ts). Ported from video-assets/themes/creative/frame.css
    (cqw × 1.2, cqh × 0.675). */
-.block-frame {
+.mc-frame {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -31,7 +30,7 @@
      is a saturated plane (feature-cards, stat-grid). */
   color: var(--dark);
 }
-.block-frame > .body {
+.mc-frame > .body {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -44,7 +43,7 @@
    sibling, not this). The shared fallback so any eyebrow-bearing treatment reads on-theme
    without its own eyebrow rule; per-treatment skins layer only spacing/alignment over it. It
    self-removes when the slide sets no eyebrow (pruneRemoved). */
-.block-frame .eyebrow {
+.mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
   background: var(--dark);
@@ -60,7 +59,7 @@
    system is built on — every treatment skin varies only the size, never the case or the leading
    ratio. Archivo Black ships a single weight (400), so no font-weight is stated: asking for 700
    or 900 would invite a synthetic bold on a face that has none. */
-.block-frame h3 {
+.mc-frame h3 {
   font-family: var(--disp);
   text-transform: uppercase;
   letter-spacing: -0.01em;
@@ -72,6 +71,6 @@
    `data-accent="last-word"` slot (cover + closing). Creative's headline is a solid uppercase
    slab, so italic is not available to it: the key word flips to the ORANGE instead, the same
    hue the theme spends on every hard shadow, so the accent reads as part of the plane system. */
-.block-frame h3 .headline-accent {
+.mc-frame h3 .headline-accent {
   color: var(--secondary);
 }

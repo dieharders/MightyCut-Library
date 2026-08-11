@@ -3,7 +3,7 @@
 // body, soft cobalt-TINTED cards, and NO drop shadows. Ported from video-assets/themes/professional/
 // frame-showcase.html + frame.css onto the shared component system. Everything professional OWNS
 // lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, the cobalt eyebrow pill)
+//   frame.css        the `.mc-frame` base (frame ground, body wrapper, h3, the cobalt eyebrow pill)
 //   <element>.css    professional's SKIN for each shared primitive/treatment (structure + behavior
 //                    are shared; professional styles the standard class names here)
 // The `:root` tokens are DERIVED from the 10-role `palette` below (see `tokensCss`), the same shape

@@ -1,6 +1,6 @@
 // Block theme — everything block OWNS lives in this folder, imported as text (the
 // same convention as the component trio CSS):
-//   frame.css   the shared frame base — the `.block-frame` ground, the `.body`
+//   frame.css   the shared frame base — the `.mc-frame` ground, the `.body`
 //               content wrapper, the base `.eyebrow`/`h3` type, CSS-only decorations
 //   hud.css     block's SKIN for the shared `hud` component
 //   caption.css block's SKIN for the shared `caption` component

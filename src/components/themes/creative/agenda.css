@@ -15,7 +15,7 @@
    Each row rules ITSELF, bottom-only (agenda-item.css), so this file adds nothing below the last
    item — no `.alist > *:last-child` closer. The reference's
    `.bf-agenda { background: var(--muted-2) }` is dropped: the emitter stamps the resolved scene
-   ground onto .block-frame as an inline style, so a background on a treatment root is both dead
+   ground onto .mc-frame as an inline style, so a background on a treatment root is both dead
    and a ground-resolution test failure. Ported from the reference .bf-agenda (cqw × 1.2,
    cqh × 0.675, snapped to the 0.125rem authoring grid — runtime/css.ts). */
 .agenda > .body {
@@ -24,7 +24,7 @@
 }
 /* A step down from timeline's 4.75rem: agenda's rows carry 2.875rem uppercase titles of their own,
    so the headline only has to out-scale them, not the whole frame. Case, tracking, ink and the
-   0.92 leading come from .block-frame h3 in frame.css — and no font-weight, here or anywhere:
+   0.92 leading come from .mc-frame h3 in frame.css — and no font-weight, here or anywhere:
    Archivo Black ships one weight (400). */
 .agenda h3 {
   font-size: var(--font-size-2xl);

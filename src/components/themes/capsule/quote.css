@@ -37,7 +37,7 @@
   color: var(--dark);
 }
 /* The legacy inline candy-pill highlight, kept as capsule's stated signature the same way
-   frame.css keeps `.block-frame h3 em`: slot text is HTML-escaped, so this can only ever be
+   frame.css keeps `.mc-frame h3 em`: slot text is HTML-escaped, so this can only ever be
    reached by markup a template override (or showcase copy) authors — never by a deck's quote
    string. Grotesk, upright and unspaced, so the emphasised phrase reads as a chip dropped
    into the Bodoni line rather than as italic serif. */

@@ -98,8 +98,8 @@ const ACCENT_SPLITS = new Map<string, (raw: string) => [string, string] | null>(
 ]);
 
 /** The class wrapped around an accented tail. Named for the thing rather than a theme: it is a
- *  shared page-level class every theme styles from `frame.css` (like `block-frame`, whose prefix
- *  is only historical), and a bare `.accent` would silently capture any component that ever
+ *  shared page-level class every theme styles from `frame.css` (like `mc-frame`), and a bare
+ *  `.accent` would silently capture any component that ever
  *  styles its own — `accent` is already the name of the palette-role param on stats, icons and
  *  decorations. */
 export const ACCENT_CLASS = "headline-accent";

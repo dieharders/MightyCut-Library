@@ -4,7 +4,7 @@
 // JetBrains Mono taxonomy carrying every label. Ported from
 // video-assets/themes/creative/frame-showcase.html + frame.css + FRAME.md onto the shared
 // component system. Everything creative OWNS lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, the inverted ink
+//   frame.css        the `.mc-frame` base (frame ground, body wrapper, h3, the inverted ink
 //                    KICKER-BLOCK eyebrow) + the four backdrop ink hooks
 //   <element>.css    creative's SKIN for each shared primitive/treatment (structure + behavior
 //                    are shared; creative styles the standard class names here)

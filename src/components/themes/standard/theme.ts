@@ -4,7 +4,7 @@
 // elevated cards, no rounded rectangles — 50% is the only radius, reserved for true circles.
 // Ported from video-assets/themes/standard/frame-showcase.html + frame.css onto the shared
 // component system. Everything standard OWNS lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, the bare brownstone
+//   frame.css        the `.mc-frame` base (frame ground, body wrapper, h3, the bare brownstone
 //                    eyebrow label) + the backdrop ink hooks
 //   <element>.css    standard's SKIN for each shared primitive/treatment (structure + behavior are
 //                    shared; standard styles the standard class names here)

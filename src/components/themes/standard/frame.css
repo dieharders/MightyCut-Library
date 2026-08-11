@@ -1,5 +1,5 @@
-/* Standard's shared frame base. `.block-frame` is the page wrapper the emitter stamps the ground
-   onto (the class name is historical — read it as "the frame"); it's the scene's containment root.
+/* Standard's shared frame base. `.mc-frame` is the page wrapper the emitter stamps the ground
+   onto; it's the scene's containment root.
    Standard keeps every frame on the warm sandstone canvas via `groundDefault: "muted-1"`
    (theme.ts) rather than a `background: … !important` here — the theme default replaces the
    shared, block-flavoured per-treatment grounds, but an EXPLICIT scene ground still WINS, which
@@ -17,7 +17,7 @@
    brownstone is a real palette role, --accent-3, deliberately OFF the accent cycle so nothing auto-
    assigns the theme's hairline colour to a numeral). Sizes are rem on a 0.125rem grid (see
    runtime/css.ts). Ported from video-assets/themes/standard/frame.css (cqw × 1.2, cqh × 0.675). */
-.block-frame {
+.mc-frame {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -42,7 +42,7 @@
   /* Body copy default: the warm gray (--muted-3). Headlines override to ink, labels to brownstone. */
   color: var(--muted-3);
 }
-.block-frame > .body {
+.mc-frame > .body {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -56,7 +56,7 @@
    Weight 600, not the reference's 400: Playfair is a high-contrast didone whose 400 hairlines
    thin out badly at frame scale on a warm ground (the reference's own port note says the same).
    The two big display voices — cover and closing plate — step up to 700 in their own skins. */
-.block-frame h3 {
+.mc-frame h3 {
   font-family: var(--disp);
   font-weight: 600;
   letter-spacing: 0;
@@ -69,7 +69,7 @@
    emphasis device is TYPE CONTRAST, never hue: the key word turns italic and stays ink. This
    is what the true Playfair ITALIC face is shipped for (engine/standard-fonts.ts) — without a
    drawn italic the browser would shear the upright, which on a didone reads as a mistake. */
-.block-frame h3 .headline-accent {
+.mc-frame h3 .headline-accent {
   font-style: italic;
 }
 /* Base eyebrow — standard's quiet BROWNSTONE LABEL: no chip, no border, no fill. Just Inter 500,
@@ -81,7 +81,7 @@
    slide sets no eyebrow (pruneRemoved). Quote is the ONLY eyebrow-bearing treatment now — the
    cover's slot was removed, since the deck's section label is HUD chrome and the opening frame
    was printing it twice. */
-.block-frame .eyebrow {
+.mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
   font-family: var(--mono);

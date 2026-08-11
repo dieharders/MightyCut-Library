@@ -3,7 +3,7 @@
 // (ink, sentence case) against Space Grotesk labels (uppercase, wide-tracked). Ported from
 // video-assets/themes/capsule/frame-showcase.html + frame.css onto the shared component system.
 // Everything capsule OWNS lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, .eyebrow chip)
+//   frame.css        the `.mc-frame` base (frame ground, body wrapper, h3, .eyebrow chip)
 //   <element>.css    capsule's SKIN for each shared primitive/treatment (structure + behavior
 //                    are shared; capsule styles the standard class names here)
 //   templates/*.html per-theme structure overrides where CSS can't reach (cover gains the

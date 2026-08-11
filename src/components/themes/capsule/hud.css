@@ -4,7 +4,7 @@
    The harness owns placement + the #hud-progress / #ctr-N ids in the render; this is the
    capsule look.
    font-optical-sizing: none is LOAD-BEARING — the HUD renders in the root overlay, outside
-   .block-frame, so it does not inherit the frame's declaration, and Bodoni Moda's default
+   .mc-frame, so it does not inherit the frame's declaration, and Bodoni Moda's default
    `auto` opsz snaps the brand name and counter to a hairline cut. */
 .hud {
   position: absolute;

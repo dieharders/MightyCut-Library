@@ -3,7 +3,7 @@
 // opened by a cyan rule, translucent glass panels, and a corner-bracket HUD. Ported
 // from video-assets/themes/future/frame-showcase.html + frame.css onto the shared
 // component system. Everything future OWNS lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (navy ground, body wrapper, h3, .head)
+//   frame.css        the `.mc-frame` base (navy ground, body wrapper, h3, .head)
 //   <element>.css    future's SKIN for each shared primitive/treatment (structure +
 //                    behavior are shared; future styles the standard class names here)
 //   templates/*.html per-theme structure overrides where CSS can't reach (stat drops

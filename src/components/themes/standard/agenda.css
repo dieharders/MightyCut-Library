@@ -11,7 +11,7 @@
    The asymmetric padding is the showcase's own (13cqh top against 20cqh bottom): with the body
    centred, the heavier foot lifts the index above the true middle, which is where a catalogue page
    sets its list. The showcase's `.bf-agenda { background: var(--muted-2) }` is dropped — the
-   emitter stamps the resolved scene ground onto .block-frame, and painting a background in a skin
+   emitter stamps the resolved scene ground onto .mc-frame, and painting a background in a skin
    breaks the ground-resolution tripwire. A deck that wants the reference's deeper-stone index asks
    for it by name with `ground: "muted-2"` on the scene (see theme.ts). Its `.pill` rule is dropped
    too: the shared agenda template has no eyebrow node to space. */

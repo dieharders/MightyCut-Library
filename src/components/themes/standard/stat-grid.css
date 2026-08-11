@@ -22,7 +22,7 @@
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .stat-grid h3 {
-  /* Family, weight, tracking, leading and the ink colour all arrive from `.block-frame h3`
+  /* Family, weight, tracking, leading and the ink colour all arrive from `.mc-frame h3`
      (frame.css) — standard's section headline IS the base Playfair cut, so only the size and the
      rhythm down to the rule are stated. */
   font-size: var(--font-size-3xl);
