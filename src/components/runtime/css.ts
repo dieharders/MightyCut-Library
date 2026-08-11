@@ -50,10 +50,18 @@ export const REM_GRID = 0.125;
 export const remGrid = (n: number, min = REM_GRID): string =>
   `${Math.max(min, Math.round(n / REM_GRID) * REM_GRID)}rem`;
 
-/** Prefix every top-level rule's selector list with `.<root>-root `. */
-export const scopeCss = (css: string, root: string): string => {
-  const prefix = `.${root}-root`;
-  return css
+/**
+ * Prefix every top-level rule's selector list with an ARBITRARY ancestor selector.
+ *
+ * `scopeCss` is the scene case of this and delegates to it. The general form exists because a
+ * skin is authored to be scoped and is not always scoped by a scene: the harness stages the
+ * theme's caption skin into a project-wide `assets/chrome.css`, where a bare `.caption` rule
+ * reached every `.caption` in the document — including the FOOTNOTE slot that chart, matrix,
+ * line-chart and the rest carry, which is a different thing that happens to share the word.
+ * See `chromeCss` in the harness's components/chrome.ts.
+ */
+export const scopeSelectors = (css: string, prefix: string): string =>
+  css
     .replace(/\/\*[\s\S]*?\*\//g, "") // drop comments (avoid scoping text that looks like a selector)
     .replace(/(^|})\s*([^{}@]+)\{/g, (_m, close: string, selector: string) => {
       const scoped = selector
@@ -63,7 +71,9 @@ export const scopeCss = (css: string, root: string): string => {
       return `${close ? `${close}\n` : ""}${scoped} {`;
     })
     .trim();
-};
+
+/** Prefix every top-level rule's selector list with `.<root>-root ` — the SCENE case. */
+export const scopeCss = (css: string, root: string): string => scopeSelectors(css, `.${root}-root`);
 
 /**
  * The canonical `background: var(--<role>)` declaration a treatment stamps for its
