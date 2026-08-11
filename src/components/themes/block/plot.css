@@ -25,7 +25,8 @@
   width: 100%;
   height: 24rem;
   clip-path: inset(0 0 0 0);
-  background: var(--muted-1);
+  /* background: color-mix(in srgb, var(--muted-1) 72%, transparent); */
+  backdrop-filter: blur(0.75rem);
 }
 /* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
    which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
