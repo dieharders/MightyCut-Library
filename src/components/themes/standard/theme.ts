@@ -313,9 +313,22 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Measured against the house rules, not against fashion",
     },
     children: [
-      { label: "Convention", sublabel: "Heavy rules and drop shadows", cells: ["yes", "no", "no"] },
-      { label: "Minimal", sublabel: "Restraint without a system", cells: ["no", "yes", "yes"] },
-      { label: "The Standard", sublabel: "One hairline, stone and ink", cells: ["yes", "yes", "yes"], highlight: true },
+      {
+        label: "Convention",
+        sublabel: "Heavy rules and drop shadows",
+        cells: ["yes", "no", "no"],
+      },
+      {
+        label: "Minimal",
+        sublabel: "Restraint without a system",
+        cells: ["no", "yes", "yes"],
+      },
+      {
+        label: "The Standard",
+        sublabel: "One hairline, stone and ink",
+        cells: ["yes", "yes", "yes"],
+        highlight: true,
+      },
     ],
   },
   "pill-wall": {
@@ -325,13 +338,16 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
     children: [
       { text: "Drawings" },
-      { text: "Prints" },
       { text: "Photography" },
       { text: "Ceramics" },
       { text: "Textiles" },
       { text: "Furniture" },
       { text: "Metalwork" },
       { text: "Glass" },
+      { text: "Paint" },
+      { text: "Pen & Ink" },
+      { text: "Exotic" },
+      { text: "Paper" },
     ],
   },
   team: {
@@ -340,9 +356,24 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Departmental leads, as listed in the catalogue",
     },
     children: [
-      { name: "Eleanor Vance", role: "Head Curator", org: "Prints & Drawings", accent: "primary" },
-      { name: "Marcus Bell", role: "Conservator", org: "Paper Conservation", accent: "secondary" },
-      { name: "Ines Duarte", role: "Registrar", org: "Collections", accent: "accent-1" },
+      {
+        name: "Eleanor Vance",
+        role: "Head Curator",
+        org: "Prints & Drawings",
+        accent: "primary",
+      },
+      {
+        name: "Marcus Bell",
+        role: "Conservator",
+        org: "Paper Conservation",
+        accent: "secondary",
+      },
+      {
+        name: "Ines Duarte",
+        role: "Registrar",
+        org: "Collections",
+        accent: "accent-1",
+      },
     ],
   },
   "line-chart": {
@@ -352,8 +383,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
     children: [
       {
-        labels: ["Spring","Summer","Autumn","Winter"],
-        values: [42,68,51,29],
+        labels: ["Spring", "Summer", "Autumn", "Winter"],
+        values: [42, 68, 51, 29],
         max: 68,
         unitSuffix: "k",
       },
@@ -366,11 +397,41 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Departments as catalogued",
     },
     children: [
-      { label: "Drawings", detail: "2,400 works", index: 0, total: 5, accent: "primary" },
-      { label: "Prints", detail: "1,100 works", index: 1, total: 5, accent: "secondary" },
-      { label: "Ceramics", detail: "640 works", index: 2, total: 5, accent: "accent-1" },
-      { label: "Textiles", detail: "390 works", index: 3, total: 5, accent: "accent-2" },
-      { label: "Glass", detail: "210 works", index: 4, total: 5, accent: "primary" },
+      {
+        label: "Drawings",
+        detail: "2,400 works",
+        index: 0,
+        total: 5,
+        accent: "primary",
+      },
+      {
+        label: "Prints",
+        detail: "1,100 works",
+        index: 1,
+        total: 5,
+        accent: "secondary",
+      },
+      {
+        label: "Ceramics",
+        detail: "640 works",
+        index: 2,
+        total: 5,
+        accent: "accent-1",
+      },
+      {
+        label: "Textiles",
+        detail: "390 works",
+        index: 3,
+        total: 5,
+        accent: "accent-2",
+      },
+      {
+        label: "Glass",
+        detail: "210 works",
+        index: 4,
+        total: 5,
+        accent: "primary",
+      },
     ],
   },
   comparison: {

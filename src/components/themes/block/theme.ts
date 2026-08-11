@@ -283,9 +283,22 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Scored on the three things buyers ask about first",
     },
     children: [
-      { label: "Status Quo", sublabel: "What most teams run today", cells: ["no", "yes", "no"] },
-      { label: "Point Tools", sublabel: "Stitched together per team", cells: ["yes", "no", "no"] },
-      { label: "Our Platform", sublabel: "The proposed approach", cells: ["yes", "yes", "yes"], highlight: true },
+      {
+        label: "Status Quo",
+        sublabel: "What most teams run today",
+        cells: ["no", "yes", "no"],
+      },
+      {
+        label: "Point Tools",
+        sublabel: "Stitched together per team",
+        cells: ["yes", "no", "no"],
+      },
+      {
+        label: "Our Platform",
+        sublabel: "The proposed approach",
+        cells: ["yes", "yes", "yes"],
+        highlight: true,
+      },
     ],
   },
   "pill-wall": {
@@ -302,6 +315,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { text: "Linear" },
       { text: "Datadog" },
       { text: "Snowflake" },
+      { text: "Dropbox" },
+      { text: "Google Drive" },
+      { text: "SharePoint" },
+      { text: "Trello" },
     ],
   },
   team: {
@@ -310,9 +327,24 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "The core team, end to end",
     },
     children: [
-      { name: "Ada Byron", role: "Head of Research", org: "Analytical Engines", accent: "primary" },
-      { name: "Grace Hopper", role: "Chief Architect", org: "Compiler Group", accent: "secondary" },
-      { name: "Alan Turing", role: "Principal Scientist", org: "Machine Intelligence", accent: "accent-1" },
+      {
+        name: "Ada Byron",
+        role: "Head of Research",
+        org: "Analytical Engines",
+        accent: "primary",
+      },
+      {
+        name: "Grace Hopper",
+        role: "Chief Architect",
+        org: "Compiler Group",
+        accent: "secondary",
+      },
+      {
+        name: "Alan Turing",
+        role: "Principal Scientist",
+        org: "Machine Intelligence",
+        accent: "accent-1",
+      },
     ],
   },
   "line-chart": {
@@ -322,8 +354,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
     children: [
       {
-        labels: ["Q1","Q2","Q3","Q4"],
-        values: [61,44,29,18],
+        labels: ["Q1", "Q2", "Q3", "Q4"],
+        values: [61, 44, 29, 18],
         max: 61,
         unitSuffix: "",
       },
@@ -336,11 +368,41 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Everything lands in the same place",
     },
     children: [
-      { label: "Slack", detail: "alerts", index: 0, total: 5, accent: "primary" },
-      { label: "Jira", detail: "tickets", index: 1, total: 5, accent: "secondary" },
-      { label: "GitHub", detail: "commits", index: 2, total: 5, accent: "accent-1" },
-      { label: "Okta", detail: "identity", index: 3, total: 5, accent: "accent-2" },
-      { label: "Datadog", detail: "metrics", index: 4, total: 5, accent: "primary" },
+      {
+        label: "Slack",
+        detail: "alerts",
+        index: 0,
+        total: 5,
+        accent: "primary",
+      },
+      {
+        label: "Jira",
+        detail: "tickets",
+        index: 1,
+        total: 5,
+        accent: "secondary",
+      },
+      {
+        label: "GitHub",
+        detail: "commits",
+        index: 2,
+        total: 5,
+        accent: "accent-1",
+      },
+      {
+        label: "Okta",
+        detail: "identity",
+        index: 3,
+        total: 5,
+        accent: "accent-2",
+      },
+      {
+        label: "Datadog",
+        detail: "metrics",
+        index: 4,
+        total: 5,
+        accent: "primary",
+      },
     ],
   },
   comparison: {
