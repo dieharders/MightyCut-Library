@@ -44,7 +44,8 @@
 .node-cluster .caption {
   font-family: var(--body);
   font-weight: 400;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--muted-3);
-  margin-top: 1.5rem;
+  margin-top: 2.5rem;
+  align-self: center;
 }

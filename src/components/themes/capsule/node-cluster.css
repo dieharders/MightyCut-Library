@@ -35,7 +35,8 @@
   border-radius: 50%;
   border: 0.25rem solid var(--dark);
   background: var(--primary);
-  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+  box-shadow: 0.375rem 0.375rem 0
+    color-mix(in srgb, var(--dark) 12%, transparent);
   padding: 1rem;
   font-family: var(--disp);
   font-weight: 700;
@@ -46,7 +47,8 @@
 .node-cluster .caption {
   font-family: var(--body);
   font-weight: 500;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--dark);
-  margin-top: 1.5rem;
+  margin-top: 2.5rem;
+  align-self: center;
 }
