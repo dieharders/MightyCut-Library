@@ -9,12 +9,20 @@
 // LOOKED like the setting — were required literals no renderer ever read (see the tombstone
 // in types/spec.ts). Every consumer now derives from the table below.
 //
-// PRESET NAMES ARE NOT OURS TO INVENT. HyperFrames ships its own canvas vocabulary
-// (`CANVAS_DIMENSIONS` in its CLI bundle: landscape 1920x1080, portrait 1080x1920, square
-// 1080x1080, plus -4k variants) and its `--resolution` flag takes those names. A second
-// naming system for the same sizes is guaranteed drift, so any name that exists on both
-// sides MUST carry the same dimensions — canvas.test.ts pins that. Names the renderer does
-// not have (landscape-720) are ours alone and unconstrained.
+// EVERY PRESET NAME STATES ITS HEIGHT — `landscape-1080`, `landscape-720`. This is the one
+// place a name is read by a PERSON choosing a resolution (a CLI flag, a dropdown), and
+// "landscape" does not say 1920x1080 to anybody; the number does. canvas.test.ts pins the
+// convention, so a preset cannot be added later without it.
+//
+// This deliberately DIVERGES from HyperFrames' own vocabulary, which calls that size
+// `landscape` (`CANVAS_DIMENSIONS` in its CLI bundle: landscape 1920x1080, portrait
+// 1080x1920, square 1080x1080, plus -4k variants). The two were aligned while it looked like
+// we would hand these names to its `--resolution` flag. We never do — that flag is
+// SUPERSAMPLING ONLY (see the 4K note below, and the harness's media.ts, which passes no
+// `--resolution` at all), so the shared vocabulary bought nothing while costing the reader
+// the one fact they came for. The tripwire it justified is KEPT: a name we happen to share
+// with the renderer must still agree with it about pixels, so re-introducing a bare
+// `landscape` at some other size stays impossible.
 
 /** Frame rates the HyperFrames renderer accepts; anything else is rejected at render time. */
 export type Fps = 24 | 30 | 60;
@@ -37,7 +45,7 @@ export type CanvasSize = { readonly width: number; readonly height: number };
  * needs no preset here.
  */
 export const CANVAS_PRESETS = {
-  landscape: { width: 1920, height: 1080 },
+  "landscape-1080": { width: 1920, height: 1080 },
   "landscape-720": { width: 1280, height: 720 },
 } as const satisfies Record<string, CanvasSize>;
 
@@ -45,7 +53,7 @@ export type CanvasPresetName = keyof typeof CANVAS_PRESETS;
 
 export const CANVAS_PRESET_NAMES = Object.keys(CANVAS_PRESETS) as readonly CanvasPresetName[];
 
-export const DEFAULT_CANVAS_PRESET: CanvasPresetName = "landscape";
+export const DEFAULT_CANVAS_PRESET: CanvasPresetName = "landscape-1080";
 
 export const DEFAULT_FPS: Fps = 30;
 
@@ -58,7 +66,7 @@ export const DEFAULT_FPS: Fps = 30;
  * FRACTION OF THE FRAME at every canvas, which is what makes the authored numbers scale
  * instead of being fixed pixels.
  */
-export const DESIGN_CANVAS: CanvasSize = CANVAS_PRESETS.landscape;
+export const DESIGN_CANVAS: CanvasSize = CANVAS_PRESETS["landscape-1080"];
 
 /**
  * The root font-size the design canvas is authored against. Every authored rem multiplies

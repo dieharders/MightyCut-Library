@@ -18,10 +18,11 @@ import { wrapSubComposition } from "../pipeline/sub-composition";
  * bundle (video-assets/node_modules/hyperframes/dist/cli.js — search the identifier). The
  * renderer's `--resolution` flag takes these names.
  *
- * This is the highest-value tripwire in the file: it is what silently rots on a hyperframes
- * upgrade. Our table is allowed to hold names the renderer does not (landscape-720), but a
- * name present on BOTH sides that disagrees about pixels is two naming systems for one size
- * — exactly the drift this module exists to remove.
+ * We no longer share any of them: our presets state their height (`landscape-1080`), because
+ * a name here is read by a person picking a resolution and `landscape` does not say 1920x1080.
+ * The overlap set is therefore EMPTY today, and the test below asserts agreement rather than
+ * overlap — it is armed for the case that matters (someone re-adds a bare `landscape`, or a
+ * hyperframes upgrade starts using one of our names) without demanding a collision exist.
  */
 const HYPERFRAMES_CANVAS_DIMENSIONS: Record<string, { width: number; height: number }> = {
   landscape: { width: 1920, height: 1080 },
@@ -33,12 +34,21 @@ const HYPERFRAMES_CANVAS_DIMENSIONS: Record<string, { width: number; height: num
 };
 
 describe("canvas presets", () => {
-  test("every shared name matches the renderer's dimensions", () => {
-    const shared = CANVAS_PRESET_NAMES.filter((n) => n in HYPERFRAMES_CANVAS_DIMENSIONS);
-    // Guard the guard: if this drops to zero the assertion below becomes vacuous.
-    expect(shared.length).toBeGreaterThan(0);
-    for (const name of shared) {
+  test("any name shared with the renderer matches its dimensions", () => {
+    // Deliberately NOT guarded with `shared.length > 0` any more. That guard was right while
+    // sharing the vocabulary was the intent; now that our names carry their height, an empty
+    // overlap is the CORRECT state and the guard would fail the design rather than a defect.
+    for (const name of CANVAS_PRESET_NAMES.filter((n) => n in HYPERFRAMES_CANVAS_DIMENSIONS)) {
       expect(CANVAS_PRESETS[name] as CanvasSize).toEqual(HYPERFRAMES_CANVAS_DIMENSIONS[name]!);
+    }
+  });
+
+  test("every preset name states its height", () => {
+    // The convention the rename established, pinned so the next preset cannot quietly drop it.
+    // A name is the whole UI in a CLI flag, and one that does not say its size sends the reader
+    // to this table to find out — which is exactly what `landscape` used to do.
+    for (const name of CANVAS_PRESET_NAMES) {
+      expect(name).toMatch(new RegExp(`-${CANVAS_PRESETS[name].height}$`));
     }
   });
 
@@ -72,11 +82,13 @@ describe("canvas presets", () => {
     // degrade rather than take the process down. The caller owns the warn.
     expect(canvasFor("nonsense").name).toBe(DEFAULT_CANVAS_PRESET);
     expect(canvasFor(undefined).name).toBe(DEFAULT_CANVAS_PRESET);
-    expect(canvasFor("landscape", 60).fps).toBe(60);
+    expect(canvasFor("landscape-1080", 60).fps).toBe(60);
   });
 
   test("isCanvasPreset does not admit inherited Object keys", () => {
-    expect(isCanvasPreset("landscape")).toBe(true);
+    expect(isCanvasPreset("landscape-1080")).toBe(true);
+    // The retired name must NOT resolve — it is what stored data and old flags will carry.
+    expect(isCanvasPreset("landscape")).toBe(false);
     expect(isCanvasPreset("constructor")).toBe(false);
     expect(isCanvasPreset("toString")).toBe(false);
     expect(isCanvasPreset(undefined)).toBe(false);
