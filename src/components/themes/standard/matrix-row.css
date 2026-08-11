@@ -43,7 +43,7 @@
   color: color-mix(
     in srgb,
     var(--dark) calc(var(--mhi, 0) * 100%),
-    color-mix(in srgb, var(--muted-3) 50%, transparent)
+    color-mix(in srgb, var(--muted-3) 60%, transparent)
   );
 }
 /* Inter against the label's Playfair: standard separates these voices by FACE, never by weight or
@@ -57,7 +57,7 @@
   color: color-mix(
     in srgb,
     var(--muted-3) calc(var(--mhi, 0) * 100%),
-    color-mix(in srgb, var(--muted-3) 50%, transparent)
+    color-mix(in srgb, var(--muted-3) 45%, transparent)
   );
   margin-top: 0.375rem;
 }
