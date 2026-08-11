@@ -25,9 +25,11 @@ export const SLIDE_KINDS = [
   "stats",
   "steps",
   "cards",
+  "pills",
+  "cluster",
+  "team",
   "matrix",
   "custom",
-  "composed",
   "outro",
 ] as const;
 export type SlideKind = (typeof SLIDE_KINDS)[number];
@@ -47,8 +49,8 @@ export type TreatmentMapEntry = {
 
 /**
  * The SSOT. Insertion order is the order the agent prompt lists treatments, so keep
- * it stable. Kinds with no default entry (matrix, composed, custom) fall through to
- * the generic generator — `defaultTreatmentForKind` returns null for them.
+ * it stable. Kinds with no default entry (matrix, custom) fall through to the
+ * placeholder scene — `defaultTreatmentForKind` returns null for them.
  */
 export const TREATMENT_MAP: Record<FrameTreatment, TreatmentMapEntry> = {
   cover: { kinds: ["title"], default: true, role: "title slide — headline · subtitle" },
@@ -59,13 +61,18 @@ export const TREATMENT_MAP: Record<FrameTreatment, TreatmentMapEntry> = {
   comparison: { kinds: ["comparison"], default: true, role: "a two-column ledger — row label · them · us" },
   chart: { kinds: ["chart"], default: true, role: "a bar chart — value · label (bar charts only)" },
   "bar-ranking": { kinds: ["chart"], default: false, role: "a horizontal ranked bar list (sibling of chart)" },
+  "line-chart": { kinds: ["chart"], default: false, role: "a line chart — the only treatment that draws chart.type \"line\"" },
+  matrix: { kinds: ["matrix"], default: true, role: "a check/cross capability table — option · criteria columns" },
+  "pill-wall": { kinds: ["pills"], default: true, role: "a wall of short label pills — breadth at a glance" },
+  team: { kinds: ["team"], default: true, role: "team member frames — monogram · name · role" },
+  "node-cluster": { kinds: ["cluster"], default: true, role: "a hub-and-spoke diagram — one centre, labelled arms" },
   quote: { kinds: ["statement"], default: true, role: "one big statement + attribution" },
   "closing-plate": { kinds: ["outro"], default: true, role: "the closer — headline + CTA" },
 };
 
 /**
  * The deterministic default treatment for a spec kind, or null when the kind has no
- * treatment (matrix, composed, custom → generic generator). NOTE: the chart line-vs-bar
+ * treatment (matrix, custom → the placeholder scene). NOTE: the chart line-vs-bar
  * distinction can't be expressed by kind alone — the caller (treatmentForSlide) keeps
  * that one conditional (line charts → null); this returns the bar-chart default for `chart`.
  */
@@ -79,8 +86,34 @@ export const defaultTreatmentForKind = (kind: SlideKind): FrameTreatment | null 
 /** The spec kinds a given treatment renders. */
 export const kindsForTreatment = (treatment: FrameTreatment): SlideKind[] => TREATMENT_MAP[treatment].kinds;
 
-/** Kinds with no default treatment — they fall back to the generic generator. */
+/** Kinds with no default treatment — they fall back to the placeholder scene. */
 export const FALLBACK_KINDS: SlideKind[] = SLIDE_KINDS.filter((k) => defaultTreatmentForKind(k) === null);
+
+/** One renderable look: a spec kind paired with a treatment that renders it. */
+export type SlideLook = { kind: SlideKind; treatment: FrameTreatment };
+
+/**
+ * Every renderable look, DERIVED from TREATMENT_MAP rather than listed.
+ *
+ * A slide's appearance is a (kind, treatment) PAIR, and neither half alone identifies it:
+ * `cards` and `bullets` both render as `feature-cards`, while `steps` and `chart` each have a
+ * non-default SIBLING treatment (`agenda`, `bar-ranking`) that the kind cannot select. A chooser
+ * built on kinds alone therefore hides those siblings and labels one option after a treatment
+ * that does not exist — which is exactly what the plan editor used to do.
+ *
+ * It lives HERE, beside the map it derives from, rather than in the harness where it started.
+ * Three repos need this list — the harness writes it into storyboard.json, the web UI's plan
+ * editor offers it as the look picker, and the library is where the treatments are declared —
+ * and while it sat in the harness the web UI hand-mirrored it, pairs and order, in a mirror its
+ * own tests looped over (so they could not detect drift by construction). Derivation is what
+ * makes "register a treatment and it becomes pickable everywhere" true rather than aspirational.
+ *
+ * Order follows TREATMENT_MAP's, which is documented as stable and is load-bearing: the editor
+ * resolves "no pin" to the FIRST look for a kind, so a default must precede its siblings.
+ */
+export const SLIDE_LOOKS: SlideLook[] = (Object.keys(TREATMENT_MAP) as FrameTreatment[]).flatMap(
+  (treatment) => kindsForTreatment(treatment).map((kind) => ({ kind, treatment })),
+);
 
 /** Prompt-table rows: `- <treatment>  <role>  (kind[s]: <kinds>)`, in TREATMENT_MAP order.
  *  The agent's system prompt renders these verbatim so the mapping it sees is generated

@@ -17,6 +17,10 @@ export const COMPONENT_NAMES = [
   "bar", // → chart (vertical column)
   "rank", // → bar-ranking (horizontal ranked row)
   "row", // → comparison (ledger row)
+  "matrix-row", // → matrix (option label + one check/cross per criteria column)
+  "team-member", // → team (monogram disc + name + role)
+  "plot", // → line-chart (the WHOLE series: gridlines, polyline, points, labels)
+  "cluster-node", // → node-cluster (one rotated spoke: connector + labelled puck)
   // Chrome / decorative leaf pieces — library + showcase (no treatment child role):
   "caption", // VO-transcript pill (root caption rail in render)
   "pill", // label / eyebrow pill

@@ -1,0 +1,38 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   Creative's pill IS the kicker-block: a solid ink plate with a cream mono label, square, no
+   border, no shadow. A wall of them is a sheet of stamped tags, which is exactly the zine idiom —
+   so the only thing this file changes is the inset and the type step. The same move chart makes on
+   `bar`: the treatment owns how its children sit INSIDE it, the primitive owns what they are.
+
+   NO OFFSET SHADOW on the pills, deliberately. The frame's one signature flourish is spent on a
+   single featured block (see comparison.css / matrix.css), and ten offset plates would be ten
+   flourishes — which is how a zine turns into noise. The plates carry themselves. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.pill-wall h3 {
+  font-size: var(--font-size-2xl);
+  margin: 0 0 2.375rem;
+  text-align: center;
+}
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  align-content: center;
+}
+.pill-wall .pill-c {
+  padding: 0.875rem 1.625rem;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.06em;
+}
+.pill-wall .caption {
+  font-family: var(--body);
+  font-size: var(--font-size-xs);
+  color: var(--dark);
+  margin-top: 2.5rem;
+  text-align: center;
+}

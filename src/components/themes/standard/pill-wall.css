@@ -1,0 +1,40 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   THE ONE THEME WHERE THE WALL HAS TO ADD SOMETHING. Standard's pill is deliberately bare — no
+   chip, no border, no fill, because this theme's position is that a label is TYPE, not chrome
+   (see pill.css). That is right for a lone eyebrow and wrong for a wall: ten bare labels laid out
+   in rows do not read as a set of tags, they read as a paragraph that lost its punctuation, and
+   the whole point of the device is that each item is a discrete thing.
+
+   So the wall gives them the theme's ONE hairline and nothing else — no fill, no radius, no
+   shadow, exactly the rule that draws the ledger and the matrix. It is the same border this
+   theme uses to mean "this is a bounded thing", spent here for the same reason. The primitive
+   stays bare for every other use; a treatment owning how its children sit inside it is the same
+   move chart makes on `bar`. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.pill-wall h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 1.875rem;
+}
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-content: center;
+}
+.pill-wall .pill-c {
+  border: 0.125rem solid var(--accent-3);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.18em;
+}
+.pill-wall .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  color: var(--muted-3);
+  margin-top: 2.5rem;
+}

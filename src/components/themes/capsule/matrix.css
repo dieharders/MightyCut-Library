@@ -1,0 +1,68 @@
+/* 11 · Matrix — a scored capability table: options down the left, criteria across the top.
+   Skinned as the comparison ledger's sibling, because that is what it is — rows answering
+   columns — and giving the two different furniture would read as two unrelated devices for
+   one idea. What differs is only what the content is: terse criteria instead of a them/us
+   pair, and a mark instead of a phrase.
+
+   The track is stated in BOTH .mhead and .mrow rather than once on a shared parent, because
+   the rows are separate grids here (matrix-row.css says why they are not display:contents into
+   one big grid). --cols is the treatment's criteria count; the rows carry their own --mcols and
+   the spec guarantees the two agree. */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.matrix h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.625rem 0 2.625rem;
+}
+.matrix .grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
+   header sits off by — otherwise each row's hard shadow is covered by the plate below it
+   and the stack reads as one welded block instead of a set of cards. (creative and
+   standard deliberately go flush here: their tables are ruled, not floated.) */
+.matrix .mrows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(var(--cols, 3), 1fr);
+  gap: 1.625rem;
+  align-items: end;
+}
+/* Deliberately bare — the one cell in the table that answers nothing. Capsule chips
+   everything else, so leaving this unchipped is what makes the top row read as labels. */
+.matrix .mcorner {
+  border: 0;
+}
+/* Column heads as the same uppercase chips the ledger's .ch wears, in the plain white
+   variant: the criteria NAME the comparison, they don't win it, so none of them takes the
+   filled coral. */
+.matrix .mcrit {
+  font-family: var(--body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.085em;
+  font-size: var(--font-size-md);
+  color: var(--dark);
+  padding: 0.875rem 1rem;
+  border-radius: 9999px;
+  text-align: center;
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  box-shadow: 0.375rem 0.375rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+}
+.matrix .caption {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--dark);
+  margin-top: 2.125rem;
+  text-align: center;
+}

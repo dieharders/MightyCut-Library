@@ -1,0 +1,72 @@
+/* A scored matrix row: an option label plus one check/cross per criteria column.
+
+   NOT display:contents, unlike the comparison `row` next door. That row has three fixed children
+   which can each be a direct item of one shared ledger grid; this one has two — a label and a
+   CELL STRIP whose length varies — so the strip would land in a single column and the marks would
+   pile up. It matters for motion too: applyAnims retargets a display:contents root to its
+   children, and a display:contents strip has no box to transform, so the cells would silently
+   never animate. Each row is its own grid on the head's track, and the strip spans columns 2..-1
+   with a matching inner grid — no gaps on either, so the hairlines meet as one rule. */
+.mrow {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+}
+/* THE TABLE ITSELF, and its only structure: every label and mark opens with the theme's one
+   hairline across its full track. Because neither grid has gaps, they meet and read as a single
+   rule ruled across the frame, once per row. No capsule, no fill, no radius — professional's
+   tinted-chip table is the thing this must not be. */
+.mrow .ml,
+.mrow .mcell {
+  border-top: 0.125rem solid var(--accent-3);
+  padding: 1.5rem 1.25rem;
+}
+.mrow .ml {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* THE WHOLE COMPARISON DEVICE, in one declaration. Standard spends no accent colour here, so the
+   proposer's row is distinguished purely by TONAL VALUE: ink where every other row is warm gray,
+   mixed off the `--mhi` 0/1 flag rather than selected on. It is the same move `.cell.b` makes in
+   the ledger, and the same reason — no hue to spend, so weight of tone is the emphasis. */
+.mrow .mlabel {
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: var(--font-size-lg);
+  line-height: 1.15;
+  color: color-mix(in srgb, var(--dark) calc(var(--mhi, 0) * 100%), var(--muted-3));
+}
+/* Inter against the label's Playfair: standard separates these voices by FACE, never by weight or
+   hue, which is what lets the qualifier sit under the serif and still recede. Pruned when absent,
+   so a bare row leaves no gap behind. */
+.mrow .msub {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+  color: var(--muted-3);
+  margin-top: 0.375rem;
+}
+.mrow .mcells {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+}
+.mrow .mcell {
+  display: grid;
+  place-items: center;
+}
+/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
+   element by iconSvg. Ink for a yes, warm gray for a no — tonal value again, the only device this
+   theme has. No fill behind either: the hairline is the structure, and a filled cell would be the
+   drop shadow this theme spent its whole ramp avoiding. */
+.mrow .mcell svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.mrow .mcell--yes {
+  color: var(--dark);
+}
+.mrow .mcell--no {
+  color: color-mix(in srgb, var(--muted-3) 45%, transparent);
+}

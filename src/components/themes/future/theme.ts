@@ -29,9 +29,18 @@ import ctaCss from "./cta.css" with { type: "text" };
 import pillCss from "./pill.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
+import matrixRowCss from "./matrix-row.css" with { type: "text" };
+import teamMemberCss from "./team-member.css" with { type: "text" };
+import plotCss from "./plot.css" with { type: "text" };
+import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 // Treatment skins.
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import matrixCss from "./matrix.css" with { type: "text" };
+import pillWallCss from "./pill-wall.css" with { type: "text" };
+import teamCss from "./team.css" with { type: "text" };
+import lineChartCss from "./line-chart.css" with { type: "text" };
+import nodeClusterCss from "./node-cluster.css" with { type: "text" };
 import statGridCss from "./stat-grid.css" with { type: "text" };
 import closingPlateCss from "./closing-plate.css" with { type: "text" };
 import quoteCss from "./quote.css" with { type: "text" };
@@ -263,6 +272,73 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { num: "04", title: "Live Ops", body: "Zero-trust traffic flows." },
     ],
   },
+  matrix: {
+    params: {
+      headline: "Capability Coverage",
+      criteria: ["Autonomous", "Encrypted", "72-hr deploy"],
+      caption: "Assessed against the program's threshold requirements",
+    },
+    children: [
+      { label: "Legacy SATCOM", sublabel: "Geo-dependent, add-on crypto", cells: ["no", "no", "no"] },
+      { label: "Mesh Retrofit", sublabel: "Partial coverage, long lead time", cells: ["yes", "yes", "no"] },
+      { label: "Atlas Relay", sublabel: "The proposed system", cells: ["yes", "yes", "yes"], highlight: true },
+    ],
+  },
+  "pill-wall": {
+    params: {
+      headline: "Sensor Coverage",
+      caption: "Feeds ingested by the relay on entry to service",
+    },
+    children: [
+      { text: "Radar" },
+      { text: "EO/IR" },
+      { text: "SIGINT" },
+      { text: "AIS" },
+      { text: "ADS-B" },
+      { text: "Sonar" },
+      { text: "LIDAR" },
+      { text: "Telemetry" },
+    ],
+  },
+  team: {
+    params: {
+      headline: "Program Leadership",
+      caption: "Cleared personnel assigned for the program's duration",
+    },
+    children: [
+      { name: "Cmdr. Rae Sol", role: "Program Director", org: "Orbital Ops", accent: "primary" },
+      { name: "Dr. Ivo Kess", role: "Chief Engineer", org: "Relay Systems", accent: "secondary" },
+      { name: "Maj. Lena Cruz", role: "Mission Assurance", org: "Test & Eval", accent: "accent-1" },
+    ],
+  },
+  "line-chart": {
+    params: {
+      headline: "Link Latency Trend",
+      caption: "Mean round-trip, milliseconds",
+    },
+    children: [
+      {
+        labels: ["T+0","T+30","T+60","T+90"],
+        values: [240,180,120,64],
+        max: 240,
+        unitSuffix: "ms",
+      },
+    ],
+  },
+  "node-cluster": {
+    params: {
+      headline: "One Relay, Every Sensor",
+      hub: "Atlas Relay",
+      caption: "Each source normalised on the way in",
+    },
+    children: [
+      { label: "Radar", detail: "12 feeds", index: 0, total: 5, accent: "primary" },
+      { label: "EO/IR", detail: "8 feeds", index: 1, total: 5, accent: "secondary" },
+      { label: "SIGINT", detail: "4 feeds", index: 2, total: 5, accent: "accent-1" },
+      { label: "AIS", detail: "global", index: 3, total: 5, accent: "accent-2" },
+      { label: "Telemetry", detail: "live", index: 4, total: 5, accent: "primary" },
+    ],
+  },
   comparison: {
     params: {
       headline: "Why Alternatives Fall Short",
@@ -402,6 +478,10 @@ export const futureTheme: ThemeTokens = {
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
+    "team-member": teamMemberCss,
+    plot: plotCss,
+    "cluster-node": clusterNodeCss,
     pill: pillCss,
     rank: rankCss,
     row: rowCss,
@@ -415,6 +495,11 @@ export const futureTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    matrix: matrixCss,
+    "pill-wall": pillWallCss,
+    team: teamCss,
+    "line-chart": lineChartCss,
+    "node-cluster": nodeClusterCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
     timeline: timelineCss,

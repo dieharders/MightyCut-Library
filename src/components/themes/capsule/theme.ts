@@ -30,9 +30,18 @@ import ctaCss from "./cta.css" with { type: "text" };
 import pillCss from "./pill.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
+import matrixRowCss from "./matrix-row.css" with { type: "text" };
+import teamMemberCss from "./team-member.css" with { type: "text" };
+import plotCss from "./plot.css" with { type: "text" };
+import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 // Treatment skins.
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import matrixCss from "./matrix.css" with { type: "text" };
+import pillWallCss from "./pill-wall.css" with { type: "text" };
+import teamCss from "./team.css" with { type: "text" };
+import lineChartCss from "./line-chart.css" with { type: "text" };
+import nodeClusterCss from "./node-cluster.css" with { type: "text" };
 import statGridCss from "./stat-grid.css" with { type: "text" };
 import closingPlateCss from "./closing-plate.css" with { type: "text" };
 import quoteCss from "./quote.css" with { type: "text" };
@@ -263,6 +272,73 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { num: "04", title: "Scale", body: "Add more whenever you're ready." },
     ],
   },
+  matrix: {
+    params: {
+      headline: "What you actually get",
+      criteria: ["Quick", "Clear", "Yours"],
+      caption: "The three things people ask us about first",
+    },
+    children: [
+      { label: "The old way", sublabel: "Tickets, waiting, guessing", cells: ["no", "no", "yes"] },
+      { label: "Templates", sublabel: "Fast, but everyone's looks alike", cells: ["yes", "yes", "no"] },
+      { label: "The capsule way", sublabel: "Warm, plain-spoken, editable", cells: ["yes", "yes", "yes"], highlight: true },
+    ],
+  },
+  "pill-wall": {
+    params: {
+      headline: "Works with your tools",
+      caption: "No migration, no new logins",
+    },
+    children: [
+      { text: "Slack" },
+      { text: "Gmail" },
+      { text: "Notion" },
+      { text: "Trello" },
+      { text: "Dropbox" },
+      { text: "Calendar" },
+      { text: "Zoom" },
+      { text: "Sheets" },
+    ],
+  },
+  team: {
+    params: {
+      headline: "The people you'll work with",
+      caption: "Same team from kickoff to launch",
+    },
+    children: [
+      { name: "Mira Okonkwo", role: "Your producer", org: "Studio", accent: "primary" },
+      { name: "Tom Reyes", role: "Design lead", org: "Studio", accent: "secondary" },
+      { name: "Jo Park", role: "Support", org: "Customer Care", accent: "accent-1" },
+    ],
+  },
+  "line-chart": {
+    params: {
+      headline: "It gets easier every month",
+      caption: "Support tickets per 100 accounts",
+    },
+    children: [
+      {
+        labels: ["Jan","Feb","Mar","Apr"],
+        values: [48,36,24,15],
+        max: 48,
+        unitSuffix: "",
+      },
+    ],
+  },
+  "node-cluster": {
+    params: {
+      headline: "It all connects here",
+      hub: "Your workspace",
+      caption: "Nothing to wire up yourself",
+    },
+    children: [
+      { label: "Email", detail: "threads", index: 0, total: 5, accent: "primary" },
+      { label: "Calendar", detail: "events", index: 1, total: 5, accent: "secondary" },
+      { label: "Files", detail: "shared", index: 2, total: 5, accent: "accent-1" },
+      { label: "Chat", detail: "messages", index: 3, total: 5, accent: "accent-2" },
+      { label: "Notes", detail: "synced", index: 4, total: 5, accent: "primary" },
+    ],
+  },
   comparison: {
     params: {
       headline: "The friendlier path",
@@ -470,6 +546,10 @@ export const capsuleTheme: ThemeTokens = {
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
+    "team-member": teamMemberCss,
+    plot: plotCss,
+    "cluster-node": clusterNodeCss,
     pill: pillCss,
     rank: rankCss,
     row: rowCss,
@@ -483,6 +563,11 @@ export const capsuleTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    matrix: matrixCss,
+    "pill-wall": pillWallCss,
+    team: teamCss,
+    "line-chart": lineChartCss,
+    "node-cluster": nodeClusterCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
     timeline: timelineCss,

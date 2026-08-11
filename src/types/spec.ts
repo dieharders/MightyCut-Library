@@ -41,8 +41,8 @@ export type VOLine = z.infer<typeof VOLineSchema>;
  * frame printed its section name twice. The slot is gone (treatments/cover), and this field
  * means only the corner.
  *
- * Kinds with a `header` object hold it at `header.kicker`; the five without one (title,
- * statement, outro, custom, composed) hold it top-level. The renderer reads
+ * Kinds with a `header` object hold it at `header.kicker`; the four without one (title,
+ * statement, outro, custom) hold it top-level. The renderer reads
  * `slide.header?.kicker ?? slide.kicker`, so a header — where there is one — WINS. Coverage is
  * deliberately total: every kind has somewhere to put it, which is what lets the plan editor
  * offer the field on every row and the harness route it with one rule instead of a per-kind
@@ -86,7 +86,7 @@ const icon = z
   .optional()
   .describe('Icon name from the core Icon set (e.g. "shield", "database")');
 
-/* ----- reusable content shapes (used by single-kind slides AND composed slots) --- */
+/* ----- reusable content shapes ------------------------------------------------ */
 
 const StatSchema = z.object({
   value: z.number(),
@@ -150,46 +150,14 @@ export const ChartContentSchema = z.object({
   caption: z.string().max(140).optional(),
 });
 
-/* ----- composed-slide layouts (theme-independent; geometry lives in pipeline/layouts.ts) --- */
-
-/** Primitive component types a composed slot can hold. */
-export const COMPONENT_TYPES = ["card", "chart", "stat", "bullets"] as const;
-export type ComponentType = (typeof COMPONENT_TYPES)[number];
-const ALL_COMP: ComponentType[] = [...COMPONENT_TYPES];
-const NO_CHART: ComponentType[] = ["card", "stat", "bullets"]; // regions too narrow/short for a chart
-
-/**
- * The finite layout registry's VALIDATION contract: per layout, the accepted
- * component types for each slot (its length = the slot count). The matching
- * pixel geometry lives in pipeline/layouts.ts, kept in sync by a tripwire test.
- */
-export const LAYOUTS_META = {
-  "split-lr": { slots: [ALL_COMP, ALL_COMP] },
-  "split-tb": { slots: [ALL_COMP, ALL_COMP] },
-  "wide-left": { slots: [ALL_COMP, NO_CHART] },
-  "wide-right": { slots: [NO_CHART, ALL_COMP] },
-  "trio-row": { slots: [NO_CHART, NO_CHART, NO_CHART] },
-  quad: { slots: [NO_CHART, NO_CHART, NO_CHART, NO_CHART] },
-} as const satisfies Record<string, { slots: ComponentType[][] }>;
-export type LayoutId = keyof typeof LAYOUTS_META;
-export const LAYOUT_IDS = Object.keys(LAYOUTS_META) as [
-  LayoutId,
-  ...LayoutId[],
-];
-
-/** One slot's content — a primitive plus its data. */
-const SlotSchema = z.discriminatedUnion("component", [
-  z.object({ component: z.literal("card"), card: CardContentSchema }),
-  z.object({ component: z.literal("chart"), chart: ChartContentSchema }),
-  z.object({
-    component: z.literal("stat"),
-    stats: z.array(StatSchema).min(1).max(3),
-  }),
-  z.object({
-    component: z.literal("bullets"),
-    bullets: z.array(BulletSchema).min(2).max(4),
-  }),
-]);
+// NOTE: the `composed` kind — a fixed multi-slot layout (LAYOUTS_META / COMPONENT_TYPES /
+// SlotSchema) — was REMOVED, along with its pixel geometry in the harness's pipeline/layouts.ts.
+// It never had a treatment and could not get one: every treatment in the library composes into
+// ONE data-children container, while a composed slide needed 2-4 heterogeneous slots across six
+// layouts. So it was a kind that always rendered as a placeholder — a second escape hatch beside
+// `custom`, which is the only one there should be. Anything the library can't compose is a
+// `custom` slide, hand-built by the slide engineer. Do not re-add it as a spec kind unless the
+// treatment runtime grows real multi-slot support first.
 
 export const SlideSpecSchema = z.discriminatedUnion("kind", [
   z.object({
@@ -299,6 +267,79 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     id,
+    kind: z.literal("pills"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    // The floor is 6, not 2, and it is doing real work. A "wall" of three labels is a bulleted
+    // list with the words taken out — the device only reads as a SET, seen at once rather than
+    // read in order, once there are enough of them that no single one is the point. Below that
+    // the writer wants `bullets` or `cards`, which say what each item MEANS.
+    pills: z
+      .array(z.string().min(1).max(28))
+      .min(6)
+      .max(14)
+      .describe(
+        "Short labels, 1-3 words each — a SET taken in at a glance (tools, integrations, markets, capabilities). Not a list of claims: nothing here is explained, so use it only where the breadth IS the point.",
+      ),
+    caption: z.string().max(140).optional(),
+  }),
+  z.object({
+    id,
+    kind: z.literal("cluster"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    hub: z
+      .string()
+      .min(1)
+      .max(28)
+      .describe("The centre everything connects to — the product, the team, the platform"),
+    nodes: z
+      .array(
+        z.object({
+          label: z.string().min(1).max(24),
+          detail: z.string().max(40).optional().describe("A short qualifier under the label"),
+        }),
+      )
+      .min(3)
+      .max(8)
+      .describe(
+        "The spokes, placed evenly clockwise from the top. Use this only for a genuine hub-and-spoke relationship — everything here must connect to the SAME centre. A flat list of features is `bullets` or `pills`.",
+      ),
+    caption: z.string().max(140).optional(),
+  }),
+  z.object({
+    id,
+    kind: z.literal("team"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    members: z
+      .array(
+        z.object({
+          name: z.string().min(1).max(32),
+          role: z
+            .string()
+            .min(1)
+            .max(40)
+            .describe('What they do here, e.g. "Head of Research" — a title, not a biography'),
+          org: z
+            .string()
+            .max(32)
+            .optional()
+            .describe("Their affiliation, ONLY when it differs from the deck's own"),
+        }),
+      )
+      .min(2)
+      .max(5)
+      .describe(
+        "The people to introduce. Use ONLY names the prompt supplies — never invent a person, a title or an affiliation.",
+      ),
+    caption: z.string().max(140).optional(),
+  }),
+  z.object({
+    id,
     kind: z.literal("matrix"),
     transition,
     background,
@@ -360,27 +401,6 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .max(6)
       .optional()
       .describe("Optional label/value pairs shown as pills"),
-  }),
-  z.object({
-    id,
-    kind: z.literal("composed"),
-    transition,
-    background,
-    header: HeaderSpecSchema.optional(),
-    // Top-level as well as in the optional header — see the identical note on `custom`.
-    kicker: sectionKicker,
-    layout: z
-      .enum(LAYOUT_IDS)
-      .describe(
-        "Fixed slot layout (split-lr/split-tb/wide-left/wide-right/trio-row/quad)",
-      ),
-    slots: z
-      .array(SlotSchema)
-      .min(1)
-      .max(4)
-      .describe(
-        "One primitive per slot, in slot order; count + types must match the layout",
-      ),
   }),
   z.object({
     id,
@@ -605,28 +625,6 @@ export const VideoSpecSchema = z
             code: "custom",
             path: ["slides", i, "rows", r, "values"],
             message: `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`,
-          });
-        }
-      }
-    }
-    // Composed slides: slot count + each slot's component must match the layout.
-    for (const [i, slide] of spec.slides.entries()) {
-      if (slide.kind !== "composed") continue;
-      const slots = LAYOUTS_META[slide.layout].slots;
-      if (slide.slots.length !== slots.length) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["slides", i, "slots"],
-          message: `layout '${slide.layout}' has ${slots.length} slots but ${slide.slots.length} were given`,
-        });
-        continue;
-      }
-      for (const [si, slot] of slide.slots.entries()) {
-        if (!(slots[si] as readonly ComponentType[]).includes(slot.component)) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["slides", i, "slots", si, "component"],
-            message: `slot ${si} of '${slide.layout}' accepts ${slots[si]!.join("/")}, not '${slot.component}'`,
           });
         }
       }

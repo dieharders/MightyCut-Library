@@ -101,6 +101,24 @@ export {
 } from "../types/storyboard";
 export { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 
+// The kind ↔ treatment vocabulary. Exported HERE (not only from the Bun entry) because the web
+// UI reaches the library exclusively through `/engine`, and without it the plan editor's look
+// picker had to hand-mirror all of this — the kind tuple, the (kind, treatment) pairs AND their
+// order — in a mirror its own tests looped over, so drift from this file was undetectable by
+// construction and every new treatment had to be added in two repos to become pickable.
+// The web UI still owns the human LABEL for each look; that is UI copy, not vocabulary.
+export {
+  SLIDE_KINDS,
+  SLIDE_LOOKS,
+  TREATMENT_MAP,
+  FALLBACK_KINDS,
+  defaultTreatmentForKind,
+  kindsForTreatment,
+  type SlideKind,
+  type SlideLook,
+  type TreatmentMapEntry,
+} from "../types/spec-treatments";
+
 // Deck contracts (the editor edits + round-trips these).
 export {
   DeckDocumentSchema,

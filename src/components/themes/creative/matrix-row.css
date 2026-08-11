@@ -1,0 +1,77 @@
+/* A scored matrix row, printed into the Matrix table's oat block (matrix.css owns the outline,
+   the ink head bar and the offset).
+
+   NOT display:contents, unlike the comparison `row` next door. That row has three fixed children
+   which can each be a direct item of one shared ledger grid; this one has two — a label and a
+   CELL STRIP whose length varies — so the strip would land in a single column and the marks would
+   pile up. It matters for motion too: applyAnims retargets a display:contents root to its
+   children, and a display:contents strip has no box to transform, so the cells would silently
+   never animate. Each row is its own grid on the head's track, and the strip spans columns 2..-1
+   with a matching inner grid.
+
+   NO GAP, RULES INSTEAD: the label and every mark open with the 0.375rem ink border-top —
+   creative's inner-rule weight, one step down from the 0.5rem structural outline — so consecutive
+   rows share a single ink line and the table reads as one printed block. */
+.mrow {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+}
+/* Each cell PAINTS the milk block it sits in; the table itself is ink (matrix.css) so a sub-pixel
+   row seam shows the rule colour instead of leaking a light hairline. The proposer's row swaps
+   that milk for the green the ledger's answer column wears, mixed off the `--mhi` 0/1 flag rather
+   than selected on — the component keeps one contract and each theme spends it its own way. */
+.mrow .ml {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem 1.625rem;
+  border-top: 0.375rem solid var(--dark);
+  background: color-mix(in srgb, var(--accent-2) calc(var(--mhi, 0) * 100%), var(--muted-1));
+}
+/* The option label is TAXONOMY, not copy — the mono voice, uppercase and tracked, exactly as the
+   ledger's row stub. That contrast is what makes the first column read as the stub of a table
+   rather than a fourth answer. */
+.mrow .mlabel {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  color: var(--dark);
+}
+/* The one piece of running copy in the table: the body face, so it qualifies the stub above it
+   instead of joining the taxonomy. Pruned when absent, leaving no gap on a bare row. */
+.mrow .msub {
+  font-family: var(--body);
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+  color: var(--dark);
+  margin-top: 0.25rem;
+}
+.mrow .mcells {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+}
+.mrow .mcell {
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  border-top: 0.375rem solid var(--dark);
+  background: var(--muted-1);
+}
+/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
+   element by iconSvg. A yes continues the green answer field straight down the column with the
+   mark in CREAM — creative's "light" ink is the cream, never white. A no keeps the oat field and
+   the ink mark. */
+.mrow .mcell svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.mrow .mcell--yes {
+  background: var(--accent-2);
+  color: var(--muted-1);
+}
+.mrow .mcell--no {
+  color: var(--dark);
+}

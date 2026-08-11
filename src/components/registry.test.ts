@@ -1072,6 +1072,7 @@ describe("creative theme (tripwire)", () => {
     cover: "muted-1", // cream
     chart: "muted-1", // cream
     "bar-ranking": "muted-1", // cream
+    "line-chart": "muted-1", // cream — the chart family shares one plane
     "feature-cards": "secondary", // orange
     "stat-grid": "accent-2", // green
     quote: "primary", // pink
@@ -1079,6 +1080,10 @@ describe("creative theme (tripwire)", () => {
     timeline: "muted-2", // oat
     agenda: "muted-2", // oat
     comparison: "accent-1", // yellow
+    matrix: "accent-1", // yellow — the ledger's sibling shares its plane
+    "pill-wall": "muted-1", // cream
+    team: "muted-1", // cream
+    "node-cluster": "muted-1", // cream
   };
 
   for (const factory of allTreatments()) {
@@ -1700,7 +1705,10 @@ describe("accent plumbing (tripwire)", () => {
     ["card", "--ic"],
     ["icon", "--icol"],
     ["pill", "--pillbg"],
+    ["cluster-node", "--ccol"],
+    ["plot", "--pcol"],
     ["stat", "--dot"],
+    ["team-member", "--tcol"],
     ["bar", "--col"],
     ["rank", "--col"],
   ];

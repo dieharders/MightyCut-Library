@@ -25,6 +25,10 @@ import ctaCss from "./cta.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
+import matrixRowCss from "./matrix-row.css" with { type: "text" };
+import teamMemberCss from "./team-member.css" with { type: "text" };
+import plotCss from "./plot.css" with { type: "text" };
+import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 import pillCss from "./pill.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import rowCss from "./row.css" with { type: "text" };
@@ -38,6 +42,11 @@ import closingPlateCss from "./closing-plate.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import matrixCss from "./matrix.css" with { type: "text" };
+import pillWallCss from "./pill-wall.css" with { type: "text" };
+import teamCss from "./team.css" with { type: "text" };
+import lineChartCss from "./line-chart.css" with { type: "text" };
+import nodeClusterCss from "./node-cluster.css" with { type: "text" };
 import quoteCss from "./quote.css" with { type: "text" };
 import statGridCss from "./stat-grid.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
@@ -264,6 +273,73 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { num: "04", title: "Deliver", body: "An executive-ready briefing." },
     ],
   },
+  matrix: {
+    params: {
+      headline: "Options against the criteria",
+      criteria: ["Speed", "Assurance", "Cost"],
+      caption: "Assessed against the evaluation criteria agreed at kickoff",
+    },
+    children: [
+      { label: "Do nothing", sublabel: "Retain the current process", cells: ["no", "yes", "yes"] },
+      { label: "Incumbent vendor", sublabel: "Extend the existing contract", cells: ["yes", "no", "no"] },
+      { label: "Our approach", sublabel: "The recommended option", cells: ["yes", "yes", "yes"], highlight: true },
+    ],
+  },
+  "pill-wall": {
+    params: {
+      headline: "Coverage across the estate",
+      caption: "Systems in scope for the initial phase",
+    },
+    children: [
+      { text: "ERP" },
+      { text: "CRM" },
+      { text: "Payroll" },
+      { text: "Treasury" },
+      { text: "Procurement" },
+      { text: "Data Lake" },
+      { text: "Identity" },
+      { text: "Reporting" },
+    ],
+  },
+  team: {
+    params: {
+      headline: "Engagement team",
+      caption: "Named leads for the duration of the engagement",
+    },
+    children: [
+      { name: "Helen Marsh", role: "Engagement Partner", org: "Advisory", accent: "primary" },
+      { name: "Daniel Osei", role: "Delivery Lead", org: "Transformation", accent: "secondary" },
+      { name: "Priya Raman", role: "Data Lead", org: "Analytics", accent: "accent-1" },
+    ],
+  },
+  "line-chart": {
+    params: {
+      headline: "Cost per transaction",
+      caption: "Trailing twelve months, indexed",
+    },
+    children: [
+      {
+        labels: ["Q1","Q2","Q3","Q4"],
+        values: [100,86,71,58],
+        max: 100,
+        unitSuffix: "",
+      },
+    ],
+  },
+  "node-cluster": {
+    params: {
+      headline: "A single operating core",
+      hub: "Core platform",
+      caption: "Systems in scope for phase one",
+    },
+    children: [
+      { label: "ERP", detail: "finance", index: 0, total: 5, accent: "primary" },
+      { label: "CRM", detail: "pipeline", index: 1, total: 5, accent: "secondary" },
+      { label: "Payroll", detail: "HR", index: 2, total: 5, accent: "accent-1" },
+      { label: "Treasury", detail: "cash", index: 3, total: 5, accent: "accent-2" },
+      { label: "Reporting", detail: "board", index: 4, total: 5, accent: "primary" },
+    ],
+  },
   comparison: {
     params: {
       headline: "What moves the number",
@@ -401,6 +477,10 @@ export const professionalTheme: ThemeTokens = {
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
+    "team-member": teamMemberCss,
+    plot: plotCss,
+    "cluster-node": clusterNodeCss,
     pill: pillCss,
     rank: rankCss,
     row: rowCss,
@@ -414,6 +494,11 @@ export const professionalTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    matrix: matrixCss,
+    "pill-wall": pillWallCss,
+    team: teamCss,
+    "line-chart": lineChartCss,
+    "node-cluster": nodeClusterCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
     timeline: timelineCss,

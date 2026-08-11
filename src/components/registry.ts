@@ -22,6 +22,10 @@ import { Glyph } from "./primitives/glyph";
 import { Hud } from "./primitives/hud";
 import { Icon } from "./primitives/icon";
 import { ListNumber } from "./primitives/list-number";
+import { MatrixRow } from "./primitives/matrix-row";
+import { ClusterNode } from "./primitives/cluster-node";
+import { Plot } from "./primitives/plot";
+import { TeamMember } from "./primitives/team-member";
 import { Lozenge } from "./primitives/lozenge";
 // `NodeDeco`, not `Node` — the bare name would shadow the DOM's `Node` global here.
 import { Corner } from "./primitives/corner";
@@ -54,14 +58,19 @@ import { ClosingPlate } from "./treatments/closing-plate";
 import { Comparison } from "./treatments/comparison";
 import { Cover } from "./treatments/cover";
 import { FeatureCards } from "./treatments/feature-cards";
+import { Matrix } from "./treatments/matrix";
+import { PillWall } from "./treatments/pill-wall";
+import { LineChart } from "./treatments/line-chart";
+import { NodeCluster } from "./treatments/node-cluster";
+import { Team } from "./treatments/team";
 import { Quote } from "./treatments/quote";
 import { StatGrid } from "./treatments/stat-grid";
 import { Timeline } from "./treatments/timeline";
 
-for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Compass, Sweep, Azimuth, Sorts, Icon, Hud]) {
+for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, MatrixRow, TeamMember, Plot, ClusterNode, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Compass, Sweep, Azimuth, Sorts, Icon, Hud]) {
   registerComponent(c);
 }
-for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda]) {
+for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda, Matrix, PillWall, Team, LineChart, NodeCluster]) {
   registerTreatment(t);
 }
 
@@ -74,6 +83,7 @@ export {
   Blob,
   Caption,
   Card,
+  ClusterNode,
   Compass,
   Confetti,
   Corner,
@@ -85,10 +95,16 @@ export {
   Icon,
   Keyline,
   ListNumber,
+  LineChart,
   Lozenge,
   Marker,
+  Matrix,
+  MatrixRow,
+  NodeCluster,
   NodeDeco,
   Pill,
+  PillWall,
+  Plot,
   Rank,
   Reticle,
   Ring,
@@ -102,6 +118,8 @@ export {
   Step,
   Stripe,
   Sweep,
+  Team,
+  TeamMember,
   Zag,
   Agenda,
   BarRanking,

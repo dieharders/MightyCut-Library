@@ -37,8 +37,8 @@ export const DeckVoLineSchema = z.object({
 });
 
 /** Sentinel `treatment` for a CUSTOM slide — one whose kind has no standard treatment
- *  (custom / matrix / composed / line-chart). A custom slide is not a component scene: its
- *  composition stays the legacy generic fallback and a deck rebuild passes it through
+ *  (custom / matrix / line-chart). A custom slide is not a component scene: its
+ *  composition stays the placeholder scene and a deck rebuild passes it through
  *  untouched (never recomposed). It exists in the deck ONLY so the editor still LISTS the
  *  slide (read-only) — no slide is silently dropped. See `specToDeck` (which emits it),
  *  `buildDeckCompositions` (which skips it), and the editor's SceneCard (read-only card). */

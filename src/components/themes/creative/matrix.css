@@ -1,0 +1,68 @@
+/* 11 · Matrix — creative's scored TABLE, and the comparison ledger's sibling: one ink-ruled
+   block printed onto the ground, its head row a solid bar of ink, its marks ruled beneath.
+   Skinned to match the ledger deliberately — both are rows answering columns, and giving them
+   different furniture would read as two unrelated devices for one idea.
+
+   NO GAP, RULES INSTEAD, exactly as the ledger. The head bar is solid ink edge to edge and each
+   body row draws its own ink border-top (matrix-row.css), so the table reads as one printed
+   block. Floating, gapped, individually-outlined chips are block's idiom; creative must not read
+   as a block re-skin.
+
+   THE GROUND IS INK, NOT OAT — the oat block is painted by the CELLS, which also draw the rules.
+   Grid rows land on fractional pixels once a font's metrics set the row height, and a cell's
+   background box rounds inward from that edge: a ground lighter than the rules leaks a hairline
+   of itself between two rows. Ink here makes that seam the rule colour, so the worst case is a
+   rule a hair fatter rather than a stray light line. (Same reasoning as comparison.css.)
+
+   The signature ORANGE+INK hard offset lands here for the same reason it lands on the ledger:
+   this is the frame's single featured block, and nothing inside it is GSAP-scaled (a 0-blur
+   offset shears with a transform, which is why chart and bar-ranking spend nothing on shadow). */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.matrix h3 {
+  font-size: var(--font-size-2xl);
+  margin: 0 0 2.375rem;
+  text-align: center;
+}
+.matrix .grid {
+  border: 0.5rem solid var(--dark);
+  background: var(--dark);
+  box-shadow:
+    1.5rem 1.5rem 0 var(--secondary),
+    1.5rem 1.5rem 0 0.25rem var(--dark);
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
+}
+/* Painted INK so the head reads as one uninterrupted bar rather than an oat notch beside the
+   criteria. QUALIFIED, because `.mcorner` sits inside a frame that may also carry decoration
+   families of its own — an unqualified rule here would reach them. */
+.matrix .mcorner {
+  background: var(--dark);
+}
+/* Criteria heads: inverted ink plates carrying CREAM Archivo — the same move the ledger's column
+   heads make, at table scale. Archivo Black ships one weight, so none is stated. */
+.matrix .mcrit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  font-size: var(--font-size-md);
+  padding: 1.5rem 1.25rem;
+  background: var(--dark);
+  color: var(--muted-1);
+}
+.matrix .caption {
+  font-family: var(--body);
+  font-size: var(--font-size-xs);
+  color: var(--dark);
+  margin-top: 2.125rem;
+  text-align: center;
+}

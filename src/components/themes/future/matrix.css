@@ -1,0 +1,75 @@
+/* 11 · Matrix — a scored capability table: options down the left, criteria across the top.
+   The comparison ledger's sibling, skinned as one — both are rows answering columns, and giving
+   them different furniture would read as two unrelated devices for one idea. The headline takes
+   the same cyan rule that opens every content frame in this theme.
+
+   The track is stated in BOTH .mhead and .mrow rather than once on a shared parent, because the
+   rows are separate grids here (matrix-row.css says why they are not display:contents into one
+   grid). --cols is the treatment's criteria count; the rows carry their own --mcols, and the spec
+   guarantees the two agree. */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.matrix h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 3.125rem;
+}
+.matrix h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.matrix .grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
+   header sits off by — otherwise each row's hard shadow is covered by the plate below it
+   and the stack reads as one welded block instead of a set of cards. (creative and
+   standard deliberately go flush here: their tables are ruled, not floated.) */
+.matrix .mrows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
+  gap: 1.75rem;
+  align-items: end;
+}
+/* Deliberately bare — the one cell that answers nothing. */
+.matrix .mcorner {
+  border: 0;
+}
+/* Criteria heads take the ledger's uppercase mono, unlit: they NAME the assessment, they don't
+   win it, and the cyan is reserved for what does. */
+.matrix .mcrit {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.105em;
+  font-size: var(--font-size-md);
+  color: var(--muted-1);
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+.matrix .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  margin-top: 2.125rem;
+  text-align: center;
+}

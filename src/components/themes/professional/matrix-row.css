@@ -1,0 +1,75 @@
+/* A scored matrix row: an option label plus one check/cross per criteria column.
+
+   NOT display:contents, unlike the comparison `row` it otherwise mirrors. That row has three
+   fixed children which can each be a direct item of one shared ledger grid; this one has two —
+   a label and a CELL STRIP whose length varies — so the strip would land in a single column and
+   the marks would pile up. It matters for motion too: applyAnims retargets a display:contents
+   root to its children, and a display:contents strip has no box to transform, so the cells would
+   silently never animate. Each row is its own grid on the header's track, and the strip spans
+   columns 2..-1 with a matching inner grid — same count, same gap, marks under their criteria. */
+.mrow {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(var(--mcols, 3), 1fr);
+  gap: 1.625rem;
+  align-items: center;
+}
+/* The label is bare type, as the ledger row's is. The recommended option is the exception: it
+   takes the 10% cobalt tint and near-black text the ledger's winning cell wears, mixed off the
+   `--mhi` 0/1 flag rather than selected on, so the component keeps one contract and each theme
+   spends it in its own language. No shadow anywhere in this theme. */
+.mrow .ml {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 10%), transparent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mrow .mlabel {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  color: var(--dark);
+  line-height: 1.15;
+}
+/* The one piece of running copy in the table — the body face in the warm gray, recessive
+   against the display-face label above it. Pruned when absent, so a bare row leaves no gap. */
+.mrow .msub {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+  color: var(--muted-3);
+  margin-top: 0.25rem;
+}
+.mrow .mcells {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+  gap: 1.625rem;
+}
+/* The same faint cobalt-tinted capsule the ledger's cells wear, so the two tables share one
+   surface vocabulary. */
+.mrow .mcell {
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 0.875rem;
+}
+/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
+   element by iconSvg. A yes deepens the tint and darkens the mark; a no keeps the faint plate
+   with the mark in the recessive gray. This theme has one hue to spend, so emphasis is DEPTH of
+   that hue, never a second colour. */
+.mrow .mcell svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.mrow .mcell--yes {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
+}
+.mrow .mcell--no {
+  color: color-mix(in srgb, var(--muted-3) 55%, transparent);
+}
