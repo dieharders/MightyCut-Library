@@ -61,7 +61,7 @@
 }
 .matrix .caption {
   font-family: var(--body);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   color: var(--dark);
   margin-top: 2.125rem;
   text-align: center;

@@ -17,13 +17,17 @@
   gap: 1.75rem;
   align-items: stretch;
 }
-/* The plate goes CTA-yellow on the proposer's row and white on every other, mixed off the
+/* The proposer's row gets highlighted and white on every other, mixed off the
    `--mhi` 0/1 flag rather than selected on — the flag is the component's contract and every
    theme reads it its own way (see matrix-row/index.ts). Only the label takes the accent:
    colouring the whole row would drown the marks, which are what the reader is comparing. */
 .mrow .ml {
   border: 0.25rem solid var(--dark);
-  background: color-mix(in srgb, var(--accent-1) calc(var(--mhi, 0) * 100%), var(--light));
+  background: color-mix(
+    in srgb,
+    var(--primary) calc(var(--mhi, 0) * 100%),
+    var(--light)
+  );
   box-shadow: 0.375rem 0.375rem 0 var(--dark);
   padding: 0.75rem 1.25rem;
   display: flex;
