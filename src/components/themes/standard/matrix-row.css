@@ -28,13 +28,23 @@
 /* THE WHOLE COMPARISON DEVICE, in one declaration. Standard spends no accent colour here, so the
    proposer's row is distinguished purely by TONAL VALUE: ink where every other row is warm gray,
    mixed off the `--mhi` 0/1 flag rather than selected on. It is the same move `.cell.b` makes in
-   the ledger, and the same reason — no hue to spend, so weight of tone is the emphasis. */
+   the ledger, and the same reason — no hue to spend, so weight of tone is the emphasis.
+
+   The unhighlighted end is the body gray lifted 10% toward white, not the raw --muted-3: at
+   display size the serif's thin strokes carry more weight than body copy at the same value, and
+   the extra step of air is what keeps the losing rows reading as ground for the ink one. Mixed
+   with --light rather than the sandstone canvas on purpose — --muted-3 is a neutral gray, and a
+   mix toward the warm ground would shift its hue instead of only its value. */
 .mrow .mlabel {
   font-family: var(--disp);
   font-weight: 400;
   font-size: var(--font-size-lg);
   line-height: 1.15;
-  color: color-mix(in srgb, var(--dark) calc(var(--mhi, 0) * 100%), var(--muted-3));
+  color: color-mix(
+    in srgb,
+    var(--dark) calc(var(--mhi, 0) * 100%),
+    color-mix(in srgb, var(--muted-3) 50%, transparent)
+  );
 }
 /* Inter against the label's Playfair: standard separates these voices by FACE, never by weight or
    hue, which is what lets the qualifier sit under the serif and still recede. Pruned when absent,

@@ -30,14 +30,19 @@
 }
 /* The option label is TAXONOMY, not copy — the mono voice, uppercase and tracked, exactly as the
    ledger's row stub. That contrast is what makes the first column read as the stub of a table
-   rather than a fourth answer. */
+   rather than a fourth answer.
+
+   INK ON OAT, CREAM ON GREEN: the highlighted row's stub is painted green above, and creative's
+   "light" ink on an accent field is the cream (--muted-1), never white — the same swap `.cell.b`
+   makes in row.css. Mixed off the same `--mhi` 0/1 flag as the fill so the type flips with the
+   ground it sits on, rather than selected on a second time. */
 .mrow .mlabel {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-size: var(--font-size-sm);
   line-height: 1.2;
-  color: var(--dark);
+  color: color-mix(in srgb, var(--muted-1) calc(var(--mhi, 0) * 100%), var(--dark));
 }
 /* The one piece of running copy in the table: the body face, so it qualifies the stub above it
    instead of joining the taxonomy. Pruned when absent, leaving no gap on a bare row. */
