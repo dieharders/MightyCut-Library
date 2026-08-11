@@ -10,10 +10,13 @@
   margin: 0 0 1.875rem;
 }
 /* --cols is the treatment's member count (capped at 4). The fallback is 3 rather than a fixed
-   repeat(3), so a two- or five-person roster lays out correctly instead of overflowing. */
+   repeat(3), so a two- or five-person roster lays out correctly instead of overflowing. Tracks
+   cap at 24rem and the row centres in the leftover space, so a one- or two-person roster stays a
+   card rather than stretching into a banner. */
 .team .roster {
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 24rem));
+  justify-content: center;
   gap: 2.5rem;
 }
 .team .caption {
@@ -21,5 +24,6 @@
   font-weight: 400;
   font-size: var(--font-size-sm);
   color: var(--muted-3);
-  margin-top: 2.5rem;
+  margin-top: 3.5rem;
+  align-self: center;
 }
