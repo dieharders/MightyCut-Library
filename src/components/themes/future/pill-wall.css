@@ -33,6 +33,7 @@
   flex-wrap: wrap;
   gap: 1.5rem;
   align-content: center;
+  justify-content: center;
 }
 .pill-wall .pill-c {
   padding: 0.875rem 1.875rem;
@@ -45,4 +46,5 @@
   font-size: var(--font-size-md);
   color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
   margin-top: 2.5rem;
+  align-self: center;
 }

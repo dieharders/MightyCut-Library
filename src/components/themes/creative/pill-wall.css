@@ -20,9 +20,9 @@
 .pill-wall .wall {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 1.25rem;
   align-content: center;
+  justify-content: center;
 }
 .pill-wall .pill-c {
   padding: 0.875rem 1.625rem;
@@ -31,8 +31,8 @@
 }
 .pill-wall .caption {
   font-family: var(--body);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   color: var(--dark);
   margin-top: 2.5rem;
-  text-align: center;
+  align-self: center;
 }

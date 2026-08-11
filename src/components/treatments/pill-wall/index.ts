@@ -5,8 +5,22 @@ import { pillWallAnim } from "./anim";
 import { PillWallSchema } from "./schema";
 
 const LABELS = [
-  "Slack", "Jira", "GitHub", "Notion", "Figma", "Linear",
-  "Datadog", "Snowflake", "Segment", "Zendesk",
+  "Slack",
+  "Jira",
+  "GitHub",
+  "Notion",
+  "Figma",
+  "Linear",
+  "Datadog",
+  "Snowflake",
+  "Dropbox",
+  "SharePoint",
+  "Segment",
+  "Zendesk",
+  "Trello",
+  "Evernote",
+  "MS Office",
+  "Google Drive",
 ];
 
 /**
@@ -38,6 +52,7 @@ export const PillWall = treatment({
   // No `variant`: see spec-map.ts's pill-wall case. The accent cycle is unreadable in the
   // themes whose four accent roles are one colour, and a theme that wants variety cycles it in
   // its own skin.
-  defaultChildren: () => LABELS.map((text) => Pill({ text }).withTransition({ animIn: "none" })),
+  defaultChildren: () =>
+    LABELS.map((text) => Pill({ text }).withTransition({ animIn: "none" })),
   anim: pillWallAnim,
 });

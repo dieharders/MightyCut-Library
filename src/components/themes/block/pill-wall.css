@@ -24,6 +24,7 @@
   flex-wrap: wrap;
   gap: 1.75rem;
   align-content: center;
+  justify-content: center;
 }
 .pill-wall .pill-c {
   border-width: 0.25rem;
@@ -51,10 +52,37 @@
 .pill-wall .pill-c:nth-child(4n + 4) {
   background: var(--accent-2);
 }
+/* Crooked like `stat-grid`'s cards, but on a SEVEN-step cycle against the colour cycle's four.
+   Alternating ±2deg is legible on a 3-up grid of large plates; on twelve small tiles in a wrap
+   it reads as a deliberate zig-zag, which is the opposite of the hand-pinned look. Seven and
+   four only realign every 28 pills, so no wall of this size repeats a colour+angle pair. Angles
+   stay under 3deg: the gap is 1.75rem and a rotated pill's corner has to clear its neighbour. */
+.pill-wall .pill-c:nth-child(7n + 1) {
+  transform: rotate(-2deg);
+}
+.pill-wall .pill-c:nth-child(7n + 2) {
+  transform: rotate(1.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 3) {
+  transform: rotate(-1deg);
+}
+.pill-wall .pill-c:nth-child(7n + 4) {
+  transform: rotate(2.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 5) {
+  transform: rotate(-2.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 6) {
+  transform: rotate(1deg);
+}
+.pill-wall .pill-c:nth-child(7n + 7) {
+  transform: rotate(-1.5deg);
+}
 .pill-wall .caption {
   font-family: var(--mono);
   font-weight: 500;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--dark);
   margin-top: 2.5rem;
+  align-self: center;
 }

@@ -24,6 +24,7 @@
   flex-wrap: wrap;
   gap: 1.25rem;
   align-content: center;
+  justify-content: center;
 }
 .pill-wall .pill-c {
   border: 0.125rem solid var(--accent-3);
@@ -34,7 +35,8 @@
 .pill-wall .caption {
   font-family: var(--body);
   font-weight: 400;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--muted-3);
   margin-top: 2.5rem;
+  align-self: center;
 }

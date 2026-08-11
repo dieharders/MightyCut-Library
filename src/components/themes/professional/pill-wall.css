@@ -17,12 +17,16 @@
   flex-wrap: wrap;
   gap: 1.25rem;
   align-content: center;
+  justify-content: center;
 }
 /* A hair more tint than the loose eyebrow's 6%: a single chip above a headline has the whole
    frame to separate it, where a wall's chips have only each other, and at 6% the gaps between
    them stop reading on the cream canvas. */
 .pill-wall .pill-c {
-  background: var(--pillbg, color-mix(in srgb, var(--primary) 10%, transparent));
+  background: var(
+    --pillbg,
+    color-mix(in srgb, var(--primary) 10%, transparent)
+  );
   padding: 0.875rem 1.875rem;
   font-size: var(--font-size-md);
   letter-spacing: 0.06em;
@@ -30,8 +34,8 @@
 .pill-wall .caption {
   font-family: var(--body);
   font-weight: 400;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--muted-3);
   margin-top: 2.5rem;
-  text-align: center;
+  align-self: center;
 }
