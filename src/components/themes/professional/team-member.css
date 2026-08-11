@@ -9,7 +9,7 @@
   padding: 2rem 1.75rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 .tmember .tmono {
   width: 4.25rem;
