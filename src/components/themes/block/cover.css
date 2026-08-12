@@ -4,9 +4,7 @@
    decoration components (block's decorationDefaults.cover in theme.ts), not inline
    markup — a user can edit or replace them from the showcase. */
 .cover > .body {
-  justify-content: center;
   align-items: flex-start;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .cover h3 {
   font-size: var(--font-size-max);

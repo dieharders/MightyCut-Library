@@ -28,14 +28,6 @@
   font-family: var(--disp);
   color: var(--dark);
 }
-.mc-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
 .mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;

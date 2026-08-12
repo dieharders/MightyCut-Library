@@ -4,10 +4,6 @@
    steps its type up, because at wall scale the label IS the content rather than an eyebrow above
    it. The same move chart makes on `bar`: the treatment owns how its children sit INSIDE it, the
    primitive owns what they are. No border and no shadow, per the theme — the tint is the tag. */
-.pill-wall > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .pill-wall h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 2.375rem;

@@ -5,10 +5,6 @@
    with). Only the type steps up a notch, because at wall scale the label is the content rather
    than a caption above it. The same move chart makes on `bar`: the treatment owns how its
    children sit INSIDE it, the primitive owns what they are. */
-.pill-wall > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .pill-wall h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;

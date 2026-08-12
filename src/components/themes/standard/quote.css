@@ -13,13 +13,8 @@
    covers it. Professional inlines its quote mark because it has no sorts family to reach for;
    standard has one. Ported from the showcase .bf-quote (cqw × 1.2, cqh × 0.675). */
 .quote > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  /* Horizontal-only inset, and a deeper one than any other standard content frame (9cqw against
-     cover's 7cqw): the padding IS the measure here, holding the statement short so it centres as a
-     block of two or three lines. Vertical padding would only fight `justify-content: center`. */
-  padding: 0 10.75rem;
 }
 .quote .eyebrow {
   /* The base eyebrow is flex-start — the only frame where the label sits over the centre line. */

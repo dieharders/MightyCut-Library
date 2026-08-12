@@ -12,19 +12,19 @@
    Ported from the showcase .bf-closing-plate (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
    grid). */
 .closing-plate > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  /* The reference left the closer's body padding implicit — it had no card and a headline that
-     never reached an edge. It is stated here so the treatment keeps the vertical rhythm its library
-     siblings share (8.125rem over, 13.5rem under, clearing the caption/HUD band), over standard's
-     OWN side gutter: 8.375rem, the cover's 7cqw, rather than professional's wider inset. */
-  padding: 8.125rem 8.375rem 13.5rem;
 }
 /* A stack, not a plate: nothing fills, borders or lifts it. position:relative is what the ink rule
    below hangs off, and it also keeps the stack above the backdrop layer sharing this context. */
+/* THE MEASURE IS THE STACK'S, not the body's — see safe-area.css: a treatment that needs a
+   shorter line caps its own content instead of restating where the frame's edges are. This closer ran an 8.375rem body padding of its own, so the stack was
+   never wider than 103.25rem; on the shared 6rem safe side it would reach 108.
+   It is stated on .cardf rather than on the h3 so the CTA is held to the same line; the headline
+   is not the only thing here that can run long (`cta` admits 120 characters). */
 .closing-plate .cardf {
   position: relative;
+  max-width: 103.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;

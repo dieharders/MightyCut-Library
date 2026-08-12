@@ -12,9 +12,7 @@
    column with align-items:flex-start takes margin collapsing out of the picture entirely and
    keeps both children hard against the left edge regardless of their intrinsic widths. */
 .quote > .body {
-  justify-content: center;
   align-items: flex-start;
-  padding: 9.5rem 9.625rem 13.5rem;
 }
 .quote .eyebrow {
   margin-bottom: 2.875rem;

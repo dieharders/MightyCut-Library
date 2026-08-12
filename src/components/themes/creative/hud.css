@@ -1,33 +1,35 @@
-/* Creative HUD skin */
+/* Creative HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
+   primitives/hud/geometry.css, emitted ahead of this file; the only two boxes a
+   skin may still size are named there and both are ceilings — `--hud-mark` (the brand mark inside
+   its 3rem slot) and the progress rail's height (≤ 0.75rem).
+
+   The punk-zine chrome: an ORANGE plate behind the heaviest ink outline in the system, the
+   signature hard offset shadow at its deepest (0.625rem — this is what `--safe-top` reserves
+   for), zero radius on everything, and an INVERTED ink plate for the title rather than a chip.
+
+   THIS IS ROOT CHROME. The harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
+   nothing in frame.css reaches it — the font and the colour roles are restated here rather than
+   inherited. The harness owns the `#hud` clip and the ids the master timeline tweens
+   (`#hud-progress`, `#ctr-N`, `#htitle-N`); the shared geometry owns where everything sits
+   inside it; this file owns only how it looks. */
 .hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
   font-family: var(--mono);
   color: var(--dark);
-  container-type: size;
 }
-.hud .hud-brand {
-  position: absolute;
-  top: 4.625rem;
-  left: 8.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1.875rem;
-}
+/* 0.375rem, a rung down from the theme's structural 0.5rem, for the same reason block trims its
+   own: the mark was a 3.25rem box and the shared slot is 3rem, so the original weight now leaves
+   only a 2rem orange plate inside a mark that is already the smallest it has ever been. This is
+   still the heaviest brand outline in the set, which is the part that carries creative's voice —
+   and the 0.625rem offset shadow, the deepest in the library and the thing `--safe-top` reserves
+   its shadow allowance for, is untouched. */
 .hud .hud-brand-mark {
-  width: 3.25rem;
-  height: 3.25rem;
-  box-sizing: border-box;
-  flex-shrink: 0;
   background: var(--secondary);
-  border: 0.5rem solid var(--dark);
+  border: 0.375rem solid var(--dark);
   border-radius: 0;
   box-shadow: 0.625rem 0.625rem 0 var(--dark);
 }
 .hud .hud-brand-name {
   font-family: var(--disp);
-  font-size: var(--font-size-lg);
   text-transform: uppercase;
   letter-spacing: 0.01em;
   color: var(--dark);
@@ -36,53 +38,31 @@
   font-family: var(--body);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: var(--font-size-xs);
   color: var(--muted-3);
 }
+/* The kicker-block move: cream mono on an ink plate, square, no border. */
 .hud .hud-title {
-  position: absolute;
-  top: 4.625rem;
-  right: 8.25rem;
-  padding: 1.125rem 2rem;
   background: var(--dark);
+  border-radius: 0;
   font-family: var(--mono);
-  font-size: var(--font-size-xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  line-height: 1.3;
   color: var(--muted-1);
 }
-.hud .hud-counter {
-  position: absolute;
-  bottom: 5.625rem;
-  right: 8.25rem;
-}
 .hud .hud-counter-item {
-  white-space: nowrap;
   font-family: var(--disp);
-  font-size: var(--font-size-lg);
   text-transform: uppercase;
   color: var(--dark);
 }
+/* Still the heaviest ring in the set, now at a weight the rail can hold: 0.25rem of ink around
+   0.25rem of orange inside the shared 0.75rem box. The theme's structural 0.5rem does not fit
+   here — border-box means it would BE the rail, twice over, and the fill would be zero. */
 .hud .hud-track {
-  position: absolute;
-  bottom: 3.625rem;
-  left: 8.25rem;
-  right: 8.25rem;
-  height: 1.75rem;
-  box-sizing: border-box;
   background: var(--muted-2);
-  border: 0.5rem solid var(--dark);
+  border: 0.25rem solid var(--dark);
   border-radius: 0;
   overflow: hidden;
 }
-/* `inset: 0` resolves against the track's PADDING box, so the fill sits inside the ink ring rather
-   than under it. GSAP drives the scale (growBar, prop scaleX); the skin states only the origin and
-   the resting factor the hud layout() emits as --pfill (unitless 0..1) — never a transition. */
 .hud .hud-fill {
-  position: absolute;
-  inset: 0;
   background: var(--secondary);
-  transform-origin: left center;
-  transform: scaleX(var(--pfill, 0));
 }

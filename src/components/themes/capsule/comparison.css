@@ -6,10 +6,6 @@
    (yellow) — never authored here, the emitter stamps it. The legacy's white ::before wash
    over that ground is NOT ported: grounds are scene-configurable now, so whitening whatever
    the user picks would make the ground control appear to do nothing. */
-.comparison > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .comparison h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;

@@ -4,16 +4,25 @@
    --cradius GROWS WITH THE SPOKE COUNT (--cn, emitted by the treatment). Eight arms at the
    radius three need would put their pucks shoulder to shoulder; the calc() opens the ring as
    the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
-/* THE VERTICAL INSET IS 5rem IN EVERY THEME and it is load-bearing, not rhythm: the ring divides
-   what this inset leaves, so the number here is what the diagram is allowed to grow to. It was
-   7.5rem over 13.5rem — the fat bottom absorbed a spill the ring under-reserved, and the thin top
-   did not, which is the whole of the headline collision. 5rem is the largest inset that still
-   leaves all six themes their designed radius at five spokes; anything larger silently shrinks the
-   diagram rather than overflowing it. */
-.node-cluster > .body {
-  justify-content: center;
-  padding: 7.5rem 6rem 13.5rem;
-}
+/* THIS FRAME TAKES THE SHARED SAFE AREA like every other, and that is a deliberate trade. The
+   ring divides whatever the body's padding leaves, so the inset is also the diagram's growth
+   budget — five of the six themes once ran a 5rem vertical here (block's own was 7.5rem over
+   13.5rem, so block gave up 1rem where the others gave up 12) so that every theme kept its
+   designed radius at five spokes. That was the last per-treatment exception in the library, and
+   it is gone: the safe area is one number, stated once (themes/safe-area.css), and no frame
+   argues with it.
+
+   PAYING FOR IT OUT OF `--creach` IS WHAT MADE THAT AFFORDABLE — see the note on .spokes below.
+   The reserve was `(--cpuck-w + --cpuck-h) / 2`, which is not the vertical worst case and is
+   ~3.4rem more than one; correcting it to the puck's HEIGHT bought back more radius than the
+   shared inset cost. Measured at five spokes, every theme now has a visible arm (block 2.3rem,
+   standard 5.6rem) where four of six had a NEGATIVE one — pucks lapped over the hub — under the
+   old reserve.
+
+   What remains true is that a dense cluster renders smaller than its reference, and that is the
+   design working: `flex: 1` on the ring (below) makes it take the leftover the layout engine
+   computes rather than a stale fixed number — which is what fixed the old headline collision —
+   so a tighter budget shrinks the diagram instead of overflowing the canvas. */
 .node-cluster h3 {
   font-size: var(--font-size-3xl);
   margin: 1.5rem 0 1.5rem;
@@ -45,21 +54,34 @@
    cluster-node.css so the width reserved and the width allowed are one declaration; --cpuck-h is
    its label linebox, its detail linebox, its padding and its border, added up.
 
-   --creach IS THE VERTICAL WORST CASE and it is not --cpuck-w. A vertical spoke's puck is CENTRED
-   --cpuck-w/2 past the arm's end (the counter-rotation in cluster-node.css turns about the puck's
-   middle), then reaches --cpuck-h/2 beyond that; a horizontal spoke's puck reaches a full --cpuck-w
-   sideways but nothing extra vertically. Half the sum bounds every angle between them. Sideways
-   nothing is reserved at all: 26.5rem of half-extent against a 120rem frame is not a constraint.
+   --creach IS THE VERTICAL WORST CASE, AND IT IS --cpuck-h — the puck's full HEIGHT, with its
+   width contributing nothing. That is the whole trick of the seating correction in
+   cluster-node.css: the translate leaves the puck's NEAR EDGE exactly --cradius from the hub's
+   centre at every angle (it backs off `(w/2)|cos| + (h/2)|sin|`, which is precisely how far the
+   near edge sits behind the centre). So a vertical spoke — spoke 0, always present, always at 12
+   o'clock — puts its puck's centre at --cradius + h/2 and its top edge h/2 beyond that: --cradius
+   + h, and no angle between beats it, because tilting a spoke trades vertical distance for
+   horizontal faster than the puck's width adds it back.
+
+   This read `(--cpuck-w + --cpuck-h) / 2` and that is where the arms went. It is the average of
+   the two extents rather than either one, ~3.4rem more than the vertical reserve actually needs
+   in this theme, and it came straight out of --cradius — which is why four of the six themes
+   rendered a NEGATIVE arm (pucks under a `z-index: 1` hub) at the DEFAULT five spokes. Sideways
+   nothing is reserved at all, deliberately: 26.5rem of half-extent against a 120rem frame is not
+   a constraint.
 
    --cpuck-h is an allowance for a one-line detail, not a cap — the schema permits 40 characters,
-   which wraps. Each extra line pushes the puck 1/2 a linebox past the ring, into the 5rem inset,
-   which is the second thing that inset is for. */
+   which wraps. Each extra line pushes the puck half a linebox past the ring, into the h3's and
+   the caption's own margins, which is the slack that absorbs it. */
 .node-cluster .spokes {
   position: absolute;
   inset: 0;
   --cpuck-w: 13.5rem;
   --cpuck-h: 6.75rem;
-  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  /* The vertical worst case IS the puck's height — the seating correction pins its near edge at
+     --cradius at every angle, so the width never enters this. block/node-cluster.css carries the
+     derivation, and the average this used to take cost every theme a visible arm. */
+  --creach: var(--cpuck-h);
   --cradius: min(
     calc(7.5rem + var(--cn, 5) * 1.1rem),
     calc(50cqh - var(--creach))

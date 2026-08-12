@@ -42,14 +42,6 @@
   /* Body copy default: the warm gray (--muted-3). Headlines override to ink, labels to brownstone. */
   color: var(--muted-3);
 }
-.mc-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
 /* Headline: Playfair Display, ink, SENTENCE case, neutral tracking. Brownstone never lands on a
    headline — the accent is carried by labels, numerals, rules and small text.
 

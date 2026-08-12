@@ -27,10 +27,18 @@ export type ComponentDef<S extends z.ZodTypeAny> = {
   schema: S;
   /** Flat HTML; root carries `.${name}`; data-slot / data-anim annotations. */
   template: string;
-  /** CSS authored under `.${name}` (rem on the 0.125rem grid, flat rules — see css.ts).
-   *  Optional: a theme may instead OWN this component's skin via `theme.skins[name]`,
-   *  which `buildNode` prefers. Components whose look is theme-specific (hud, caption)
-   *  omit this and let each theme style the standard class names from its own folder. */
+  /** SHARED CSS authored under `.${name}` (rem on the 0.125rem grid, flat rules — see css.ts),
+   *  emitted BEFORE the active theme's skin (`theme.skins[name]`) rather than instead of it.
+   *
+   *  Most components omit it: their look is entirely theme-specific, every theme ships a skin
+   *  for the standard class names, and an unskinned element renders unstyled. It exists for the
+   *  case where part of an element is NOT the theme's to decide — the HUD's geometry, which is
+   *  the band that `--safe-top` reserves for sight-unseen, so a skin may only paint inside it
+   *  (primitives/hud/geometry.css).
+   *
+   *  This used to be an either/or (`skin ?? css`), which made "shared structure plus per-theme
+   *  paint" inexpressible and is why the HUD geometry was hand-concatenated onto `skins.hud` in
+   *  all six theme.ts files instead. Joining costs nothing for a component that declares none. */
   css?: string;
   /** Example params — drives the showcase card + `defaults()` + tests. */
   example: z.input<S>;
@@ -135,9 +143,11 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
             ]
           : internals;
         const anims = local.map((a) => qualifyAnim(a, ctx.idPrefix));
-        // The skin is theme-owned when the active theme supplies one for this
-        // component name (theme.skins[name]); else the component's own css; else none.
-        const css = ctx.theme.skins?.[def.name] ?? def.css ?? "";
+        // Shared css first, then the active theme's skin for this component name — a JOIN, not
+        // an either/or, so an element can own the part that is not the theme's to decide and let
+        // the theme paint the rest (see `ComponentDef.css`). Skin second means it wins on any
+        // shared property at equal specificity, which is the direction a skin needs.
+        const css = [def.css, ctx.theme.skins?.[def.name]].filter(Boolean).join("\n");
         return { node: root, css, anims };
       },
       build(ctx): BuildResult {

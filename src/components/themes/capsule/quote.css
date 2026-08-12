@@ -6,10 +6,8 @@
    The colour in this frame therefore rides the eyebrow capsule and the ground, never the
    Bodoni statement. Ported from legacy .bf-quote (cqw × 1.2 → the 0.125rem grid). */
 .quote > .body {
-  justify-content: center;
   align-items: flex-start;
   text-align: left;
-  padding: 8.125rem 9.625rem 10.75rem;
 }
 /* The quote's eyebrow is the plain WHITE capsule, not the yellow one frame.css bases every
    eyebrow on — yellow is reserved for the closer's CTA capsule and the HUD title, and it would

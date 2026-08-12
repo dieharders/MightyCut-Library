@@ -12,3 +12,7 @@ dist/
 # (capsule → Bodoni Moda). Generated, deterministic — do not commit.
 # Only src/engine consumes them; the harness never imports the engine path.
 src/engine/*-fonts.generated.ts
+
+# Per-machine Claude Code overrides (permission allowlist). Personal, not team-wide —
+# .claude/settings.json is the file to commit if a rule should apply to everyone.
+.claude/settings.local.json

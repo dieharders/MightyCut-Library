@@ -12,6 +12,7 @@
 // the ground background), its inner markup becomes bodyHtml, all collected CSS is
 // scoped under the scene root, and all anims serialize to one MC.applyAnims call.
 import { z } from "zod";
+import safeAreaCss from "../themes/safe-area.css" with { type: "text" };
 import { serialize } from "../../pipeline/mini-dom";
 import { buildBackdrop } from "../primitives/backdrops";
 import type { FrameGround, FrameTreatment } from "../../types/storyboard";
@@ -141,6 +142,21 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         }
 
         const cssParts: { name: string; css: string }[] = [];
+        // THE SAFE AREA IS THE RUNTIME'S, NOT A THEME'S — see themes/safe-area.css. It is the
+        // one rule no frame may argue with, so it is pushed here for every treatment in every
+        // theme rather than concatenated onto `frameCss` in each theme.ts, which is what it was:
+        // six copies of `safeAreaCss + frameCss` and six of the import, where dropping one term
+        // silently loses `position: absolute`, `inset: 0`, `z-index: 3` and the flex column and
+        // collapses every frame in that theme to a static top-left block.
+        //
+        // Its own named part, ahead of the theme's, for two reasons beyond that. It gets its own
+        // collectCss de-dupe key rather than riding on `@frame:<theme>`, so it is emitted once
+        // per document independently of whether the theme has a frame base at all. And being
+        // FIRST at equal specificity is the cascade position the file's "NOTHING OVERRIDES ANY
+        // OF THIS" claim depends on — pinned by theme-parity.test.ts, which asserts the order in
+        // a composed scene rather than here. (The `/* @safe-area */` label collectCss writes is
+        // a build-time affordance only: scopeCss strips comments before a scene is emitted.)
+        cssParts.push({ name: "@safe-area", css: safeAreaCss });
         if (ctx.theme.frameCss) cssParts.push({ name: `@frame:${ctx.theme.name}`, css: ctx.theme.frameCss });
         // The skin is theme-owned when the active theme supplies one for this treatment
         // name (theme.skins[name]); else the treatment's own css; else none — mirrors the

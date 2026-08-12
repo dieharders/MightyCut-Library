@@ -14,11 +14,19 @@
 // Space Grotesk) are self-hosted and staged from video-assets/themes/block/assets.
 import { DECORATION_COMPONENTS } from "../../primitives/decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// This theme's frame base. It states NO safe-area value and has no side exception: the safe area
+// is themes/safe-area.css, shared by all six, and the RUNTIME pushes it ahead of this file into
+// every scene (`@safe-area` in runtime/treatment.ts) — no theme mentions it, so no theme can
+// forget it or disagree with it. Adding a `--safe-top`/`--safe-side`/`--safe-bottom` here would
+// not be an override to weigh up: safe-area.css is emitted FIRST at identical specificity, so a
+// later declaration in this file silently wins over the one rule the whole library depends on.
 import frameCss from "./frame.css" with { type: "text" };
 // Per-element skins block OWNS. Every primitive + treatment is structure+behavior only
 // (template/schema/anim); block styles their standard class names here, in
 // themes/block/<name>.css. The runtime prefers theme.skins[name] over an element's own
 // css (which is now empty), so another theme restyles the same names from its own folder.
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 // Component skins.

@@ -7,10 +7,6 @@
    rows are separate grids here (matrix-row.css says why they are not display:contents into one
    grid). --cols is the treatment's criteria count; the rows carry their own --mcols, and the spec
    guarantees the two agree. */
-.matrix > .body {
-  justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
-}
 .matrix h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 3.125rem;

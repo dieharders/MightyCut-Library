@@ -17,10 +17,6 @@
    The signature ORANGE+INK hard offset lands here for the same reason it lands on the ledger:
    this is the frame's single featured block, and nothing inside it is GSAP-scaled (a 0-blur
    offset shears with a transform, which is why chart and bar-ranking spend nothing on shadow). */
-.matrix > .body {
-  justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
-}
 .matrix h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.375rem;

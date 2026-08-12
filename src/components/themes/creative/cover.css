@@ -21,9 +21,7 @@
 
    Ported from the showcase .bf-cover (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem grid). */
 .cover > .body {
-  justify-content: center;
   align-items: flex-start;
-  padding: 9.5rem 8.375rem 13.5rem;
 }
 /* The hero. Archivo Black is a single-weight face, so no font-weight is stated (frame.css owns the
    family, the uppercase and the tracking baseline); the cover only pushes the leading to 0.86 and

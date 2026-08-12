@@ -1,13 +1,17 @@
 /* 4 · Closing Plate — a centered outro headline + a glowing cyan CTA pill (no card frame;
    the ground carries it). Reuses the shared template. Ported from legacy .bf-closing-plate. */
 .closing-plate > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 8.125rem 9.625rem 13.5rem;
 }
+/* THE MEASURE IS THE STACK'S, not the body's — see safe-area.css: a treatment that needs a
+   shorter line caps its own content instead of restating where the frame's edges are. This closer ran a 9.625rem body padding of its own, so the stack was
+   never wider than 100.75rem; on the shared 6rem safe side it would reach 108.
+   It is stated on .cardf rather than on the h3 so the CTA is held to the same line; the headline
+   is not the only thing here that can run long (`cta` admits 120 characters). */
 .closing-plate .cardf {
   position: relative;
+  max-width: 100.75rem;
   background: transparent;
   display: flex;
   flex-direction: column;

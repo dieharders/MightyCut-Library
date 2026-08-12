@@ -4,10 +4,6 @@
    --cradius GROWS WITH THE SPOKE COUNT (--cn, emitted by the treatment). Eight arms at the
    radius three need would put their pucks shoulder to shoulder; the calc() opens the ring as
    the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
-.node-cluster > .body {
-  justify-content: center;
-  padding: 5rem 7.25rem;
-}
 .node-cluster h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.5rem;
@@ -28,7 +24,10 @@
   inset: 0;
   --cpuck-w: 12.75rem;
   --cpuck-h: 5.5rem;
-  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  /* The vertical worst case IS the puck's height — the seating correction pins its near edge at
+     --cradius at every angle, so the width never enters this. block/node-cluster.css carries the
+     derivation, and the average this used to take cost every theme a visible arm. */
+  --creach: var(--cpuck-h);
   --cradius: min(
     calc(7.5rem + var(--cn, 5) * 1.1rem),
     calc(50cqh - var(--creach))

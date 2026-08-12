@@ -14,6 +14,12 @@
 // always-staged core set, so future ships no add-on font.
 import { FUTURE_DECORATION_COMPONENTS } from "../../primitives/future-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// This theme's frame base. It states NO safe-area value and has no side exception: the safe area
+// is themes/safe-area.css, shared by all six, and the RUNTIME pushes it ahead of this file into
+// every scene (`@safe-area` in runtime/treatment.ts) — no theme mentions it, so no theme can
+// forget it or disagree with it. Adding a `--safe-top`/`--safe-side`/`--safe-bottom` here would
+// not be an override to weigh up: safe-area.css is emitted FIRST at identical specificity, so a
+// later declaration in this file silently wins over the one rule the whole library depends on.
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import cardCss from "./card.css" with { type: "text" };
@@ -23,6 +29,8 @@ import rowCss from "./row.css" with { type: "text" };
 import barCss from "./bar.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };

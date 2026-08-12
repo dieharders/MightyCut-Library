@@ -4,9 +4,7 @@
    here are decoration components (panel · grille), opt-in per scene — the always-on atmosphere is
    the hatch backdrop. Ported from the showcase .bf-cover (cqw × 1.2 → the 0.125rem grid). */
 .cover > .body {
-  justify-content: center;
   align-items: flex-start;
-  padding: 0 8.375rem;
 }
 .cover h3 {
   font-size: var(--font-size-max);

@@ -3,10 +3,6 @@
    headline rhythm and the grid. --cols is emitted by the treatment's layout(); --dense/-scale are
    answered by the figure in stat.css, so there is no selector to write here. Ported from the
    showcase .bf-stat-grid (cqw × 1.2, cqh × 0.675). */
-.stat-grid > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .stat-grid h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 2.875rem;

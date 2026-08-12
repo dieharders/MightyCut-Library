@@ -3,10 +3,6 @@
    The card-less step, its cobalt disc and the connector live in step.css; this file owns the body
    padding, the headline rhythm, the grid and the fade cascade. Ported from the showcase
    .bf-timeline (cqw × 1.2, cqh × 0.675). */
-.timeline > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .timeline h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 3.125rem;

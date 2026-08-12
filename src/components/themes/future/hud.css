@@ -1,14 +1,18 @@
-/* Future HUD skin: cyan-on-navy mono chrome, an inline-SVG corner-bracket frame, and a
-   glowing rotated-diamond brand mark. Rendered in a 1920 frame slot (rem at 16px base,
-   scaled). Ported from legacy .bf-hud* (cqw × 1.2). The harness owns placement anchors +
-   the #hud-progress / #ctr-N ids in the render; this is the future look. */
+/* Future HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
+   primitives/hud/geometry.css, emitted ahead of this file; the two boxes a skin
+   may still size are the brand mark (`--hud-mark`, ≤ 3rem) and the rail height (≤ 0.75rem).
+
+   Cyan-on-navy mono chrome: an inline-SVG corner-bracket frame, a glowing rotated-diamond brand
+   mark, a hairline-bracketed title chip and the thinnest rail in the set.
+
+   THIS IS ROOT CHROME. The harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
+   nothing in frame.css reaches it — the font and the colour roles are restated here rather than
+   inherited. The harness owns the `#hud` clip and the ids the master timeline tweens
+   (`#hud-progress`, `#ctr-N`, `#htitle-N`); the shared geometry owns where everything sits
+   inside it; this file owns only how it looks. */
 .hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
   font-family: var(--mono);
   color: var(--light);
-  container-type: size;
 }
 .hud::before {
   content: "";
@@ -25,26 +29,19 @@
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
 }
-.hud .hud-brand {
-  position: absolute;
-  top: 4.5rem;
-  left: 9.625rem;
-  display: flex;
-  align-items: center;
-  gap: 1.375rem;
-}
+/* THE DIAMOND IS SCALED, NOT RESIZED. A square turned 45° has a bounding box √2 times its side,
+   so the shared 3rem mark would occupy 4.24rem of band and hang below every other theme's. The
+   0.7071 (1/√2) puts the ROTATED bbox back at exactly 3rem, so future keeps its diamond and the
+   band stays true. Resizing the element instead would have re-broken the very thing the shared
+   geometry exists to hold. */
 .hud .hud-brand-mark {
-  width: 1.75rem;
-  height: 1.75rem;
-  flex-shrink: 0;
   background: var(--primary);
-  transform: rotate(45deg);
+  transform: rotate(45deg) scale(0.7071);
   box-shadow: 0 0 1.375rem color-mix(in srgb, var(--primary) 80%, transparent);
 }
 .hud .hud-brand-name {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: var(--font-size-md);
   letter-spacing: 0.125rem;
   text-transform: uppercase;
   color: var(--light);
@@ -52,50 +49,49 @@
 .hud .hud-tagline {
   font-family: var(--mono);
   font-weight: 500;
-  font-size: var(--font-size-xs);
   letter-spacing: 0.125rem;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
 }
+/* THE CHIP IS PAINTED, and that is not a change of heart about future's flatness — it is what
+   makes the shared box real. The chip carries 1.875rem of side padding (geometry.css); unpainted,
+   that padding is an invisible offset, so the label's TEXT edge landed 1.875rem inside the counter
+   and the rail below it, both of which sit flush at `right: 8.25rem`. future and standard were the
+   only two themes staggered down the right column, and they were the two that painted nothing.
+
+   Square, hairline, 10% wash: the same corner-bracket vocabulary as .hud::before, not a pill. The
+   trailing letter-spacing is trimmed to a right margin so the tracked-out glyphs stay optically
+   centred in the box rather than sitting a third of a space left of centre. */
 .hud .hud-title {
-  position: absolute;
-  top: 4.75rem;
-  right: 9.625rem;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: 0;
   font-family: var(--mono);
   font-weight: 600;
-  font-size: var(--font-size-xs);
   letter-spacing: 0.375rem;
   text-transform: uppercase;
-  text-align: right;
   color: var(--primary);
 }
-.hud .hud-counter {
-  position: absolute;
-  bottom: 4.5rem;
-  right: 9.625rem;
+.hud .hud-title > span {
+  margin-right: -0.375rem;
 }
 .hud .hud-counter-item {
-  white-space: nowrap;
   font-family: var(--mono);
   font-weight: 500;
-  font-size: var(--font-size-sm);
   letter-spacing: 0.25rem;
   color: var(--muted-1);
 }
+/* THE THINNEST RAIL IN THE SET, 0.25rem of the shared 0.75rem ceiling — future's rail is a lit
+   thread, and the glow below is what gives it presence. At the full budget the same box-shadow
+   wraps a bar three times as tall and reads as a lozenge instead.
+
+   No overflow:hidden — it would clip the fill's cyan glow. The shared geometry leaves `overflow`
+   unstated for exactly this reason. */
 .hud .hud-track {
-  position: absolute;
-  bottom: 3.375rem;
-  left: 9.625rem;
-  right: 9.625rem;
   height: 0.25rem;
   background: color-mix(in srgb, var(--muted-1) 18%, transparent);
-  /* No overflow:hidden — it would clip the fill's cyan glow (below). */
 }
 .hud .hud-fill {
-  position: absolute;
-  inset: 0;
   background: var(--primary);
   box-shadow: 0 0 1.125rem color-mix(in srgb, var(--primary) 70%, transparent);
-  transform-origin: left center;
-  transform: scaleX(var(--pfill, 0));
 }

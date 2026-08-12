@@ -3,13 +3,18 @@
    stamps. Ported from the showcase .bf-closing-plate. The .cta here is the treatment's own node
    (a plain div in the shared template), styled to the same cobalt pill as the cta component. */
 .closing-plate > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 8.125rem 9.625rem 13.5rem;
 }
+/* THE MEASURE IS THE CARD'S, not the body's. This frame ran a 9.625rem body padding of its own,
+   so the card could never be wider than 100.75rem; on the shared 6rem safe side it would reach
+   108. safe-area.css asks a treatment that wants a shorter line to cap its own content rather
+   than restate the frame's edges — and it is stated here rather than on the h3 so the CTA is held
+   to the same line. Content box, so 86 + the padding and border below is the 100.75rem outer the
+   card had before. */
 .closing-plate .cardf {
   position: relative;
+  max-width: 86rem;
   background: var(--muted-2);
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 1.625rem;

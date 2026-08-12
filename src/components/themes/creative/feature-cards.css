@@ -15,10 +15,6 @@
    entirely in card.css. This file owns the body padding, the headline size/rhythm and the grid,
    and nothing else. Ported from the reference .bf-feature-cards (cqw × 1.2, cqh × 0.675, then
    snapped to the 0.125rem authoring grid — runtime/css.ts). */
-.feature-cards > .body {
-  justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
-}
 /* The reference centres this treatment's HEADER BLOCK (`.bf-feature-cards .pill` → align-self
    center, `.bf-feature-cards h3` → text-align center) while the card row below stays full-width;
    cover / quote / closing keep their own left anchor. The h3 half is live; the eyebrow half is a

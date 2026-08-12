@@ -3,10 +3,6 @@
    this file adds nothing below the last item. The showcase's `.bf-agenda { background: muted-2 }`
    is dropped — the emitter stamps the resolved scene ground onto .mc-frame, and authoring a
    background in a skin breaks the ground-resolution tripwire. */
-.agenda > .body {
-  justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
-}
 .agenda h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 2.875rem;

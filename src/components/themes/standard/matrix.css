@@ -10,10 +10,6 @@
 
    Criteria heads take no rule of their own: the first body row's border-top doubles as their
    underline, exactly as it does under the ledger's column heads. */
-.matrix > .body {
-  justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
-}
 .matrix h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;

@@ -4,10 +4,6 @@
    a field of lit plates. Only the inset and type change for wall scale — the plating, the cyan
    hairline and the glow are the primitive's and stay untouched. The same move chart makes on
    `bar`: the treatment owns how its children sit INSIDE it, the primitive owns what they are. */
-.pill-wall > .body {
-  justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
-}
 .pill-wall h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 3.125rem;

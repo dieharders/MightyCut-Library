@@ -24,6 +24,7 @@ every theme**. A theme supplies the CSS those class names resolve against.
 | Shared — never per-theme                                                                                | Theme-owned                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `template.html` markup + markers, `schema.ts` params, `anim.ts` motion (`primitives/*`, `treatments/*`) | one skin CSS per element (`themes/<t>/<element>.css`, wired through `skins`)                                                                   |
+| **two CSS sheets no theme owns**: the safe area (`themes/safe-area.css`) and the HUD band (`primitives/hud/geometry.css`) — see rule 3 | everything painted inside them                                                                                                                 |
 | the 10 palette **roles** (`src/types/palette.ts`)                                                       | which colour fills each role (`palette`)                                                                                                       |
 | the 10 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                           |
 | the transition catalog (`src/types/transitions.ts`, `runtime/transitions.ts`)                           | which backdrop design is the default (`backdrop`) + the ink hooks that restyle every design                                                    |
@@ -36,9 +37,21 @@ every theme**. A theme supplies the CSS those class names resolve against.
 2. **A skin never writes a colour.** No hex, no `rgb()`/`rgba()`. Name a role
    (`var(--primary)`) and derive lighter/darker/translucent with `color-mix()`.
    Enforced: `registry.test.ts` → _"$name's skins carry no hex/rgb literal"_.
-3. **A theme skins every element it renders.** Trios carry no CSS of their own; an unskinned
-   element renders completely unstyled — and still passes a "does it compose" smoke.
+3. **A theme skins every element it renders.** Trios carry (almost) no CSS of their own; an
+   unskinned element renders completely unstyled — and still passes a "does it compose" smoke.
    Enforced: `theme-parity.test.ts` → _"skin coverage"_.
+   **Two sheets are the exception, and you neither write nor wire them:**
+   - `themes/safe-area.css` — `.mc-frame > .body`'s box: `--safe-top` / `--safe-side` /
+     `--safe-bottom`, the flex column, and the overflow-safe centring. The RUNTIME pushes it
+     into every scene of every theme (`runtime/treatment.ts`), so your `frame.css` states no
+     safe-area value and no per-treatment exception. Adding one is not an override to weigh up:
+     the shared sheet is emitted FIRST at identical specificity, so a later copy of yours
+     silently wins over the one rule the whole library depends on.
+   - `primitives/hud/geometry.css` — the HUD band. It is the `hud` component's own `css` and is
+     emitted ahead of your `skins.hud`, which paints inside it. See §6.
+
+   Enforced: `theme-parity.test.ts` → _"shared sheets reach every theme"_, which also fails if
+   any theme CSS redefines a safe-area token.
 4. **rem on a 0.125rem grid.** Never px for geometry (see §5).
 5. **A skin never writes a font size.** Name a step of your theme's type scale
    (`var(--font-size-lg)`); the numbers live in `theme.ts`'s `sizeTokens` and nowhere else.
@@ -418,6 +431,25 @@ It documents the scale and drives the showcase Typography section; the actual si
 slides use live in your skins. Sizes and weights are yours to choose — nothing is shared here
 but the shape of the field.
 
+**One exception, and it is deliberate: the HUD.** `primitives/hud/geometry.css` pins
+`.hud-brand-name` and `.hud-counter-item` to `--font-size-md` and `.hud-tagline` to
+`--font-size-xs`, and your `hud.css` states no font-size at all. That is not the type scale
+leaking into shared code — it is the same standardisation as the positions beside it. The HUD is
+**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 7.625rem band
+that `--safe-top` reserves for sight-unseen (`themes/safe-area.css`), and the band's height is
+just `max(the 3rem boxes, the type in them)`. A skin free to set its own size there is a skin
+free to move the number every frame in every theme is padded against — which is exactly what
+happened before the hoist, where the measured band ran 7.05rem to 9.73rem and the safe area had
+to reserve for the tallest.
+
+So the HUD's rule is **space is shared, paint is yours**: the shared file states the maximum each
+part may occupy — the 3rem brand slot, the 3rem title chip, the ≤0.75rem rail, and the type ROLE
+those are measured against — and your skin decides colour, radius, border, shadow, family, weight
+and tracking. Two sizes are yours because they change nothing the safe area measured, and both
+are capped: `--hud-mark` (your brand mark inside its 3rem slot — standard sets 1.5rem) and the
+rail's `height` (standard and future set 0.25rem against the 0.75rem ceiling). Both may only go
+**down**. Your scale still reaches the HUD, because `--font-size-md` is a number you chose.
+
 ---
 
 ## 7. Backdrops — one shared pool
@@ -610,7 +642,9 @@ set, **including an empty call**, which is how the showcase expresses "deliberat
 ```
 src/components/themes/<name>/
   theme.ts            the ThemeTokens export (below)
-  frame.css           .mc-frame base + .body wrapper + base type + the four ink hooks
+  frame.css           .mc-frame base + base type + the four ink hooks. NOT the .body
+                      wrapper and NOT any safe-area value — those are shared
+                      (themes/safe-area.css), pushed in by the runtime. See rule 3.
   <element>.css       one skin per element the theme renders — 23 files today:
                         13 components: stat card step agenda-item bar rank row
                                        caption pill cta list-number icon hud
@@ -717,6 +751,10 @@ export const neonTheme: ThemeTokens = {
   description:
     "One paragraph on the visual language. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
+  // Your frame base ALONE. The safe area is not concatenated on here and must not be: the
+  // runtime pushes it into every scene ahead of this (rule 3). Same for `skins.hud` below —
+  // the band geometry is the hud component's own css. Both used to be hand-joined in every
+  // theme.ts, which meant six chances to forget and no test that would notice.
   frameCss,
   groundDefault: "muted-2", // omit if each treatment keeps its canonical ground
   backdrop: "grid", // this theme's DEFAULT design from the shared pool
@@ -776,14 +814,12 @@ export const neonTheme: ThemeTokens = {
   font-family: var(--disp);
   color: var(--light);
 }
-.mc-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
+/* NO `.mc-frame > .body` RULE HERE. It used to be the next thing in this file and it is now
+   shared: themes/safe-area.css owns the wrapper's position, its z-index, its flex column, its
+   `--safe-*` padding and its overflow-safe centring, and runtime/treatment.ts emits it ahead of
+   this file for every theme. Copying the old block back would not merely duplicate it — the
+   shared sheet comes FIRST at identical specificity, so yours would win, and a padding-less
+   `.body` un-does the safe area for every frame in your theme. */
 /* THE BASE EYEBROW — required. Only `quote` carries an eyebrow slot now (the cover's was
    removed, §3), but this base is what its per-treatment skin layers over, so a theme without
    this rule renders the quote label unstyled. It self-removes when the slide sets none. */
@@ -900,6 +936,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | Sweep                     | Catches                                                                                                                                                                                                                                                                      |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | skin coverage             | an element you forgot to skin (renders unstyled but still "composes")                                                                                                                                                                                                        |
+| shared sheets reach every theme | the safe area or the HUD band failing to arrive; a theme CSS that redefines a `--safe-*` token; a title chip left unpainted; a rail or brand mark over its shared ceiling; a skin restating a box the band is measured from                                              |
 | skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                                                                                                                                                                               |
 | anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                                                                                                                                                                                |
 | headline accent           | a missing (or device-less) `.headline-accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                                                                                                                                                   |

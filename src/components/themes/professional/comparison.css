@@ -3,10 +3,6 @@
    first row; each Row child flows into the SAME grid (its .rows wrapper and each .row are
    display:contents). Row cells live in row.css. Ported from the showcase .bf-comparison
    (cqw × 1.2, cqh × 0.675). */
-.comparison > .body {
-  justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
-}
 .comparison h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 2.375rem;

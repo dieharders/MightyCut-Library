@@ -1,4 +1,5 @@
 import template from "./template.html" with { type: "text" };
+import geometryCss from "./geometry.css" with { type: "text" };
 import { component } from "../../runtime/component";
 import { hudAnim } from "./anim";
 import { HudSchema } from "./schema";
@@ -17,6 +18,17 @@ export const Hud = component({
   name: "hud",
   schema: HudSchema,
   template,
+  // SHARED, not a fallback skin: the band is the box `--safe-top` reserves for, so its geometry
+  // is not a theme's to restate. runtime/component.ts JOINS this with `theme.skins.hud`, which
+  // paints inside it — that join is the single definition of "the HUD's stylesheet", and every
+  // consumer takes it from here. The showcase, the WebUI preview and the editor get it by
+  // building the component; the RENDER gets it the same way, because the harness's `chromeCss`
+  // reads `buildNode(...).css` rather than `theme.skins.hud` (which is paint only).
+  //
+  // This used to be hand-concatenated onto `skins.hud` in all six theme.ts files instead —
+  // twelve expressions with nothing asserting the join. Dropping one shipped a deck whose HUD
+  // had no positions at all, in the MP4 only. theme-parity.test.ts now pins the join.
+  css: geometryCss,
   frame: true,
   example: {
     brand: true,

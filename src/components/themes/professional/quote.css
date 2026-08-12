@@ -5,10 +5,8 @@
    so no template override is needed (the shared quote template has no .qm node). Ported from the
    showcase .bf-quote (cqw × 1.2 → the 0.125rem grid). */
 .quote > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 8.125rem 10.875rem 13.5rem;
 }
 .quote .eyebrow {
   align-self: center;

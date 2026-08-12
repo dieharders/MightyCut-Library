@@ -1,8 +1,6 @@
 .quote > .body {
-  justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 8.125rem 9.625rem 13.5rem;
 }
 .quote .eyebrow {
   align-self: center;

@@ -27,14 +27,6 @@
   font-family: var(--body);
   color: var(--light);
 }
-.mc-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
 /* Headline: Space Grotesk 700, near-white, sentence case, slight negative tracking. */
 .mc-frame h3 {
   font-family: var(--disp);

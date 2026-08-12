@@ -1,10 +1,6 @@
 /* 13 · Team — a roster of people, each a monogram disc over a name and a role. Skinned as the
    feature-cards row's sibling: same tiles on the same grid, because a person here is a card
    whose icon slot happens to hold letters. The member itself is team-member.css. */
-.team > .body {
-  justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
-}
 .team h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.375rem;

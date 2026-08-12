@@ -34,14 +34,6 @@
   /* Body copy default: the muted gray (--muted-3). Headlines/numerals override to ink/cobalt. */
   color: var(--muted-3);
 }
-.mc-frame > .body {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
 /* Headline: Libre Baskerville, near-black ink, neutral tracking. Cobalt never lands on a headline —
    the accent is carried by numerals, icon badges, pills, rules and fills. */
 .mc-frame h3 {
