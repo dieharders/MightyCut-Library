@@ -48,11 +48,19 @@
   text-align: center;
   padding: 0.625rem 1.25rem;
   background: var(--ccol, var(--dark));
+  /* THE KEYLINE IS THIS THEME'S, at the weight it puts on every primary box (card, stat, step,
+     matrix — and the hub this ring is drawn around). The puck was the one flat fill in a theme
+     built on heavy black rules, so a coloured node floated free of a diagram whose hub and arms
+     are both hard-edged. Same --dark as the arm, so the puck reads as the end OF the connector
+     rather than a swatch dropped near it. */
+  border: 0.5rem solid var(--dark);
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.
-     13rem border-box leaves the same 10.5rem of text the content-box cap did. */
+     14rem border-box still leaves the same 10.5rem of text: the keyline above widened the box by
+     its own 2 × 0.5rem and .spokes' number moved with it, so the labels wrap exactly where they
+     always did. */
   box-sizing: border-box;
-  max-width: var(--cpuck-w, 13rem);
+  max-width: var(--cpuck-w, 14rem);
 }
 .cnode .clabel {
   font-family: var(--mono);
