@@ -33,17 +33,24 @@
 }
 /* Counter-rotated back upright, then pulled back onto the arm's end point: translate(-50%, -50%)
    would be measured in the ROTATED frame, so the centring is done here in the puck's own. */
+/* THE CAP IS BORDER-BOX AND IT IS THE RING'S NUMBER. --cpuck-w comes from .spokes
+   (node-cluster.css), which sizes the diagram's radius around it: the width a puck may grow to and
+   the width reserved for it are ONE declaration and cannot drift. Border-box is what lets the two
+   be the same number — as a content-box `max-width: 10.5rem` this capped the TEXT and let the
+   border box reach 13.5rem, 3rem the radius never knew about. 13.5rem border-box leaves the same
+   10.5rem of text, so the puck renders exactly as before. */
 .cnode .cpuck {
   transform: rotate(var(--ca-inv, 0turn));
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  box-sizing: border-box;
   padding: 0.75rem 1.25rem;
   border: 0.25rem solid var(--dark);
   background: var(--ccol, var(--light));
   box-shadow: 0.375rem 0.375rem 0 var(--dark);
-  max-width: 10.5rem;
+  max-width: var(--cpuck-w, 10.5rem);
 }
 .cnode .clabel {
   font-family: var(--disp);

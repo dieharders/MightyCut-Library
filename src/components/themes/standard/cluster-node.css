@@ -40,7 +40,11 @@
   align-items: center;
   text-align: center;
   padding: 0.625rem 1rem;
-  max-width: 10.5rem;
+  /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
+     grow to and the width the radius reserves for it are ONE declaration and cannot drift.
+     12.75rem border-box leaves the same 10.5rem of text the content-box cap did. */
+  box-sizing: border-box;
+  max-width: var(--cpuck-w, 12.75rem);
   /* THE ACCENT PAINTS THE LINE, never a fill — the same rule card.css states for its badge, and
      the only kind of accent this theme's palette allows. Standard's four accent-cycle roles are
      all one brownstone, so a picked colour reads as emphasis of WEIGHT rather than of hue; the

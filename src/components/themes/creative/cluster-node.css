@@ -41,7 +41,11 @@
   text-align: center;
   padding: 0.625rem 1.25rem;
   background: var(--ccol, var(--dark));
-  max-width: 10.5rem;
+  /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
+     grow to and the width the radius reserves for it are ONE declaration and cannot drift.
+     13rem border-box leaves the same 10.5rem of text the content-box cap did. */
+  box-sizing: border-box;
+  max-width: var(--cpuck-w, 13rem);
 }
 .cnode .clabel {
   font-family: var(--mono);

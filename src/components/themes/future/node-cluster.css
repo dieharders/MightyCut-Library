@@ -6,7 +6,7 @@
    the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
 .node-cluster > .body {
   justify-content: center;
-  padding: 7.5rem 6rem 13.5rem;
+  padding: 5rem 6rem;
 }
 .node-cluster h3 {
   font-size: var(--font-size-3xl);
@@ -26,14 +26,29 @@
     color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
+/* The ring takes the height the h3 and caption leave and the radius is sized to THAT, so the
+   diagram shortens its arms rather than crossing the headline — absolutely positioned spokes give
+   the ring nothing to measure. Block's node-cluster.css carries the reasoning in full; the two
+   puck customs below are future's own, being the plate's real border box: 10.5rem of text inside
+   1.25rem padding and a 0.125rem border, and a 1.5rem/1.2 label over a 1.5rem/1.25 detail. The
+   glow is a blur, not a box, so it does not count toward either. This theme has the least room of
+   the six — the h3's gradient rule adds 2.125rem the others do not spend — so five spokes cap a
+   hair under the radius they ask for. */
 .node-cluster .ring {
   position: relative;
-  height: 32rem;
-  --cradius: calc(7.5rem + var(--cn, 5) * 1.1rem);
+  flex: 1;
+  container-type: size;
 }
 .node-cluster .spokes {
   position: absolute;
   inset: 0;
+  --cpuck-w: 13.25rem;
+  --cpuck-h: 5.5rem;
+  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  --cradius: min(
+    calc(7.5rem + var(--cn, 5) * 1.1rem),
+    calc(50cqh - var(--creach))
+  );
 }
 .node-cluster .hub {
   position: absolute;

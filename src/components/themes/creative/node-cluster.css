@@ -6,21 +6,34 @@
    the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
 .node-cluster > .body {
   justify-content: center;
-  padding: 8rem 7.25rem 13.5rem;
+  padding: 5rem 7.25rem;
 }
 .node-cluster h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 1.5rem;
   text-align: center;
 }
+/* The ring takes the height the h3 and caption leave and the radius is sized to THAT, so the
+   diagram shortens its arms rather than crossing the headline — absolutely positioned spokes give
+   the ring nothing to measure. Block's node-cluster.css carries the reasoning in full; the two
+   puck customs below are creative's own, being the block's real border box: 10.5rem of text inside
+   1.25rem padding and NO border (this theme's puck is a flat fill), and a 1.75rem/1.2 label over a
+   1.375rem/1.25 detail. */
 .node-cluster .ring {
   position: relative;
-  height: 32rem;
-  --cradius: calc(7.5rem + var(--cn, 5) * 1.1rem);
+  flex: 1;
+  container-type: size;
 }
 .node-cluster .spokes {
   position: absolute;
   inset: 0;
+  --cpuck-w: 13rem;
+  --cpuck-h: 5.125rem;
+  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  --cradius: min(
+    calc(7.5rem + var(--cn, 5) * 1.1rem),
+    calc(50cqh - var(--creach))
+  );
 }
 .node-cluster .hub {
   position: absolute;

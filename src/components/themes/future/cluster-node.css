@@ -44,7 +44,11 @@
   border: 0.125rem solid color-mix(in srgb, var(--ccol, var(--primary)) 40%, transparent);
   background: color-mix(in srgb, var(--muted-3) 55%, transparent);
   box-shadow: 0 0 1.25rem color-mix(in srgb, var(--ccol, var(--primary)) 18%, transparent);
-  max-width: 10.5rem;
+  /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
+     grow to and the width the radius reserves for it are ONE declaration and cannot drift.
+     13.25rem border-box leaves the same 10.5rem of text the content-box cap did. */
+  box-sizing: border-box;
+  max-width: var(--cpuck-w, 13.25rem);
 }
 .cnode .clabel {
   font-family: var(--mono);

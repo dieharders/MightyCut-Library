@@ -4,22 +4,66 @@
    --cradius GROWS WITH THE SPOKE COUNT (--cn, emitted by the treatment). Eight arms at the
    radius three need would put their pucks shoulder to shoulder; the calc() opens the ring as
    the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
+/* THE VERTICAL INSET IS 5rem IN EVERY THEME and it is load-bearing, not rhythm: the ring divides
+   what this inset leaves, so the number here is what the diagram is allowed to grow to. It was
+   7.5rem over 13.5rem — the fat bottom absorbed a spill the ring under-reserved, and the thin top
+   did not, which is the whole of the headline collision. 5rem is the largest inset that still
+   leaves all six themes their designed radius at five spokes; anything larger silently shrinks the
+   diagram rather than overflowing it. */
 .node-cluster > .body {
   justify-content: center;
-  padding: 7.5rem 6rem 13.5rem;
+  padding: 5rem 6rem;
 }
 .node-cluster h3 {
   font-size: var(--font-size-3xl);
   margin: 1.5rem 0 1.5rem;
 }
+/* THE RING TAKES THE LEFTOVER; IT CANNOT MEASURE ITS OWN CONTENT. Every spoke is absolutely
+   positioned, so they are out of flow and contribute nothing to its height — `auto` collapses to 0,
+   `-webkit-fill-available` resolves against the containing block and so ignores the h3 and caption
+   entirely, and a fixed number (this was 34rem, against a diagram ~43rem tall) is a guess that goes
+   stale the moment the radius, the type scale or the puck's padding moves. That staleness WAS the
+   headline collision. `flex: 1` is the one honest answer: whatever the header and caption do not
+   use is the ring's, computed by the layout engine rather than restated here.
+
+   It is a size container so the radius below can read that leftover back. */
 .node-cluster .ring {
   position: relative;
-  height: 34rem;
-  --cradius: calc(7.5rem + var(--cn, 5) * 1.1rem);
+  flex: 1;
+  container-type: size;
 }
+/* THE RADIUS IS SIZED TO THE BOX, WHICH IS THE INVERSION THAT MAKES THIS FIT. Sizing the ring to
+   the diagram cannot work — the frame is a fixed 67.5rem tall, so at eight spokes the diagram the
+   radius asks for simply does not fit and something has to give. Sizing the diagram to the ring
+   gives instead, in the one direction that degrades gracefully: the arms shorten, the pucks close
+   up, and nothing ever crosses the headline.
+
+   --cradius therefore lives HERE, not on .ring — an element cannot query its own size, and .spokes
+   is the first box inside the container that can. It inherits down to every .cspoke.
+
+   THE TWO PUCK CUSTOMS ARE THE PUCK'S REAL BORDER BOX. --cpuck-w is its width cap, read back by
+   cluster-node.css so the width reserved and the width allowed are one declaration; --cpuck-h is
+   its label linebox, its detail linebox, its padding and its border, added up.
+
+   --creach IS THE VERTICAL WORST CASE and it is not --cpuck-w. A vertical spoke's puck is CENTRED
+   --cpuck-w/2 past the arm's end (the counter-rotation in cluster-node.css turns about the puck's
+   middle), then reaches --cpuck-h/2 beyond that; a horizontal spoke's puck reaches a full --cpuck-w
+   sideways but nothing extra vertically. Half the sum bounds every angle between them. Sideways
+   nothing is reserved at all: 26.5rem of half-extent against a 120rem frame is not a constraint.
+
+   --cpuck-h is an allowance for a one-line detail, not a cap — the schema permits 40 characters,
+   which wraps. Each extra line pushes the puck 1/2 a linebox past the ring, into the 5rem inset,
+   which is the second thing that inset is for. */
 .node-cluster .spokes {
   position: absolute;
   inset: 0;
+  --cpuck-w: 13.5rem;
+  --cpuck-h: 6.75rem;
+  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  --cradius: min(
+    calc(7.5rem + var(--cn, 5) * 1.1rem),
+    calc(50cqh - var(--creach))
+  );
 }
 .node-cluster .hub {
   position: absolute;
