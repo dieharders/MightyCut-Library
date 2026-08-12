@@ -48,6 +48,11 @@ export const FRAME_TREATMENTS = [
   "chart",
   "bar-ranking",
   "agenda",
+  "matrix",
+  "pill-wall",
+  "team",
+  "line-chart",
+  "node-cluster",
 ] as const;
 export type FrameTreatment = (typeof FRAME_TREATMENTS)[number];
 
@@ -89,53 +94,18 @@ export type BackdropName = (typeof BACKDROP_NAMES)[number];
 // Decorations (star / tilt-rect / stripe / dot-grid) are authored per-treatment in
 // the showcase and ship with the frame — there is no storyboard knob for them.
 
-/**
- * The standardized, theme-agnostic slot vocabulary. Treatments mark injectable
- * elements with data-slot="<name>" drawn from this set; the builder's resolver
- * maps each name (plus the slide kind) to a spec field. A tripwire test asserts
- * every data-slot in the showcase is in this set.
- */
-export const SLOT_NAMES = [
-  "eyebrow",
-  "headline",
-  "subtitle",
-  "counter",
-  "cta",
-  "attribution",
-  "quote-text",
-  "card-icon",
-  "card-title",
-  "card-body",
-  "stat-number",
-  "stat-label",
-  "step-num",
-  "step-title",
-  "step-body",
-  "col-a",
-  "col-b",
-  "row-label",
-  "cell-a",
-  "cell-b",
-  "bar-value",
-  "bar-label",
-  "caption",
-  // Component slots (data-component pieces, not treatment slots): filled at stamp
-  // time by their consumer (the root caption rail / HUD overlay), not the
-  // treatment resolver.
-  "caption-text",
-  "brand-name",
-  "tagline",
-  "hud-title",
-] as const;
-export type SlotName = (typeof SLOT_NAMES)[number];
-
-/**
- * The data-repeat list names — a container wrapping exactly ONE item template
- * the builder clones per content item. A tripwire asserts the showcase's
- * data-repeat values are in this set.
- */
-export const REPEAT_LISTS = ["cards", "stats", "steps", "rows", "bars"] as const;
-export type RepeatList = (typeof REPEAT_LISTS)[number];
+// SLOT_NAMES / SlotName and REPEAT_LISTS / RepeatList were REMOVED here.
+//
+// They were the vocabulary the FRAME BUILDER validated an annotated showcase against: the set of
+// `data-slot` names its resolver could map to a spec field, and the `data-repeat` container names
+// it cloned an item template into. Both were policed by tripwires that read
+// `video-assets/themes/<theme>/frame-showcase.html` — and that builder, those showcases and those
+// tripwires are all deleted. A treatment now declares its own slots in its own template.html and
+// fills them through its own `fill()`, so a slot name is private to the element that owns it and
+// there is nothing left for a shared list to keep in sync.
+//
+// They survived only as exported symbols with no reader in any of the three repos, which is worse
+// than useless: a closed vocabulary that nothing enforces reads as a constraint on new work.
 
 const SceneStoryboardSchema = z.object({
   /** MUST equal a spec slide id — the builder cross-checks (tolerate-and-warn). */

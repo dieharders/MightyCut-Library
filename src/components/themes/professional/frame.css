@@ -1,6 +1,5 @@
-/* Professional's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
-   ground onto (the class name is historical — read it as "the frame"); it's the scene's
-   containment root. Professional keeps every frame on the warm cream canvas via
+/* Professional's shared frame base. `.mc-frame` is the page wrapper the emitter stamps the
+   ground onto; it's the scene's containment root. Professional keeps every frame on the warm cream canvas via
    `groundDefault: "muted-1"` (theme.ts) rather than a `background: … !important` here — the
    theme default replaces the shared, block-flavoured per-treatment grounds, but an EXPLICIT
    scene ground still WINS, which !important made impossible.
@@ -13,7 +12,7 @@
    (there is no --pf-* identity layer here — that was the standalone showcase's device). Sizes
    are rem on a 0.125rem grid (see runtime/css.ts); `9999px` is a shape sentinel ("fully round"),
    not a size. Ported from video-assets/themes/professional/frame.css (cqw × 1.2, cqh × 0.675). */
-.block-frame {
+.mc-frame {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -35,7 +34,7 @@
   /* Body copy default: the muted gray (--muted-3). Headlines/numerals override to ink/cobalt. */
   color: var(--muted-3);
 }
-.block-frame > .body {
+.mc-frame > .body {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -45,7 +44,7 @@
 }
 /* Headline: Libre Baskerville, near-black ink, neutral tracking. Cobalt never lands on a headline —
    the accent is carried by numerals, icon badges, pills, rules and fills. */
-.block-frame h3 {
+.mc-frame h3 {
   font-family: var(--disp);
   font-weight: 700;
   /* Libre Baskerville is a wide, moderate-contrast text serif — the tight negative tracking a
@@ -58,7 +57,7 @@
 /* THE HEADLINE ACCENT — the span the runtime wraps around the final word of a
    `data-accent="last-word"` slot (cover + closing). Professional's every accent role is the one
    cobalt, so the key word takes it: emphasis stays the single colour the whole theme carries. */
-.block-frame h3 .headline-accent {
+.mc-frame h3 .headline-accent {
   color: var(--primary);
 }
 /* Base eyebrow — professional's quiet cobalt pill: a faint (single-digit-percent) cobalt tint
@@ -68,7 +67,7 @@
    this. It self-removes when the slide sets no eyebrow (pruneRemoved). Quote is the ONLY
    eyebrow-bearing treatment now — the cover's slot was removed, since the deck's section label
    is HUD chrome and the opening frame was printing it twice. */
-.block-frame .eyebrow {
+.mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
   background: color-mix(in srgb, var(--primary) 6%, transparent);

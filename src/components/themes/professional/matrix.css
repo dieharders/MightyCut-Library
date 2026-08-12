@@ -1,0 +1,65 @@
+/* 11 · Matrix — a scored capability table: options down the left, criteria across the top.
+   Skinned as the comparison ledger's sibling, because that is what it is — rows answering
+   columns. What differs is only the content: terse criteria instead of a status-quo/ours pair,
+   and a mark instead of a phrase.
+
+   The track is stated in BOTH .mhead and .mrow rather than once on a shared parent, because the
+   rows are separate grids here (matrix-row.css says why they are not display:contents into one
+   grid). --cols is the treatment's criteria count; the rows carry their own --mcols, and the
+   spec guarantees the two agree. */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.matrix h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.25rem 0 2.375rem;
+}
+.matrix .grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
+   header sits off by — otherwise each row's hard shadow is covered by the plate below it
+   and the stack reads as one welded block instead of a set of cards. (creative and
+   standard deliberately go flush here: their tables are ruled, not floated.) */
+.matrix .mrows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(var(--cols, 3), 1fr);
+  gap: 1.625rem;
+  align-items: end;
+}
+/* Deliberately bare — the one cell that answers nothing. */
+.matrix .mcorner {
+  border: 0;
+}
+/* Column heads as the faint tinted chips the ledger's `.ch.a` wears. None takes the solid
+   cobalt: the criteria NAME the assessment, they don't win it, and cream-on-cobalt is reserved
+   in this theme for the recommended answer. */
+.matrix .mcrit {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--font-size-md);
+  padding: 0.875rem 1rem;
+  border-radius: 0.875rem;
+  text-align: center;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--muted-3);
+}
+.matrix .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: var(--muted-3);
+  margin-top: 2.25rem;
+  text-align: center;
+}

@@ -1,0 +1,64 @@
+/* 15 · Node Cluster — a hub-and-spoke diagram: one centre, labelled arms radiating from it.
+   The arms are cluster-node.css; this file owns the frame, the ring's size and the hub.
+
+   --cradius GROWS WITH THE SPOKE COUNT (--cn, emitted by the treatment). Eight arms at the
+   radius three need would put their pucks shoulder to shoulder; the calc() opens the ring as
+   the ring fills. --cn is unitless, so the multiply is plain arithmetic on a rem. */
+.node-cluster > .body {
+  justify-content: center;
+  padding: 5rem 7.25rem;
+}
+.node-cluster h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.25rem 0 1.5rem;
+}
+/* The ring takes the height the h3 and caption leave and the radius is sized to THAT, so the
+   diagram shortens its arms rather than crossing the headline — absolutely positioned spokes give
+   the ring nothing to measure. Block's node-cluster.css carries the reasoning in full; the two
+   puck customs below are professional's own, being the tile's real border box: 10.5rem of text
+   inside 1.375rem padding and a 0.125rem border, and a 1.5rem/1.15 label over a 1.25rem/1.25
+   detail. */
+.node-cluster .ring {
+  position: relative;
+  flex: 1;
+  container-type: size;
+}
+.node-cluster .spokes {
+  position: absolute;
+  inset: 0;
+  --cpuck-w: 13.5rem;
+  --cpuck-h: 5.125rem;
+  --creach: calc((var(--cpuck-w) + var(--cpuck-h)) / 2);
+  --cradius: min(
+    calc(7.5rem + var(--cn, 5) * 1.1rem),
+    calc(50cqh - var(--creach))
+  );
+}
+.node-cluster .hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: var(--primary);
+  padding: 1rem;
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  line-height: 1.15;
+  color: var(--light);
+}
+.node-cluster .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: var(--muted-3);
+  margin-top: 2.5rem;
+  align-self: center;
+}

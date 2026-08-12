@@ -1,0 +1,58 @@
+/* A person as a catalogue entry: no card, no fill, no shadow — just the theme's one hairline
+   opening each column, exactly as it opens each row of the ledger and the matrix. Standard's
+   position is that structure is DRAWN, and a roster of plated tiles would be the one thing this
+   theme has spent its whole ramp avoiding.
+
+   THE DISC IS THE THEME'S ONE PERMITTED CIRCLE — 50% is the only radius standard allows, and it
+   is reserved for true circles like this. Outlined, never filled: the accent paints the RING and
+   the letterform, so a picked colour reads as a change of LINE rather than of surface, which is
+   the same rule card.css states for its badge. */
+.tmember {
+  border-top: 0.125rem solid var(--accent-3);
+  padding: 1.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tmember .tmono {
+  box-sizing: border-box;
+  width: 4.125rem;
+  height: 4.125rem;
+  border: 0.125rem solid var(--tcol, var(--accent-3));
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: var(--tcol, var(--primary));
+  margin-bottom: 1.25rem;
+}
+.tmember .tname {
+  font-family: var(--disp);
+  font-weight: 400;
+  font-size: var(--font-size-lg);
+  line-height: 1.15;
+  color: var(--dark);
+}
+/* Inter against the name's Playfair: standard separates these voices by FACE, never by weight
+   or hue, which is what lets the role sit under the serif and still recede. */
+.tmember .trole {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+  color: var(--muted-3);
+  margin-top: 0.5rem;
+}
+/* Pruned when absent, so a roster sharing the deck's own org leaves no gap. */
+.tmember .torg {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--font-size-xs);
+  line-height: 1.35;
+  color: var(--primary);
+  margin-top: 0.5rem;
+}

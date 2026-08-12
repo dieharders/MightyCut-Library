@@ -6,13 +6,13 @@
        slot (only quote does), so the selector would be dead.
      · `.bf-feature-cards::before` (the white 84→93% wash over the saturated sky ground) —
        grounds are scene-configurable now, so whitening the ground would make the ground
-       picker look broken. The two-glow atmosphere on .block-frame is the only wash left. */
+       picker look broken. The two-glow atmosphere on .mc-frame is the only wash left. */
 .feature-cards > .body {
   justify-content: center;
   padding: 8.125rem 7.25rem 13.5rem;
 }
 .feature-cards h3 {
-  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+  /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's
      section heading is the base Bodoni cut, so only the size and rhythm are stated. */
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.875rem;

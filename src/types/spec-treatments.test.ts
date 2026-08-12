@@ -57,16 +57,18 @@ describe("spec-treatments SSOT (tripwire)", () => {
       stats: "stat-grid",
       steps: "timeline",
       cards: "feature-cards",
-      matrix: null,
+      pills: "pill-wall",
+      team: "team",
+      cluster: "node-cluster",
+      matrix: "matrix",
       custom: null,
-      composed: null,
       outro: "closing-plate",
     };
     for (const kind of SLIDE_KINDS) expect(defaultTreatmentForKind(kind)).toBe(expected[kind]);
   });
 
   test("FALLBACK_KINDS are exactly the kinds with no default treatment", () => {
-    expect([...FALLBACK_KINDS].sort()).toEqual(["composed", "custom", "matrix"]);
+    expect([...FALLBACK_KINDS].sort()).toEqual(["custom"]);
   });
 
   test("treatmentTableLines renders one row per treatment, in map order", () => {

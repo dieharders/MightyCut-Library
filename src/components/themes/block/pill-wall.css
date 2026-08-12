@@ -1,0 +1,88 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   THE WALL RE-SIZES THE PILL, and it has to. `pill` is authored as a standalone EYEBROW atom:
+   one chip above a headline, so block gives it a 0.625rem border, 3.5rem of side padding and
+   the `xl` step. Ten of those do not fit on a frame — and would not read as a set if they did,
+   because each one is sized to be looked at on its own. The same move chart makes on `bar`
+   (`.chart .bars .bar { min-width: 0 }`): the treatment owns how its children sit INSIDE it,
+   the primitive owns what they are. Everything below the border weight is block's standard
+   plate recipe, unchanged — same ink outline, same hard offset, same mono label. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.pill-wall h3 {
+  font-weight: 800;
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 2.5rem;
+}
+/* The gap carries the hard offset: at 1.75rem a pill's 0.5rem shadow clears the plate below
+   and to the right of it, so the wall reads as loose tiles rather than a welded slab. */
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  align-content: center;
+  justify-content: center;
+}
+.pill-wall .pill-c {
+  border-width: 0.25rem;
+  box-shadow: 0.5rem 0.5rem 0 var(--dark);
+  padding: 0.875rem 1.75rem;
+  font-size: var(--font-size-md);
+}
+/* THE COLOUR CYCLE LIVES HERE, not in the caller. A wall of one colour is not block — the
+   theme's whole argument is loud, clashing plates — but the cycle cannot be applied where the
+   pills are CREATED, because the four accent roles are only four colours in a theme that has
+   four colours. Standard fills all of them with one brownstone and sets its pill label to the
+   same role, so a cycled wall there renders as solid unreadable blocks; professional's
+   `primary` IS its pill's text colour. So the harness passes no variant, every theme gets its
+   own legible default, and a theme that wants variety says so HERE, where its palette is known.
+   Every fourth pill repeats, which is the point: it reads as a pattern, not as meaning. */
+.pill-wall .pill-c:nth-child(4n + 1) {
+  background: var(--primary);
+}
+.pill-wall .pill-c:nth-child(4n + 2) {
+  background: var(--secondary);
+}
+.pill-wall .pill-c:nth-child(4n + 3) {
+  background: var(--accent-1);
+}
+.pill-wall .pill-c:nth-child(4n + 4) {
+  background: var(--accent-2);
+}
+/* Crooked like `stat-grid`'s cards, but on a SEVEN-step cycle against the colour cycle's four.
+   Alternating ±2deg is legible on a 3-up grid of large plates; on twelve small tiles in a wrap
+   it reads as a deliberate zig-zag, which is the opposite of the hand-pinned look. Seven and
+   four only realign every 28 pills, so no wall of this size repeats a colour+angle pair. Angles
+   stay under 3deg: the gap is 1.75rem and a rotated pill's corner has to clear its neighbour. */
+.pill-wall .pill-c:nth-child(7n + 1) {
+  transform: rotate(-2deg);
+}
+.pill-wall .pill-c:nth-child(7n + 2) {
+  transform: rotate(1.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 3) {
+  transform: rotate(-1deg);
+}
+.pill-wall .pill-c:nth-child(7n + 4) {
+  transform: rotate(2.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 5) {
+  transform: rotate(-2.5deg);
+}
+.pill-wall .pill-c:nth-child(7n + 6) {
+  transform: rotate(1deg);
+}
+.pill-wall .pill-c:nth-child(7n + 7) {
+  transform: rotate(-1.5deg);
+}
+.pill-wall .caption {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  color: var(--dark);
+  margin-top: 2.5rem;
+  align-self: center;
+}

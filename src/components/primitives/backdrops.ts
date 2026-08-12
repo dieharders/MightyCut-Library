@@ -637,7 +637,7 @@ export const BACKDROPS: Record<string, BackdropDesign> = { dots, constellation, 
  * visible file rather than a silent divergence baked into a hand-locked composition.)
  *
  * Ordering note: these rules are theme-agnostic structure. Each design paints through its
- * own `--<design>-ink` hook, which the active theme sets on `.block-frame` in its
+ * own `--<design>-ink` hook, which the active theme sets on `.mc-frame` in its
  * frame.css — a custom property resolved at use time, so this sheet may be linked before
  * or after tokens.css without changing the result.
  */

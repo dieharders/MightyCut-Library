@@ -1,0 +1,48 @@
+/* 11 · Matrix — the HAIRLINE TABLE, and the comparison ledger's sibling: options down the left,
+   criteria across the top, ruled by the theme's one hairline and nothing else. Skinned to match
+   the ledger deliberately — both are rows answering columns, and giving them different furniture
+   would read as two unrelated devices for one idea.
+
+   NO GAP in either axis — the same departure from professional's gapped chip ledger, and the
+   reason this reads as a ruled table at all. Each cell opens with its own hairline
+   (matrix-row.css); the tracks butt up so those rules meet and cross the frame as ONE line. A
+   column gap would break each row into separate dashes.
+
+   Criteria heads take no rule of their own: the first body row's border-top doubles as their
+   underline, exactly as it does under the ledger's column heads. */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.75rem 7.25rem 13.5rem;
+}
+.matrix h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 1.875rem;
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
+}
+/* Standard's plain brownstone label and nothing more: no chip, no fill, no border, no radius —
+   and no "answer" variant, because this theme has no saturated hue to spend on one. Emphasis is
+   deferred to matrix-row.css, where the proposer's row goes ink against warm gray. Tracking is
+   0.1em rather than the frame eyebrow's 0.22em: the reference tightens its small in-frame labels
+   so a two-word head still reads as one word, and this head sets at --font-size-md, so the ratio
+   is damped off the 0.12em it carried at --font-size-xs (see bar.css for the rule). */
+.matrix .mcrit {
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--font-size-md);
+  padding: 1.5rem 1.25rem;
+  color: var(--primary);
+  text-align: center;
+}
+.matrix .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: var(--muted-3);
+  margin-top: 2.25rem;
+  text-align: center;
+}

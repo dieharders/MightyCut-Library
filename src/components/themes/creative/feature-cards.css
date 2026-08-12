@@ -30,7 +30,7 @@
   align-self: center;
   margin-bottom: 1.875rem;
 }
-/* Case, tracking, leading and family all come from .block-frame h3 in frame.css — Archivo Black,
+/* Case, tracking, leading and family all come from .mc-frame h3 in frame.css — Archivo Black,
    uppercase, 0.92 leading, −0.01em, and NO font-weight (the face ships one weight; asking for a
    bold would synthesise one). Only size, rhythm, colour and alignment are stated here. */
 .feature-cards h3 {

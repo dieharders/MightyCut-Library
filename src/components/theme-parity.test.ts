@@ -138,7 +138,7 @@ describe("every treatment builds a clean scene under every theme", () => {
       const compId = `sc-${theme.name}-${name}`;
       const html = renderScene(getTreatment(name)(), pctx(theme, compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       expect(html).not.toContain("data-slot");
       expect(html).not.toContain("data-anim");
       expect(html).not.toContain("data-children");
@@ -393,7 +393,7 @@ describe("caption alignment parity (block is the reference)", () => {
 // them is a leap, not a step, so only the WORKING ramp carries the 1.45x cap.
 const TEXT_STEPS = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "max"] as const;
 const CONTENT_TREATMENTS = [
-  "agenda", "bar-ranking", "chart", "comparison", "feature-cards", "stat-grid", "timeline",
+  "agenda", "bar-ranking", "chart", "comparison", "feature-cards", "line-chart", "matrix", "node-cluster", "pill-wall", "stat-grid", "team", "timeline",
 ] as const;
 /** Where a step name sits in the ramp; -1 for an unknown/undefined name. */
 const stepIndex = (s: string | undefined): number =>

@@ -1,6 +1,6 @@
 // Block theme — everything block OWNS lives in this folder, imported as text (the
 // same convention as the component trio CSS):
-//   frame.css   the shared frame base — the `.block-frame` ground, the `.body`
+//   frame.css   the shared frame base — the `.mc-frame` ground, the `.body`
 //               content wrapper, the base `.eyebrow`/`h3` type, CSS-only decorations
 //   hud.css     block's SKIN for the shared `hud` component
 //   caption.css block's SKIN for the shared `caption` component
@@ -28,6 +28,10 @@ import cardCss from "./card.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
+import matrixRowCss from "./matrix-row.css" with { type: "text" };
+import teamMemberCss from "./team-member.css" with { type: "text" };
+import plotCss from "./plot.css" with { type: "text" };
+import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 import pillCss from "./pill.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import rowCss from "./row.css" with { type: "text" };
@@ -41,6 +45,11 @@ import closingPlateCss from "./closing-plate.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import matrixCss from "./matrix.css" with { type: "text" };
+import pillWallCss from "./pill-wall.css" with { type: "text" };
+import teamCss from "./team.css" with { type: "text" };
+import lineChartCss from "./line-chart.css" with { type: "text" };
+import nodeClusterCss from "./node-cluster.css" with { type: "text" };
 import quoteCss from "./quote.css" with { type: "text" };
 import statGridCss from "./stat-grid.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
@@ -267,6 +276,135 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { num: "04", title: "Scale", body: "Add nodes on demand." },
     ],
   },
+  matrix: {
+    params: {
+      headline: "Stack Up The Options",
+      criteria: ["Fast", "Auditable", "Self-serve"],
+      caption: "Scored on the three things buyers ask about first",
+    },
+    children: [
+      {
+        label: "Status Quo",
+        sublabel: "What most teams run today",
+        cells: ["no", "yes", "no"],
+      },
+      {
+        label: "Point Tools",
+        sublabel: "Stitched together per team",
+        cells: ["yes", "no", "no"],
+      },
+      {
+        label: "Our Platform",
+        sublabel: "The proposed approach",
+        cells: ["yes", "yes", "yes"],
+        highlight: true,
+      },
+    ],
+  },
+  "pill-wall": {
+    params: {
+      headline: "Plugs Into Everything",
+      caption: "Every integration ships on day one",
+    },
+    children: [
+      { text: "Slack" },
+      { text: "Jira" },
+      { text: "GitHub" },
+      { text: "Notion" },
+      { text: "Figma" },
+      { text: "Linear" },
+      { text: "Datadog" },
+      { text: "Snowflake" },
+      { text: "Dropbox" },
+      { text: "Google Drive" },
+      { text: "SharePoint" },
+      { text: "Trello" },
+    ],
+  },
+  team: {
+    params: {
+      headline: "Who Builds It",
+      caption: "The core team, end to end",
+    },
+    children: [
+      {
+        name: "Ada Byron",
+        role: "Head of Research",
+        org: "Analytical Engines",
+        accent: "primary",
+      },
+      {
+        name: "Grace Hopper",
+        role: "Chief Architect",
+        org: "Compiler Group",
+        accent: "secondary",
+      },
+      {
+        name: "Alan Turing",
+        role: "Principal Scientist",
+        org: "Machine Intelligence",
+        accent: "accent-1",
+      },
+    ],
+  },
+  "line-chart": {
+    params: {
+      headline: "Losses Keep Falling",
+      caption: "Incidents per 1,000 sessions",
+    },
+    children: [
+      {
+        labels: ["Q1", "Q2", "Q3", "Q4"],
+        values: [61, 44, 29, 18],
+        max: 61,
+        unitSuffix: "",
+      },
+    ],
+  },
+  "node-cluster": {
+    params: {
+      headline: "One Hub, Every Feed",
+      hub: "Platform",
+      caption: "Everything lands in the same place",
+    },
+    children: [
+      {
+        label: "Slack",
+        detail: "alerts",
+        index: 0,
+        total: 5,
+        accent: "primary",
+      },
+      {
+        label: "Jira",
+        detail: "tickets",
+        index: 1,
+        total: 5,
+        accent: "secondary",
+      },
+      {
+        label: "GitHub",
+        detail: "commits",
+        index: 2,
+        total: 5,
+        accent: "accent-1",
+      },
+      {
+        label: "Okta",
+        detail: "identity",
+        index: 3,
+        total: 5,
+        accent: "accent-2",
+      },
+      {
+        label: "Datadog",
+        detail: "metrics",
+        index: 4,
+        total: 5,
+        accent: "primary",
+      },
+    ],
+  },
   comparison: {
     params: { headline: "Why We Win", columns: ["Status Quo", "Our Approach"] },
     children: [
@@ -431,6 +569,10 @@ export const blockTheme: ThemeTokens = {
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
+    "team-member": teamMemberCss,
+    plot: plotCss,
+    "cluster-node": clusterNodeCss,
     pill: pillCss,
     rank: rankCss,
     row: rowCss,
@@ -444,6 +586,11 @@ export const blockTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    matrix: matrixCss,
+    "pill-wall": pillWallCss,
+    team: teamCss,
+    "line-chart": lineChartCss,
+    "node-cluster": nodeClusterCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
     timeline: timelineCss,

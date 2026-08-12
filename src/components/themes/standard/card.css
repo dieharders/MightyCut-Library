@@ -43,7 +43,7 @@
   color: var(--ic, var(--primary));
   margin-bottom: 1.625rem;
 }
-/* Playfair 600 in ink — the headline voice, two steps down. `.block-frame h3` can't reach it (this
+/* Playfair 600 in ink — the headline voice, two steps down. `.mc-frame h3` can't reach it (this
    is a div, not a heading), so family, weight and colour are stated rather than inherited. */
 .card-title {
   font-family: var(--disp);

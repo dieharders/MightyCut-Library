@@ -150,7 +150,7 @@ describe("treatment build-smoke", () => {
       const html = renderScene(inst, ctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
       expect(html).toContain(`window.__timelines["${compId}"]`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       expect(html).toContain(`background: var(--${inst.ground})`);
       // block's canonical backdrop mask paints over every scene's ground
       expect(html).toContain("mc-backdrop--dots");
@@ -659,7 +659,7 @@ describe("future theme (tripwire)", () => {
       const compId = `f01-${factory.treatmentName}`;
       const html = renderScene(factory(), fctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       // future forces its navy ground (--muted-2, frameCss) + carries the constellation backdrop
       expect(html).toContain("var(--muted-2)");
       expect(html).toContain("mc-backdrop--constellation");
@@ -753,7 +753,7 @@ describe("capsule theme (tripwire)", () => {
       const compId = `c01-${factory.treatmentName}`;
       const html = renderScene(factory(), cctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       // capsule pins the cream canvas on EVERY treatment via groundDefault (--muted-1), which
       // replaces the block-flavoured per-treatment grounds without an !important; the candy
       // variety comes from the wash + the accents, not from the ground.
@@ -925,7 +925,7 @@ describe("professional theme (tripwire)", () => {
       const compId = `p01-${factory.treatmentName}`;
       const html = renderScene(factory(), prctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       // professional pins the cream canvas on EVERY treatment via groundDefault (--muted-1), which
       // replaces the block-flavoured per-treatment grounds without an !important.
       expect(html).toContain("background: var(--muted-1)");
@@ -1072,6 +1072,7 @@ describe("creative theme (tripwire)", () => {
     cover: "muted-1", // cream
     chart: "muted-1", // cream
     "bar-ranking": "muted-1", // cream
+    "line-chart": "muted-1", // cream — the chart family shares one plane
     "feature-cards": "secondary", // orange
     "stat-grid": "accent-2", // green
     quote: "primary", // pink
@@ -1079,6 +1080,10 @@ describe("creative theme (tripwire)", () => {
     timeline: "muted-2", // oat
     agenda: "muted-2", // oat
     comparison: "accent-1", // yellow
+    matrix: "accent-1", // yellow — the ledger's sibling shares its plane
+    "pill-wall": "muted-1", // cream
+    team: "muted-1", // cream
+    "node-cluster": "muted-1", // cream
   };
 
   for (const factory of allTreatments()) {
@@ -1087,7 +1092,7 @@ describe("creative theme (tripwire)", () => {
       const compId = `c01-${name}`;
       const html = renderScene(factory(), crctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       // The rotation: each treatment keeps its OWN canonical ground (no groundDefault to replace
       // it, no !important to force it).
       expect(html, `${name} did not land on its canonical ground --${GROUND[name]}`).toContain(
@@ -1280,7 +1285,7 @@ describe("standard theme (tripwire)", () => {
       const compId = `st01-${name}`;
       const html = renderScene(factory(), sctx(compId));
       expect(html).toContain(`data-composition-id="${compId}"`);
-      expect(html).toContain(`.${compId}-root .block-frame`);
+      expect(html).toContain(`.${compId}-root .mc-frame`);
       // Standard is monochrome: groundDefault REPLACES every treatment's canonical (block-flavoured)
       // ground with the one sandstone canvas, without an `!important` that would make an explicit
       // scene ground impossible.
@@ -1700,7 +1705,10 @@ describe("accent plumbing (tripwire)", () => {
     ["card", "--ic"],
     ["icon", "--icol"],
     ["pill", "--pillbg"],
+    ["cluster-node", "--ccol"],
+    ["plot", "--pcol"],
     ["stat", "--dot"],
+    ["team-member", "--tcol"],
     ["bar", "--col"],
     ["rank", "--col"],
   ];

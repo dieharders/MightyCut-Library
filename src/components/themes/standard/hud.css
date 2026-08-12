@@ -4,7 +4,7 @@
    border, no radius except the dot's, no shadow — the HUD is the theme's design rules applied to
    chrome. Ported from the showcase .bf-hud* (cqw × 1.2).
 
-   This is ROOT CHROME: the harness stamps the HUD into the root overlay, OUTSIDE .block-frame, so
+   This is ROOT CHROME: the harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
    nothing in frame.css reaches it — the body font and the ink/gray colour roles are restated on
    .hud below rather than inherited. The harness also owns placement and the #hud-progress / #ctr-N
    ids in the render; this file is only the look.

@@ -3,14 +3,14 @@
    ships with its row in agenda-item.css and this file adds NOTHING below the last one —
    an `.alist > *:last-child { border-bottom }` closer here would double the final rule.
    The legacy `.bf-agenda { background: var(--muted-2) }` is also dropped: the emitter stamps
-   the resolved scene ground onto .block-frame, and authoring a background in a skin breaks
+   the resolved scene ground onto .mc-frame, and authoring a background in a skin breaks
    the ground-resolution tripwire. */
 .agenda > .body {
   justify-content: center;
   padding: 8.75rem 7.25rem 13.5rem;
 }
 .agenda h3 {
-  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+  /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's
      section heading is the base Bodoni cut, so only the size and rhythm are stated. 4.5rem is
      THE section size, one value across all seven content frames — the old two-cut split
      (4.375rem here, 4.75rem on feature-cards / stat-grid / timeline) is gone, so a heading that

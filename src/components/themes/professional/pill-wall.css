@@ -1,0 +1,41 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   Professional's pill is the quiet tinted tag, which is already the right object; the wall only
+   steps its type up, because at wall scale the label IS the content rather than an eyebrow above
+   it. The same move chart makes on `bar`: the treatment owns how its children sit INSIDE it, the
+   primitive owns what they are. No border and no shadow, per the theme — the tint is the tag. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.pill-wall h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.25rem 0 2.375rem;
+}
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-content: center;
+  justify-content: center;
+}
+/* A hair more tint than the loose eyebrow's 6%: a single chip above a headline has the whole
+   frame to separate it, where a wall's chips have only each other, and at 6% the gaps between
+   them stop reading on the cream canvas. */
+.pill-wall .pill-c {
+  background: var(
+    --pillbg,
+    color-mix(in srgb, var(--primary) 10%, transparent)
+  );
+  padding: 0.875rem 1.875rem;
+  font-size: var(--font-size-md);
+  letter-spacing: 0.06em;
+}
+.pill-wall .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: var(--muted-3);
+  margin-top: 2.5rem;
+  align-self: center;
+}

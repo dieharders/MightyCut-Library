@@ -1,6 +1,5 @@
-/* Capsule's shared frame base. `.block-frame` is the page wrapper the emitter stamps the
-   ground onto (the class name is historical — read it as "the frame"); it's the scene's
-   containment root. Capsule keeps every frame on the cream canvas via
+/* Capsule's shared frame base. `.mc-frame` is the page wrapper the emitter stamps the
+   ground onto; it's the scene's containment root. Capsule keeps every frame on the cream canvas via
    `groundDefault: "muted-1"` (theme.ts) rather than a `background: … !important` here — the
    theme default replaces the shared, block-flavoured per-treatment grounds, but an EXPLICIT
    scene ground still WINS, which !important made impossible.
@@ -11,7 +10,7 @@
    an unremovable glow. Sizes are rem on a 0.125rem grid (see runtime/css.ts); `9999px` is a
    shape sentinel ("fully round"), not a size. Inlined ONCE per scene by the treatment builder
    (deduped by name); the per-treatment look lives in each treatment's own skin. */
-.block-frame {
+.mc-frame {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -34,10 +33,10 @@
      default `auto` the browser snaps every large display headline to the high-opsz cut
      (hairline stems) and the whole deck reads thin and broken. `none` pins it to the sturdy
      low-opsz cut. Inherited, so it covers every serif descendant of the frame — the HUD
-     renders in the ROOT overlay, outside `.block-frame`, so hud.css restates it there. */
+     renders in the ROOT overlay, outside `.mc-frame`, so hud.css restates it there. */
   font-optical-sizing: none;
 }
-.block-frame > .body {
+.mc-frame > .body {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -48,7 +47,7 @@
 /* Headline: Bodoni Moda, ink, sentence case, tight tracking. The three sanctioned places
    colour is allowed to meet type are the stat figure, the chart bar value and the agenda
    numeral — never a headline, and never uppercase. */
-.block-frame h3 {
+.mc-frame h3 {
   font-family: var(--disp);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -60,8 +59,8 @@
    italic key word, its stated signature. `.headline-accent` is the span the runtime wraps around
    the final word of a `data-accent="last-word"` slot (cover + closing); `em` is the same device
    reached from authored markup, so the design mockups keep rendering identically. */
-.block-frame h3 em,
-.block-frame h3 .headline-accent {
+.mc-frame h3 em,
+.mc-frame h3 .headline-accent {
   font-style: italic;
   color: var(--primary);
 }
@@ -72,7 +71,7 @@
    over this. It self-removes when the slide sets no eyebrow (pruneRemoved). Quote is the ONLY
    eyebrow-bearing treatment now — the cover's slot was removed, since the deck's section label
    is HUD chrome and the opening frame was printing it twice. */
-.block-frame .eyebrow {
+.mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
   border: 0.25rem solid var(--dark);

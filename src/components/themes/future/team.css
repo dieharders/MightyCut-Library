@@ -1,0 +1,43 @@
+/* 13 · Team — a roster of people, each a monogram disc over a name and a role. Skinned as the
+   feature-cards row's sibling: same tiles on the same grid, because a person here is a card
+   whose icon slot happens to hold letters. The member itself is team-member.css. */
+.team > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.team h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 3.125rem;
+}
+.team h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+/* --cols is the treatment's member count (capped at 4). The fallback is 3 rather than a fixed
+   repeat(3), so a two- or five-person roster lays out correctly instead of overflowing. Tracks
+   cap at 24rem and the row centres in the leftover space, so a one- or two-person roster stays a
+   card rather than stretching into a banner. */
+.team .roster {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 24rem));
+  justify-content: center;
+  gap: 1.75rem;
+}
+.team .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  margin-top: 2.5rem;
+  align-self: center;
+}

@@ -149,7 +149,7 @@ class:
 
 ```html
 <!-- treatments/stat-grid/template.html -->
-<div class="block-frame stat-grid">
+<div class="mc-frame stat-grid">
   <div class="body">
     <h3 data-slot="headline" data-anim="headline">Headline</h3>
     <div class="row" data-children></div>
@@ -157,9 +157,10 @@ class:
 </div>
 ```
 
-`.block-frame` is the shared page wrapper under **every** theme (the name is historical — read
-it as "frame"). The emitter stamps the ground background onto it, and a tripwire asserts every
-scene carries `.<compId>-root .block-frame`. Your `frame.css` styles it.
+`.mc-frame` is the shared page wrapper under **every** theme — `mc-` marks it as engine-owned
+chrome, like `mc-backdrop` and `mc-bg--*`, not a theme's own class. The emitter stamps the ground
+background onto it, and a tripwire asserts every scene carries `.<compId>-root .mc-frame`. Your
+`frame.css` styles it.
 
 ### The headline accent (`.headline-accent`) — **every theme styles this**
 
@@ -176,7 +177,7 @@ the two hero headlines carry `data-accent="last-word"`, and `fillSlots` splits t
 <!-- "Everything's a capsule."  →  Everything's a <span class="headline-accent">capsule.</span> -->
 ```
 
-**Your `frame.css` must style `.block-frame h3 .headline-accent`.** One rule there covers cover AND
+**Your `frame.css` must style `.mc-frame h3 .headline-accent`.** One rule there covers cover AND
 closing together (both are `h3` under the frame), and `theme-parity.test.ts` asserts it exists —
 and that it states an actual emphasis device (`color`, `font-style`, `font-weight`, `background`),
 not merely that some rule matches. Use the device your theme already claims — never invent a new
@@ -227,7 +228,7 @@ Both are enforced generically in `theme-parity.test.ts` → _"anim-target resolu
 > have left the field, the control and the duplication in place everywhere else.
 >
 > `quote` keeps its `eyebrow` and is now the **only** eyebrow-bearing treatment, which is why
-> every theme still needs the `.block-frame .eyebrow` base in its `frame.css` (§9). The corner
+> every theme still needs the `.mc-frame .eyebrow` base in its `frame.css` (§9). The corner
 > label itself is root chrome (`primitives/hud` · `titleText`), drawn on every scene including
 > the cover and the closing plate — a treatment never renders it.
 
@@ -444,7 +445,7 @@ at build time (`particleRgb`, because canvas 2D can't read CSS custom properties
 restyling is a five-line job in your `frame.css`:
 
 ```css
-.block-frame {
+.mc-frame {
   --dots-ink: var(
     --primary
   ); /* future: cyan dots read on navy; block: black on pastel */
@@ -609,7 +610,7 @@ set, **including an empty call**, which is how the showcase expresses "deliberat
 ```
 src/components/themes/<name>/
   theme.ts            the ThemeTokens export (below)
-  frame.css           .block-frame base + .body wrapper + base type + the four ink hooks
+  frame.css           .mc-frame base + .body wrapper + base type + the four ink hooks
   <element>.css       one skin per element the theme renders — 23 files today:
                         13 components: stat card step agenda-item bar rank row
                                        caption pill cta list-number icon hud
@@ -761,7 +762,7 @@ export const neonTheme: ThemeTokens = {
 ### `themes/<name>/frame.css`
 
 ```css
-.block-frame {
+.mc-frame {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -775,7 +776,7 @@ export const neonTheme: ThemeTokens = {
   font-family: var(--disp);
   color: var(--light);
 }
-.block-frame > .body {
+.mc-frame > .body {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -786,7 +787,7 @@ export const neonTheme: ThemeTokens = {
 /* THE BASE EYEBROW — required. Only `quote` carries an eyebrow slot now (the cover's was
    removed, §3), but this base is what its per-treatment skin layers over, so a theme without
    this rule renders the quote label unstyled. It self-removes when the slide sets none. */
-.block-frame .eyebrow {
+.mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;
   font-family: var(--mono);
@@ -795,7 +796,7 @@ export const neonTheme: ThemeTokens = {
   font-size: var(--font-size-md);
   color: var(--primary);
 }
-.block-frame h3 {
+.mc-frame h3 {
   font-family: var(--disp);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -804,7 +805,7 @@ export const neonTheme: ThemeTokens = {
 }
 /* THE HEADLINE ACCENT — required (§3). The runtime wraps the final word of a cover/closing
    headline in this span; pick YOUR theme's emphasis device (hue, italic, or weight). */
-.block-frame h3 .headline-accent {
+.mc-frame h3 .headline-accent {
   color: var(--primary);
 }
 ```

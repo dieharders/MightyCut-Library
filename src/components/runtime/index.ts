@@ -12,7 +12,7 @@ export {
   type AnimKind,
   type AnimTime,
 } from "./anim";
-export { collectCss, scopeCss } from "./css";
+export { collectCss, scopeCss, scopeSelectors } from "./css";
 export { scrubDeterminism } from "./determinism";
 export { buildPreview, buildScene, renderScene, type Preview, type SceneOverrides } from "./emit";
 export {

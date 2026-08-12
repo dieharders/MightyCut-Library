@@ -13,7 +13,7 @@
   padding: 8.125rem 7.25rem 13.5rem;
 }
 .stat-grid h3 {
-  /* Weight/tracking/leading/colour come from .block-frame h3 in frame.css — capsule's
+  /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's
      section heading is the base Bodoni cut, so only the size and rhythm are stated. */
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 3.125rem;

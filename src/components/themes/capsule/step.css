@@ -39,7 +39,7 @@
   margin-bottom: 1.5rem;
 }
 .step-title {
-  /* Bodoni, sentence case, ink (inherited from .block-frame) — never uppercase, never coloured. */
+  /* Bodoni, sentence case, ink (inherited from .mc-frame) — never uppercase, never coloured. */
   font-family: var(--disp);
   font-weight: 700;
   font-size: var(--font-size-xl);

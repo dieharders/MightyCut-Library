@@ -66,7 +66,7 @@ export type ThemeTokens = {
   description?: string;
   /** `:root { --primary: …; --disp: … }` — emitted to a project's assets/tokens.css. */
   css: string;
-  /** Shared frame-base CSS (the `.block-frame` structure, body wrapper, decorations,
+  /** Shared frame-base CSS (the `.mc-frame` structure, body wrapper, decorations,
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
   /** Per-element skins, keyed by component OR treatment name (e.g. `{ hud, caption,

@@ -1,0 +1,52 @@
+/* A person as a professional card: the faint cobalt-tinted plate, a hairline, no shadow — the
+   same recipe the ledger's cells and the matrix's marks wear. The disc is filled rather than
+   outlined, because this theme's one saturated colour is what it spends on emphasis, and a
+   person's mark is the one place a roster earns it. */
+.tmember {
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tmember .tmono {
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 50%;
+  background: var(--tcol, var(--primary));
+  display: grid;
+  place-items: center;
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  color: var(--light);
+  margin-bottom: 1.375rem;
+}
+.tmember .tname {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  line-height: 1.15;
+  color: var(--dark);
+}
+.tmember .trole {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--font-size-xs);
+  line-height: 1.35;
+  color: var(--primary);
+  margin-top: 0.5rem;
+}
+/* Pruned when absent, so a roster sharing the deck's own org leaves no gap. */
+.tmember .torg {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+  color: var(--muted-3);
+  margin-top: 0.25rem;
+}

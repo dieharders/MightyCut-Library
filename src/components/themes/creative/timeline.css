@@ -12,7 +12,7 @@
    :nth-child(4) so it holds at whatever child count layout() emits: 2 steps, 4, or 7.
 
    The reference's `.bf-timeline { background: var(--muted-2) }` is deliberately dropped — the
-   emitter stamps the RESOLVED scene ground onto .block-frame as an inline style, so a background
+   emitter stamps the RESOLVED scene ground onto .mc-frame as an inline style, so a background
    on a treatment root here would be both dead and a ground-resolution test failure. Ported from
    the reference .bf-timeline (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem authoring grid —
    runtime/css.ts). */
@@ -30,7 +30,7 @@
   align-self: center;
   margin-bottom: 1.875rem;
 }
-/* Family, case, tracking, ink and the 0.92 leading all come from .block-frame h3 in frame.css —
+/* Family, case, tracking, ink and the 0.92 leading all come from .mc-frame h3 in frame.css —
    and no font-weight is stated anywhere in this theme, because Archivo Black ships a single
    weight (400) and asking for a bolder one renders a synthetic. Size, rhythm and alignment only. */
 .timeline h3 {

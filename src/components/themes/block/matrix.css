@@ -1,0 +1,67 @@
+/* 11 · Matrix — a scored capability table: options down the left, criteria across the top.
+   Structurally the comparison ledger's sibling, and skinned as one deliberately — both are
+   "rows answering columns", and giving them different furniture would read as two unrelated
+   devices for one idea. The differences are only where the CONTENT differs: the columns here
+   are terse criteria rather than a them/us pair, and a cell is a mark, not a phrase.
+
+   The grid track is stated in BOTH .mhead and .mrow rather than once on a shared parent,
+   because the rows are separate grids (see matrix-row.css for why they are not display:contents
+   into one big grid). --cols is the treatment's criteria count; the rows use their own --mcols,
+   and the spec guarantees the two agree (a matrix slide's values must answer every criterion).
+   A hand-built row that disagrees misaligns visibly, which is the right failure. */
+.matrix > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.matrix h3 {
+  font-weight: 800;
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 2.5rem;
+}
+.matrix .grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
+   header sits off by — otherwise each row's hard shadow is covered by the plate below it
+   and the stack reads as one welded block instead of a set of cards. (creative and
+   standard deliberately go flush here: their tables are ruled, not floated.) */
+.matrix .mrows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.matrix .mhead {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
+  gap: 1.75rem;
+  align-items: end;
+}
+/* The corner is deliberately empty and deliberately UNSTYLED — the one cell in the table that
+   answers nothing. Block draws a box around everything else, so leaving this one bare is what
+   makes the header read as column labels rather than as another row. */
+.matrix .mcorner {
+  border: 0;
+}
+.matrix .mcrit {
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--font-size-md);
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  border: 0.25rem solid var(--dark);
+  box-shadow: 0.375rem 0.375rem 0 var(--dark);
+  background: var(--secondary);
+}
+.matrix .caption {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  color: var(--dark);
+  margin-top: 2.25rem;
+  text-align: center;
+}

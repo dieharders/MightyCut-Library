@@ -4,7 +4,7 @@
 // JetBrains Mono taxonomy carrying every label. Ported from
 // video-assets/themes/creative/frame-showcase.html + frame.css + FRAME.md onto the shared
 // component system. Everything creative OWNS lives in this folder, imported as text:
-//   frame.css        the `.block-frame` base (frame ground, body wrapper, h3, the inverted ink
+//   frame.css        the `.mc-frame` base (frame ground, body wrapper, h3, the inverted ink
 //                    KICKER-BLOCK eyebrow) + the four backdrop ink hooks
 //   <element>.css    creative's SKIN for each shared primitive/treatment (structure + behavior
 //                    are shared; creative styles the standard class names here)
@@ -31,6 +31,10 @@ import ctaCss from "./cta.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
+import matrixRowCss from "./matrix-row.css" with { type: "text" };
+import teamMemberCss from "./team-member.css" with { type: "text" };
+import plotCss from "./plot.css" with { type: "text" };
+import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 import pillCss from "./pill.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import rowCss from "./row.css" with { type: "text" };
@@ -44,6 +48,11 @@ import closingPlateCss from "./closing-plate.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import matrixCss from "./matrix.css" with { type: "text" };
+import pillWallCss from "./pill-wall.css" with { type: "text" };
+import teamCss from "./team.css" with { type: "text" };
+import lineChartCss from "./line-chart.css" with { type: "text" };
+import nodeClusterCss from "./node-cluster.css" with { type: "text" };
 import quoteCss from "./quote.css" with { type: "text" };
 import statGridCss from "./stat-grid.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
@@ -295,6 +304,73 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { num: "04", title: "Cut", body: "Swap the ground." },
     ],
   },
+  matrix: {
+    params: {
+      headline: "Pick Your Poison",
+      criteria: ["Loud", "Fast", "Yours"],
+      caption: "Three ways to make a thing; only one of them sings",
+    },
+    children: [
+      { label: "Off The Shelf", sublabel: "Someone else's taste", cells: ["no", "yes", "no"] },
+      { label: "Agency Route", sublabel: "Good work, long wait", cells: ["yes", "no", "no"] },
+      { label: "Creative Mode", sublabel: "Ink, offset, full saturation", cells: ["yes", "yes", "yes"], highlight: true },
+    ],
+  },
+  "pill-wall": {
+    params: {
+      headline: "The Whole Kit",
+      caption: "Everything in the box, nothing to bolt on",
+    },
+    children: [
+      { text: "Type" },
+      { text: "Colour" },
+      { text: "Grid" },
+      { text: "Motion" },
+      { text: "Print" },
+      { text: "Web" },
+      { text: "Signage" },
+      { text: "Merch" },
+    ],
+  },
+  team: {
+    params: {
+      headline: "The Crew",
+      caption: "Three people, one studio, no handoffs",
+    },
+    children: [
+      { name: "Rue Marchetti", role: "Art Director", org: "Riso Room", accent: "primary" },
+      { name: "Kit Vance", role: "Type & Layout", org: "Riso Room", accent: "secondary" },
+      { name: "Nils Brandt", role: "Print Lead", org: "Bindery", accent: "accent-1" },
+    ],
+  },
+  "line-chart": {
+    params: {
+      headline: "The Line Goes Up",
+      caption: "Print runs sold, by quarter",
+    },
+    children: [
+      {
+        labels: ["Q1","Q2","Q3","Q4"],
+        values: [120,260,340,520],
+        max: 520,
+        unitSuffix: "",
+      },
+    ],
+  },
+  "node-cluster": {
+    params: {
+      headline: "One Press, Many Hands",
+      hub: "The Studio",
+      caption: "Every service under one roof",
+    },
+    children: [
+      { label: "Riso", detail: "two colour", index: 0, total: 5, accent: "primary" },
+      { label: "Letterpress", detail: "short runs", index: 1, total: 5, accent: "secondary" },
+      { label: "Binding", detail: "by hand", index: 2, total: 5, accent: "accent-1" },
+      { label: "Foil", detail: "hot stamp", index: 3, total: 5, accent: "accent-2" },
+      { label: "Deliver", detail: "next day", index: 4, total: 5, accent: "primary" },
+    ],
+  },
   comparison: {
     params: {
       headline: "Frame vs Slide",
@@ -474,6 +550,10 @@ export const creativeTheme: ThemeTokens = {
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
+    "team-member": teamMemberCss,
+    plot: plotCss,
+    "cluster-node": clusterNodeCss,
     pill: pillCss,
     rank: rankCss,
     row: rowCss,
@@ -487,6 +567,11 @@ export const creativeTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    matrix: matrixCss,
+    "pill-wall": pillWallCss,
+    team: teamCss,
+    "line-chart": lineChartCss,
+    "node-cluster": nodeClusterCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
     timeline: timelineCss,

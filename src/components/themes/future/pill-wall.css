@@ -1,0 +1,50 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   Future's pill is the glass chip, and a wall of them is the theme at its most characteristic:
+   a field of lit plates. Only the inset and type change for wall scale — the plating, the cyan
+   hairline and the glow are the primitive's and stay untouched. The same move chart makes on
+   `bar`: the treatment owns how its children sit INSIDE it, the primitive owns what they are. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.125rem 6rem 13.5rem;
+}
+.pill-wall h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 3.125rem;
+}
+.pill-wall h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+/* The gap has to clear each chip's glow, or the halos merge into one lit band and the
+   individual plates stop reading. */
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-content: center;
+  justify-content: center;
+}
+.pill-wall .pill-c {
+  padding: 0.875rem 1.875rem;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.14em;
+}
+.pill-wall .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  margin-top: 2.5rem;
+  align-self: center;
+}

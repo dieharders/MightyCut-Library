@@ -1,0 +1,37 @@
+/* 12 · Pill Wall — a set of short labels taken in at a glance, not read in order.
+
+   Capsule's pill is already the right object for this: a neutral white tag capsule, and the one
+   theme whose pill needs almost no resizing for wall use (its eyebrow inset is modest to begin
+   with). Only the type steps up a notch, because at wall scale the label is the content rather
+   than a caption above it. The same move chart makes on `bar`: the treatment owns how its
+   children sit INSIDE it, the primitive owns what they are. */
+.pill-wall > .body {
+  justify-content: center;
+  padding: 8.125rem 7.25rem 13.5rem;
+}
+.pill-wall h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.625rem 0 2.625rem;
+}
+/* The gap clears the soft offset each capsule wears, so the wall reads as loose candy rather
+   than one strip. */
+.pill-wall .wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.375rem;
+  align-content: center;
+  justify-content: center;
+}
+.pill-wall .pill-c {
+  padding: 0.875rem 2rem;
+  font-size: var(--font-size-md);
+  letter-spacing: 0.085em;
+}
+.pill-wall .caption {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  color: var(--dark);
+  margin-top: 2.5rem;
+  align-self: center;
+}
