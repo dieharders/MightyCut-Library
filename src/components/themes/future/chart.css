@@ -1,9 +1,6 @@
 /* 8 · Chart — cyan gradient columns sharing a plot (bar.css); the column flagged
    `leader` (NOT the last one) takes the complementary amber + a wider glow — see bar.css.
    Headline opened by a cyan rule. Ported from legacy .bf-chart (cqw × 1.2). */
-.chart > .body {
-  justify-content: center;
-}
 .chart h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 3.625rem;

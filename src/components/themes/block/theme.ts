@@ -14,9 +14,12 @@
 // Space Grotesk) are self-hosted and staged from video-assets/themes/block/assets.
 import { DECORATION_COMPONENTS } from "../../primitives/decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
-// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
-// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
-import safeAreaCss from "../safe-area.css" with { type: "text" };
+// This theme's frame base. It states NO safe-area value and has no side exception: the safe area
+// is themes/safe-area.css, shared by all six, and the RUNTIME pushes it ahead of this file into
+// every scene (`@safe-area` in runtime/treatment.ts) — no theme mentions it, so no theme can
+// forget it or disagree with it. Adding a `--safe-top`/`--safe-side`/`--safe-bottom` here would
+// not be an override to weigh up: safe-area.css is emitted FIRST at identical specificity, so a
+// later declaration in this file silently wins over the one rule the whole library depends on.
 import frameCss from "./frame.css" with { type: "text" };
 // Per-element skins block OWNS. Every primitive + treatment is structure+behavior only
 // (template/schema/anim); block styles their standard class names here, in
@@ -24,7 +27,6 @@ import frameCss from "./frame.css" with { type: "text" };
 // css (which is now empty), so another theme restyles the same names from its own folder.
 // The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
 // the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
-import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 // Component skins.
@@ -557,7 +559,7 @@ export const blockTheme: ThemeTokens = {
   description:
     "A maximalist neobrutalist theme: black borders, hard offset shadows, square corners, tilted decorations, saturated pastel accents, shadows stacking comfortably dense. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss: safeAreaCss + frameCss,
+  frameCss,
   // Block's DEFAULT backdrop mask: the ink dot-grid painted over every ground — also the
   // signature design block contributes to the SHARED pool (any theme may use it, recoloured
   // through --dots-ink). A scene can pick any other design (storyboard/deck `backdrop`);
@@ -566,7 +568,7 @@ export const blockTheme: ThemeTokens = {
   // Block's skins for the shared structure+behavior elements — every primitive +
   // treatment block renders. The element trios carry no css; these are the block look.
   skins: {
-    hud: hudGeometryCss + hudCss,
+    hud: hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

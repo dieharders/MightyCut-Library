@@ -1,11 +1,17 @@
 /* Creative HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the only two boxes a
+   primitives/hud/geometry.css, emitted ahead of this file; the only two boxes a
    skin may still size are named there and both are ceilings — `--hud-mark` (the brand mark inside
    its 3rem slot) and the progress rail's height (≤ 0.75rem).
 
    The punk-zine chrome: an ORANGE plate behind the heaviest ink outline in the system, the
    signature hard offset shadow at its deepest (0.625rem — this is what `--safe-top` reserves
-   for), zero radius on everything, and an INVERTED ink plate for the title rather than a chip. */
+   for), zero radius on everything, and an INVERTED ink plate for the title rather than a chip.
+
+   THIS IS ROOT CHROME. The harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
+   nothing in frame.css reaches it — the font and the colour roles are restated here rather than
+   inherited. The harness owns the `#hud` clip and the ids the master timeline tweens
+   (`#hud-progress`, `#ctr-N`, `#htitle-N`); the shared geometry owns where everything sits
+   inside it; this file owns only how it looks. */
 .hud {
   font-family: var(--mono);
   color: var(--dark);

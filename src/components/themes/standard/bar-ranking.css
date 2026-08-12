@@ -2,9 +2,6 @@
    track, a brownstone fill and an ink Playfair value, under the same headline rhythm as the chart. This
    file owns only the frame: body padding, headline, the row stack and the caption. Ported from the
    showcase .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
-.bar-ranking > .body {
-  justify-content: center;
-}
 .bar-ranking h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;

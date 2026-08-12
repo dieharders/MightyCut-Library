@@ -2,8 +2,14 @@
  *
  * `.mc-frame > .body` is `inset: 0` over the whole canvas, so its padding is the ONLY thing
  * holding scene content out of the chrome. Every treatment used to restate the same three
- * numbers in its own skin — ninety declarations — and they drifted: six frames were authored
- * INSIDE the caption rail or with no top clearance at all.
+ * numbers in its own skin — NINETY rules, fifteen treatments × six themes — and they drifted
+ * badly enough to break frames. Counted off master: TEN were authored under the HUD band (three
+ * with no vertical padding at all — `padding: 0 <side>` on professional/cover, standard/cover and
+ * standard/quote, deliberately, so their headlines could centre on the full canvas; the five
+ * node-clusters at 5rem; block's node-cluster at 7.5rem; capsule's cover at 6.75rem), and ELEVEN
+ * ran a bottom inset shallower than the 13.5rem the caption rail plus a two-line box needs — the
+ * same three zeros, five node-clusters at 5rem, capsule's cover at 9.5rem and its quote and
+ * closing plate at 10.75rem.
  *
  * The vertical is identical in every theme and on every treatment:
  *
@@ -21,7 +27,14 @@
  *                  (primitives/hud/geometry.css). So scene content runs 2.25rem OUTSIDE the
  *                  chrome's margin line on both sides, deliberately — the frames are what the
  *                  deck is for, and the HUD is a label on top of them, not a box around them.
- *                  It used to be per-theme, 6rem or 7.25rem; the wider of the two won.
+ *
+ *                  It used to vary per TREATMENT, not per theme, across SEVEN values — 6rem (23
+ *                  rules), 7.25rem (50), 8.375rem (6), 9.625rem (7), 10.75rem, 10.875rem and
+ *                  12rem — with block shipping three of them, professional four. 6rem is the
+ *                  NARROWEST of the seven, so the shared value is the widest MEASURE, not the
+ *                  widest margin: every frame gained gutter-to-gutter width, and future's cover
+ *                  and quote gained the most at 6rem a side. A treatment that wanted a shorter
+ *                  LINE out of that arrangement now says so with `max-width` (below).
  *
  * Deck-wide on purpose: a slide that swaps theme must not reflow.
  *
@@ -38,6 +51,21 @@
   --safe-bottom: 13.5rem;
 }
 
+/* THE CENTRING IS SHARED TOO, and for the same reason the padding is. All ninety
+ * `.<treatment> > .body` rules (fifteen treatments × six themes) opened with the identical
+ * `justify-content: center`, and seventy-two of them contained NOTHING ELSE — byte-identical
+ * three-line blocks restating a default that was never in dispute. They are gone; the eighteen
+ * that remain say only what is actually theirs (`align-items`, `text-align`).
+ *
+ * `safe center`, not `center`, and that word is load-bearing. An unsafe centre overflows in BOTH
+ * directions, so a frame whose content exceeds the safe box pushes its top half back up through
+ * `--safe-top` and out through the HUD band — chrome that is always painted, over content the
+ * viewer is meant to read. `safe` falls back to start-alignment exactly when it does not fit, so
+ * an overrun goes DOWN instead, where the worst it can meet is a caption box that may not even be
+ * present. It costs nothing when the content fits, which is every ordinary slide. Three frames
+ * used to buy the same protection with a deliberate ZERO vertical padding (professional/cover,
+ * standard/cover, standard/quote had `padding: 0 <side>`); the shared inset took that away, and
+ * this is what replaces it — for every frame rather than the three that thought to ask. */
 .mc-frame > .body {
   position: absolute;
   inset: 0;
@@ -45,5 +73,6 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  justify-content: safe center;
   padding: var(--safe-top) var(--safe-side) var(--safe-bottom);
 }

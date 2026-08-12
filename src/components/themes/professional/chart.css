@@ -2,9 +2,6 @@
    closed by a muted centred caption. The plot rule lives HERE (the standalone Bar in the showcase
    has no plot to stand on); every column is a round-topped cobalt bar (bar.css). Ported from the
    showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
-.chart > .body {
-  justify-content: center;
-}
 .chart h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 3.125rem;

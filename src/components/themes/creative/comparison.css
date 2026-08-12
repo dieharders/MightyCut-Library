@@ -22,9 +22,6 @@
    their columns and fills are GSAP-scaled and a 0-blur offset shears with the transform.
 
    Ported from the showcase .bf-comparison (cqw × 1.2, cqh × 0.675). */
-.comparison > .body {
-  justify-content: center;
-}
 /* Centred, like every content treatment's header under creative. `.mc-frame h3` already fixes
    the face, case, leading and tracking — a treatment skin varies only size, colour and spacing. */
 .comparison h3 {

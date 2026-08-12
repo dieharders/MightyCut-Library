@@ -3,9 +3,6 @@
    Bar primitive is also shown bare in the showcase, where there is no plot for it to stand on, and
    a baseline drawn per-column would double up at every gap. The column itself — stone fill, brownstone
    outline, brownstone label — is bar.css. Ported from the showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
-.chart > .body {
-  justify-content: center;
-}
 .chart h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;

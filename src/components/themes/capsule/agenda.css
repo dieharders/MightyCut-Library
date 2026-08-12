@@ -5,9 +5,6 @@
    The legacy `.bf-agenda { background: var(--muted-2) }` is also dropped: the emitter stamps
    the resolved scene ground onto .mc-frame, and authoring a background in a skin breaks
    the ground-resolution tripwire. */
-.agenda > .body {
-  justify-content: center;
-}
 .agenda h3 {
   /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's
      section heading is the base Bodoni cut, so only the size and rhythm are stated. 4.5rem is

@@ -9,9 +9,6 @@
    and a treatment root must never paint one. A deck that wants the deeper-stone ledger asks for it
    by name — `ground: "muted-2"` on the scene — and otherwise the frame sits on the sandstone canvas
    like every other, which costs the ledger nothing because its structure is drawn, not filled. */
-.comparison > .body {
-  justify-content: center;
-}
 .comparison h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;

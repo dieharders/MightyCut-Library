@@ -11,9 +11,6 @@
    theme uses to mean "this is a bounded thing", spent here for the same reason. The primitive
    stays bare for every other use; a treatment owning how its children sit inside it is the same
    move chart makes on `bar`. */
-.pill-wall > .body {
-  justify-content: center;
-}
 .pill-wall h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 1.875rem;

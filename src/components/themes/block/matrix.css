@@ -9,9 +9,6 @@
    into one big grid). --cols is the treatment's criteria count; the rows use their own --mcols,
    and the spec guarantees the two agree (a matrix slide's values must answer every criterion).
    A hand-built row that disagrees misaligns visibly, which is the right failure. */
-.matrix > .body {
-  justify-content: center;
-}
 .matrix h3 {
   font-weight: 800;
   font-size: var(--font-size-3xl);

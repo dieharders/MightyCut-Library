@@ -15,9 +15,6 @@
    breaks the ground-resolution tripwire. A deck that wants the reference's deeper-stone index asks
    for it by name with `ground: "muted-2"` on the scene (see theme.ts). Its `.pill` rule is dropped
    too: the shared agenda template has no eyebrow node to space. */
-.agenda > .body {
-  justify-content: center;
-}
 .agenda h3 {
   /* The base h3 (frame.css) zeroes its margins; the index needs one gap beneath the headline and
      none above it, because the body is centred and the top space is the padding's job. */

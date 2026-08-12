@@ -7,9 +7,6 @@
    (`.chart .bars .bar { min-width: 0 }`): the treatment owns how its children sit INSIDE it,
    the primitive owns what they are. Everything below the border weight is block's standard
    plate recipe, unchanged — same ink outline, same hard offset, same mono label. */
-.pill-wall > .body {
-  justify-content: center;
-}
 .pill-wall h3 {
   font-weight: 800;
   font-size: var(--font-size-3xl);

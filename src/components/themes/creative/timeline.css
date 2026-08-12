@@ -16,9 +16,6 @@
    on a treatment root here would be both dead and a ground-resolution test failure. Ported from
    the reference .bf-timeline (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem authoring grid —
    runtime/css.ts). */
-.timeline > .body {
-  justify-content: center;
-}
 /* Header block centred over a full-width grid — the reference's shared rule for the six content
    treatments (cover / quote / closing keep their own left anchor, and agenda opts out; see
    agenda.css). As on feature-cards and stat-grid the eyebrow half is a forward guard: the SHARED

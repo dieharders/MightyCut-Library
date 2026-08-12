@@ -2,9 +2,6 @@
    structural line capsule draws; every column is a top-capped outlined pill (bar.css).
    Ported from legacy .bf-chart (cqw x 1.2, cqh x 0.675, rounded to the 0.125rem grid).
    Canonical ground is muted-1 (cream) — never authored here, the emitter stamps it. */
-.chart > .body {
-  justify-content: center;
-}
 .chart h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.875rem;

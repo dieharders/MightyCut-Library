@@ -1,8 +1,5 @@
 /* 2 · Feature Cards — glass cards in a responsive grid, headline opened by a cyan rule.
    Ported from legacy .bf-feature-cards (cqw × 1.2). Card look lives in card.css. */
-.feature-cards > .body {
-  justify-content: center;
-}
 .feature-cards h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 3.625rem;

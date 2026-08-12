@@ -1,5 +1,5 @@
 /* Standard HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts. Two boxes are still
+   primitives/hud/geometry.css, emitted ahead of this file. Two boxes are still
    the skin's to size, both capped there: the brand mark inside its 3rem slot (`--hud-mark`) and
    the progress rail's height (≤ 0.75rem). Standard is the theme that spends the least of both.
 

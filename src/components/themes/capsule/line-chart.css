@@ -1,9 +1,6 @@
 /* 14 · Line Chart — chart's sibling over the same spec data, for the one case chart cannot
    draw: a trend. The plot itself (the aspect box, the overlay, the point positioning) is
    plot.css; this file owns the frame's padding, its headline rhythm and the caption. */
-.line-chart > .body {
-  justify-content: center;
-}
 .line-chart h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;

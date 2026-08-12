@@ -8,9 +8,6 @@
    NO OFFSET SHADOW on the pills, deliberately. The frame's one signature flourish is spent on a
    single featured block (see comparison.css / matrix.css), and ten offset plates would be ten
    flourishes — which is how a zine turns into noise. The plates carry themselves. */
-.pill-wall > .body {
-  justify-content: center;
-}
 .pill-wall h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.375rem;

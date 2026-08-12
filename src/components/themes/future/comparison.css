@@ -1,8 +1,5 @@
 /* 7 · Comparison — a ledger grid (1.4fr 1fr 1fr): a row-label column + a them/us pair, the
    "us" column glowing cyan (row.css). Ported from legacy .bf-comparison (cqw × 1.2). */
-.comparison > .body {
-  justify-content: center;
-}
 .comparison h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 3.125rem;

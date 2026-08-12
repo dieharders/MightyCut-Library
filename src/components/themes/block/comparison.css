@@ -3,9 +3,6 @@
    own markup on the grid's first row; each Row child flows into the SAME grid
    (its .rows wrapper and each .row are display:contents). Yellow ground; the
    "us" column is picked out in green. Row cells live in row.css. */
-.comparison > .body {
-  justify-content: center;
-}
 .comparison h3 {
   font-weight: 800;
   font-size: var(--font-size-3xl);

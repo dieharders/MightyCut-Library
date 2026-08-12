@@ -22,9 +22,6 @@
 
    The cell look lives in stat.css; this file owns the body padding, the headline rhythm and the
    grid. Ported from the reference .bf-stat-grid (cqw × 1.2, cqh × 0.675, snapped to 0.125rem). */
-.stat-grid > .body {
-  justify-content: center;
-}
 /* Header block centred, content grid full-width — the reference's shared rule for the six content
    treatments. As on feature-cards the eyebrow half is a forward guard: the SHARED template has no
    eyebrow slot (only quote does), so it styles nothing until a template override adds

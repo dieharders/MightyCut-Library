@@ -11,9 +11,6 @@
 
    Ported from the showcase .bf-feature-cards (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
    authoring grid — runtime/css.ts). */
-.feature-cards > .body {
-  justify-content: center;
-}
 /* Family, weight, sentence case, leading and ink all come from `.mc-frame h3` (frame.css); only
    size, rhythm and MEASURE are this treatment's business. The 84rem cap is the reference's 70cqw
    and it earns its place: a headline running the full content width would out-measure the three

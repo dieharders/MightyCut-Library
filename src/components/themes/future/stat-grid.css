@@ -1,8 +1,5 @@
 /* 3 · Stat Grid — cyan figures in a responsive grid, headline opened by a cyan rule.
    Ported from legacy .bf-stat-grid (cqw × 1.2). Stat look lives in stat.css. */
-.stat-grid > .body {
-  justify-content: center;
-}
 .stat-grid h3 {
   font-size: var(--font-size-3xl);
   margin: 0 0 6rem;

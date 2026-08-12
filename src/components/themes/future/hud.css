@@ -1,9 +1,15 @@
 /* Future HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the two boxes a skin
+   primitives/hud/geometry.css, emitted ahead of this file; the two boxes a skin
    may still size are the brand mark (`--hud-mark`, ≤ 3rem) and the rail height (≤ 0.75rem).
 
    Cyan-on-navy mono chrome: an inline-SVG corner-bracket frame, a glowing rotated-diamond brand
-   mark, a hairline-bracketed title chip and the thinnest rail in the set. */
+   mark, a hairline-bracketed title chip and the thinnest rail in the set.
+
+   THIS IS ROOT CHROME. The harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
+   nothing in frame.css reaches it — the font and the colour roles are restated here rather than
+   inherited. The harness owns the `#hud` clip and the ids the master timeline tweens
+   (`#hud-progress`, `#ctr-N`, `#htitle-N`); the shared geometry owns where everything sits
+   inside it; this file owns only how it looks. */
 .hud {
   font-family: var(--mono);
   color: var(--light);

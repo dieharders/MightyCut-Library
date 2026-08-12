@@ -26,9 +26,12 @@
 //     opts into, never from an always-on field.
 import { STANDARD_DECORATION_COMPONENTS } from "../../primitives/standard-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
-// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
-// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
-import safeAreaCss from "../safe-area.css" with { type: "text" };
+// This theme's frame base. It states NO safe-area value and has no side exception: the safe area
+// is themes/safe-area.css, shared by all six, and the RUNTIME pushes it ahead of this file into
+// every scene (`@safe-area` in runtime/treatment.ts) — no theme mentions it, so no theme can
+// forget it or disagree with it. Adding a `--safe-top`/`--safe-side`/`--safe-bottom` here would
+// not be an override to weigh up: safe-area.css is emitted FIRST at identical specificity, so a
+// later declaration in this file silently wins over the one rule the whole library depends on.
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -38,7 +41,6 @@ import cardCss from "./card.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
 // The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
 // the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
-import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
@@ -561,7 +563,7 @@ export const standardTheme: ThemeTokens = {
   description:
     "A quiet museum-catalog theme on warm stone. Brownstone uppercase labels. Single hairline border and compass ring. No colour, no shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss: safeAreaCss + frameCss,
+  frameCss,
   // Every standard frame lands on the warm sandstone canvas: groundDefault REPLACES the shared
   // per-treatment grounds (which are block-flavoured) without pinning them, so a scene that
   // explicitly picks a ground still gets it — the thing a `background: … !important` makes
@@ -586,7 +588,7 @@ export const standardTheme: ThemeTokens = {
   // Standard's skins for every shared element it renders. The element trios carry no css; these are
   // the standard look.
   skins: {
-    hud: hudGeometryCss + hudCss,
+    hud: hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

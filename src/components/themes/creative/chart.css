@@ -14,9 +14,6 @@
    spent on COLOUR instead: the leading column goes green against a row of pink (bar.css).
 
    Ported from the showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
-.chart > .body {
-  justify-content: center;
-}
 .chart h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.875rem;

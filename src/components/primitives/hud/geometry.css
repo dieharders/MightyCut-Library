@@ -5,8 +5,10 @@
  * took three values (4.5 · 4.625 · 5), `title top` four, `counter bottom` four, and the side rail
  * three (8.25 · 9.125 · 9.625) — clustered by porting batch rather than by design. Worse, the
  * BAND HEIGHT differed: measured from the skins it ran 7.05rem (future) to 9.73rem (block), so
- * `--safe-top` in frame.css had to reserve for the tallest theme and every other theme paid for
- * it, while block and capsule were nonetheless authored UNDER their own title chip.
+ * `--safe-top` had to reserve for the tallest theme and every other theme paid for it, while
+ * block and capsule were nonetheless authored UNDER their own title chip. (`--safe-top` lives in
+ * themes/safe-area.css — never in a theme's frame.css, which is where it used to be and where
+ * the six theme.ts comments went on pointing long after it moved.)
  *
  * So geometry lives here, once, and is concatenated AHEAD of each theme's skin (theme.ts).
  *
@@ -37,11 +39,23 @@
  * flush at `right: 8.25rem`, and those two themes staggered down the right column while the other
  * four aligned. Paint is what makes the shared box visible, so it is not optional. */
 
+/* THE CLIP, AND THE ONLY DEFINITION OF IT. `.mc-hud` and `.hud` are the SAME element in the
+ * render — root-html emits `class="clip mc-hud hud"` — and root/chrome.css used to state this
+ * same `position/inset/pointer-events` for `.mc-hud`, so one box had two owners in two files and
+ * a change to either applied to only half of it. This is the half that has to exist: the
+ * showcase, the WebUI preview and the editor mount `.hud` with no root chrome anywhere, and
+ * measured side by side the two produce identical geometry, so the root's copy was the removable
+ * one. `.mc-hud` survives as the root's stable hook (the harness addresses the clip by it) with
+ * no declarations of its own.
+ *
+ * `container-type: size` was here too, inherited unexamined through the port. Nothing in the HUD
+ * uses a `cq` unit or an `@container` rule — not this file, not any of the six skins — so it
+ * bought nothing while making a full-canvas overlay that GSAP mutates every frame a containment
+ * root. Gone. */
 .hud {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  container-type: size;
 }
 
 /* ------------------------------------------------------------------ brand --- */

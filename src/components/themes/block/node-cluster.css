@@ -23,9 +23,6 @@
    design working: `flex: 1` on the ring (below) makes it take the leftover the layout engine
    computes rather than a stale fixed number — which is what fixed the old headline collision —
    so a tighter budget shrinks the diagram instead of overflowing the canvas. */
-.node-cluster > .body {
-  justify-content: center;
-}
 .node-cluster h3 {
   font-size: var(--font-size-3xl);
   margin: 1.5rem 0 1.5rem;

@@ -1,11 +1,17 @@
 /* Block HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts. The two things a skin
+   primitives/hud/geometry.css, emitted ahead of this file. The two things a skin
    may still SIZE are named there and both are capped by it: `--hud-mark` (the brand mark inside
    its 3rem slot) and the progress rail's height (≤ 0.75rem). Block spends the maximum of both —
    it is the theme the shared boxes were measured from.
 
    Block's chrome is the theme's slab language applied at HUD scale: heavy ink outlines, zero
-   radius, and the signature 0-blur offset shadow on the two boxes (mark · title chip). */
+   radius, and the signature 0-blur offset shadow on the two boxes (mark · title chip).
+
+   THIS IS ROOT CHROME. The harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
+   nothing in frame.css reaches it — the font and the colour roles are restated here rather than
+   inherited. The harness owns the `#hud` clip and the ids the master timeline tweens
+   (`#hud-progress`, `#ctr-N`, `#htitle-N`); the shared geometry owns where everything sits
+   inside it; this file owns only how it looks. */
 .hud {
   font-family: var(--mono);
   color: var(--dark);

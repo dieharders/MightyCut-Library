@@ -26,6 +26,14 @@ const pctx = (theme: ThemeTokens, compId: string) => rootContext(compId, theme, 
 const nameOf = (f: ComponentFactory | TreatmentFactory): string =>
   "treatmentName" in f ? f.treatmentName : f.componentName;
 
+/** The declarations inside `selector { … }`, or "" when the skin does not state the rule. */
+const ruleBody = (css: string, selector: string): string => {
+  const open = css.indexOf(selector + " {");
+  if (open === -1) return "";
+  const close = css.indexOf("}", open);
+  return close === -1 ? "" : css.slice(open + selector.length + 2, close);
+};
+
 // ---------------------------------------------------------------- skin coverage ---
 // A theme owns the LOOK of every element it renders (the trios carry no css). So every
 // non-decoration component + every treatment MUST have a theme.skins entry, and every
@@ -812,14 +820,6 @@ describe("palette completeness (tripwire)", () => {
 // have to be honoured by EVERY theme's skin or the reservation shows through as a defect —
 // and both were originally fixed one theme at a time, which is what this file exists to stop.
 describe("plotted-figure reservation (tripwire)", () => {
-  /** The declarations inside `selector { … }`, or "" when the skin does not state the rule. */
-  const ruleBody = (css: string, selector: string): string => {
-    const open = css.indexOf(selector + " {");
-    if (open === -1) return "";
-    const close = css.indexOf("}", open);
-    return close === -1 ? "" : css.slice(open + selector.length + 2, close);
-  };
-
   // The reserved box is wider than most figures it holds. The column centres the BOX, so
   // without an explicit text-align the slack all lands on one side and a short figure sits
   // visibly off-centre from the bar it labels ("$42M" in a box cut for "$100M").
@@ -839,5 +839,102 @@ describe("plotted-figure reservation (tripwire)", () => {
     expect(rule, `${theme.name}: .chart .bars .bar does not reset the standalone min-content`).toContain(
       "min-width: 0",
     );
+  });
+});
+
+// ------------------------------------------------------- shared-sheet delivery ---
+// THE TWO SHEETS NO THEME OWNS, and the guard the hoist needed and did not have.
+//
+// The safe area (themes/safe-area.css) and the HUD band (primitives/hud/geometry.css) used to
+// reach a deck by being hand-concatenated onto `frameCss` and `skins.hud` in every theme.ts —
+// twelve expressions, six copies of each import, and nothing anywhere asserting the join. Drop
+// one term and the deck still builds, still lints, still passes every other test in this file:
+// a frame loses `position: absolute`, `inset: 0`, `z-index: 3` and its flex column and collapses
+// to a static top-left block, or the HUD stacks unpositioned in the overlay's corner.
+//
+// Both now arrive structurally — the runtime pushes the safe area into every scene
+// (runtime/treatment.ts) and the geometry is the hud component's own `css` (primitives/hud) —
+// so these assert the DELIVERY rather than the authoring: what actually lands in a composed
+// scene, and in the string the harness stages as assets/chrome.css.
+describe("shared sheets reach every theme (tripwire)", () => {
+  test.each(ALL_THEMES)("$name: a composed scene carries the safe area", (theme) => {
+    const html = renderScene(getTreatment("cover")({ headline: "H" }), pctx(theme, "sa"));
+    for (const token of ["--safe-top: 8.5rem", "--safe-side: 6rem", "--safe-bottom: 13.5rem"]) {
+      expect(html, `${theme.name}: composed scene is missing ${token}`).toContain(token);
+    }
+    // The box the tokens pad, and the centring hoisted out of 72 per-treatment rules.
+    expect(html, `${theme.name}: composed scene has no .mc-frame > .body rule`).toContain(
+      "padding: var(--safe-top) var(--safe-side) var(--safe-bottom)",
+    );
+    expect(html, `${theme.name}: the body's centring is not overflow-safe`).toContain(
+      "justify-content: safe center",
+    );
+    // FIRST, before the theme's own frame block. safe-area.css's "NOTHING OVERRIDES ANY OF THIS"
+    // is a claim about cascade position at identical specificity, so the order is the contract.
+    expect(
+      html.indexOf("--safe-top: 8.5rem"),
+      `${theme.name}: the theme's frame CSS is emitted BEFORE the safe area`,
+    ).toBeLessThan(html.indexOf(".mc-frame {\n  position: absolute"));
+  });
+
+  // No theme may re-declare a safe-area value: safe-area.css is emitted FIRST at identical
+  // specificity, so a later copy in a theme's own CSS silently wins over the one rule the whole
+  // library depends on. This is the failure the six stale theme.ts comments used to invite.
+  test.each(ALL_THEMES)("$name: no theme CSS redefines a safe-area token", (theme) => {
+    for (const [name, css] of Object.entries({ frame: theme.frameCss ?? "", ...theme.skins })) {
+      const decls = css.replace(/\/\*[\s\S]*?\*\//g, "");
+      for (const token of ["--safe-top", "--safe-side", "--safe-bottom"]) {
+        expect(decls, `${theme.name}'s ${name} CSS redefines ${token}`).not.toMatch(
+          new RegExp(`${token}\\s*:`),
+        );
+      }
+    }
+  });
+
+  test.each(ALL_THEMES)("$name: the built HUD carries the band geometry AND the theme's paint", (theme) => {
+    const { css } = getComponent("hud")({}).build(pctx(theme, "hud"));
+    // Geometry: the band's two anchors, the rail, and the title chip that must not grow.
+    for (const decl of ["top: 4.625rem", "right: 8.25rem", ".hud-track", "height: 3rem"]) {
+      expect(css, `${theme.name}: the HUD build is missing the shared ${decl}`).toContain(decl);
+    }
+    // Paint: the join must not have replaced the skin with the base, which is what the old
+    // either/or seam (`skins[name] ?? def.css`) would do if the arguments were swapped.
+    expect(css, `${theme.name}: the HUD build lost the theme's own skin`).toContain("font-family");
+  });
+
+  // EVERY THEME PAINTS A TITLE CHIP. The chip carries 1.875rem of side padding it cannot see;
+  // unpainted, that is an invisible offset, and the label's text edge lands inside a counter and
+  // a rail that sit flush at `right: 8.25rem`. future and standard shipped that way.
+  test.each(ALL_THEMES)("$name: the title chip is painted, not a bare label", (theme) => {
+    const rule = ruleBody(theme.skins?.hud ?? "", ".hud .hud-title");
+    expect(
+      /background|border(?!-radius)/.test(rule),
+      `${theme.name}: .hud .hud-title paints neither a background nor a border`,
+    ).toBe(true);
+  });
+
+  // The rail's height is a CEILING a skin may spend downward, never a licence to exceed it —
+  // `--safe-bottom` reserves against the shared number. Same for the brand mark's 3rem slot,
+  // which is one of the two boxes the band height is measured from.
+  test.each(ALL_THEMES)("$name: the HUD's two sizable boxes stay inside their budget", (theme) => {
+    const rem = (s: string, prop: string): number | null => {
+      const m = new RegExp(`${prop}:\\s*([0-9.]+)rem`).exec(s);
+      return m ? Number(m[1]) : null;
+    };
+    const track = rem(ruleBody(theme.skins?.hud ?? "", ".hud .hud-track"), "height");
+    if (track !== null) {
+      expect(track, `${theme.name}: the rail is taller than the shared 0.75rem ceiling`).toBeLessThanOrEqual(0.75);
+    }
+    const mark = rem(ruleBody(theme.skins?.hud ?? "", ".hud .hud-brand-mark"), "--hud-mark");
+    if (mark !== null) {
+      expect(mark, `${theme.name}: --hud-mark exceeds the shared 3rem slot`).toBeLessThanOrEqual(3);
+    }
+    // A skin must not restate the boxes the band is measured from at all.
+    for (const sel of [".hud .hud-title", ".hud .hud-brand"]) {
+      const body = ruleBody(theme.skins?.hud ?? "", sel);
+      expect(body, `${theme.name}: ${sel} restates a box size the shared geometry owns`).not.toMatch(
+        /(^|\s)(width|height|top|right|left|bottom|padding):/,
+      );
+    }
   });
 });

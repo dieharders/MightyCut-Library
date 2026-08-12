@@ -9,9 +9,19 @@
  * and its .mc-page/.mc-card/.mc-heading/... slide classes, but the root no longer
  * links it.
  *
- * Safe area (must match the root markup): top 140px (HUD brand band),
- * bottom 200px (captions + progress), left/right 80px. (The block treatments'
- * own body inset is tighter — ~130px top / 216px bottom / 96px sides.)
+ * THE SAFE AREA IS NOT DEFINED HERE. It is `themes/safe-area.css`, one file for all six themes,
+ * and the runtime pushes it into every scene (`@safe-area` in runtime/treatment.ts) — 8.5rem top
+ * (136px), 13.5rem bottom (216px), 6rem sides (96px) at DESIGN_CANVAS. This header used to print
+ * a SECOND set of numbers (140 / 200 / 80) under a "must match the root markup" warning, and all
+ * three disagreed with the real ones, so the next person to place root chrome would have sized
+ * against a safe area no frame has ever used. Its parenthetical was wrong twice over besides —
+ * the tighter inset was block's alone when it was written, it is now every theme's, and 216px is
+ * DEEPER than 200px rather than tighter.
+ *
+ * What this file DOES own is the chrome the safe area clears: the caption rail's `bottom:
+ * 4.875rem` below, and the HUD band via primitives/hud/geometry.css. Change one of those and
+ * `--safe-top` / `--safe-bottom` are what has to move with it; safe-area.css says so from its
+ * side too.
  *
  * Units: layout and type measures are rem, and they DO rescale with the canvas — the render
  * document sets a canvas-derived root font-size (types/canvas.ts rootFontSizePx), so 1rem is
@@ -50,13 +60,14 @@ body {
 }
 
 /* --------------------------------------------------------------- hud --- */
-/* The #hud clip. The theme's skin (.bf-hud) paints it; this is the container. */
-
-.mc-hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
+/* THE #hud CLIP HAS NO RULE HERE, DELIBERATELY. `.mc-hud` and `.hud` are the same element —
+ * root-html emits `class="clip mc-hud hud"` — and this file used to state `position: absolute;
+ * inset: 0; pointer-events: none` for `.mc-hud` while primitives/hud/geometry.css stated exactly
+ * the same three for `.hud`. One box, two owners, two files: a change to either applied to half
+ * of it. The library's is the copy that cannot go, because the showcase, the WebUI preview and
+ * the editor mount `.hud` with no root chrome at all, so it owns the clip now and this file
+ * keeps only the class as the root's addressing hook. Whatever positions the HUD, positions it
+ * once. */
 
 /* ---------------------------------------------------------- captions --- */
 /* One box per VO line inside the #caption-rail clip, toggled by the master timeline. */
