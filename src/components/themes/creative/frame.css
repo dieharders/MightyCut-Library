@@ -30,7 +30,6 @@
      is a saturated plane (feature-cards, stat-grid). */
   color: var(--dark);
 }
-
 /* Eyebrow = creative's KICKER-BLOCK: an INVERTED ink plate carrying cream wide-tracked mono —
    square, no border, no shadow, never a pill (the theme's one rounded chip is the HUD title's
    sibling, not this). The shared fallback so any eyebrow-bearing treatment reads on-theme

@@ -28,7 +28,6 @@
   font-family: var(--disp);
   color: var(--dark);
 }
-
 .mc-frame .eyebrow {
   display: inline-block;
   align-self: flex-start;

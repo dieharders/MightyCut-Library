@@ -27,7 +27,6 @@
   font-family: var(--body);
   color: var(--light);
 }
-
 /* Headline: Space Grotesk 700, near-white, sentence case, slight negative tracking. */
 .mc-frame h3 {
   font-family: var(--disp);
