@@ -31,10 +31,17 @@
   height: 0.125rem;
   background: color-mix(in srgb, var(--primary) 30%, transparent);
 }
-/* Counter-rotated back upright, then pulled back onto the arm's end point: translate(-50%, -50%)
-   would be measured in the ROTATED frame, so the centring is done here in the puck's own. */
+/* Counter-rotated back upright, then SEATED against the arm's tip — the rotation turns about the
+   puck's centre, which leaves it clearing the tip by half a WIDTH when an upright puck only needs
+   half a height. --ccos/--csin close the difference; block's cluster-node.css has the derivation,
+   and the translate must precede the rotate or the shift runs along the screen instead of the arm. */
 .cnode .cpuck {
-  transform: rotate(var(--ca-inv, 0turn));
+  transform: translateX(
+      calc(
+        -50% * (1 - var(--ccos, 1)) + var(--cpuck-h, 0rem) * var(--csin, 0) / 2
+      )
+    )
+    rotate(var(--ca-inv, 0turn));
   display: flex;
   flex-direction: column;
   align-items: center;
