@@ -4,23 +4,6 @@ import { component } from "../../runtime/component";
 import { hudAnim } from "./anim";
 import { HudSchema } from "./schema";
 
-/**
- * The HUD's shared geometry — every position and box in the band, exported because it has TWO
- * consumers and neither can be the other's.
- *
- * `Hud`'s own `css` below covers everything that builds through the component runtime (the
- * showcase, the WebUI preview, the editor). The RENDER does not: the harness stages a theme's
- * `skins.hud` STRING straight to `<project>/assets/chrome.css` (`chromeCss` in the harness's
- * components/chrome.ts) and only ever takes `.node` off the built component, so it never sees a
- * `def.css`. It imports this instead.
- *
- * That split is exactly why the concatenation cannot simply move into the component: doing only
- * that empties the deck's chrome sheet of every HUD position while every test and preview still
- * looks right. Two named consumers of one export is the fix; six hand-written `hudGeometryCss +
- * hudCss` expressions in six theme.ts files was not.
- */
-export const HUD_GEOMETRY_CSS: string = geometryCss;
-
 /** The full-frame HUD overlay — brand (top-left) · title pill (top-right) · slide
  *  counter (bottom-right) · progress track (bottom), each gated by a boolean. A
  *  `frame` composite: the showcase renders it in a 1920×1080 frame slot. In the
@@ -36,7 +19,15 @@ export const Hud = component({
   schema: HudSchema,
   template,
   // SHARED, not a fallback skin: the band is the box `--safe-top` reserves for, so its geometry
-  // is not a theme's to restate. Emitted ahead of `theme.skins.hud`, which paints inside it.
+  // is not a theme's to restate. runtime/component.ts JOINS this with `theme.skins.hud`, which
+  // paints inside it — that join is the single definition of "the HUD's stylesheet", and every
+  // consumer takes it from here. The showcase, the WebUI preview and the editor get it by
+  // building the component; the RENDER gets it the same way, because the harness's `chromeCss`
+  // reads `buildNode(...).css` rather than `theme.skins.hud` (which is paint only).
+  //
+  // This used to be hand-concatenated onto `skins.hud` in all six theme.ts files instead —
+  // twelve expressions with nothing asserting the join. Dropping one shipped a deck whose HUD
+  // had no positions at all, in the MP4 only. theme-parity.test.ts now pins the join.
   css: geometryCss,
   frame: true,
   example: {
