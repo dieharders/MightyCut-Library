@@ -1,5 +1,7 @@
 /* Creative HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts.
+   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the only two boxes a
+   skin may still size are named there and both are ceilings — `--hud-mark` (the brand mark inside
+   its 3rem slot) and the progress rail's height (≤ 0.75rem).
 
    The punk-zine chrome: an ORANGE plate behind the heaviest ink outline in the system, the
    signature hard offset shadow at its deepest (0.625rem — this is what `--safe-top` reserves
@@ -8,9 +10,15 @@
   font-family: var(--mono);
   color: var(--dark);
 }
+/* 0.375rem, a rung down from the theme's structural 0.5rem, for the same reason block trims its
+   own: the mark was a 3.25rem box and the shared slot is 3rem, so the original weight now leaves
+   only a 2rem orange plate inside a mark that is already the smallest it has ever been. This is
+   still the heaviest brand outline in the set, which is the part that carries creative's voice —
+   and the 0.625rem offset shadow, the deepest in the library and the thing `--safe-top` reserves
+   its shadow allowance for, is untouched. */
 .hud .hud-brand-mark {
   background: var(--secondary);
-  border: 0.5rem solid var(--dark);
+  border: 0.375rem solid var(--dark);
   border-radius: 0;
   box-shadow: 0.625rem 0.625rem 0 var(--dark);
 }
@@ -40,9 +48,12 @@
   text-transform: uppercase;
   color: var(--dark);
 }
+/* Still the heaviest ring in the set, now at a weight the rail can hold: 0.25rem of ink around
+   0.25rem of orange inside the shared 0.75rem box. The theme's structural 0.5rem does not fit
+   here — border-box means it would BE the rail, twice over, and the fill would be zero. */
 .hud .hud-track {
   background: var(--muted-2);
-  border: 0.5rem solid var(--dark);
+  border: 0.25rem solid var(--dark);
   border-radius: 0;
   overflow: hidden;
 }

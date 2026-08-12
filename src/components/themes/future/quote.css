@@ -2,8 +2,14 @@
    (templates/quote.html). The eyebrow sits above the card as future's `label` type role
    (mono, uppercase, wide-tracked, cyan) and self-removes when the slide sets none — the
    template used to DROP the slot, so typing an eyebrow silently did nothing. */
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .quote > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }

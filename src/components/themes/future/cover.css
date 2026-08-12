@@ -7,8 +7,14 @@
    The slot is removed from the shared template and the schema, so nothing renders a control
    for it.) No decorations — the backdrop is the flourish. Ported from legacy .bf-cover
    (cqw × 1.2). */
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .cover > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }

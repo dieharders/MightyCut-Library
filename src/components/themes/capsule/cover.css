@@ -4,17 +4,29 @@
    a second time. The cream ground is stamped by the emitter, so it is
    never re-authored here; the floating candy pills around the plate are decoration
    components, not markup. Ported from legacy .bf-cover (cqw × 1.2 → the 0.125rem grid). */
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .cover > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }
+/* THE INVERSE OF THE USUAL max-width PROBLEM: this cap never bound. The cover ran a 9.625rem body
+   padding of its own, so the headline was already held to 100.75rem and the 105.625rem written
+   here was dead. On the shared 6rem safe side the content box is 108rem, which makes the dead cap
+   live — silently WIDENING the measure by 4.875rem, on the one frame in the deck set at
+   --font-size-max (13rem here, the largest in the library). The number is the measure the frame
+   actually had, and now it is the one doing the work. */
 .cover h3 {
   font-weight: 800;
   font-size: var(--font-size-max);
   letter-spacing: -0.03em;
   line-height: 0.88;
-  max-width: 105.625rem;
+  max-width: 100.75rem;
   margin: 0;
 }
 /* The accent rule exists only under templates/cover.html — the shared cover has no such

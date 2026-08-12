@@ -3,8 +3,14 @@
    pink ground, carrying a hero ink headline and a green sealed stamp. FRAME.md reserves the scarce
    gestures for the closer, and the shadow is the scarcest of them: one featured block per frame,
    and this is the block. */
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .closing-plate > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }
@@ -15,6 +21,11 @@
    backdrop layer that shares this stacking context. */
 .closing-plate .cardf {
   position: relative;
+  /* The plate ran an 8.375rem body padding of its own and could never exceed 103.25rem; the
+     shared 6rem safe side would take it to 108. The h3 below already caps at 80rem, so this is
+     for the CTA, which caps nowhere else and admits 120 characters. Content box: 87.75 + the
+     padding and border below is exactly the outer the plate had before. */
+  max-width: 87.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;

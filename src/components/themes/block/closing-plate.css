@@ -1,10 +1,24 @@
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .closing-plate > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }
+/* THE MEASURE IS THE PLATE'S, not the body's. This frame used to run a 7.25rem body padding of
+   its own, so the plate could never be wider than 105.5rem; on the shared 6rem safe side it would
+   reach 108. `max-width` on the content is what safe-area.css asks a treatment to do instead of
+   arguing with the frame's edges, and it is stated on .cardf rather than on the h3 so the CTA is
+   held to the same line — the headline is not the only thing in the stack that can run long
+   (`cta` admits 120 characters). Content box, so 90.25 + the padding and border below is exactly
+   the 105.5rem outer the plate had before. */
 .closing-plate .cardf {
   position: relative;
+  max-width: 90.25rem;
   border: 0.375rem solid var(--dark);
   background: var(--light);
   box-shadow: 1.5rem 1.5rem 0 var(--dark);

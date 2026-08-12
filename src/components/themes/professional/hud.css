@@ -1,5 +1,7 @@
 /* Professional HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the
-   shared primitives/hud/geometry.css, concatenated ahead of this file by theme.ts.
+   shared primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the only two
+   boxes a skin may still size are named there and both are ceilings — `--hud-mark` (the brand
+   mark inside its 3rem slot) and the progress rail's height (≤ 0.75rem).
 
    A cobalt brand mark on a soft radius, a near-black wordmark, a muted uppercase tagline, a faint
    cobalt-tinted pill title, a near-black counter and a cobalt-tinted track. No shadow anywhere —
@@ -41,7 +43,10 @@
   font-weight: 700;
   color: var(--dark);
 }
+/* 0.5rem of the shared 0.75rem ceiling. Professional's chrome lifts with tint rather than weight,
+   and an untinted well needs less height than an outlined one to read as a rail. */
 .hud .hud-track {
+  height: 0.5rem;
   border-radius: 0.5rem;
   background: color-mix(in srgb, var(--primary) 22%, transparent);
   overflow: hidden;

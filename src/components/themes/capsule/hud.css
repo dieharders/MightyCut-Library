@@ -1,5 +1,7 @@
 /* Capsule HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts.
+   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the only two boxes a
+   skin may still size are named there and both are ceilings — `--hud-mark` (the brand mark inside
+   its 3rem slot) and the progress rail's height (≤ 0.75rem).
 
    A coral ink-outlined brand DISC, a Bodoni wordmark, a muted grotesk tagline, a yellow PILL
    title, a Bodoni counter and a fully-rounded track with a coral fill — the theme's rounded
@@ -49,9 +51,13 @@
   font-weight: 800;
   color: var(--dark);
 }
+/* Under the shared 0.75rem ceiling capsule takes 0.625rem — a rounded rail reads lighter than a
+   square one at the same weight, and the ink outline has to fit INSIDE the box (geometry.css), so
+   0.125rem of ink around 0.375rem of coral is the pill at rail scale. */
 .hud .hud-track {
+  height: 0.625rem;
   background: var(--light);
-  border: 0.25rem solid var(--dark);
+  border: 0.125rem solid var(--dark);
   border-radius: 9999px;
   overflow: hidden;
 }

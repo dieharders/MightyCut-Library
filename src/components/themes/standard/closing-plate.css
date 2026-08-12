@@ -11,15 +11,27 @@
 
    Ported from the showcase .bf-closing-plate (cqw × 1.2, cqh × 0.675, snapped to the 0.125rem
    grid). */
+/* `safe center`, not `center`: this frame sets type at --font-size-max, so its content CAN exceed
+   the safe box, and an unsafe centre overflows in BOTH directions — the top half runs back up
+   through `--safe-top` and out through the HUD band, which is chrome that is always painted. The
+   `safe` keyword falls back to start-alignment exactly when it does not fit, so an overrun goes
+   DOWN, where the only thing it can meet is a caption box that may not even be present. It costs
+   nothing when the content fits, which is every ordinary slide. */
 .closing-plate > .body {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }
 /* A stack, not a plate: nothing fills, borders or lifts it. position:relative is what the ink rule
    below hangs off, and it also keeps the stack above the backdrop layer sharing this context. */
+/* THE MEASURE IS THE STACK'S, not the body's — see safe-area.css: a treatment that needs a
+   shorter line caps its own content instead of restating where the frame's edges are. This closer ran an 8.375rem body padding of its own, so the stack was
+   never wider than 103.25rem; on the shared 6rem safe side it would reach 108.
+   It is stated on .cardf rather than on the h3 so the CTA is held to the same line; the headline
+   is not the only thing here that can run long (`cta` admits 120 characters). */
 .closing-plate .cardf {
   position: relative;
+  max-width: 103.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;

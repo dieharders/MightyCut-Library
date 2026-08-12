@@ -1,9 +1,11 @@
 /* Standard HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts.
+   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts. Two boxes are still
+   the skin's to size, both capped there: the brand mark inside its 3rem slot (`--hud-mark`) and
+   the progress rail's height (≤ 0.75rem). Standard is the theme that spends the least of both.
 
-   A brownstone brand disc, a Playfair wordmark in ink, an uppercase warm-gray tagline, a BARE
-   brownstone label top-right (no pill, no border, no fill — the same treatment frame.css gives
-   the eyebrow), a warm-gray counter, and a brownstone progress rail.
+   A small brownstone brand DOT, a Playfair wordmark in ink, an uppercase warm-gray tagline, a
+   hairline-bordered brownstone label top-right, a warm-gray counter, and a brownstone hairline
+   progress rail.
 
    This is ROOT CHROME: the harness stamps the HUD into the root overlay, OUTSIDE .mc-frame, so
    nothing in frame.css reaches it — the font and the ink/gray colour roles are restated here
@@ -15,15 +17,19 @@
    And the labels track at 0.15em rather than the eyebrow's 0.22em — the reference's own tracking
    for small chrome, which would otherwise fall apart into loose letters at this size.
 
-   The mark was a 1.125rem dot here, sized as "a mark, not an object" against every other theme's
-   plate or disc. It is now the shared 3rem box like the rest; the disc reads as standard's by its
-   COLOUR and its perfect circle rather than by being the smallest one in the set. */
+   The mark is a 1.5rem dot, sized as "a mark, not an object" against every other theme's plate or
+   disc — half the shared slot, which is the point of `--hud-mark` being a ceiling rather than a
+   size. Hoisting the box had briefly flattened it to the full 3rem, and a brownstone disc that
+   size is an OBJECT: it competes with the wordmark it is supposed to introduce, in the one theme
+   whose stated rule is to let the frame breathe. The slot it sits in is still 3rem, so the
+   wordmark starts exactly where every other theme's does. */
 .hud {
   font-family: var(--mono);
   color: var(--dark);
 }
 /* The one true circle in the theme's chrome, and therefore the one place 50% is allowed. */
 .hud .hud-brand-mark {
+  --hud-mark: 1.5rem;
   border-radius: 50%;
   background: var(--primary);
 }
@@ -39,15 +45,30 @@
   letter-spacing: 0.15em;
   color: var(--muted-3);
 }
-/* A bare brownstone LABEL — no pill, no border, no fill. It used to hang 0.5rem lower than the
-   brand row to pull its baseline under the Playfair wordmark; the shared geometry centres it in
-   the same 3rem box as the mark instead, which does that job structurally. */
+/* A brownstone label in a hairline box. Standard has no pill and no fill to spend on chrome, so
+   the chip is drawn the way every rule in this theme is drawn: one 0.125rem brownstone line,
+   square, over the stone. The label used to hang 0.5rem lower than the brand row to pull its
+   baseline under the Playfair wordmark; the shared geometry centres it in the same 3rem box as
+   the mark instead, which does that job structurally.
+
+   IT IS A BOX RATHER THAN A BARE LABEL because the shared chip carries 1.875rem of side padding
+   and nothing was painting it: the padding became an invisible offset, so the label's text edge
+   sat 1.875rem inside the counter and rail below it, which are flush at `right: 8.25rem`. Drawing
+   the border is what makes the shared box visible and puts standard back in line with the four
+   themes that always painted one.
+
+   The trailing 0.15em of tracking is trimmed to a right margin so the letter-spaced label sits
+   optically centred in the box instead of a fraction of a space left of centre. */
 .hud .hud-title {
+  border: 0.125rem solid var(--accent-3);
   font-family: var(--mono);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--primary);
+}
+.hud .hud-title > span {
+  margin-right: -0.15em;
 }
 /* tabular-nums is the one addition to the reference: the counter ticks slide to slide, and
    proportional figures would shuffle the whole string sideways on every change. */
@@ -61,8 +82,15 @@
 /* The rail is the theme's hairline given a hair of thickness: the Line brownstone used as a FILL
    rather than as a border, running the full content measure. Square ends, no border, no well
    tint — it should read as the rule that closes the frame, which happens to fill with brownstone
-   as the deck advances. */
+   as the deck advances.
+
+   0.25rem, a THIRD of the shared 0.75rem ceiling, and this is the case that ceiling exists for.
+   Standard's whole stated identity is "single hairline border and compass ring — no colour, no
+   shadows", and its own closing-plate rule is 0.125rem; at the full budget the same declaration
+   paints a 14px solid brownstone bar 103.5rem wide across the bottom of every slide, which is the
+   loudest object in the theme. The shared file owes this rail a maximum, not a height. */
 .hud .hud-track {
+  height: 0.25rem;
   background: var(--accent-3);
   overflow: hidden;
 }

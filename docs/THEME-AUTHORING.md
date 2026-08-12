@@ -418,6 +418,25 @@ It documents the scale and drives the showcase Typography section; the actual si
 slides use live in your skins. Sizes and weights are yours to choose — nothing is shared here
 but the shape of the field.
 
+**One exception, and it is deliberate: the HUD.** `primitives/hud/geometry.css` pins
+`.hud-brand-name` and `.hud-counter-item` to `--font-size-md` and `.hud-tagline` to
+`--font-size-xs`, and your `hud.css` states no font-size at all. That is not the type scale
+leaking into shared code — it is the same standardisation as the positions beside it. The HUD is
+**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 7.625rem band
+that `--safe-top` reserves for sight-unseen (`themes/safe-area.css`), and the band's height is
+just `max(the 3rem boxes, the type in them)`. A skin free to set its own size there is a skin
+free to move the number every frame in every theme is padded against — which is exactly what
+happened before the hoist, where the measured band ran 7.05rem to 9.73rem and the safe area had
+to reserve for the tallest.
+
+So the HUD's rule is **space is shared, paint is yours**: the shared file states the maximum each
+part may occupy — the 3rem brand slot, the 3rem title chip, the ≤0.75rem rail, and the type ROLE
+those are measured against — and your skin decides colour, radius, border, shadow, family, weight
+and tracking. Two sizes are yours because they change nothing the safe area measured, and both
+are capped: `--hud-mark` (your brand mark inside its 3rem slot — standard sets 1.5rem) and the
+rail's `height` (standard and future set 0.25rem against the 0.75rem ceiling). Both may only go
+**down**. Your scale still reaches the HUD, because `--font-size-md` is a number you chose.
+
 ---
 
 ## 7. Backdrops — one shared pool

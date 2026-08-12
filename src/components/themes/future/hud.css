@@ -1,10 +1,9 @@
 /* Future HUD skin — PAINT ONLY. Every position, box size and font-size role lives in the shared
-   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts.
+   primitives/hud/geometry.css, concatenated ahead of this file by theme.ts; the two boxes a skin
+   may still size are the brand mark (`--hud-mark`, ≤ 3rem) and the rail height (≤ 0.75rem).
 
    Cyan-on-navy mono chrome: an inline-SVG corner-bracket frame, a glowing rotated-diamond brand
-   mark, and a BARE title label — future paints no chip, so the title's box is left unfilled and
-   unbordered while still occupying the shared box, which is what keeps it aligned with the other
-   five themes. */
+   mark, a hairline-bracketed title chip and the thinnest rail in the set. */
 .hud {
   font-family: var(--mono);
   color: var(--light);
@@ -48,13 +47,27 @@
   text-transform: uppercase;
   color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
 }
-/* No background, no border: the title is a bare cyan label. */
+/* THE CHIP IS PAINTED, and that is not a change of heart about future's flatness — it is what
+   makes the shared box real. The chip carries 1.875rem of side padding (geometry.css); unpainted,
+   that padding is an invisible offset, so the label's TEXT edge landed 1.875rem inside the counter
+   and the rail below it, both of which sit flush at `right: 8.25rem`. future and standard were the
+   only two themes staggered down the right column, and they were the two that painted nothing.
+
+   Square, hairline, 10% wash: the same corner-bracket vocabulary as .hud::before, not a pill. The
+   trailing letter-spacing is trimmed to a right margin so the tracked-out glyphs stay optically
+   centred in the box rather than sitting a third of a space left of centre. */
 .hud .hud-title {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: 0;
   font-family: var(--mono);
   font-weight: 600;
   letter-spacing: 0.375rem;
   text-transform: uppercase;
   color: var(--primary);
+}
+.hud .hud-title > span {
+  margin-right: -0.375rem;
 }
 .hud .hud-counter-item {
   font-family: var(--mono);
@@ -62,9 +75,14 @@
   letter-spacing: 0.25rem;
   color: var(--muted-1);
 }
-/* No overflow:hidden — it would clip the fill's cyan glow (below). The shared geometry leaves
-   `overflow` unstated for exactly this reason. */
+/* THE THINNEST RAIL IN THE SET, 0.25rem of the shared 0.75rem ceiling — future's rail is a lit
+   thread, and the glow below is what gives it presence. At the full budget the same box-shadow
+   wraps a bar three times as tall and reads as a lozenge instead.
+
+   No overflow:hidden — it would clip the fill's cyan glow. The shared geometry leaves `overflow`
+   unstated for exactly this reason. */
 .hud .hud-track {
+  height: 0.25rem;
   background: color-mix(in srgb, var(--muted-1) 18%, transparent);
 }
 .hud .hud-fill {
