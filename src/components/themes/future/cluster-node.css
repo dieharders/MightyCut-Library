@@ -49,7 +49,10 @@
   padding: 0.625rem 1.25rem;
   border-radius: 0.875rem;
   border: 0.125rem solid color-mix(in srgb, var(--ccol, var(--primary)) 40%, transparent);
-  background: color-mix(in srgb, var(--muted-3) 55%, transparent);
+  /* Opaque, over the scene's ground: a puck covers its own arm's tip, and the smoked panel is the
+     same value it always was — 55% of the panel grey against the canvas instead of against
+     nothing, so nothing shows through the label. */
+  background: color-mix(in srgb, var(--muted-3) 55%, var(--ground, var(--muted-2)));
   box-shadow: 0 0 1.25rem color-mix(in srgb, var(--ccol, var(--primary)) 18%, transparent);
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.

@@ -1659,6 +1659,38 @@ describe("palette roles (tripwire)", () => {
     );
   });
 
+  /**
+   * THE NODE CLUSTER'S HUB AND PUCKS MUST BE OPAQUE, in every theme.
+   *
+   * Unlike every other fill in the library this is not a look, it is the diagram working: each
+   * arm is a box rotated about the ring's exact centre (cluster-node.css), so the hub sits on top
+   * of ALL of them and each puck sits on the tip of its own. Painting nothing — or tinting into
+   * `transparent`, which four themes did — lets the connector lines read straight through the
+   * type. The fix is to mix into `var(--ground)` (the emitter stamps the scene's resolved ground
+   * as a custom property; runtime/css.ts), which keeps each theme's own tint and still occludes.
+   *
+   * A tripwire rather than a note, because a new theme's skin is written by copying an existing
+   * one and `transparent` is the natural thing to type — and the result renders, just wrongly.
+   */
+  const ruleBody = (css: string, selector: string): string =>
+    css.slice(css.indexOf(selector)).match(/\{([\s\S]*?)\}/)?.[1] ?? "";
+
+  test.each(ALL_THEMES)("$name's cluster hub and pucks are opaque", (theme) => {
+    for (const [skin, selector] of [
+      ["node-cluster", ".node-cluster .hub"],
+      ["cluster-node", ".cnode .cpuck"],
+    ] as const) {
+      const css = theme.skins?.[skin] ?? "";
+      expect(css, `${theme.name} has no ${skin} skin`).toContain(selector);
+      const body = ruleBody(css, selector);
+      const bg = body.match(/^\s*background:\s*([^;]+);/m)?.[1];
+      expect(bg, `${theme.name}/${skin} — ${selector} paints no background`).toBeDefined();
+      expect(bg, `${theme.name}/${skin} — ${selector} is see-through; mix into var(--ground)`).not.toContain(
+        "transparent",
+      );
+    }
+  });
+
   // The complete PRE-migration colour vocabulary: block's own names and future's parallel
   // --fx-* identity layer. These are NOT leftovers to clean up — they are the fixture for
   // the migration's central promise. Roles are the only vocabulary now, and the old names

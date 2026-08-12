@@ -18,7 +18,7 @@ import { buildBackdrop } from "../primitives/backdrops";
 import type { FrameGround, FrameTreatment } from "../../types/storyboard";
 import type { TimingPreset, TransitionName, TransitionSpec } from "../../types/transitions";
 import { type AnimDescriptor, qualifyAnim, serializeAnims, toSlot } from "./anim";
-import { collectCss, scopeCss } from "./css";
+import { collectCss, groundStyle, scopeCss } from "./css";
 import { scrubDeterminism } from "./determinism";
 import { getComponent } from "./registry";
 import { DEFAULT_ENTRANCE, sceneEntranceJs } from "./transitions";
@@ -308,7 +308,9 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         const root = bn.node;
         const pageClasses = root.attrs.class ?? def.name;
         const ownStyle = (root.attrs.style ?? "").trim().replace(/;\s*$/, "");
-        const ground = `background: var(--${groundFor(ctx, def.ground)})`;
+        // The visible background AND the `--ground` custom property that exposes it to skins
+        // (runtime/css.ts owns the pair, so the ground swap re-points both halves).
+        const ground = groundStyle(groundFor(ctx, def.ground));
         const pageStyle = ownStyle ? `${ownStyle}; ${ground}` : ground;
         const bodyJs = serializeAnims(bn.anims);
         // Whole-page ENTRANCE: an assigned animIn wins over the legacy def.entrance;

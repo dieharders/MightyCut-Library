@@ -57,6 +57,16 @@
      all one brownstone, so a picked colour reads as emphasis of WEIGHT rather than of hue; the
      hairline is what makes each spoke a bounded thing instead of loose type on the arm. */
   border: 0.125rem solid var(--ccol, var(--accent-3));
+  /* THE FILL IS OPAQUE, and it is not an accent — see above. A puck sits at the end of its own
+     arm and over any that pass behind it, so a transparent one shows the connector through its
+     label. The 30% paper wash is card.css's, mixed into the scene's own ground (--ground, from
+     the emitter) rather than into `transparent`: same barely-there lift off the stone, but it
+     occludes. */
+  background: color-mix(in srgb, var(--light) 30%, var(--ground, var(--muted-1)));
+  /* No z-index is needed to put it over its own arm: the counter-rotation above makes the puck a
+     stacking context, so it paints after the untransformed connector. Between spokes it is DOM
+     order — .cnode's rotate() isolates each — which costs nothing, because the seating correction
+     keeps every puck beyond --cradius and no arm reaches past that. */
 }
 .cnode .clabel {
   font-family: var(--disp);

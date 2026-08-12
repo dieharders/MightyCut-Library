@@ -49,7 +49,10 @@
   padding: 0.75rem 1.375rem;
   border-radius: 0.875rem;
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
-  background: color-mix(in srgb, var(--ccol, var(--primary)) 8%, transparent);
+  /* The 8% cobalt tint, mixed into the scene's ground (--ground, stamped by the emitter) rather
+     than into `transparent`, so the puck covers the arm it sits on instead of letting the line
+     read through its label. Identical colour on the cream canvas; opaque everywhere. */
+  background: color-mix(in srgb, var(--ccol, var(--primary)) 8%, var(--ground, var(--muted-1)));
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.
      13.5rem border-box leaves the same 10.5rem of text the content-box cap did. */
