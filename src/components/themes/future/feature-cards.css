@@ -2,7 +2,6 @@
    Ported from legacy .bf-feature-cards (cqw × 1.2). Card look lives in card.css. */
 .feature-cards > .body {
   justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
 }
 .feature-cards h3 {
   font-size: var(--font-size-3xl);

@@ -6,7 +6,6 @@
    this template carries no eyebrow slot (only quote does), so it would be dead. */
 .timeline > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .timeline h3 {
   /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's

@@ -1,0 +1,49 @@
+/* THE SAFE AREA — ONE FILE, ALL SIX THEMES, NO EXCEPTIONS.
+ *
+ * `.mc-frame > .body` is `inset: 0` over the whole canvas, so its padding is the ONLY thing
+ * holding scene content out of the chrome. Every treatment used to restate the same three
+ * numbers in its own skin — ninety declarations — and they drifted: six frames were authored
+ * INSIDE the caption rail or with no top clearance at all.
+ *
+ * The vertical is identical in every theme and on every treatment:
+ *
+ *   --safe-top     clears the HUD band. The band is ONE height everywhere — brand row and title
+ *                  chip are both 3rem boxes on a 4.625rem top edge, ending at 7.625rem
+ *                  (primitives/hud/geometry.css). The remaining 0.875rem reserves for the
+ *                  deepest hard shadow in the set, creative's 0.625rem offset, which is paint
+ *                  and hangs below the band.
+ *   --safe-bottom  clears the caption rail (root/chrome.css, `bottom: 4.875rem`) plus a
+ *                  two-line caption box. The rail is theme-agnostic, so this is too.
+ *
+ *   --safe-side    is NOT clearance — no chrome sits in the side margins. It is simply where the
+ *                  frame's left and right edges are, and it is set WIDE: 6rem is the most
+ *                  content the canvas can carry, chosen over matching the HUD's own 8.25rem rail
+ *                  (primitives/hud/geometry.css). So scene content runs 2.25rem OUTSIDE the
+ *                  chrome's margin line on both sides, deliberately — the frames are what the
+ *                  deck is for, and the HUD is a label on top of them, not a box around them.
+ *                  It used to be per-theme, 6rem or 7.25rem; the wider of the two won.
+ *
+ * Deck-wide on purpose: a slide that swaps theme must not reflow.
+ *
+ * NOTHING OVERRIDES ANY OF THIS — not a theme, not a treatment. No skin states a safe-area value
+ * and no per-treatment exception exists; the frames that used to carry one (cover · quote ·
+ * closing-plate held a headline to a narrower measure; node-cluster reserved a bigger vertical
+ * for its ring) take these three numbers like every other frame. A treatment that needs a shorter
+ * line sets `max-width` on its own content, which is a typographic decision INSIDE the frame
+ * rather than a second, competing definition of where the frame's edges are. */
+
+.mc-frame {
+  --safe-top: 8.5rem;
+  --safe-side: 6rem;
+  --safe-bottom: 13.5rem;
+}
+
+.mc-frame > .body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: var(--safe-top) var(--safe-side) var(--safe-bottom);
+}

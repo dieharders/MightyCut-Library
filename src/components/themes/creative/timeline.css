@@ -18,7 +18,6 @@
    runtime/css.ts). */
 .timeline > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* Header block centred over a full-width grid — the reference's shared rule for the six content
    treatments (cover / quote / closing keep their own left anchor, and agenda opts out; see

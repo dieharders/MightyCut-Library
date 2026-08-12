@@ -3,7 +3,6 @@
    Canonical ground is muted-1 (cream) — never authored here, the emitter stamps it. */
 .bar-ranking > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .bar-ranking h3 {
   font-size: var(--font-size-3xl);

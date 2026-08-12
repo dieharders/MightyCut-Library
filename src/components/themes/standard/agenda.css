@@ -17,7 +17,6 @@
    too: the shared agenda template has no eyebrow node to space. */
 .agenda > .body {
   justify-content: center;
-  padding: 8.75rem 8.375rem 13.5rem;
 }
 .agenda h3 {
   /* The base h3 (frame.css) zeroes its margins; the index needs one gap beneath the headline and

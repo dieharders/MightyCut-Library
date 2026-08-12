@@ -3,7 +3,6 @@
    whose icon slot happens to hold letters. The member itself is team-member.css. */
 .team > .body {
   justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
 }
 .team h3 {
   font-size: var(--font-size-3xl);

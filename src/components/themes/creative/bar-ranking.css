@@ -15,7 +15,6 @@
    Ported from the showcase .bf-bar-ranking (cqw × 1.2, cqh × 0.675). */
 .bar-ranking > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 .bar-ranking h3 {
   font-size: var(--font-size-2xl);

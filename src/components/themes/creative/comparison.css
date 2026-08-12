@@ -24,7 +24,6 @@
    Ported from the showcase .bf-comparison (cqw × 1.2, cqh × 0.675). */
 .comparison > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* Centred, like every content treatment's header under creative. `.mc-frame h3` already fixes
    the face, case, leading and tracking — a treatment skin varies only size, colour and spacing. */

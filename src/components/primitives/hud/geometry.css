@@ -1,0 +1,106 @@
+/* SHARED HUD GEOMETRY — one band, every theme.
+ *
+ * The HUD is structure+behavior shared (template.html · schema · anim) with a per-theme SKIN, and
+ * the skins used to carry their own geometry as well as their own paint. They drifted: `brand top`
+ * took three values (4.5 · 4.625 · 5), `title top` four, `counter bottom` four, and the side rail
+ * three (8.25 · 9.125 · 9.625) — clustered by porting batch rather than by design. Worse, the
+ * BAND HEIGHT differed: measured from the skins it ran 7.05rem (future) to 9.73rem (block), so
+ * `--safe-top` in frame.css had to reserve for the tallest theme and every other theme paid for
+ * it, while block and capsule were nonetheless authored UNDER their own title chip.
+ *
+ * So geometry lives here, once, and is concatenated AHEAD of each theme's skin (theme.ts). A skin
+ * states colour, radius, border, shadow, font-family, weight and tracking — never a position, a
+ * box size or a font-size role.
+ *
+ * THE BAND IS 7.625rem: brand row and title chip are both 3rem boxes on a 4.625rem top edge. Hard
+ * shadows are paint and hang below it (creative's 0.625rem is the deepest), which is what the
+ * 8.5rem `--safe-top` reserves for.
+ *
+ * Two consequences worth knowing. The mark is BORDER-BOX, so a theme's outline weight — block's
+ * 0.375rem, creative's 0.5rem — changes its look without changing the band. And a theme that
+ * wants a BARE label rather than a chip (future, standard) paints the title's background and
+ * border away; it still occupies the same box, so all six align. */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  container-type: size;
+}
+
+/* ------------------------------------------------------------------ brand --- */
+.hud .hud-brand {
+  position: absolute;
+  top: 4.625rem;
+  left: 8.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.625rem;
+}
+/* Border-box so the outline weight is a skin decision, not a size one. 3rem is the band, and the
+ * wordmark beside it is capped at --font-size-md × 1.2 (≤ 2.7rem in every theme) so the mark —
+ * not the type scale — is what sets the row's height. */
+.hud .hud-brand-mark {
+  width: 3rem;
+  height: 3rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.hud .hud-brand-name {
+  font-size: var(--font-size-md);
+  line-height: 1.2;
+}
+.hud .hud-tagline {
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+}
+
+/* ------------------------------------------------------------------ title --- */
+/* A 3rem box, the same height as the brand mark and on the same top edge, with the label centred
+ * inside it. Stating the HEIGHT rather than symmetric padding is what makes the box identical
+ * across themes whose --font-size-xs differs (1.25rem to 1.75rem). */
+.hud .hud-title {
+  position: absolute;
+  top: 4.625rem;
+  right: 8.25rem;
+  box-sizing: border-box;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1.875rem;
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+}
+
+/* ---------------------------------------------------------------- counter --- */
+.hud .hud-counter {
+  position: absolute;
+  bottom: 5rem;
+  right: 8.25rem;
+}
+.hud .hud-counter-item {
+  white-space: nowrap;
+  font-size: var(--font-size-md);
+  line-height: 1.2;
+}
+
+/* ---------------------------------------------------------------- progress --- */
+/* `overflow` is deliberately NOT stated: whether the fill is clipped to the rail is a paint
+ * decision (future's fill carries a glow that must not be cut). */
+.hud .hud-track {
+  position: absolute;
+  bottom: 3.625rem;
+  left: 8.25rem;
+  right: 8.25rem;
+  height: 0.875rem;
+  box-sizing: border-box;
+}
+/* `inset: 0` resolves against the track's PADDING box, so a bordered rail keeps its fill inside
+ * the ring. GSAP drives the scale (growBar, prop scaleX); the resting factor is the --pfill the
+ * hud layout() emits (unitless 0..1). Never a transition. */
+.hud .hud-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(var(--pfill, 0));
+}

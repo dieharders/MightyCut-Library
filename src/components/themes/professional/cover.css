@@ -6,7 +6,6 @@
 .cover > .body {
   justify-content: center;
   align-items: flex-start;
-  padding: 0 8.375rem;
 }
 .cover h3 {
   font-size: var(--font-size-max);

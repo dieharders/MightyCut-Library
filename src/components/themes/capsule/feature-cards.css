@@ -9,7 +9,6 @@
        picker look broken. The two-glow atmosphere on .mc-frame is the only wash left. */
 .feature-cards > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .feature-cards h3 {
   /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's

@@ -11,7 +11,6 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 8.125rem 12rem 13.5rem;
 }
 .cover h3 {
   font-size: var(--font-size-max);

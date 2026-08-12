@@ -15,6 +15,9 @@
 // Space Grotesk rides along in the always-staged core set.
 import { CAPSULE_DECORATION_COMPONENTS } from "../../primitives/capsule-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
+// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
+import safeAreaCss from "../safe-area.css" with { type: "text" };
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import cardCss from "./card.css" with { type: "text" };
@@ -24,6 +27,9 @@ import rowCss from "./row.css" with { type: "text" };
 import barCss from "./bar.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
+import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
@@ -512,7 +518,7 @@ export const capsuleTheme: ThemeTokens = {
   description:
     "A soft candy theme on a cream canvas. Every container a rounded pill outlined in ink and lifted by soft shadow. Wide-tracked uppercase. Color never lives on a headline. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss,
+  frameCss: safeAreaCss + frameCss,
   // Every capsule frame lands on the cream canvas: this REPLACES the shared per-treatment
   // grounds (which are block-flavoured) without pinning them, so a scene that explicitly picks
   // a background still gets it — the thing a `background: … !important` in frame.css makes
@@ -537,7 +543,7 @@ export const capsuleTheme: ThemeTokens = {
   // are the capsule look. Unskinned elements (another theme's decorations) fall back to their
   // own inline css, which is acceptable — capsule never renders them in a deck.
   skins: {
-    hud: hudCss,
+    hud: hudGeometryCss + hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

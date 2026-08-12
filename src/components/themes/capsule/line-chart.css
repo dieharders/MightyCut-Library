@@ -3,7 +3,6 @@
    plot.css; this file owns the frame's padding, its headline rhythm and the caption. */
 .line-chart > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .line-chart h3 {
   font-size: var(--font-size-3xl);

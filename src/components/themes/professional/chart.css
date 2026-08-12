@@ -4,7 +4,6 @@
    showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
 .chart > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .chart h3 {
   font-size: var(--font-size-3xl);

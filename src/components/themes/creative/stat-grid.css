@@ -24,7 +24,6 @@
    grid. Ported from the reference .bf-stat-grid (cqw × 1.2, cqh × 0.675, snapped to 0.125rem). */
 .stat-grid > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* Header block centred, content grid full-width — the reference's shared rule for the six content
    treatments. As on feature-cards the eyebrow half is a forward guard: the SHARED template has no

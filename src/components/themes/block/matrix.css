@@ -11,7 +11,6 @@
    A hand-built row that disagrees misaligns visibly, which is the right failure. */
 .matrix > .body {
   justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
 }
 .matrix h3 {
   font-weight: 800;

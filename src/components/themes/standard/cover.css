@@ -10,7 +10,6 @@
 .cover > .body {
   justify-content: center;
   align-items: flex-start;
-  padding: 0 8.375rem;
 }
 /* The display voice. Weight 700 rather than the shared h3's 600 — the cover and the closing plate
    are the only two frames that step up — with the leading pulled to 1.04 and the tracking left at

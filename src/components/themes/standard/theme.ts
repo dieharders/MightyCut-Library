@@ -26,6 +26,9 @@
 //     opts into, never from an always-on field.
 import { STANDARD_DECORATION_COMPONENTS } from "../../primitives/standard-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
+// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
+import safeAreaCss from "../safe-area.css" with { type: "text" };
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -33,6 +36,9 @@ import barCss from "./bar.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 import cardCss from "./card.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
+import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
@@ -555,7 +561,7 @@ export const standardTheme: ThemeTokens = {
   description:
     "A quiet museum-catalog theme on warm stone. Brownstone uppercase labels. Single hairline border and compass ring. No colour, no shadows. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss,
+  frameCss: safeAreaCss + frameCss,
   // Every standard frame lands on the warm sandstone canvas: groundDefault REPLACES the shared
   // per-treatment grounds (which are block-flavoured) without pinning them, so a scene that
   // explicitly picks a ground still gets it — the thing a `background: … !important` makes
@@ -580,7 +586,7 @@ export const standardTheme: ThemeTokens = {
   // Standard's skins for every shared element it renders. The element trios carry no css; these are
   // the standard look.
   skins: {
-    hud: hudCss,
+    hud: hudGeometryCss + hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

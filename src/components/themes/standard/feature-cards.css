@@ -13,7 +13,6 @@
    authoring grid — runtime/css.ts). */
 .feature-cards > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* Family, weight, sentence case, leading and ink all come from `.mc-frame h3` (frame.css); only
    size, rhythm and MEASURE are this treatment's business. The 84rem cap is the reference's 70cqw

@@ -10,7 +10,6 @@
    Capsule's pills sit STRAIGHT: block's nth-child tilt is not part of this identity. */
 .stat-grid > .body {
   justify-content: center;
-  padding: 8.125rem 7.25rem 13.5rem;
 }
 .stat-grid h3 {
   /* Weight/tracking/leading/colour come from .mc-frame h3 in frame.css — capsule's

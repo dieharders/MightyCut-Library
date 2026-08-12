@@ -3,7 +3,6 @@
    Headline opened by a cyan rule. Ported from legacy .bf-bar-ranking (cqw × 1.2). */
 .bar-ranking > .body {
   justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
 }
 .bar-ranking h3 {
   font-size: var(--font-size-3xl);

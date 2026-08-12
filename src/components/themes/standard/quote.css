@@ -16,10 +16,6 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  /* Horizontal-only inset, and a deeper one than any other standard content frame (9cqw against
-     cover's 7cqw): the padding IS the measure here, holding the statement short so it centres as a
-     block of two or three lines. Vertical padding would only fight `justify-content: center`. */
-  padding: 0 10.75rem;
 }
 .quote .eyebrow {
   /* The base eyebrow is flex-start — the only frame where the label sits over the centre line. */

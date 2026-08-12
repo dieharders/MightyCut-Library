@@ -3,7 +3,6 @@
    Headline opened by a cyan rule. Ported from legacy .bf-agenda. */
 .agenda > .body {
   justify-content: center;
-  padding: 8.75rem 6rem 13.5rem;
 }
 .agenda h3 {
   font-size: var(--font-size-3xl);

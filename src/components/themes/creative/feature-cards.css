@@ -17,7 +17,6 @@
    snapped to the 0.125rem authoring grid — runtime/css.ts). */
 .feature-cards > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* The reference centres this treatment's HEADER BLOCK (`.bf-feature-cards .pill` → align-self
    center, `.bf-feature-cards h3` → text-align center) while the card row below stays full-width;

@@ -21,6 +21,9 @@
 // wins over all of it.
 import { CREATIVE_DECORATION_COMPONENTS } from "../../primitives/creative-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
+// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
+import safeAreaCss from "../safe-area.css" with { type: "text" };
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
@@ -28,6 +31,9 @@ import barCss from "./bar.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 import cardCss from "./card.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
+import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import iconCss from "./icon.css" with { type: "text" };
 import listNumberCss from "./list-number.css" with { type: "text" };
@@ -521,7 +527,7 @@ export const creativeTheme: ThemeTokens = {
   description:
     "A neo-brutalist punk-zine editorial theme. A rotation of full-bleed color planes, one constant ink outline on every block, a signature orange hard-offset shadow. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss,
+  frameCss: safeAreaCss + frameCss,
   // NO `groundDefault` — deliberately, and this note is the only record of it: an absent field
   // reads as an oversight otherwise. See the header note: the per-treatment ground rotation IS
   // creative's identity, so each treatment keeps its shared canonical ground and each skin is authored against it.
@@ -541,7 +547,7 @@ export const creativeTheme: ThemeTokens = {
   // Creative's skins for every shared element it renders. The element trios carry no css; these
   // are the creative look.
   skins: {
-    hud: hudCss,
+    hud: hudGeometryCss + hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

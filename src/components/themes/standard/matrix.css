@@ -12,7 +12,6 @@
    underline, exactly as it does under the ledger's column heads. */
 .matrix > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 .matrix h3 {
   font-size: var(--font-size-3xl);

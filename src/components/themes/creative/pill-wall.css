@@ -10,7 +10,6 @@
    flourishes — which is how a zine turns into noise. The plates carry themselves. */
 .pill-wall > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 .pill-wall h3 {
   font-size: var(--font-size-2xl);

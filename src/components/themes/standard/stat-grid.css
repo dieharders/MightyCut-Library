@@ -19,7 +19,6 @@
    grid. Ported from the showcase .bf-stat-grid (cqw × 1.2, cqh × 0.675). */
 .stat-grid > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 .stat-grid h3 {
   /* Family, weight, tracking, leading and the ink colour all arrive from `.mc-frame h3`

@@ -20,7 +20,6 @@
    cqh × 0.675, snapped to the 0.125rem authoring grid — runtime/css.ts). */
 .agenda > .body {
   justify-content: center;
-  padding: 8.75rem 7.25rem 13.5rem;
 }
 /* A step down from timeline's 4.75rem: agenda's rows carry 2.875rem uppercase titles of their own,
    so the headline only has to out-scale them, not the whole frame. Case, tracking, ink and the

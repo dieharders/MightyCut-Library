@@ -2,7 +2,6 @@
    opened by a cyan rule. Ported from legacy .bf-timeline (cqw × 1.2). */
 .timeline > .body {
   justify-content: center;
-  padding: 8.125rem 6rem 13.5rem;
 }
 .timeline h3 {
   font-size: var(--font-size-3xl);

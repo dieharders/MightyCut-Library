@@ -14,6 +14,9 @@
 // always-staged core set, so future ships no add-on font.
 import { FUTURE_DECORATION_COMPONENTS } from "../../primitives/future-decoration-shapes";
 import type { ThemeTokens } from "../../runtime/types";
+// The SAFE AREA is shared by every theme (one vertical, deck-wide) and is concatenated ahead of
+// this theme's frame base; frame.css states only --safe-side and its own side exceptions.
+import safeAreaCss from "../safe-area.css" with { type: "text" };
 import frameCss from "./frame.css" with { type: "text" };
 // Component skins.
 import cardCss from "./card.css" with { type: "text" };
@@ -23,6 +26,9 @@ import rowCss from "./row.css" with { type: "text" };
 import barCss from "./bar.css" with { type: "text" };
 import rankCss from "./rank.css" with { type: "text" };
 import agendaItemCss from "./agenda-item.css" with { type: "text" };
+// The HUD's GEOMETRY is shared by every theme (one band, one grid) and is concatenated ahead of
+// the skin below; hud.css here is paint only. See primitives/hud/geometry.css for why.
+import hudGeometryCss from "../../primitives/hud/geometry.css" with { type: "text" };
 import hudCss from "./hud.css" with { type: "text" };
 import captionCss from "./caption.css" with { type: "text" };
 import ctaCss from "./cta.css" with { type: "text" };
@@ -446,7 +452,7 @@ export const futureTheme: ThemeTokens = {
   description:
     "A dark command-center theme. Constellation backdrop, near-white headlines, translucent glass panels. Cyan leads; violet, amber, and green stays muted. Frame unit: 1920×1080, 16:9.",
   css: tokensCss,
-  frameCss,
+  frameCss: safeAreaCss + frameCss,
   // Every future frame sits on navy: this REPLACES the shared per-treatment grounds
   // (which are block-flavoured — cream/pink/blue) without pinning them, so a scene that
   // explicitly picks a background still gets it. Formerly a `!important` in frame.css,
@@ -469,7 +475,7 @@ export const futureTheme: ThemeTokens = {
   // these are the future look. Unskinned elements (block-only decorations) fall back to
   // their own inline css, which is acceptable — future never renders them in a deck.
   skins: {
-    hud: hudCss,
+    hud: hudGeometryCss + hudCss,
     caption: captionCss,
     // primitives
     "agenda-item": agendaItemCss,

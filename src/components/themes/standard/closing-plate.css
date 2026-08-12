@@ -15,11 +15,6 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  /* The reference left the closer's body padding implicit — it had no card and a headline that
-     never reached an edge. It is stated here so the treatment keeps the vertical rhythm its library
-     siblings share (8.125rem over, 13.5rem under, clearing the caption/HUD band), over standard's
-     OWN side gutter: 8.375rem, the cover's 7cqw, rather than professional's wider inset. */
-  padding: 8.125rem 8.375rem 13.5rem;
 }
 /* A stack, not a plate: nothing fills, borders or lifts it. position:relative is what the ink rule
    below hangs off, and it also keeps the stack above the backdrop layer sharing this context. */
