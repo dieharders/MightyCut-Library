@@ -62,7 +62,7 @@
      label. The 30% paper wash is card.css's, mixed into the scene's own ground (--ground, from
      the emitter) rather than into `transparent`: same barely-there lift off the stone, but it
      occludes. */
-  background: color-mix(in srgb, var(--light) 30%, var(--ground, var(--muted-1)));
+  background: color-mix(in srgb, var(--light) 30%, var(--ground));
   /* No z-index is needed to put it over its own arm: the counter-rotation above makes the puck a
      stacking context, so it paints after the untransformed connector. Between spokes it is DOM
      order — .cnode's rotate() isolates each — which costs nothing, because the seating correction

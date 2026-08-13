@@ -1,0 +1,178 @@
+/* SHARED PLOT GEOMETRY — one structure, every theme.
+ *
+ * The plot is structure+behaviour shared (template.html · schema · anim) with a per-theme SKIN,
+ * and the skins used to carry the structure as well as the paint. They were ~93% identical:
+ * `diff block/plot.css professional/plot.css` reported 26 differing lines out of 185, and the
+ * other 160 — every grid, inset, position, transform and sizer rule, plus the prose explaining
+ * them — were six copies of one file. The cost was not the bytes. It was that a structural fix
+ * had to be made six times, could be made in five, and still built.
+ *
+ * So the structure lives here, once, and is emitted AHEAD of each theme's skin (ComponentDef.css,
+ * runtime/component.ts) — a JOIN, so a skin still wins on anything it restates. What a skin owns
+ * is PAINT: type face, weight, size role, tracking, colour, stroke weight, dot size. It should
+ * not need a position, an inset or a transform, and if it states one it is probably re-deciding
+ * something this file settled.
+ *
+ * The numbers the component computes against are published as custom properties rather than
+ * restated here (`--pbox`, plot/metrics.ts + layout()), so the box a reservation is a fraction
+ * of cannot drift from the reservation.
+ *
+ * TWO STRETCHED SVGS with every piece of TYPE in HTML on top of both. The SVGs stretch
+ * deliberately (`preserveAspectRatio="none"`) and the box is sized in rem rather than by an
+ * aspect ratio, which is only safe because of how the plot is split: the SVGs hold nothing but
+ * straight lines, and a line has no shape to lose — a stretched polyline IS the plot, and
+ * `vector-effect: non-scaling-stroke` keeps its weight even. Everything that WOULD distort (the
+ * dots, their values, the category labels) is HTML positioned in percent off the same point
+ * scale the vertices were computed from, so it tracks the line at any box shape while staying
+ * real, theme-scaled type. A fixed `aspect-ratio` was the first attempt and it overflowed: at
+ * the frame's content width the 1000:400 viewBox is ~700px tall, which pushed the headline into
+ * the HUD band and the caption through the progress bar. */
+
+/* TWO COLUMNS, and the first is sized by its CONTENT. The y-axis gutter has to be exactly as
+   wide as the widest tick — a fixed rem guess either clips a long figure or leaves a hole beside
+   a short one — and `auto` gets that from the hidden sizer in .pyaxis for free. The category
+   labels are pinned to column 2 so the row spans the plot and not the gutter, which is what
+   keeps a centred label under its point.
+
+   `width: 100%` because column 2 is `1fr` and NOTHING IN IT IS IN FLOW: the frame, the line and
+   every point are absolutely positioned, and the category sizer holds one label. Left to size
+   itself intrinsically — which is exactly what the component preview does, where the plot is a
+   centred flex item in a 64rem canvas — the track collapsed to the width of the word "Q1" and
+   the whole chart rendered as a 7rem sliver. In a deck the width is definite and this is a
+   no-op. */
+.plot {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  width: 100%;
+}
+/* The axis column stretches to the plot's height (a grid row's items stretch by default), which
+   is what makes a tick's `top` percentage resolve against the same box its gridline was drawn
+   in. It carries the tick TYPE rather than .ptick doing so — see the skin note on both rows. */
+.plot .pyaxis {
+  position: relative;
+}
+/* The plot box itself. It owns the HEIGHT and the panel; .pwipe is only the clip. The panel is
+   chart chrome rather than data, so leaving it on the wiped layer would sweep the static
+   gridlines and the axis out from under their own tick labels.
+
+   THE HEIGHT COMES FROM THE COMPONENT (`--pbox`), not from the skin. It is the box PAD_TOP
+   reserves a fraction of (plot/metrics.ts), so a theme free to resize it is a theme free to
+   clip the series maximum — the one figure a trend chart exists to show — with nothing visibly
+   wrong until you look for the number. */
+.plot .parea {
+  position: relative;
+  height: var(--pbox, 24rem);
+}
+/* The static frame — the gridlines — UNDER the wipe, so the scale is on screen before the data
+   that is read against it (plot/index.ts, frameSvg). */
+.plot .pframe {
+  position: absolute;
+  inset: 0;
+}
+/* The layer the entrance wipes open. It states NO clip-path: the wipe is `MC.wipeIn`, a fromTo
+   that supplies both of its own endpoints (plot/anim.ts), so there is nothing here for it to
+   interpolate toward. The skins used to state one — and stating it is what broke the wipe, since
+   Blink minifies `inset(0 -6% 0 -6%)` to two components and GSAP then paired them against a
+   four-component from-state and drove the left inset with the right one. */
+.plot .pwipe {
+  position: absolute;
+  inset: 0;
+}
+/* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
+   which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
+   and lays the drawing out at the viewBox's own 1000:400 ratio — ~690px tall at the frame's
+   content width. The clip then cut it off at the box height, so the line drooped away from its
+   points (drawn against a 690px box while the HTML overlay positioned against a 384px one) and
+   vanished entirely once it descended past the cut. Both symptoms, one missing containing box. */
+.plot .pgeom {
+  position: absolute;
+  inset: 0;
+}
+.plot .psvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* The overlay covers the SVG exactly, so a point placed at (--px, --py) — the same percentages
+   the polyline's vertices were computed from — lands on its vertex. */
+.plot .ppoints {
+  position: absolute;
+  inset: 0;
+}
+.plot .ppoint {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Absolutely positioned so the value floats ABOVE its dot without pushing it off the vertex — a
+   flowed label would move the dot by half its own height.
+
+   `--va` IS THE ANCHOR, and it is what keeps the plot's side margin small. A figure centred on
+   an end dot hangs half of itself past the box (the end dots sit `PAD_X` in, which is ~4%), and
+   the previous answer was to un-clip the overhang with a negative inset on the wipe — which
+   moved the problem into the y-axis gutter next door, where the figure printed on top of the
+   tick numbers. The two end points anchor INWARD instead (0% / -100%, plot/index.ts), so nothing
+   crosses the edge and no extra padding is spent covering something that no longer happens. */
+.plot .pval {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(var(--va, -50%));
+  white-space: nowrap;
+}
+/* A tick sits ON its gridline (shifted up by half its own height) and is set flush to the plot,
+   so the numbers read as a column against the axis. */
+.plot .ptick {
+  position: absolute;
+  right: 0;
+  top: var(--py);
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+/* The category row. One hidden in-flow sizer gives it its height, exactly as .pyaxis does for
+   the ticks — the labels themselves are absolutely positioned and contribute none. It used to be
+   N equal grid cells, which is what forced the points onto a band scale and cost the plot a
+   half-cell of dead space at each end (see PAD_X). */
+.plot .paxis {
+  grid-column: 2;
+  position: relative;
+}
+/* The two sizers: the string the row is MEASURED from, in flow, invisible.
+   `visibility: hidden` rather than `display: none` — a display:none box is not laid out and so
+   measures nothing at all, which is the failure this exists to prevent.
+   `nowrap` on the x sizer because every label it stands in for is nowrap: left free to wrap, the
+   sizer could take two lines in a narrow track while no visible label ever does, and the row
+   would reserve a line of height nothing renders into. */
+.plot .pysizer {
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.plot .pxsizer {
+  visibility: hidden;
+  white-space: nowrap;
+}
+/* THE LABEL BOXES TILE THE ROW. `--lw` is one point pitch for a centred label and half a pitch
+   plus the end margin for the two anchored to the edge (plot/index.ts) — exactly the room each
+   has before it meets its neighbour's box — so eight long labels crowd rather than overprint.
+   A label with more to say than its box holds is cut with an ellipsis, which keeps the row
+   exactly ONE LINE: the hidden sizer above measures a single line, and a label free to wrap
+   would silently grow the row past what was measured for it. */
+.plot .plab {
+  position: absolute;
+  left: var(--lx);
+  transform: translateX(var(--la, -50%));
+  /* A GUTTER, so neighbours read as separate labels. The boxes tile exactly, which stops them
+     overlapping but lets two full-width labels meet with no space between them — "January" and
+     "February" run together as one word. One rem off each box is the gap; it is taken from the
+     box rather than added to it, so the row still spans exactly the plot. */
+  max-width: calc(var(--lw) - 1rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

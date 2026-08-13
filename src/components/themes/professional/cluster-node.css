@@ -68,7 +68,7 @@
      nothing to say, and saying it anyway makes exactly one child look broken.
      This is the documented exemption in the accent-plumbing tripwire (registry.test.ts), which
      otherwise requires every theme's cluster-node skin to consume `--ccol`. */
-  background: color-mix(in srgb, var(--primary) 8%, var(--ground, var(--muted-1)));
+  background: color-mix(in srgb, var(--primary) 8%, var(--ground));
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.
      13.5rem border-box leaves the same 10.5rem of text the content-box cap did. */

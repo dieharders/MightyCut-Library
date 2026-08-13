@@ -1,110 +1,37 @@
-/* A line plot: two stretched SVGs — the static frame (gridlines + the y-axis line) and the
-   wiped polyline over it — with every piece of TYPE in HTML on top of both.
+/* A line plot, PAINT ONLY. The structure — the two-column grid, the layered boxes, both hidden
+   sizers, the label geometry and the box height — is the component's own shared sheet
+   (primitives/plot/geometry.css), emitted ahead of this one. What is left here is what a theme
+   is for: face, weight, size role, tracking, colour, stroke weight, dot size.
 
-   THE SVGS STRETCH, DELIBERATELY (`preserveAspectRatio="none"`), and the box below is sized in
-   rem rather than by an aspect ratio. That is only safe because of how the plot is split: the
-   SVGs hold nothing but straight lines, and a line has no shape to lose — a stretched polyline
-   IS the plot, and `vector-effect: non-scaling-stroke` keeps its weight even.
-   Everything that WOULD distort — the point dots, their values, the category labels — is HTML
-   positioned in percent off the same band scale the vertices were computed from, so it tracks
-   the line at any box shape while staying real, theme-scaled type.
+   If you find yourself adding a `position`, an `inset`, a `transform` or a `clip-path` to this
+   file, it belongs in the shared sheet — and in particular the wipe supplies both of its own
+   endpoints (plot/anim.ts), so a `clip-path` here does not configure it, it breaks it. */
 
-   A fixed `aspect-ratio` was the first attempt and it overflowed: at the frame's content width
-   the 1000:400 viewBox is ~700px tall, which pushed the headline up into the HUD band and the
-   caption down through the progress bar. The plot is sized against the FRAME's spare height,
-   not against its own viewBox.
-
-   .pwipe states its clip-path EXPLICITLY. It is the element the entrance animates FROM
-   (`inset(0 100% 0 -6%)`), and `from` interpolates toward the current computed value — `none`
-   is not interpolable, so without this the wipe silently does nothing.
-
-   THE SIDE INSETS ARE NEGATIVE, and they must stay in step with that from-state. A value label
-   is centred on its point, so the first and last points hang their label over the box edge and
-   a wide one (a long unitSuffix, a 2-decimal figure) is cut in half by the very clip that draws
-   the line. A negative offset expands the clip region past the border box, which un-clips the
-   overhang while leaving the wipe itself alone — only the RIGHT component animates. The
-   VERTICAL overhang is reserved in the geometry instead (PAD_TOP, plot/index.ts): the headline
-   sits directly above this box, so growing the clip upward would trade a cut label for one
-   printed over the title. */
-/* TWO COLUMNS, and the first is sized by its CONTENT. The y-axis gutter has to be exactly as
-   wide as the widest tick — a fixed rem guess either clips a long figure or leaves a hole beside
-   a short one — and `auto` gets that from the hidden sizer in .pyaxis for free. The category
-   labels are pinned to column 2 so the row spans the plot and not the gutter, which is what
-   keeps a centred label under its point. */
-.plot {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 1rem;
-}
-/* The axis column stretches to the plot's height (a grid row's items stretch by default), which
-   is what makes a tick's `top` percentage resolve against the same box its gridline was drawn in.
-
-   IT CARRIES THE TICK TYPE rather than .ptick doing so, because the sizer below is MEASURED and
-   not read: lettered in the inherited face it would size the gutter for type the axis never
-   renders. Inheriting from the column keeps the two in step by construction.
+/* THE TICK TYPE LIVES ON THE ROW, not on .ptick. The gutter's width comes from a hidden sizer
+   holding the same strings, so the two must be lettered identically — and the only way to
+   guarantee that is to letter neither and let both inherit from the column.
 
    It is the CATEGORY label's type minus the case transform, deliberately. Both are axis labels
    and should not be lettered differently, but a category is a word ("Q1", "JAN") while a tick is
-   a number carrying a unit — and upper-casing a unit changes what it says: `46m` of minutes
-   renders as `46M`, i.e. millions. Same for ms, mm, kWh. (This theme's labels are not upper-cased
-   to begin with; the rule holds anyway, and a tripwire enforces it.) */
+   a number — and upper-casing is a correctness risk on a figure. (This theme's labels are not
+   upper-cased to begin with; the rule holds anyway, and a tripwire enforces it.) */
 .plot .pyaxis {
-  position: relative;
   line-height: 1;
   font-family: var(--body);
   font-weight: 400;
   font-size: var(--font-size-sm);
   color: var(--muted-3);
 }
-/* The width the `auto` column is measured from: every tick, in flow, invisible. The visible
-   ticks are absolutely positioned and so contribute NO width — left to them the gutter collapses
-   to zero and the numbers sit on top of the plot. */
-.plot .pysizer {
-  visibility: hidden;
-  display: flex;
-  flex-direction: column;
-}
-/* The plot box itself. It owns the HEIGHT and the panel; .pwipe is now only the clip. The panel
-   is chart chrome rather than data, so leaving it on the wiped layer would sweep the static
-   gridlines and the axis out from under their own tick labels. */
+/* The panel is commented out rather than deleted — the intended fill is recorded here while the
+   blur alone carries the box. */
 .plot .parea {
-  position: relative;
-  height: 24rem;
   /* background: color-mix(in srgb, var(--muted-2) 72%, transparent); */
   backdrop-filter: blur(0.75rem);
 }
-/* The static frame — gridlines + the y-axis line — UNDER the wipe, so the scale is on screen
-   before the data that is read against it (plot/index.ts, frameSvg). */
-.plot .pframe {
-  position: absolute;
-  inset: 0;
-}
-.plot .pwipe {
-  position: absolute;
-  inset: 0;
-  clip-path: inset(0 -6% 0 -6%);
-}
-/* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
-   which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
-   and lays the drawing out at the viewBox's own 1000:400 ratio — ~690px tall at the frame's
-   content width. The clip-path then cut it off at 24rem, so the line drooped away from its
-   points (drawn against a 690px box while the HTML overlay positioned against a 384px one) and
-   vanished entirely once it descended past the cut. Both symptoms, one missing containing box. */
-.plot .pgeom {
-  position: absolute;
-  inset: 0;
-}
-.plot .psvg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
 /* THE GRID IS THIS THEME'S HAIRLINE, which is a role it already has: `accent-3` is named "Line —
-   the universal hairline" and every other rule in the theme is drawn with it. The grid sat on
-   `muted-3` while the gridlines and the vertical axis were stroked as one rule and the axis
-   wanted the heavier tone. The axis is gone (plot/index.ts, frameSvg), and on a theme this quiet
-   a line at the DATA line's own weight and darker than its type read as the loudest thing in the
-   frame — the scale shouting over the series it measures. */
+   the universal hairline" and every other rule in the theme is drawn with it. On a theme this
+   quiet, a grid at the DATA line's own weight and darker than its type reads as the loudest
+   thing in the frame — the scale shouting over the series it measures. */
 .plot .pgrid {
   stroke: var(--accent-3);
   stroke-width: 0.125rem;
@@ -116,73 +43,30 @@
   stroke-linejoin: round;
   stroke-linecap: round;
 }
-/* The overlay covers the SVG exactly, so a point placed at (--px, --py) — the same percentages
-   the polyline's vertices were computed from — lands on its vertex. */
-.plot .ppoints {
-  position: absolute;
-  inset: 0;
-}
-.plot .ppoint {
-  position: absolute;
-  left: var(--px);
-  top: var(--py);
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 .plot .pdot {
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 50%;
   background: var(--pcol, var(--primary));
 }
-/* Absolutely positioned so the value floats ABOVE its dot without pushing it off the vertex —
-   a flowed label would move the dot by half its own height. `line-height` is stated so the box
-   is exactly one type size tall: plot/index.ts reserves PAD_TOP for this stack (half a dot +
-   this margin + this line), and an inherited line-height would quietly overrun the reservation
-   and clip the top point's figure — the highest number in the series, i.e. the one the chart
-   exists to show. */
+/* `line-height` is stated so the label's box is exactly one type size tall: plot/metrics.ts
+   reserves PAD_TOP for this stack (half a dot + this margin + this line), and an inherited
+   line-height would quietly overrun the reservation and clip the top point's figure — the
+   highest number in the series, i.e. the one the chart exists to show. A tripwire measures the
+   stack against the reservation for every theme. */
 .plot .pval {
-  position: absolute;
-  bottom: 100%;
   margin-bottom: 0.625rem;
-  white-space: nowrap;
   line-height: 1;
   font-family: var(--disp);
   font-weight: 400;
   font-size: var(--font-size-md);
   color: var(--dark);
 }
-/* A tick sits ON its gridline (shifted up by half its own height) and is set flush to the plot,
-   so the numbers read as a column against the axis. */
-.plot .ptick {
-  position: absolute;
-  right: 0;
-  top: var(--py);
-  transform: translateY(-50%);
-  white-space: nowrap;
-}
-/* The category row. It carries the label TYPE and one hidden in-flow sizer gives it its height,
-   exactly as .pyaxis does for the ticks — the labels themselves are absolutely positioned and
-   contribute none. It used to be N equal grid cells, which is what forced the points onto a
-   band scale and cost the plot a half-cell of dead space at each end (see PAD_X). */
 .plot .paxis {
-  grid-column: 2;
-  position: relative;
   margin-top: 1.25rem;
   line-height: 1;
   font-family: var(--body);
   font-weight: 400;
   font-size: var(--font-size-sm);
   color: var(--muted-3);
-}
-.plot .pxsizer {
-  visibility: hidden;
-}
-.plot .plab {
-  position: absolute;
-  left: var(--lx);
-  transform: translateX(-50%);
-  white-space: nowrap;
 }

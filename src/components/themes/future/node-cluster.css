@@ -66,7 +66,7 @@
      the emitter) rather than into `transparent` — every arm starts at the ring's exact centre, so
      a see-through hub let five connector lines run through its label. Opaque + z-index above is
      what makes the disc cut them. */
-  background: color-mix(in srgb, var(--primary) 8%, var(--ground, var(--muted-2)));
+  background: color-mix(in srgb, var(--primary) 8%, var(--ground));
   box-shadow: 0 0 2.5rem color-mix(in srgb, var(--primary) 25%, transparent);
   padding: 1rem;
   font-family: var(--disp);

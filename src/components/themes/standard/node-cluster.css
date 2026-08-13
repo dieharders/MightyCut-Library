@@ -52,7 +52,7 @@
      canvas colour is what the disc paints (--ground, stamped by the emitter — see
      runtime/css.ts), so it still reads as bare stone inside a hairline ring, and it stays right
      when a scene grounds itself on the deeper stone. z-index above lifts it over the arms. */
-  background: var(--ground, var(--muted-1));
+  background: var(--ground);
   padding: 1rem;
   font-family: var(--disp);
   font-weight: 400;

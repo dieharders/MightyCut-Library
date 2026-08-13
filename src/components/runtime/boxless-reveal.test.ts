@@ -83,8 +83,8 @@ const run = (anims: AnimDescriptor[], boxLess: string[], childCount = 3): Fake =
   };
   tl.from = record;
   tl.to = record;
-  tl.fromTo = (t: unknown, _from: unknown, vars: Record<string, unknown>, at: number) =>
-    record(t, vars, at);
+  tl.fromTo = (t: unknown, from: Record<string, unknown>, vars: Record<string, unknown>, at: number) =>
+    record(t, { ...vars, _from: from }, at);
 
   MC.applyAnims(tl, anims, {
     q: elFor,
@@ -136,6 +136,61 @@ describe("a whole-element entrance on a box-less root (every catalog transition)
     const d: AnimDescriptor = { kind: "riseIn", target: "x", time: { at: "line", n: 0 } };
     run([d], ["x"]);
     expect(d.opts).toBeUndefined();
+  });
+});
+
+/* -------------------------------------------------- the clip wipe, behaviourally --- */
+
+// A CLIP-PATH TWEEN MUST STATE BOTH OF ITS ENDPOINTS, and this is the tripwire for the bug that
+// taught us so. `tl.from` reads the END of the tween off the element's COMPUTED style, and two
+// things go wrong there that no source-text assertion can see:
+//
+//   1. an element nobody clipped computes `clip-path: none`, which is not interpolable — so the
+//      `wipe` transition, when an author picked it in the editor, did nothing at all, and its
+//      in/out timing preset had nothing to apply to; and
+//   2. Blink MINIFIES an inset() — it drops the 4th component when left == right and the 3rd when
+//      bottom == top — and GSAP pairs the two strings' components POSITIONALLY, so the plot's
+//      four-component from-state against the skins' two-component `inset(0px -6%)` fed `100%`
+//      into the LEFT inset as well as the right and played the entrance centre-out.
+//
+// Driven through the real interpreter, so it pins the BEHAVIOUR: a recorded `fromTo` carrying
+// both strings, with the same component count on each side.
+describe("a clip wipe supplies both of its own endpoints", () => {
+  const components = (inset: string): number => (inset.match(/-?[\d.]+%?/g) ?? []).length;
+
+  test("the element `wipe` transition compiles to a two-ended tween", () => {
+    const anim = elementIn("wipe", "x");
+    const f = run([anim!], []);
+    expect(f.tweens).toHaveLength(1);
+    const vars = f.tweens[0]!.vars as Record<string, unknown>;
+    const from = (vars._from as Record<string, unknown>).clipPath as string;
+    expect(from, "the wipe has no explicit from-state").toBeDefined();
+    expect(vars.clipPath, "the wipe interpolates toward the COMPUTED clip-path, which may be `none`").toBeDefined();
+    expect(
+      components(vars.clipPath as string),
+      "the two endpoints have different component counts — GSAP pairs them positionally, so the wrong inset animates",
+    ).toBe(components(from));
+  });
+
+  test("the plot's entrance is the same two-ended tween", () => {
+    const plot = getComponent("plot")().buildNode(rootContext("pw", ALL_THEMES[0]!, { voIds: [] })).anims;
+    const f = run(plot as AnimDescriptor[], []);
+    const wipe = f.tweens.find((t) => (t.vars as Record<string, unknown>).clipPath);
+    expect(wipe, "the plot no longer emits a clip wipe").toBeDefined();
+    const vars = wipe!.vars as Record<string, unknown>;
+    expect(components(vars.clipPath as string)).toBe(
+      components((vars._from as Record<string, unknown>).clipPath as string),
+    );
+    // …and it opens left-to-right: the right inset travels, the left stays put.
+    expect((vars._from as Record<string, unknown>).clipPath).toBe("inset(0 100% 0 0)");
+    expect(vars.clipPath).toBe("inset(0 0% 0 0)");
+  });
+
+  // The timing preset has to reach it — the whole reason the broken `from` was invisible is that
+  // "nothing happened" and "happened over 3 seconds" look identical when nothing happens.
+  test.each([1, 3, 5])("a %ss timing preset reaches the wipe's duration", (secs) => {
+    const f = run([elementIn("wipe", "x", secs)!], []);
+    expect((f.tweens[0]!.vars as Record<string, unknown>).duration).toBe(secs);
   });
 });
 
@@ -510,13 +565,18 @@ describe("raw `from` travel is converted to canvas pixels", () => {
     },
   );
 
-  test("a `from` with no travel (wipe) is passed through untouched", () => {
+  // The wipe carries no pixel travel — its insets are percentages of the element's own box — so
+  // there is nothing for the canvas conversion to touch and the vars are identical at any width.
+  //
+  // It is also a `wipeIn` rather than a `from`, and that is a correctness fix, not a rename: a
+  // `from` clip-path tween interpolates toward the element's COMPUTED value, which for an element
+  // nobody clipped is `none` — not interpolable, so the assigned transition did nothing at all
+  // and its timing preset had nothing to apply to. `wipeIn` states both endpoints itself.
+  test("a wipe carries no pixel travel, so the canvas conversion leaves it alone", () => {
     const design = varsFor("wipe", 1920);
     const small = varsFor("wipe", 1280);
     expect(small).toEqual(design);
-    expect(design.clipPath, "wipe's inset is relative and must not be scaled").toBe(
-      "inset(0 100% 0 0)",
-    );
+    expect(design.clipPath, "wipe's inset is relative and must not be scaled").toBe("inset(0 0% 0 0)");
   });
 
   // The whole point of the conversion is that the two reveal paths agree. A factory-style

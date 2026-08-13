@@ -29,8 +29,8 @@ export const PlotSchema = z
       .min(2)
       .max(8)
       .describe("The plotted value per point, in order — same length as `labels`"),
-    max: z.number().describe("Top of the scale — normally the series maximum"),
-    min: z.number().default(0).describe("Bottom of the scale (default 0)"),
+    max: z.number().describe("Top of the scale — at least every value, normally the series maximum"),
+    min: z.number().default(0).describe("Bottom of the scale (default 0) — at most every value"),
     unitPrefix: z.string().max(6).optional().describe('Leading unit, e.g. "$"'),
     unitSuffix: z.string().max(12).optional().describe('Trailing unit, e.g. "%"'),
     decimals: z
@@ -39,7 +39,7 @@ export const PlotSchema = z
       .min(0)
       .max(2)
       .default(0)
-      .describe("Decimal places on every value — REQUIRED when any value is fractional"),
+      .describe("Minimum decimal places on every figure — a value that would round away gets more"),
     accent: z
       .enum(PALETTE_VARS)
       .optional()
@@ -51,6 +51,31 @@ export const PlotSchema = z
         code: "custom",
         path: ["values"],
         message: `values has ${p.values.length} entries but labels has ${p.labels.length} — a point needs both`,
+      });
+    }
+    // AN INVERTED SCALE IS NOT A SCALE. `max < min` renders a y-axis whose numbers increase
+    // downward, with no warning and nothing visibly wrong. Equal is allowed: a genuinely flat
+    // series is a real thing to plot, and the component draws it as a single labelled line
+    // (plot/index.ts, gridTs) rather than as three lines all claiming the same value.
+    if (p.max < p.min) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["max"],
+        message: `max (${p.max}) is below min (${p.min}) — the scale would run backwards`,
+      });
+    }
+    // THE SCALE HAS TO CONTAIN THE SERIES. It did not have to before, because the geometry
+    // CLAMPED a stray value onto the top or bottom gridline — invisible while the plot had no
+    // axis, and a contradiction the moment the lines were labelled: a point printing "200" sat
+    // exactly on the line printing "100", and every value past the scale rendered in the same
+    // place. Refusing it here is an authoring error the deck can fix; clamping was a drawing
+    // error it could not see.
+    const outside = p.values.filter((v) => v > p.max || v < p.min);
+    if (p.max >= p.min && outside.length > 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["values"],
+        message: `${outside.join(", ")} ${outside.length > 1 ? "are" : "is"} outside the scale ${p.min}…${p.max} — widen max/min or the point cannot be drawn where its label says`,
       });
     }
   });

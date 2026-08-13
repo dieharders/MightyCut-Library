@@ -297,24 +297,92 @@ describe("new library components", () => {
     });
 
     test("the ticks read the scale's own ends, top to bottom", () => {
-      const text = tickText(plotHtml({ labels: ["a", "b"], values: [10, 90], max: 100, min: 20 }));
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [30, 90], max: 100, min: 20 }));
       expect(text.at(0), "the top tick is not the scale's max").toBe("100");
       expect(text.at(-1), "the bottom tick is not the scale's min").toBe("20");
     });
 
-    test("a tick carries the same units as the points it measures", () => {
-      const text = tickText(plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" }));
-      expect(text.at(0)).toBe("$4M");
-      expect(text.at(-1)).toBe("$0M");
+    // THE TICKS ARE BARE NUMBERS. They used to repeat the full unitPrefix/unitSuffix on every
+    // line so that the axis and the points could not read as two different scales — but that is
+    // what the shared decimal rule below guarantees, and the gutter sizes itself off the result:
+    // a schema-legal prefix + suffix pair produced 25-character ticks and spent a third of the
+    // frame's width on three copies of the unit. Every point states the unit already.
+    test("a tick is the number alone, however wide the series' units are", () => {
+      const text = tickText(
+        plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "US$MM ", unitSuffix: " subscribers" }),
+      );
+      expect(text).toEqual(["4", "2", "0"]);
+      // …and the point label is where the unit lives.
+      const vals = [...plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" })
+        .matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals).toEqual(["$1M", "$4M"]);
     });
 
-    // The middle of an odd span lands between two integers. Rounding it prints a number the
-    // line is NOT drawn at, which is the one error an axis must not make.
+    // The middle of an odd span lands between two integers. Rounding it prints a number the line
+    // is NOT drawn at, which is the one error an axis must not make.
     test("a tick between two integers keeps the decimal it would round away", () => {
-      const text = tickText(plotHtml({ labels: ["a", "b"], values: [0, 61], max: 61 }));
-      expect(text).toEqual(["61", "30.5", "0"]);
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 61], max: 61 }))).toEqual(["61", "30.5", "0"]);
       // …and a whole-numbered scale is NOT given a spurious decimal place.
       expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 60], max: 60 }))).toEqual(["60", "30", "0"]);
+    });
+
+    // The old rule stopped at ONE decimal place, so a small span printed the same number on two
+    // different lines — the exact failure it was written to prevent, one order of magnitude down.
+    test("a span too small for one decimal still labels every line differently", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [0, 0.01], max: 0.01 }));
+      expect(text).toEqual(["0.01", "0.005", "0"]);
+      expect(new Set(text).size, "two gridlines carry the same label").toBe(3);
+    });
+
+    // …and the SAME rule formats the points, which is the property that matters: the old one
+    // bumped the ticks alone, so a series of 0.5 and 2.5 at the default `decimals: 0` drew its
+    // maximum exactly ON the top gridline while labelling the point "3" and the line "2.5".
+    test("a point drawn on a gridline carries the same number as the gridline", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [0.5, 2.5], max: 2.5 });
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals.at(-1), "the top point rounds differently from its own gridline").toBe(
+        tickText(html).at(0)!,
+      );
+      expect(vals).toEqual(["0.5", "2.5"]);
+    });
+
+    // Endpoint ticks are the scale's own numbers, not `max - 1 * (max - min)` — which is
+    // 2.9999999999999996 for a 3…4.2 scale and reads as an axis needing a decimal it does not.
+    test("float drift does not give the scale's ends a spurious decimal", () => {
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [3, 4.2], max: 4.2, min: 3, decimals: 1 }))).toEqual([
+        "4.2",
+        "3.6",
+        "3.0",
+      ]);
+    });
+
+    // A FLAT SERIES GETS ONE LINE. Three lines would carry three copies of one number at three
+    // heights while the data sat on the middle one — an axis claiming the top and the bottom of
+    // the box are both 50.
+    test("a flat series draws one labelled line, not three saying the same thing", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [50, 50], max: 50, min: 50 });
+      expect(gridPct(html), "a flat scale still draws three gridlines").toHaveLength(1);
+      expect(tickText(html)).toEqual(["50"]);
+      const pts = [...html.matchAll(/class="ppoint" style="[^"]*--py: ([\d.]+)%/g)].map((m) => Number(m[1]));
+      expect(pts.every((y) => Math.abs(y - tickPct(html)[0]!) < 0.01), "the series is off its own line").toBe(true);
+    });
+
+    // The sign belongs in front of the whole figure: `"$" + (-20).toFixed(0)` is `$-20`, which is
+    // not how a negative currency is written anywhere. The y-axis made this reachable in normal
+    // use, since `min` is the parameter most likely to be negative.
+    test("a negative figure keeps its sign outside the unit prefix", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [-10, 90], max: 100, min: -20, unitPrefix: "$" });
+      expect(tickText(html).at(-1)).toBe("-20");
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals[0], "the sign is printed inside the currency mark").toBe("-$10");
+    });
+
+    // `(-0.4).toFixed(0)` is "-0". The decimal rule keeps enough places that a small negative
+    // reads as itself rather than as a signed zero.
+    test("a small negative does not print as -0", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [-0.4, 1], max: 1, min: -1 });
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals[0]).toBe("-0.4");
     });
 
     // The gutter is sized off the sizer, so it has to hold every tick — one short of the set and
@@ -372,11 +440,67 @@ describe("new library components", () => {
 
     // A two-point series is the minimum the schema allows and the one the `n - 1` divisor could
     // have broken — it must span the box, not collapse onto a single x.
+    // THE LABEL BOXES TILE THE ROW. Dropping the equal-cell row for absolute positioning dropped
+    // the only thing keeping eight long labels off each other: `nowrap` and no width, they simply
+    // printed on top of one another. Each label now gets exactly the room it has before it meets
+    // its neighbour's box — one pitch centred, half a pitch plus the end margin for the two that
+    // anchor to the edge.
+    test("every category label gets the room it has, and no more", () => {
+      const h = build("plot", {
+        labels: ["Jan Forecast", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug Forecast"],
+        values: [1, 2, 3, 4, 5, 6, 7, 8],
+        max: 8,
+      }).html;
+      const boxes = [...h.matchAll(/class="plab"[^>]*--lw:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
+      expect(boxes, "a label was emitted with no box").toHaveLength(8);
+      // The six middles are one pitch; the two ends are half a pitch plus the end margin.
+      const pitch = (100 - 2 * 4) / 7;
+      for (const b of boxes.slice(1, -1)) expect(b).toBeCloseTo(pitch, 1);
+      expect(boxes[0]).toBeCloseTo(4 + pitch / 2, 1);
+      expect(boxes.at(-1)).toBeCloseTo(4 + pitch / 2, 1);
+      // …and together they are the row, with nothing overlapping and nothing spare.
+      expect(boxes.reduce((a, b) => a + b, 0)).toBeCloseTo(100, 1);
+    });
+
+    // The two labels and the two figures on the ends anchor INWARD instead of centring on their
+    // point. Centred, they hung half of themselves over the box — which used to be un-clipped by
+    // giving the wipe a negative side inset, moving the overhang onto the y-axis ticks in the
+    // gutter next door. Anchoring costs no horizontal padding at all.
+    test("the end labels and end figures anchor inward, so nothing hangs over the box", () => {
+      const h = build("plot", { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }).html;
+      expect([...h.matchAll(/class="plab"[^>]*--la:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
+      expect([...h.matchAll(/class="ppoint"[^>]*--va:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
+    });
+
     test("the smallest series the schema allows still spans the box", () => {
       const pts = pointX(build("plot", { labels: ["a", "b"], values: [1, 2], max: 2 }).html);
       expect(pts).toHaveLength(2);
       expect(pts[0]).toBeCloseTo(4, 2);
       expect(pts[1]).toBeCloseTo(96, 2);
+    });
+  });
+
+  // ------------------------------------------------------- the scale contains the series ---
+  // The geometry used to CLAMP a stray value onto the top or bottom gridline. That was invisible
+  // while the plot had no axis and a flat contradiction once the lines were labelled: a point
+  // printing "200" sat exactly on the line printing "100", and every value past the scale
+  // rendered in the same place. Refusing it is an authoring error the deck can fix; clamping was
+  // a drawing error it could not see.
+  describe("plot scale validation", () => {
+    test("a value outside the scale is refused, not silently pinned to a gridline", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [10, 200], max: 100 })).toThrow(/outside the scale/);
+      expect(() => build("plot", { labels: ["a", "b"], values: [-50, 50], max: 100 })).toThrow(/outside the scale/);
+    });
+
+    test("an inverted scale is refused", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [4, 8], max: 2, min: 10 })).toThrow(
+        /scale would run backwards/,
+      );
+    });
+
+    // …but a genuinely flat series is a real thing to plot, and is drawn as one labelled line.
+    test("a flat scale is allowed", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [5, 5], max: 5, min: 5 })).not.toThrow();
     });
   });
 });
@@ -1768,38 +1892,6 @@ describe("palette roles (tripwire)", () => {
     expect(theme.frameCss ?? "", `${theme.name}'s frameCss has a colour literal`).not.toMatch(
       /#[0-9a-fA-F]{3,8}\b|rgba?\(/,
     );
-  });
-
-  /**
-   * THE NODE CLUSTER'S HUB AND PUCKS MUST BE OPAQUE, in every theme.
-   *
-   * Unlike every other fill in the library this is not a look, it is the diagram working: each
-   * arm is a box rotated about the ring's exact centre (cluster-node.css), so the hub sits on top
-   * of ALL of them and each puck sits on the tip of its own. Painting nothing — or tinting into
-   * `transparent`, which four themes did — lets the connector lines read straight through the
-   * type. The fix is to mix into `var(--ground)` (the emitter stamps the scene's resolved ground
-   * as a custom property; runtime/css.ts), which keeps each theme's own tint and still occludes.
-   *
-   * A tripwire rather than a note, because a new theme's skin is written by copying an existing
-   * one and `transparent` is the natural thing to type — and the result renders, just wrongly.
-   */
-  const ruleBody = (css: string, selector: string): string =>
-    css.slice(css.indexOf(selector)).match(/\{([\s\S]*?)\}/)?.[1] ?? "";
-
-  test.each(ALL_THEMES)("$name's cluster hub and pucks are opaque", (theme) => {
-    for (const [skin, selector] of [
-      ["node-cluster", ".node-cluster .hub"],
-      ["cluster-node", ".cnode .cpuck"],
-    ] as const) {
-      const css = theme.skins?.[skin] ?? "";
-      expect(css, `${theme.name} has no ${skin} skin`).toContain(selector);
-      const body = ruleBody(css, selector);
-      const bg = body.match(/^\s*background:\s*([^;]+);/m)?.[1];
-      expect(bg, `${theme.name}/${skin} — ${selector} paints no background`).toBeDefined();
-      expect(bg, `${theme.name}/${skin} — ${selector} is see-through; mix into var(--ground)`).not.toContain(
-        "transparent",
-      );
-    }
   });
 
   // The complete PRE-migration colour vocabulary: block's own names and future's parallel

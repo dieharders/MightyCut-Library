@@ -6,7 +6,8 @@ import { serialize } from "../../pipeline/mini-dom";
 import { wrapSubComposition } from "../../pipeline/sub-composition";
 import type { FrameGround } from "../../types/storyboard";
 import { groundStyle, scopeCss, swapGround } from "./css";
-import { groundFor } from "./treatment";
+import { mergeStyle } from "./dom";
+import { groundFor, previewGround } from "./treatment";
 import type { AnimDescriptor, BuildContext, ComponentInstance, SubComposition, TreatmentInstance } from "./types";
 
 export type SceneOverrides = {
@@ -68,11 +69,19 @@ export type Preview = { html: string; css: string; anims: AnimDescriptor[] };
  */
 export const buildPreview = (inst: ComponentInstance | TreatmentInstance, ctx: BuildContext): Preview => {
   const bn = inst.buildNode(ctx);
-  if (inst.kind === "treatment") {
-    const own = (bn.node.attrs.style ?? "").trim().replace(/;\s*$/, "");
-    const ground = groundStyle(groundFor(ctx, (inst as TreatmentInstance).ground));
-    bn.node.attrs.style = own ? `${own}; ${ground}` : ground;
-  }
+  // A treatment carries its ground as a visible BACKGROUND plus the `--ground` property that
+  // exposes it to skins. A bare component gets the property ALONE: it has no frame to paint and
+  // no canonical ground, but the skins that occlude (the cluster hub and its pucks) still have
+  // to mix into something, and reading `--ground` off a page root that does not exist left them
+  // on a per-theme fallback while the editor's ground picker appeared to do nothing.
+  // `mergeStyle` rather than a hand-rolled concat — the trailing-semicolon and empty-style cases
+  // are stated once, in runtime/dom.ts.
+  mergeStyle(
+    bn.node,
+    inst.kind === "treatment"
+      ? groundStyle(groundFor(ctx, (inst as TreatmentInstance).ground))
+      : `--ground: var(--${previewGround(ctx)})`,
+  );
   return {
     html: `<div class="${ctx.compId}-root">${serialize(bn.node)}</div>`,
     css: scopeCss(bn.css, ctx.compId),
