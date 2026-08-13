@@ -33,6 +33,20 @@ const PAD_BOTTOM = 16;
  *  spacing (i / (n-1)) would put the first and last labels half a cell out. */
 const xAt = (i: number, n: number): number => ((i + 0.5) / n) * W;
 
+/**
+ * The gridline positions, as fractions of the padded plot box, top (the scale's `max`) to
+ * bottom (its `min`).
+ *
+ * ONE array, read by the gridlines, by the y-axis line's extent and by the tick labels, because
+ * an axis whose numbers sit anywhere but ON its lines is worse than no axis: it is a scale the
+ * viewer will read off and get wrong. Every line is labelled and every label is on a line, by
+ * construction rather than by two lists agreeing.
+ */
+const GRID_T = [0, 0.5, 1] as const;
+
+/** Y of a gridline fraction, in viewBox units. */
+const gridY = (t: number): number => PAD_TOP + t * (H - PAD_TOP - PAD_BOTTOM);
+
 /** Y of `v`, clamped into the padded plot box. A flat series (max === min) sits on the middle
  *  line rather than dividing by zero. */
 const yAt = (v: number, min: number, max: number): number => {
@@ -52,23 +66,85 @@ const esc = (s: string): string =>
 const fmt = (v: number, p: PlotParams): string =>
   `${p.unitPrefix ?? ""}${v.toFixed(p.decimals)}${p.unitSuffix ?? ""}`;
 
-/** Gridlines + the polyline. Geometry only — every piece of TYPE is HTML (see below), so it
- *  sits on the theme's own type scale instead of being sized in viewBox units. */
-const geomSvg = (p: PlotParams): string => {
-  const n = p.values.length;
-  const pts = p.values.map((v, i) => `${n2(xAt(i, n))},${n2(yAt(v, p.min, p.max))}`).join(" ");
-  const rows = [0, 0.5, 1]
-    .map((t) => {
-      const y = n2(PAD_TOP + t * (H - PAD_TOP - PAD_BOTTOM));
-      return `<line class="pgrid" x1="0" y1="${y}" x2="${W}" y2="${y}" />`;
-    })
-    .join("");
+/**
+ * The chart's FRAME — the gridlines and the y-axis line — as its own SVG, drawn OUTSIDE the
+ * wipe and therefore present from the scene's first frame.
+ *
+ * The split is what an axis is for. A wiped axis is a scale that arrives with the data it is
+ * meant to be read against, which measures nothing; and the tick labels beside it are HTML in
+ * an unclipped column, so leaving the lines under the clip would show three numbers floating
+ * against nothing for the length of the entrance. Static frame, animated data — the category
+ * labels under the plot have always worked this way, so this makes the plot consistent with its
+ * own x-axis rather than introducing a new idea.
+ *
+ * The axis sits at `AXIS_X` rather than at 0 because an SVG clips its own overflow: a stroke
+ * centred on the box edge loses its outer half, which reads as a hairline next to the 1px
+ * gridlines it is supposed to anchor.
+ */
+const AXIS_X = 2;
+
+const frameSvg = (): string => {
+  const rows = GRID_T.map((t) => {
+    const y = n2(gridY(t));
+    return `<line class="pgrid" x1="0" y1="${y}" x2="${W}" y2="${y}" />`;
+  }).join("");
+  const axis =
+    `<line class="pyline" x1="${AXIS_X}" y1="${n2(gridY(0))}" x2="${AXIS_X}" y2="${n2(gridY(1))}" />`;
   return (
     `<svg class="psvg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="presentation">` +
     rows +
+    axis +
+    `</svg>`
+  );
+};
+
+/** The polyline, and nothing else — this is the layer the entrance wipes open. Geometry only:
+ *  every piece of TYPE is HTML (see below), so it sits on the theme's own type scale instead of
+ *  being sized in viewBox units. */
+const geomSvg = (p: PlotParams): string => {
+  const n = p.values.length;
+  const pts = p.values.map((v, i) => `${n2(xAt(i, n))},${n2(yAt(v, p.min, p.max))}`).join(" ");
+  return (
+    `<svg class="psvg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="presentation">` +
     `<polyline class="pline" points="${pts}" fill="none" vector-effect="non-scaling-stroke" />` +
     `</svg>`
   );
+};
+
+/** The value a gridline stands for: `t` 0 is the top of the scale, 1 the bottom. */
+const tickValue = (t: number, p: PlotParams): number => p.max - t * (p.max - p.min);
+
+/**
+ * A tick's text — formatted exactly like a POINT's value (same prefix, suffix and decimals), so
+ * the axis and the figures plotted against it cannot read as two different scales.
+ *
+ * The one departure: a tick that lands between two integers keeps a decimal place it would
+ * otherwise round away. The middle gridline of an odd span (0…61) is at 30.5, and printing "31"
+ * beside a line drawn at 30.5 is an axis that lies about where it is — a small error in the
+ * number, but the axis is the thing the whole chart is measured against.
+ */
+const tickText = (v: number, p: PlotParams): string =>
+  fmt(v, { ...p, decimals: Math.max(p.decimals, Number.isInteger(v) ? 0 : 1) });
+
+/**
+ * The y-axis tick labels: one per gridline, positioned in PERCENT off the same scale the lines
+ * are drawn from — the same technique the point values use, and for the same reason (real text
+ * on the theme's type scale, rather than SVG `<text>` sized in viewBox units).
+ *
+ * The leading span is a hidden SIZER holding every tick, and it is what gives the axis column
+ * its width. The visible ticks are absolutely positioned, so they contribute NO width — left to
+ * them the column would collapse to zero and the numbers would sit on top of the plot. Sizing
+ * off the real strings in the real face is also what keeps a long figure ("$1,250") from being
+ * cut off or from having a fixed gutter guessed for it: the gutter is exactly as wide as the
+ * widest tick, whatever the theme's font does with digits.
+ */
+const yAxisHtml = (p: PlotParams): string => {
+  const texts = GRID_T.map((t) => esc(tickText(tickValue(t, p), p)));
+  const sizer = `<span class="pysizer">${texts.map((t) => `<span>${t}</span>`).join("")}</span>`;
+  const ticks = GRID_T.map(
+    (t, i) => `<span class="ptick" style="--py: ${n2((gridY(t) / H) * 100)}%">${texts[i]}</span>`,
+  ).join("");
+  return sizer + ticks;
 };
 
 /**
@@ -110,7 +186,13 @@ export const Plot = component({
     values: [18, 34, 29, 61],
     max: 61,
   },
-  rawFill: (p) => ({ svg: geomSvg(p), points: pointsHtml(p), labels: labelsHtml(p) }),
+  rawFill: (p) => ({
+    frame: frameSvg(),
+    svg: geomSvg(p),
+    points: pointsHtml(p),
+    yaxis: yAxisHtml(p),
+    labels: labelsHtml(p),
+  }),
   layout: (p): Record<string, string> => ({
     "--pn": String(p.values.length),
     ...(p.accent ? { "--pcol": `var(--${p.accent})` } : {}),

@@ -268,6 +268,76 @@ describe("new library components", () => {
     expect(getComponent("hud").frame).toBe(true);
     expect(getComponent("stat").frame).toBeFalsy();
   });
+
+  // ------------------------------------------------------------------ the y-axis ---
+  // AN AXIS THAT DOES NOT LINE UP WITH ITS OWN GRIDLINES IS WORSE THAN NO AXIS: it is a scale
+  // the viewer reads off and gets wrong, and unlike a missing label it looks completely fine.
+  // The lines are drawn in viewBox units inside an SVG and the numbers are HTML positioned in
+  // percent over it — two coordinate systems, one array (GRID_T) — so the correspondence is
+  // arithmetic that can silently drift rather than a layout that visibly breaks.
+  describe("plot y-axis", () => {
+    const plotHtml = (params?: Record<string, unknown>) =>
+      build("plot", params ?? { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+
+    /** Each gridline's y as a PERCENTAGE of the viewBox height — the unit the ticks use. */
+    const gridPct = (html: string): number[] =>
+      [...html.matchAll(/class="pgrid"[^>]*y1="([\d.]+)"/g)].map((m) => (Number(m[1]) / 400) * 100);
+    const tickPct = (html: string): number[] =>
+      [...html.matchAll(/class="ptick" style="--py: ([\d.]+)%/g)].map((m) => Number(m[1]));
+    /** Tick text, visible ones only — the hidden sizer repeats every string. */
+    const tickText = (html: string): string[] =>
+      [...html.matchAll(/class="ptick"[^>]*>([^<]*)</g)].map((m) => m[1]!);
+
+    test("every gridline is labelled and every label sits on a gridline", () => {
+      const html = plotHtml();
+      const [grid, ticks] = [gridPct(html), tickPct(html)];
+      expect(grid.length, "the frame drew no gridlines").toBeGreaterThan(0);
+      expect(ticks.length, "a gridline has no tick, or a tick has no line").toBe(grid.length);
+      for (const [i, pct] of ticks.entries()) expect(pct).toBeCloseTo(grid[i]!, 2);
+    });
+
+    test("the ticks read the scale's own ends, top to bottom", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [10, 90], max: 100, min: 20 }));
+      expect(text.at(0), "the top tick is not the scale's max").toBe("100");
+      expect(text.at(-1), "the bottom tick is not the scale's min").toBe("20");
+    });
+
+    test("a tick carries the same units as the points it measures", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" }));
+      expect(text.at(0)).toBe("$4M");
+      expect(text.at(-1)).toBe("$0M");
+    });
+
+    // The middle of an odd span lands between two integers. Rounding it prints a number the
+    // line is NOT drawn at, which is the one error an axis must not make.
+    test("a tick between two integers keeps the decimal it would round away", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [0, 61], max: 61 }));
+      expect(text).toEqual(["61", "30.5", "0"]);
+      // …and a whole-numbered scale is NOT given a spurious decimal place.
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 60], max: 60 }))).toEqual(["60", "30", "0"]);
+    });
+
+    // The gutter is sized off the sizer, so it has to hold every tick — one short of the set and
+    // the widest number is the one that overhangs the plot it labels.
+    test("the hidden sizer carries every tick string", () => {
+      const html = plotHtml();
+      const sizer = /class="pysizer">(.*?)<\/span><span class="ptick"/s.exec(html)?.[1] ?? "";
+      for (const t of tickText(html)) expect(sizer, `the sizer is missing "${t}"`).toContain(`>${t}<`);
+    });
+
+    // The frame is drawn OUTSIDE the wiped layer: the scale has to be on screen before the data
+    // read against it, and the tick labels (unclipped HTML) would otherwise hang beside nothing
+    // for the length of the entrance.
+    test("the gridlines and the axis line are on the static layer, the polyline on the wiped one", () => {
+      const html = plotHtml();
+      const frame = /class="pframe"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
+      expect(frame, "the gridlines left the static frame").toContain('class="pgrid"');
+      expect(frame, "the y-axis line left the static frame").toContain('class="pyline"');
+      expect(frame, "the polyline is on the static layer — it would not wipe in").not.toContain("pline");
+      const wiped = /class="pgeom"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
+      expect(wiped, "the wiped layer draws no line").toContain('class="pline"');
+    });
+  });
 });
 
 /** A family's variant enum as the SCHEMA sees it — what a deck is actually validated

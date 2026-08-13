@@ -855,7 +855,7 @@ describe("plotted-figure reservation (tripwire)", () => {
 // (plot/index.ts), the from-state (plot/anim.ts) and every theme's skin — which is why this is
 // a tripwire and not a comment.
 describe("plot value-label clipping (tripwire)", () => {
-  /** The `.pwipe` box PAD_TOP's headroom is a fraction OF — see plot/index.ts. */
+  /** The `.parea` box PAD_TOP's headroom is a fraction OF — see plot/index.ts. */
   const PLOT_BOX_REM = 24;
   /** PAD_TOP / H from plot/index.ts, restated: the fraction of the box reserved above `max`. */
   const HEADROOM = 60 / 400;
@@ -866,8 +866,8 @@ describe("plot value-label clipping (tripwire)", () => {
   //    keeps the fraction and a skin that grows the TYPE eats into it. Pin the box every theme
   //    states, since that is the number PAD_TOP was derived against.
   test.each(ALL_THEMES)("$name's plot box is the height the headroom was derived against", (theme) => {
-    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .pwipe");
-    expect(rule, `${theme.name}: .plot .pwipe declares no height`).toMatch(/height:\s*[\d.]+rem/);
+    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .parea");
+    expect(rule, `${theme.name}: .plot .parea declares no height`).toMatch(/height:\s*[\d.]+rem/);
     const rem = Number(/height:\s*([\d.]+)rem/.exec(rule)![1]);
     expect(
       rem,
@@ -917,6 +917,60 @@ describe("plot value-label clipping (tripwire)", () => {
     const from = getComponent("plot")().buildNode(pctx(blockTheme, "pw")).anims.find((a) => a.kind === "from");
     expect(from, "the plot no longer emits its wipe").toBeDefined();
     expect((from!.opts as Record<string, unknown>).clipPath).toBe(`inset(0 100% 0 ${SIDE_INSET})`);
+  });
+});
+
+// ------------------------------------------------------------------ plot y-axis skin ---
+// The y-axis is drawn by the component (registry.test.ts pins the tick↔gridline arithmetic) but
+// PAINTED by each theme, and both halves of that paint fail quietly. An unstyled axis line is an
+// invisible axis on a chart that still lints clean; a gutter measured in the wrong face is a
+// column of numbers overlapping the plot they label. Neither is caught by "the scene builds".
+describe("plot y-axis skin (tripwire)", () => {
+  test.each(ALL_THEMES)("$name paints the y-axis line", (theme) => {
+    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .pyline");
+    expect(rule, `${theme.name}: .plot .pyline is unstyled — the axis renders as nothing`).toMatch(
+      /stroke:\s*\S/,
+    );
+  });
+
+  // THE TYPE LIVES ON THE COLUMN, NOT ON THE TICK. The gutter's width comes from a hidden sizer
+  // that holds the same strings, so the two must be lettered identically — and the only way to
+  // guarantee that is to letter neither and let both inherit. A font-size moved onto `.ptick`
+  // still LOOKS right (the visible ticks are absolutely positioned and unaffected) while sizing
+  // the column for type the axis never renders.
+  test.each(ALL_THEMES)("$name letters the axis column, so its sizer measures the real ticks", (theme) => {
+    const skin = theme.skins?.plot ?? "";
+    expect(
+      ruleBody(skin, ".plot .pyaxis"),
+      `${theme.name}: .plot .pyaxis names no font-size — the hidden sizer measures the inherited face`,
+    ).toMatch(/font-size:\s*var\(--font-size-/);
+    expect(
+      ruleBody(skin, ".plot .ptick"),
+      `${theme.name}: .plot .ptick sizes its own type — the sizer beside it does not, so the gutter is measured for the wrong string`,
+    ).not.toMatch(/font-size:/);
+  });
+
+  // NEITHER AXIS IS UPPER-CASED, and the two halves of that have different weight.
+  //
+  // On the y-axis it is a CORRECTNESS rule. A tick is a number carrying the series' unit, and
+  // `text-transform` rewrites the unit: a chart of MINUTES labels its axis `46M`, which reads as
+  // millions. Same for ms → MS, mm → MM, kWh → KWH. It renders perfectly and says the wrong
+  // thing — this shipped, briefly, from lettering the ticks like the category row.
+  //
+  // On the x-axis it is a DESIGN decision (five themes used to upper-case it): a category label
+  // renders as the deck authored it. Both are pinned here because the two rules are one rule to
+  // anyone editing this skin, and a new theme is written by copying an existing one.
+  test.each(ALL_THEMES)("$name leaves both axes' labels in their authored case", (theme) => {
+    const skin = theme.skins?.plot ?? "";
+    for (const [sel, why] of [
+      [".plot .pyaxis", "rewrites the unit in every tick"],
+      [".plot .plab", "overrides the case the deck authored its categories in"],
+    ] as const) {
+      expect(
+        ruleBody(skin, sel),
+        `${theme.name}: ${sel} transforms its case, which ${why}`,
+      ).not.toMatch(/text-transform:\s*(uppercase|capitalize)/);
+    }
   });
 });
 
