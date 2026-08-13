@@ -49,8 +49,10 @@ export type TreatmentMapEntry = {
 
 /**
  * The SSOT. Insertion order is the order the agent prompt lists treatments, so keep
- * it stable. Kinds with no default entry (matrix, custom) fall through to the
- * placeholder scene — `defaultTreatmentForKind` returns null for them.
+ * it stable. A kind with no default entry falls through to the placeholder scene —
+ * `defaultTreatmentForKind` returns null for it — and `custom` is the only one left
+ * (see FALLBACK_KINDS below), by design rather than by omission: it is the kind that
+ * MEANS "no treatment can do this, a slide engineer builds it by hand".
  */
 export const TREATMENT_MAP: Record<FrameTreatment, TreatmentMapEntry> = {
   cover: { kinds: ["title"], default: true, role: "title slide — headline · subtitle" },
@@ -72,9 +74,12 @@ export const TREATMENT_MAP: Record<FrameTreatment, TreatmentMapEntry> = {
 
 /**
  * The deterministic default treatment for a spec kind, or null when the kind has no
- * treatment (matrix, custom → the placeholder scene). NOTE: the chart line-vs-bar
- * distinction can't be expressed by kind alone — the caller (treatmentForSlide) keeps
- * that one conditional (line charts → null); this returns the bar-chart default for `chart`.
+ * treatment (`custom` → the placeholder scene).
+ *
+ * NOTE: the chart line-vs-bar distinction can't be expressed by kind alone — both are kind
+ * `chart` — so the caller (the harness's `treatmentForSlide`) keeps that one conditional and
+ * resolves a line series to the `line-chart` treatment. This returns the BAR default for
+ * `chart`, which is why calling it directly on a chart slide is wrong.
  */
 export const defaultTreatmentForKind = (kind: SlideKind): FrameTreatment | null => {
   for (const [treatment, entry] of Object.entries(TREATMENT_MAP)) {
