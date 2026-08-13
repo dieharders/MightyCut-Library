@@ -842,6 +842,84 @@ describe("plotted-figure reservation (tripwire)", () => {
   });
 });
 
+// ------------------------------------------------------------ plot value clipping ---
+// THE LINE PLOT'S VALUE LABELS ARE INSIDE THE CLIP THAT DRAWS THE LINE, which makes every part
+// of the room they need a cross-file contract rather than a styling choice. `.pwipe` is
+// clip-path-clipped so the entrance can wipe it open (plot/anim.ts), and each point's figure is
+// an absolutely-positioned label ABOVE its dot inside that box — so space the layout does not
+// reserve is not merely tight, the figure is silently sliced off. The series MAXIMUM is the one
+// that hits it, i.e. the number a trend chart exists to show, and it fails in exactly the state
+// every other sweep passes in: the scene builds, lints and inspects clean with a label missing.
+//
+// Three pieces have to agree, and they live in three files — the geometry's reservation
+// (plot/index.ts), the from-state (plot/anim.ts) and every theme's skin — which is why this is
+// a tripwire and not a comment.
+describe("plot value-label clipping (tripwire)", () => {
+  /** The `.pwipe` box PAD_TOP's headroom is a fraction OF — see plot/index.ts. */
+  const PLOT_BOX_REM = 24;
+  /** PAD_TOP / H from plot/index.ts, restated: the fraction of the box reserved above `max`. */
+  const HEADROOM = 60 / 400;
+  /** The side inset plot/anim.ts animates the right edge back to. */
+  const SIDE_INSET = "-3%";
+
+  // 1. The reservation is a fraction of a box the SKIN declares, so a skin that grows the plot
+  //    keeps the fraction and a skin that grows the TYPE eats into it. Pin the box every theme
+  //    states, since that is the number PAD_TOP was derived against.
+  test.each(ALL_THEMES)("$name's plot box is the height the headroom was derived against", (theme) => {
+    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .pwipe");
+    expect(rule, `${theme.name}: .plot .pwipe declares no height`).toMatch(/height:\s*[\d.]+rem/);
+    const rem = Number(/height:\s*([\d.]+)rem/.exec(rule)![1]);
+    expect(
+      rem,
+      `${theme.name}: the plot box is ${rem}rem, but PAD_TOP reserves ${HEADROOM * 100}% of ${PLOT_BOX_REM}rem for the top value label — move PAD_TOP with it`,
+    ).toBe(PLOT_BOX_REM);
+  });
+
+  // 2. …and the label stack has to FIT that reservation. It is half a dot + `.pval`'s margin +
+  //    one line of type, which is only knowable if the line box is exactly the type size: an
+  //    inherited line-height silently adds 20-60% of a step and overruns the padding.
+  test.each(ALL_THEMES)("$name's value label fits the reserved headroom", (theme) => {
+    const skin = theme.skins?.plot ?? "";
+    const val = ruleBody(skin, ".plot .pval");
+    expect(val, `${theme.name}: .plot .pval states no line-height, so its height is a guess`).toMatch(
+      /line-height:\s*1\b/,
+    );
+    const rem = (body: string, prop: string): number =>
+      Number(new RegExp(`${prop}:\\s*([\\d.]+)rem`).exec(body)?.[1] ?? 0);
+    const stack =
+      rem(ruleBody(skin, ".plot .pdot"), "height") / 2 + // the label clears half the dot…
+      rem(val, "margin-bottom") + // …its own gap…
+      resolveFontSize(theme, /font-size:\s*([^;]+);/.exec(val)![1]!.trim()); // …and one line.
+    expect(
+      stack,
+      `${theme.name}: the value label stack is ${stack}rem but only ${HEADROOM * PLOT_BOX_REM}rem is reserved above the top point — the series maximum will be clipped`,
+    ).toBeLessThanOrEqual(HEADROOM * PLOT_BOX_REM);
+  });
+
+  // 3. The horizontal overhang is un-clipped instead of reserved (a label centred on the first
+  //    or last band centre hangs over the edge). That only works while the skin's END value and
+  //    the from-state name the SAME offset: the tween interpolates one number per component, so
+  //    a skin back on `inset(0 0 0 0)` would snap the sides shut the instant the wipe lands.
+  test.each(ALL_THEMES)("$name's plot clip leaves the side overhang un-clipped", (theme) => {
+    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .pwipe");
+    const clip = /clip-path:\s*([^;]+);/.exec(rule)?.[1]?.trim();
+    expect(clip, `${theme.name}: .plot .pwipe states no clip-path, so the wipe has nothing to interpolate toward`).toBeDefined();
+    expect(
+      clip,
+      `${theme.name}: .plot .pwipe clips its sides at ${clip} — the first and last value labels are cut in half`,
+    ).toBe(`inset(0 ${SIDE_INSET} 0 ${SIDE_INSET})`);
+  });
+
+  // The from-state's own side inset, read off the descriptor the runtime actually emits — the
+  // other half of the pair above, and the reason a mismatch is a test failure rather than a
+  // wipe that visibly snaps at the end of an animation nobody re-watches.
+  test("the plot entrance animates back to the same side inset the skins state", () => {
+    const from = getComponent("plot")().buildNode(pctx(blockTheme, "pw")).anims.find((a) => a.kind === "from");
+    expect(from, "the plot no longer emits its wipe").toBeDefined();
+    expect((from!.opts as Record<string, unknown>).clipPath).toBe(`inset(0 100% 0 ${SIDE_INSET})`);
+  });
+});
+
 // ------------------------------------------------------- shared-sheet delivery ---
 // THE TWO SHEETS NO THEME OWNS, and the guard the hoist needed and did not have.
 //

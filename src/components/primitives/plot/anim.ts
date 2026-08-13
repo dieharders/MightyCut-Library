@@ -13,14 +13,25 @@ import type { PlotParams } from "./schema";
  * geometry and the HTML point overlay in one pass, which the dash trick could not do anyway.
  *
  * `uVars` (mc.js) only unit-converts numeric `x`/`y`, so the clip-path string reaches GSAP
- * untouched. The skin states the END value (`clip-path: inset(0)`) explicitly, because `from`
- * interpolates toward the element's CURRENT computed value and `none` is not interpolable.
+ * untouched. The skin states the END value explicitly, because `from` interpolates toward the
+ * element's CURRENT computed value and `none` is not interpolable.
+ *
+ * THE SIDE INSETS ARE NEGATIVE, in both the from-state and the skin's end value, and they must
+ * agree: a value label is centred on its point, so the FIRST and LAST points — the two whose
+ * band centre sits closest to the box edge — hang their label over it, and a wide one (a long
+ * `unitSuffix`, a 2-decimal figure) is cut in half by the very clip that draws the line. A
+ * negative inset offset expands the clip region past the border box, which un-clips the
+ * overhang while leaving the wipe itself untouched: only the RIGHT component animates, and it
+ * animates in the same unit (100% → -3%) so GSAP interpolates one number per component with no
+ * unit conversion in the middle. The vertical overhang is reserved in the geometry instead
+ * (`PAD_TOP`, index.ts) — there is a headline directly above the plot box, so growing upward
+ * would trade a clipped label for one sitting on the title.
  */
 export const plotAnim = (_p: PlotParams): AnimDescriptor[] => [
   {
     kind: "from",
     target: "wipe",
     time: { at: "line", n: 0, plus: 0.15 },
-    opts: { clipPath: "inset(0 100% 0 0)", duration: 1.1, ease: "power2.out" },
+    opts: { clipPath: "inset(0 100% 0 -3%)", duration: 1.1, ease: "power2.out" },
   },
 ];

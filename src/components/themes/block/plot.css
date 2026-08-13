@@ -14,8 +14,17 @@
    not against its own viewBox.
 
    .pwipe states its clip-path EXPLICITLY. It is the element the entrance animates FROM
-   (`inset(0 100% 0 0)`), and `from` interpolates toward the current computed value — `none` is
-   not interpolable, so without this the wipe silently does nothing. */
+   (`inset(0 100% 0 -3%)`), and `from` interpolates toward the current computed value — `none`
+   is not interpolable, so without this the wipe silently does nothing.
+
+   THE SIDE INSETS ARE NEGATIVE, and they must stay in step with that from-state. A value label
+   is centred on its point, so the first and last points hang their label over the box edge and
+   a wide one (a long unitSuffix, a 2-decimal figure) is cut in half by the very clip that draws
+   the line. A negative offset expands the clip region past the border box, which un-clips the
+   overhang while leaving the wipe itself alone — only the RIGHT component animates. The
+   VERTICAL overhang is reserved in the geometry instead (PAD_TOP, plot/index.ts): the headline
+   sits directly above this box, so growing the clip upward would trade a cut label for one
+   printed over the title. */
 .plot {
   display: flex;
   flex-direction: column;
@@ -24,7 +33,7 @@
   position: relative;
   width: 100%;
   height: 24rem;
-  clip-path: inset(0 0 0 0);
+  clip-path: inset(0 -3% 0 -3%);
   /* background: color-mix(in srgb, var(--muted-1) 72%, transparent); */
   backdrop-filter: blur(0.75rem);
 }
@@ -78,12 +87,17 @@
   box-sizing: border-box;
 }
 /* Absolutely positioned so the value floats ABOVE its dot without pushing it off the vertex —
-   a flowed label would move the dot by half its own height. */
+   a flowed label would move the dot by half its own height. `line-height` is stated so the box
+   is exactly one type size tall: plot/index.ts reserves PAD_TOP for this stack (half a dot +
+   this margin + this line), and an inherited line-height would quietly overrun the reservation
+   and clip the top point's figure — the highest number in the series, i.e. the one the chart
+   exists to show. */
 .plot .pval {
   position: absolute;
   bottom: 100%;
   margin-bottom: 0.625rem;
   white-space: nowrap;
+  line-height: 1;
   font-family: var(--disp);
   font-weight: 800;
   font-size: var(--font-size-md);

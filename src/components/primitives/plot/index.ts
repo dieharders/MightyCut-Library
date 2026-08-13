@@ -11,7 +11,21 @@ import { PlotSchema, type PlotParams } from "./schema";
 // of the frame, and a proportional viewBox is the same idea in SVG.
 const W = 1000;
 const H = 400;
-const PAD_TOP = 28; // headroom so the top point's dot + value label are not clipped
+/**
+ * Headroom for the TOP point's value label, and it is a computed reservation rather than a
+ * round number. The label is absolutely positioned above its dot INSIDE `.pwipe`, which is
+ * clip-path-clipped for the entrance wipe — so anything the padding does not reserve is not
+ * merely tight, it is sliced off and the deck's highest figure silently disappears (the whole
+ * point of plotting it). `max` maps to exactly `PAD_TOP`, so what has to fit above it is the
+ * label stack: half a dot + `.pval`'s margin + one line of type.
+ *
+ * The widest stack across the six themes is block's — 0.5625rem (half its 1.125rem dot) +
+ * 0.625rem + 2.25rem (`--font-size-md` at the `line-height: 1` every skin now states) ≈
+ * 3.44rem — against the 24rem plot box every theme's `.pwipe` declares. 3.6rem of the 24
+ * is 15%, i.e. 60 of the 400 viewBox units, which clears it with a little slack. A skin that
+ * grows its value type or its plot box past that budget must move this with it.
+ */
+const PAD_TOP = 60;
 const PAD_BOTTOM = 16;
 
 /** X of point `i` on a BAND scale — points sit at cell CENTRES, not at the box edges, so the
