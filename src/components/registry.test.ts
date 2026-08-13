@@ -1856,10 +1856,37 @@ describe("accent plumbing (tripwire)", () => {
     ["rank", "--col"],
   ];
 
+  /**
+   * `theme/component` pairs that deliberately do NOT honour the accent, each with the reason.
+   *
+   * An exemption is a real cost — the WebUI still offers the colour param on that element, and
+   * under this theme it does nothing — so it is only right where honouring the accent is WORSE
+   * than ignoring it, which takes a palette that cannot express a cycle.
+   *
+   * professional/cluster-node is that case. The theme has ONE accent hue (primary, secondary and
+   * accent-1 are all the same cobalt); slot 4 of the shared ACCENT_CYCLE is Ice, a pale surface
+   * its own palette note keeps out of the cycle "on the assumption that 3-item rows never get
+   * that long". A five-spoke cluster reaches slot 4, and every place the colour could go makes
+   * one child look broken rather than accented — as the tile fill Ice at 8% is indistinguishable
+   * from the bare canvas, as the outline it reads as a missing border, as the arm it is the one
+   * pale wire in the ring. All three shipped briefly and were reverted off a render.
+   */
+  const ACCENT_EXEMPT: Record<string, readonly string[]> = { professional: ["cluster-node"] };
+
   for (const theme of ALL_THEMES) {
     test.each(ACCENT_PROPS)(`${theme.name}'s %s skin consumes %s`, (name, prop) => {
       const css = theme.skins?.[name];
       expect(css, `${theme.name} has no skin for '${name}'`).toBeTruthy();
+      if (ACCENT_EXEMPT[theme.name]?.includes(name)) {
+        // An exemption must be ACTIVE, not a stale line someone forgot to delete: assert the skin
+        // really ignores the prop. Re-honouring the accent and leaving the exemption behind would
+        // otherwise silently un-cover this pair for every future edit.
+        expect(
+          css!,
+          `${theme.name}/${name}.css consumes ${prop} after all — drop it from ACCENT_EXEMPT so the sweep covers it again`,
+        ).not.toContain(`var(${prop}`);
+        return;
+      }
       expect(css!, `${theme.name}/${name}.css ignores ${prop} — its colour param is dead`).toContain(
         `var(${prop}`,
       );

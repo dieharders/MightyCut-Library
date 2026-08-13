@@ -53,7 +53,11 @@
   font-weight: 700;
   font-size: var(--font-size-md);
   line-height: 1.1;
-  color: var(--light);
+  /* Ink, not paper — the same call every other label on a coloured capsule makes. The pucks
+     around it are ink-on-colour with an ink outline, and the hub is the one plate in the diagram
+     that was reversed out; against this theme's mid-tone coral that also read as the weaker of
+     the two contrasts. */
+  color: var(--dark);
 }
 .node-cluster .caption {
   font-family: var(--body);

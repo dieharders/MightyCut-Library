@@ -29,6 +29,7 @@
      actually needs to keep clear. */
   width: var(--cradius, 13rem);
   height: 0.125rem;
+  /* Cobalt, like every other arm in the ring — see the accent note on .cpuck below. */
   background: color-mix(in srgb, var(--primary) 30%, transparent);
 }
 /* Counter-rotated back upright, then SEATED against the arm's tip — the rotation turns about the
@@ -51,8 +52,23 @@
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   /* The 8% cobalt tint, mixed into the scene's ground (--ground, stamped by the emitter) rather
      than into `transparent`, so the puck covers the arm it sits on instead of letting the line
-     read through its label. Identical colour on the cream canvas; opaque everywhere. */
-  background: color-mix(in srgb, var(--ccol, var(--primary)) 8%, var(--ground, var(--muted-1)));
+     read through its label. Identical colour on the cream canvas; opaque everywhere.
+
+     THE SPOKE IS NOT PER-NODE ACCENTED IN THIS THEME — not the tile, not the outline, not the
+     arm. Every other theme cycles `--ccol` here; professional deliberately does not, and the
+     reason is its palette rather than this diagram. It has ONE accent hue: primary, secondary and
+     accent-1 are all the same cobalt, accent-2 is ICE (a pale surface, kept out of the cycle's
+     reach "on the assumption that 3-item rows never get that long" — the palette note in
+     theme.ts) and accent-3 is EMBER, reserved for a leader or a deliberate positive.
+     A five-spoke cluster is the case that breaks the assumption, and there is nowhere good to
+     put the fourth slot's colour: as the tile fill, Ice at 8% lands within a couple of levels of
+     the bare canvas and one puck in five renders as unfilled; as the outline at 22% it reads as a
+     missing border; as the arm it is the one pale wire in the ring. All three were tried against
+     a render. So the ring is cobalt throughout — a colour cycle over a one-colour palette has
+     nothing to say, and saying it anyway makes exactly one child look broken.
+     This is the documented exemption in the accent-plumbing tripwire (registry.test.ts), which
+     otherwise requires every theme's cluster-node skin to consume `--ccol`. */
+  background: color-mix(in srgb, var(--primary) 8%, var(--ground, var(--muted-1)));
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.
      13.5rem border-box leaves the same 10.5rem of text the content-box cap did. */
