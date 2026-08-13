@@ -14,7 +14,7 @@
    author picks, exactly as the reference does. On the theme's dark and saturated roles that is
    correct and high-contrast; on a light pick (--accent-1 yellow, --muted-2 oat) cream-on-light
    goes soft. The alternative — deriving the label colour from the fill — cannot be done in CSS
-   without a literal or a per-variant rule, and inverting it would break the atom's whole identity,
+   without a literal or a per-accent rule, and inverting it would break the atom's whole identity,
    which is that it is a PLATE with light type. Authors wanting a light kicker should reach for the
    badge/lozenge families instead.
 

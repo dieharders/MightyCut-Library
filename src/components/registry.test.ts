@@ -188,8 +188,8 @@ describe("new library components", () => {
     expect(r.html).toContain("Captions render in the theme");
     expect(r.html).toContain("cap-bar");
   });
-  test("pill renders label + variant background token", () => {
-    const r = build("pill", { text: "Eyebrow", variant: "accent-2" });
+  test("pill renders label + accent background token", () => {
+    const r = build("pill", { text: "Eyebrow", accent: "accent-2" });
     expect(r.html).toContain("Eyebrow");
     expect(r.css.length).toBeGreaterThan(0);
     expect(r.html).toContain("var(--accent-2)"); // layout-set --pillbg
@@ -2014,7 +2014,7 @@ describe("accent plumbing (tripwire)", () => {
     ["caption", "accentBar"],
     ["card", "accent"],
     ["icon", "accent"],
-    ["pill", "variant"],
+    ["pill", "accent"],
     ["stat", "accent"],
   ])("%s.%s has no shared default (theme owns the default)", (name, field) => {
     const js = getComponent(name).jsonSchema() as { properties?: Record<string, { default?: unknown }> };
@@ -2231,5 +2231,62 @@ describe("showcase example parity across live themes (tripwire)", () => {
         .filter((k) => !(`${name}.children.${k}` in INTENTIONAL));
       expect(missing, `${t.name}'s '${name}' child omits: ${missing.join(", ")}`).toEqual([]);
     }
+  });
+});
+
+// --------------------------------------------------- shared-slot orderings (tripwire) ---
+//
+// Two treatments state an ordering the cascade CANNOT express structurally, because the slot
+// they want is already taken. `treatment.ts` maps an own `index n` anim to
+// `titleSlot + titleOffset + n` and child `i` to `titleSlot + titleOffset + 1 + i`, so `index 1`
+// IS child 0's slot and `index <childCount + 1>` IS the caption slot — an own-anim can never sit
+// BETWEEN the title and the first child, or between the last child and the caption.
+//
+// Both treatments were written as though it could, and both comments described motion that did
+// not happen: node-cluster's hub fired at the same instant as its first spoke, and line-chart's
+// caption keyed to `index 2` "to avoid the caption slot" while resolving to exactly it. The
+// orderings are bought with an offset INSIDE the shared slot instead, which is invisible in the
+// descriptor unless something compares the two — so this does.
+describe("shared-slot orderings (tripwire)", () => {
+  /** The slot fields of a built descriptor, as plain data (the time is a union). */
+  const slotOf = (a: { time: unknown }): { at: string; n: number; plus: number } => {
+    const t = JSON.parse(JSON.stringify(a.time)) as { at: string; n?: number; plus?: number };
+    return { at: t.at, n: t.n ?? 0, plus: t.plus ?? 0 };
+  };
+  /** The treatment's own default slot gap (revealDelay's default). The runtime only ever
+   *  TIGHTENS it, so this is the case an offset has to clear. */
+  const SLOT_SEC = 0.6;
+
+  test("node-cluster's hub shares a slot with spoke 0 — and still leads it", () => {
+    const built = getTreatment("node-cluster")().build(ctx("s01-node-cluster"));
+    const hub = built.anims.find((a) => a.target.endsWith("-hub"));
+    const spoke0 = built.anims.find((a) => a.target === "s01-node-cluster__c0-item");
+    expect(hub, "node-cluster emits no hub anim").toBeDefined();
+    expect(spoke0, "node-cluster emits no anim for its first spoke").toBeDefined();
+    const h = slotOf(hub!);
+    const s = slotOf(spoke0!);
+    // The collision is the PREMISE, not an accident: if a future slot rule frees a beat for the
+    // hub, this expectation is the thing that should be revisited (and the offset dropped).
+    expect(s.n, "the hub and spoke 0 no longer share a slot — re-derive the offset").toBe(h.n);
+    expect(
+      s.plus,
+      "spoke 0 fires with the hub, so the first arm grows out of a disc that is still scaling",
+    ).toBeGreaterThan(h.plus);
+  });
+
+  test("line-chart's caption lands after the plot has finished drawing", () => {
+    const built = getTreatment("line-chart")().build(ctx("s01-line-chart"));
+    const wipe = built.anims.find((a) => a.kind === "wipeIn");
+    const caption = built.anims.find((a) => a.target.endsWith("-caption"));
+    expect(wipe, "line-chart's plot emits no wipe").toBeDefined();
+    expect(caption, "line-chart's example has a caption but emits no caption anim").toBeDefined();
+    const w = slotOf(wipe!);
+    const c = slotOf(caption!);
+    const drawEnds = w.n * SLOT_SEC + w.plus + Number(wipe!.opts?.dur ?? 0);
+    const captionAt = c.n * SLOT_SEC + c.plus;
+    expect(
+      captionAt,
+      `the caption fires at ${captionAt}s, inside a wipe that ends at ${drawEnds}s`,
+    ).toBeGreaterThanOrEqual(drawEnds - 1e-9);
   });
 });
