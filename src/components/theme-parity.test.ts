@@ -859,8 +859,9 @@ describe("plot value-label clipping (tripwire)", () => {
   const PLOT_BOX_REM = 24;
   /** PAD_TOP / H from plot/index.ts, restated: the fraction of the box reserved above `max`. */
   const HEADROOM = 60 / 400;
-  /** The side inset plot/anim.ts animates the right edge back to. */
-  const SIDE_INSET = "-3%";
+  /** The side inset plot/anim.ts animates the right edge back to. Sized against `PAD_X`: the end
+   *  points sit 4% from the box, so a value label centred on one hangs about that far over. */
+  const SIDE_INSET = "-6%";
 
   // 1. The reservation is a fraction of a box the SKIN declares, so a skin that grows the plot
   //    keeps the fraction and a skin that grows the TYPE eats into it. Pin the box every theme
@@ -920,34 +921,46 @@ describe("plot value-label clipping (tripwire)", () => {
   });
 });
 
-// ------------------------------------------------------------------ plot y-axis skin ---
-// The y-axis is drawn by the component (registry.test.ts pins the tick↔gridline arithmetic) but
-// PAINTED by each theme, and both halves of that paint fail quietly. An unstyled axis line is an
-// invisible axis on a chart that still lints clean; a gutter measured in the wrong face is a
-// column of numbers overlapping the plot they label. Neither is caught by "the scene builds".
-describe("plot y-axis skin (tripwire)", () => {
-  test.each(ALL_THEMES)("$name paints the y-axis line", (theme) => {
-    const rule = ruleBody(theme.skins?.plot ?? "", ".plot .pyline");
-    expect(rule, `${theme.name}: .plot .pyline is unstyled — the axis renders as nothing`).toMatch(
-      /stroke:\s*\S/,
-    );
+// ------------------------------------------------------------------ plot axis skin ---
+// Both axis labels are drawn by the component (registry.test.ts pins the arithmetic) but PAINTED
+// by each theme, and this paint fails quietly: each row is absolutely positioned off the point
+// scale and sized by a hidden in-flow sizer, so a row lettered in the wrong place is measured for
+// type it never renders — numbers overlapping the plot, or a category row of the wrong height.
+// Neither is caught by "the scene builds".
+describe("plot axis skin (tripwire)", () => {
+  // THE TYPE LIVES ON THE ROW, NOT ON THE LABEL, on both axes. The row's size comes from a hidden
+  // sizer holding the same strings, so the two must be lettered identically — and the only way to
+  // guarantee that is to letter neither and let both inherit. A font-size moved onto `.ptick` or
+  // `.plab` still LOOKS right (the visible labels are absolutely positioned and unaffected) while
+  // the sizer beside it measures something else.
+  const ROWS = [
+    [".plot .pyaxis", ".plot .ptick", "the tick gutter's width"],
+    [".plot .paxis", ".plot .plab", "the category row's height"],
+  ] as const;
+
+  test.each(ALL_THEMES)("$name letters each axis row, so its sizer measures the real labels", (theme) => {
+    const skin = theme.skins?.plot ?? "";
+    for (const [row, label, what] of ROWS) {
+      expect(
+        ruleBody(skin, row),
+        `${theme.name}: ${row} names no font-size, so ${what} is measured in the inherited face`,
+      ).toMatch(/font-size:\s*var\(--font-size-/);
+      expect(
+        ruleBody(skin, label),
+        `${theme.name}: ${label} sizes its own type — the sizer beside it does not, so ${what} is measured for the wrong string`,
+      ).not.toMatch(/font-size:/);
+    }
   });
 
-  // THE TYPE LIVES ON THE COLUMN, NOT ON THE TICK. The gutter's width comes from a hidden sizer
-  // that holds the same strings, so the two must be lettered identically — and the only way to
-  // guarantee that is to letter neither and let both inherit. A font-size moved onto `.ptick`
-  // still LOOKS right (the visible ticks are absolutely positioned and unaffected) while sizing
-  // the column for type the axis never renders.
-  test.each(ALL_THEMES)("$name letters the axis column, so its sizer measures the real ticks", (theme) => {
-    const skin = theme.skins?.plot ?? "";
+  // THE VERTICAL AXIS RULE IS GONE, in every theme (plot/index.ts, frameSvg). The y-axis is its
+  // ticks: the gridlines already carry the eye across from each number, and a rule down the left
+  // only adds a box edge. A skin that re-adds one would style an element nothing emits — silent,
+  // and the next theme copied from it would inherit the dead rule.
+  test.each(ALL_THEMES)("$name styles no vertical axis rule", (theme) => {
     expect(
-      ruleBody(skin, ".plot .pyaxis"),
-      `${theme.name}: .plot .pyaxis names no font-size — the hidden sizer measures the inherited face`,
-    ).toMatch(/font-size:\s*var\(--font-size-/);
-    expect(
-      ruleBody(skin, ".plot .ptick"),
-      `${theme.name}: .plot .ptick sizes its own type — the sizer beside it does not, so the gutter is measured for the wrong string`,
-    ).not.toMatch(/font-size:/);
+      theme.skins?.plot ?? "",
+      `${theme.name}: .plot .pyline is styled, but no plot emits one`,
+    ).not.toContain(".pyline");
   });
 
   // NEITHER AXIS IS UPPER-CASED, and the two halves of that have different weight.
@@ -964,7 +977,7 @@ describe("plot y-axis skin (tripwire)", () => {
     const skin = theme.skins?.plot ?? "";
     for (const [sel, why] of [
       [".plot .pyaxis", "rewrites the unit in every tick"],
-      [".plot .plab", "overrides the case the deck authored its categories in"],
+      [".plot .paxis", "overrides the case the deck authored its categories in"],
     ] as const) {
       expect(
         ruleBody(skin, sel),

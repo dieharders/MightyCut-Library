@@ -328,14 +328,55 @@ describe("new library components", () => {
     // The frame is drawn OUTSIDE the wiped layer: the scale has to be on screen before the data
     // read against it, and the tick labels (unclipped HTML) would otherwise hang beside nothing
     // for the length of the entrance.
-    test("the gridlines and the axis line are on the static layer, the polyline on the wiped one", () => {
+    test("the gridlines are on the static layer, the polyline on the wiped one", () => {
       const html = plotHtml();
       const frame = /class="pframe"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
       expect(frame, "the gridlines left the static frame").toContain('class="pgrid"');
-      expect(frame, "the y-axis line left the static frame").toContain('class="pyline"');
       expect(frame, "the polyline is on the static layer — it would not wipe in").not.toContain("pline");
       const wiped = /class="pgeom"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
       expect(wiped, "the wiped layer draws no line").toContain('class="pline"');
+    });
+
+    // The y-axis is its ticks. A vertical rule was drawn once and removed; this pins the removal,
+    // because "there is no line" is the kind of absence a later edit restores without noticing.
+    test("no vertical axis rule is drawn", () => {
+      expect(plotHtml()).not.toContain("pyline");
+    });
+  });
+
+  // ------------------------------------------------------- the series' reach ---
+  // The points used to sit on a BAND scale (cell centres), which spent a half-cell of the frame
+  // at each end — a quarter of the width on a four-point plot — purely because the label row was
+  // N equal cells and nothing else would line up under them. Both halves changed together, so
+  // both are pinned together: the labels now read the point's own x, and the scale now reaches.
+  describe("plot horizontal scale", () => {
+    const html = () =>
+      build("plot", { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+    const pointX = (h: string): number[] =>
+      [...h.matchAll(/class="ppoint" style="--px: ([\d.]+)%/g)].map((m) => Number(m[1]));
+    const labelX = (h: string): number[] =>
+      [...h.matchAll(/class="plab" style="--lx: ([\d.]+)%/g)].map((m) => Number(m[1]));
+
+    test("every label is centred on its own point's x", () => {
+      const h = html();
+      const [pts, labs] = [pointX(h), labelX(h)];
+      expect(labs.length, "a point has no label, or a label no point").toBe(pts.length);
+      for (const [i, x] of labs.entries()) expect(x, `label ${i} is off its point`).toBeCloseTo(pts[i]!, 2);
+    });
+
+    test("the series runs edge to edge, keeping only the end labels' margin", () => {
+      const pts = pointX(html());
+      expect(pts.at(0), "the first point is not at PAD_X").toBeCloseTo(4, 2);
+      expect(pts.at(-1), "the last point is not at PAD_X from the right").toBeCloseTo(96, 2);
+    });
+
+    // A two-point series is the minimum the schema allows and the one the `n - 1` divisor could
+    // have broken — it must span the box, not collapse onto a single x.
+    test("the smallest series the schema allows still spans the box", () => {
+      const pts = pointX(build("plot", { labels: ["a", "b"], values: [1, 2], max: 2 }).html);
+      expect(pts).toHaveLength(2);
+      expect(pts[0]).toBeCloseTo(4, 2);
+      expect(pts[1]).toBeCloseTo(96, 2);
     });
   });
 });

@@ -22,16 +22,21 @@ import type { PlotParams } from "./schema";
  * `unitSuffix`, a 2-decimal figure) is cut in half by the very clip that draws the line. A
  * negative inset offset expands the clip region past the border box, which un-clips the
  * overhang while leaving the wipe itself untouched: only the RIGHT component animates, and it
- * animates in the same unit (100% → -3%) so GSAP interpolates one number per component with no
+ * animates in the same unit (100% → -6%) so GSAP interpolates one number per component with no
  * unit conversion in the middle. The vertical overhang is reserved in the geometry instead
  * (`PAD_TOP`, index.ts) — there is a headline directly above the plot box, so growing upward
  * would trade a clipped label for one sitting on the title.
+ *
+ * The allowance is 6% rather than 3% because the series now runs edge to edge: `PAD_X` leaves
+ * the end points 4% from the box, where they used to sit a whole half-cell in (12.5% on a
+ * four-point plot), so what a label can hang over the edge grew by the same amount the dead
+ * space shrank.
  */
 export const plotAnim = (_p: PlotParams): AnimDescriptor[] => [
   {
     kind: "from",
     target: "wipe",
     time: { at: "line", n: 0, plus: 0.15 },
-    opts: { clipPath: "inset(0 100% 0 -3%)", duration: 1.1, ease: "power2.out" },
+    opts: { clipPath: "inset(0 100% 0 -6%)", duration: 1.1, ease: "power2.out" },
   },
 ];

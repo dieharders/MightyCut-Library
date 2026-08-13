@@ -28,10 +28,25 @@ const H = 400;
 const PAD_TOP = 60;
 const PAD_BOTTOM = 16;
 
-/** X of point `i` on a BAND scale — points sit at cell CENTRES, not at the box edges, so the
- *  HTML label row underneath (N equal flex cells) lines up with them exactly. Edge-to-edge
- *  spacing (i / (n-1)) would put the first and last labels half a cell out. */
-const xAt = (i: number, n: number): number => ((i + 0.5) / n) * W;
+/**
+ * Side margin, in viewBox units — the ONLY horizontal padding the plot keeps.
+ *
+ * The points used to sit on a BAND scale, at cell centres `(i + 0.5) / n`, so the series could
+ * never reach the box: a four-point plot started 12.5% in and stopped 12.5% short, spending a
+ * quarter of the frame's width on nothing. That was not a design choice, it was the label row's
+ * requirement showing through — labels were N equal flex cells, and only a cell-centre scale put
+ * one under each point. The labels are positioned off the same percentages now (`labelsHtml`),
+ * which frees the scale from the row and lets the line use the box it is drawn in.
+ *
+ * A margin is still kept, and it is not slack: every point carries a value label CENTRED on it,
+ * so the two end points hang theirs over the edge. 4% covers a short figure outright and the
+ * clip's own side allowance (plot/anim.ts) covers a long one.
+ */
+const PAD_X = 40;
+
+/** X of point `i`, edge to edge across the padded box. `n` is at least 2 (the schema's `min`), so
+ *  the `n - 1` divisor is safe. */
+const xAt = (i: number, n: number): number => PAD_X + (i / (n - 1)) * (W - 2 * PAD_X);
 
 /**
  * The gridline positions, as fractions of the padded plot box, top (the scale's `max`) to
@@ -67,33 +82,28 @@ const fmt = (v: number, p: PlotParams): string =>
   `${p.unitPrefix ?? ""}${v.toFixed(p.decimals)}${p.unitSuffix ?? ""}`;
 
 /**
- * The chart's FRAME — the gridlines and the y-axis line — as its own SVG, drawn OUTSIDE the
- * wipe and therefore present from the scene's first frame.
+ * The chart's FRAME — the gridlines — as its own SVG, drawn OUTSIDE the wipe and therefore
+ * present from the scene's first frame.
  *
- * The split is what an axis is for. A wiped axis is a scale that arrives with the data it is
- * meant to be read against, which measures nothing; and the tick labels beside it are HTML in
- * an unclipped column, so leaving the lines under the clip would show three numbers floating
- * against nothing for the length of the entrance. Static frame, animated data — the category
- * labels under the plot have always worked this way, so this makes the plot consistent with its
- * own x-axis rather than introducing a new idea.
+ * The split is what an axis is for. A wiped scale arrives with the data it is meant to be read
+ * against, which measures nothing; and the tick labels beside it are HTML in an unclipped
+ * column, so leaving the lines under the clip would show three numbers floating against nothing
+ * for the length of the entrance. Static frame, animated data — the category labels under the
+ * plot have always worked this way, so this makes the plot consistent with its own x-axis rather
+ * than introducing a new idea.
  *
- * The axis sits at `AXIS_X` rather than at 0 because an SVG clips its own overflow: a stroke
- * centred on the box edge loses its outer half, which reads as a hairline next to the 1px
- * gridlines it is supposed to anchor.
+ * THERE IS NO VERTICAL AXIS RULE, deliberately. The y-axis is its TICKS: the gridlines already
+ * carry the eye across from each number, so a rule down the left adds a box edge without adding
+ * a reading. It was drawn once and removed.
  */
-const AXIS_X = 2;
-
 const frameSvg = (): string => {
   const rows = GRID_T.map((t) => {
     const y = n2(gridY(t));
     return `<line class="pgrid" x1="0" y1="${y}" x2="${W}" y2="${y}" />`;
   }).join("");
-  const axis =
-    `<line class="pyline" x1="${AXIS_X}" y1="${n2(gridY(0))}" x2="${AXIS_X}" y2="${n2(gridY(1))}" />`;
   return (
     `<svg class="psvg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="presentation">` +
     rows +
-    axis +
     `</svg>`
   );
 };
@@ -171,9 +181,27 @@ const pointsHtml = (p: PlotParams): string => {
     .join("");
 };
 
-/** One equal cell per point, so a centred label lands under its point (see xAt). */
-const labelsHtml = (p: PlotParams): string =>
-  p.labels.map((l) => `<span class="plab">${esc(l)}</span>`).join("");
+/**
+ * The category labels, positioned off the SAME percentages as the points rather than laid out as
+ * N equal cells.
+ *
+ * The cell row is what used to force the band scale (see `PAD_X`), and it only ever aligned by
+ * coincidence of the two formulas agreeing. Reading the point's own x is exact at any spacing,
+ * and it is the same technique the point values and the y-axis ticks already use.
+ *
+ * The leading span is a hidden SIZER, for the same reason the tick column has one: the labels
+ * are absolutely positioned and contribute no height, so without one in flow the row collapses
+ * and the caption below slides up under the plot. It holds a real label so the row is exactly
+ * one line of the theme's own type.
+ */
+const labelsHtml = (p: PlotParams): string => {
+  const n = p.labels.length;
+  const sizer = `<span class="pxsizer">${esc(p.labels[0] ?? "")}</span>`;
+  const labels = p.labels
+    .map((l, i) => `<span class="plab" style="--lx: ${n2((xAt(i, n) / W) * 100)}%">${esc(l)}</span>`)
+    .join("");
+  return sizer + labels;
+};
 
 /** A line plot: the whole series as one component — gridlines, a polyline, a dot and value per
  *  point, and a category label row. `line-chart`'s only child. */
@@ -193,9 +221,10 @@ export const Plot = component({
     yaxis: yAxisHtml(p),
     labels: labelsHtml(p),
   }),
-  layout: (p): Record<string, string> => ({
-    "--pn": String(p.values.length),
-    ...(p.accent ? { "--pcol": `var(--${p.accent})` } : {}),
-  }),
+  // `--pn` (the point count) is gone with the label row's equal cells — it had exactly one
+  // reader, `grid-template-columns: repeat(var(--pn), 1fr)`, and a custom property nothing
+  // consumes is a prop that looks like a control and is not one.
+  layout: (p): Record<string, string> =>
+    p.accent ? { "--pcol": `var(--${p.accent})` } : {},
   anim: plotAnim,
 });

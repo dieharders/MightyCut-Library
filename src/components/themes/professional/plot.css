@@ -15,7 +15,7 @@
    not against its own viewBox.
 
    .pwipe states its clip-path EXPLICITLY. It is the element the entrance animates FROM
-   (`inset(0 100% 0 -3%)`), and `from` interpolates toward the current computed value — `none`
+   (`inset(0 100% 0 -6%)`), and `from` interpolates toward the current computed value — `none`
    is not interpolable, so without this the wipe silently does nothing.
 
    THE SIDE INSETS ARE NEGATIVE, and they must stay in step with that from-state. A value label
@@ -82,7 +82,7 @@
 .plot .pwipe {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 -3% 0 -3%);
+  clip-path: inset(0 -6% 0 -6%);
 }
 /* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
    which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
@@ -99,8 +99,7 @@
   width: 100%;
   height: 100%;
 }
-.plot .pgrid,
-.plot .pyline {
+.plot .pgrid {
   stroke: color-mix(in srgb, var(--primary) 40%, transparent);
   stroke-width: 0.125rem;
   vector-effect: non-scaling-stroke;
@@ -158,19 +157,27 @@
   transform: translateY(-50%);
   white-space: nowrap;
 }
-/* One equal cell per point (--pn), so a centred label sits under its point — the plot puts its
-   points at cell CENTRES for exactly this reason (plot/index.ts, xAt). */
+/* The category row. It carries the label TYPE and one hidden in-flow sizer gives it its height,
+   exactly as .pyaxis does for the ticks — the labels themselves are absolutely positioned and
+   contribute none. It used to be N equal grid cells, which is what forced the points onto a
+   band scale and cost the plot a half-cell of dead space at each end (see PAD_X). */
 .plot .paxis {
   grid-column: 2;
-  display: grid;
-  grid-template-columns: repeat(var(--pn, 4), 1fr);
+  position: relative;
   margin-top: 1.25rem;
-}
-.plot .plab {
-  text-align: center;
+  line-height: 1;
   font-family: var(--mono);
   font-weight: 600;
   font-size: var(--font-size-xs);
   color: var(--muted-3);
   letter-spacing: 0.05em;
+}
+.plot .pxsizer {
+  visibility: hidden;
+}
+.plot .plab {
+  position: absolute;
+  left: var(--lx);
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
