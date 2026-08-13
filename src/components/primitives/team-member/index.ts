@@ -1,6 +1,5 @@
 import template from "./template.html" with { type: "text" };
 import { component } from "../../runtime/component";
-import { teamMemberAnim } from "./anim";
 import { TeamMemberSchema, type TeamMemberParams } from "./schema";
 
 /**
@@ -33,5 +32,15 @@ export const TeamMember = component({
   // --tcol emitted only when set, so an unpicked member falls to the theme's own default
   // rather than to a colour this file chose (see caption/index.ts for the same rule).
   layout: (p): Record<string, string> => (p.accent ? { "--tcol": `var(--${p.accent})` } : {}),
-  anim: teamMemberAnim,
+  // THE CARD ENTERS AS A CARD. This used to be an internal `staggerIn` on `item` with no
+  // `animIn`, which is the box-less shape: `staggerIn` targets `.item > *` (mc.js), so it
+  // cascaded the monogram, name and role while the PLATE they sit on — every skin's border,
+  // ground and hard offset — was painted from frame 0. A roster therefore opened as a row of
+  // empty tiles that filled in one by one. `.tmember` paints, so its entrance belongs on the
+  // whole element, exactly as `card` (the structurally identical plated tile) declares it;
+  // the treatment still gives each member its own cascade slot, so the roster introduces one
+  // person at a time. `staggerIn` remains right for a root that paints nothing — cluster-node's
+  // `.cnode` is a zero-height positioning shell whose arm and puck are the real boxes.
+  animIn: "rise",
+  animInOpts: { dist: 26 },
 });
