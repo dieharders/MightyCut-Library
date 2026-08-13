@@ -1058,6 +1058,33 @@ describe("shared sheets reach every theme (tripwire)", () => {
     ).toBe(true);
   });
 
+  // THE WORDMARK'S LINE BOX IS THE OTHER THING THAT CAN MOVE THE BAND, and it is the one a skin
+  // can still reach: geometry.css shares the SIZE (`--font-size-md`) but leading is a property of
+  // the FACE, so a theme whose display face draws taller ink than the shared `line-height: 1.2`
+  // has to say so — capsule's Bodoni does, and until it did, `overflow: hidden` (the same rule
+  // that gives the wordmark its ellipsis) clipped the brand off top and bottom on every slide.
+  //
+  // The budget is what makes that override safe rather than a hole: the row's height is
+  // `max(the 3rem mark slot, the type in it)`, and `--safe-top` reserves against that number
+  // sight-unseen, so the type box may grow to 3rem and not a pixel further. Resolved off the
+  // BUILT css (geometry + skin, in cascade order) rather than the skin alone, which is what the
+  // browser does and the only way the shared default is accounted for.
+  test.each(ALL_THEMES)("$name's wordmark line box stays inside the 3rem brand slot", (theme) => {
+    // Comments FIRST: these sheets discuss line-height in prose (this very override explains
+    // itself by quoting the shared 1.2 it replaces), and a match inside a comment reads the old
+    // number back as the live one — which made this assertion vacuous when it was written.
+    const css = getComponent("hud")({}).build(pctx(theme, "hud")).css.replace(/\/\*[\s\S]*?\*\//g, "");
+    const lh = [...css.matchAll(/\.hud \.hud-brand-name \{([^}]*)\}/g)]
+      .flatMap((m) => [...m[1]!.matchAll(/line-height:\s*([\d.]+)/g)].map((d) => d[1]!))
+      .at(-1); // last wins, exactly as the cascade resolves it
+    expect(lh, `${theme.name}: nothing sets a line-height on .hud .hud-brand-name`).toBeDefined();
+    const box = sizeScale(theme).md! * Number(lh);
+    expect(
+      box,
+      `${theme.name}: the wordmark's line box is ${box}rem, past the 3rem slot — the band grows and every frame's --safe-top is wrong`,
+    ).toBeLessThanOrEqual(3);
+  });
+
   // The rail's height is a CEILING a skin may spend downward, never a licence to exceed it —
   // `--safe-bottom` reserves against the shared number. Same for the brand mark's 3rem slot,
   // which is one of the two boxes the band height is measured from.

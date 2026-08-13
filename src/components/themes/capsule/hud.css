@@ -33,6 +33,17 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--dark);
+  /* LEADING IS A PROPERTY OF THE FACE, so this one number is the theme's even though the SIZE
+     above it is shared. Bodoni Moda at 800 draws roughly 1.54em of ink between ascender and
+     descender; the shared geometry's `line-height: 1.2` is a shorter box than that, and the same
+     rule sets `overflow: hidden` (it is what makes an over-long wordmark ellipsise), so the
+     wordmark was clipped top AND bottom on every slide of every capsule deck — `hyperframes
+     inspect` reported it at all nine samples. No other theme's display face overruns 1.2, which
+     is why the shared value stays where it is rather than moving for this one.
+     It costs nothing: the brand row's height is the 3rem mark slot, and `--font-size-md` (1.75rem)
+     × 1.65 = 2.8875rem still fits inside it, so the band — and `--safe-top`, which every frame in
+     the deck is padded against — does not move. A tripwire pins that budget. */
+  line-height: 1.65;
 }
 .hud .hud-tagline {
   font-family: var(--body);
