@@ -26,7 +26,7 @@ every theme**. A theme supplies the CSS those class names resolve against.
 | `template.html` markup + markers, `schema.ts` params, `anim.ts` motion (`primitives/*`, `treatments/*`) | one skin CSS per element (`themes/<t>/<element>.css`, wired through `skins`)                                                                   |
 | **two CSS sheets no theme owns**: the safe area (`themes/safe-area.css`) and the HUD band (`primitives/hud/geometry.css`) — see rule 3 | everything painted inside them                                                                                                                 |
 | the 10 palette **roles** (`src/types/palette.ts`)                                                       | which colour fills each role (`palette`)                                                                                                       |
-| the 10 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                           |
+| the 15 treatments (`FRAME_TREATMENTS`), the reveal cascade + slot timing (`runtime/treatment.ts`)       | the frame base (`frame.css`), fonts, `groundDefault`                                                                                           |
 | the transition catalog (`src/types/transitions.ts`, `runtime/transitions.ts`)                           | which backdrop design is the default (`backdrop`) + the ink hooks that restyle every design                                                    |
 | the backdrop design **pool** (`primitives/backdrops.ts`) — any theme may use any design                 | its **own four decoration families** + shape engine (no other theme may roster them)                                                           |
 | the decoration _placement_ schema (`primitives/decoration-placement.ts`)                                | structure overrides (`templates/*.html`), showcase copy (`examples`, `typography`, `rules`), `previewBg`/`previewScheme`, `decorationDefaults` |
@@ -658,11 +658,13 @@ src/components/themes/<name>/
   frame.css           .mc-frame base + base type + the four ink hooks. NOT the .body
                       wrapper and NOT any safe-area value — those are shared
                       (themes/safe-area.css), pushed in by the runtime. See rule 3.
-  <element>.css       one skin per element the theme renders — 23 files today:
-                        13 components: stat card step agenda-item bar rank row
+  <element>.css       one skin per element the theme renders — 32 files today:
+                        17 components: stat card step agenda-item bar rank row
                                        caption pill cta list-number icon hud
-                        10 treatments: cover feature-cards stat-grid closing-plate quote
+                                       matrix-row plot team-member cluster-node
+                        15 treatments: cover feature-cards stat-grid closing-plate quote
                                        timeline comparison chart bar-ranking agenda
+                                       matrix line-chart pill-wall team node-cluster
   templates/*.html    OPTIONAL structure overrides
 ```
 
@@ -775,21 +777,25 @@ export const neonTheme: ThemeTokens = {
   previewScheme: "dark", // declared, never inferred from previewBg
   decorationDefaults, // what cover/closing-plate/quote wear by default (§8)
   skins: {
-    // components (13)
+    // components (17)
     hud: hudCss,
     caption: captionCss,
     "agenda-item": agendaItemCss,
     bar: barCss,
     card: cardCss,
+    "cluster-node": clusterNodeCss,
     cta: ctaCss,
     icon: iconCss,
     "list-number": listNumberCss,
+    "matrix-row": matrixRowCss,
     pill: pillCss,
+    plot: plotCss,
     rank: rankCss,
     row: rowCss,
     stat: statCss,
     step: stepCss,
-    // treatments (10)
+    "team-member": teamMemberCss,
+    // treatments (15)
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
     chart: chartCss,
@@ -797,8 +803,13 @@ export const neonTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    "line-chart": lineChartCss,
+    matrix: matrixCss,
+    "node-cluster": nodeClusterCss,
+    "pill-wall": pillWallCss,
     quote: quoteCss,
     "stat-grid": statGridCss,
+    team: teamCss,
     timeline: timelineCss,
   },
   // templates: { stat: statTemplate },   // only where CSS can't reach the structure
@@ -953,7 +964,7 @@ subjects it to every sweep in `src/components/theme-parity.test.ts`:
 | skins keys ⊆ registry     | a typo'd skin key that silently styles nothing                                                                                                                                                                                                                               |
 | anim-target resolution    | a dead anim descriptor; a template override that drops a targeted `data-anim`                                                                                                                                                                                                |
 | headline accent           | a missing (or device-less) `.headline-accent` rule in your `frame.css` (§3) — the cover/closing key word would render flat                                                                                                                                                   |
-| per-theme scene smoke     | all 10 treatments build well-formed, determinism-clean, byte-identical on rebuild                                                                                                                                                                                            |
+| per-theme scene smoke     | all 15 treatments build well-formed, determinism-clean, byte-identical on rebuild                                                                                                                                                                                            |
 | shared backdrop pool      | every design paints under your theme (a design that reads a theme-specific token fails here)                                                                                                                                                                                 |
 | default backdrop          | your `backdrop` names a registered design                                                                                                                                                                                                                                    |
 | decoration ownership      | your roster is non-empty, all registered, `decoration`-flagged, and **disjoint from every other theme's**                                                                                                                                                                    |

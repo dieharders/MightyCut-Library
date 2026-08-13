@@ -22,32 +22,65 @@
   align-items: center;
 }
 .cnode .cspoke {
-  /* THE ARM'S LENGTH IS THE SPOKE'S, not the node's. It used to sit on .cnode, which made
-     --cradius the distance to the puck's OUTER edge: the puck then grew INWARD from there and
-     the wider ones lapped over the hub. Sizing the connector instead makes --cradius mean the
-     distance from the hub's centre to where the puck STARTS, which is the measurement the ring
-     actually needs to keep clear. */
-  width: var(--cradius, 13rem);
+  /* THE ARM RUNS FROM THE HUB'S CENTRE TO THE PUCK'S, and both of those ends are covered: the
+     hub paints over the inner one (it is opaque and z-index 1 — node-cluster.css) and the puck
+     over the outer one (it is transformed, so it is a stacking context later in tree order than
+     this bar). Only the span between them is drawn, and it is drawn IN FULL.
+
+     THAT IS THE FIX FOR A GAP THE OLD LENGTH COULD NOT CLOSE. The arm used to stop at
+     --cradius, which is where the puck's near SUPPORT is — the plane the box's outermost point
+     touches, not where the ray enters it. Those are the same place only for a puck sitting dead
+     horizontal or dead vertical; at every other angle the ray leaves through a corner, further
+     out. With five spokes exactly ONE is vertical, so four labels floated free of their own
+     connectors — measured 5-65px across the six themes, worst on the 45°-ish arms.
+
+     Reaching the puck's CENTRE removes the question rather than tightening the estimate: no
+     label width and no box height can put the tip outside the puck, so nothing has to be
+     recomputed when a theme changes its padding or a deck writes a long label. The two terms
+     are the seating correction below, run in reverse. 50% is half the puck's OWN width — this
+     bar is absolutely positioned, so it contributes nothing to .cnode's shrink-to-fit width and
+     the percentage resolves against the puck alone — and --cpuck-h is the reserved height. A
+     puck SHORTER than that reserve (no detail line) leaves the tip a little past its centre,
+     still well inside; a taller one (a wrapped detail) leaves it short of centre, still well
+     inside.
+
+     --cradius keeps its meaning: the distance from the hub's centre to where the puck's support
+     begins, which is what the ring reserves. This length is paint, and nothing measures it. */
+  position: absolute;
+  left: 0;
+  /* .cnode is a zero-height line through the hub's centre, so the bar centres on that line. */
+  top: 0;
+  transform: translateY(-50%);
+  width: calc(
+    var(--cradius, 13rem) + var(--ccos, 1) * 50% + var(--csin, 0) * var(--cpuck-h, 0rem) / 2
+  );
   height: 0.25rem;
   background: var(--dark);
 }
-/* Counter-rotated back upright, then SEATED against the arm's tip.
+/* Counter-rotated back upright, then SEATED so its near SUPPORT lands exactly --cradius from the
+   hub's centre — the distance the ring reserves for it (node-cluster.css).
 
-   The rotation turns about the puck's centre, and the flex row leaves that centre half a puck-width
-   past the tip. Only a horizontal puck clears the tip by half its width, though — an upright one
-   clears it by half its HEIGHT, and the difference is the gap that opened between every near-
-   vertical spoke and its label. --ccos/--csin (cluster-node/index.ts) close it: the first term is
-   the width the rotation no longer spends, as a percentage of the puck's OWN box so a short label
-   and a long one are each seated correctly; the second adds back the height it spends instead,
-   which has to be a length because a percentage translate resolves against width in both axes.
-   --cpuck-h stands in for that height — puck heights are uniform where widths are not.
+   THE PUCK CARRIES THE RADIUS ITSELF. The arm used to be a flex item and pushed the puck out by
+   its own width; it is absolutely positioned now (see .cspoke above), so this row starts at the
+   hub's centre and the first term below is the displacement that used to be the arm's.
+
+   The rest is the seating. The rotation turns about the puck's centre, and the row leaves that
+   centre half a puck-width past the arm's origin. Only a horizontal puck's support is half its
+   width, though — an upright one's is half its HEIGHT, and the difference is the gap that opened
+   between every near-vertical spoke and its label. --ccos/--csin (cluster-node/index.ts) close
+   it: the second term is the width the rotation no longer spends, as a percentage of the puck's
+   OWN box so a short label and a long one are each seated correctly; the third adds back the
+   height it spends instead, which has to be a length because a percentage translate resolves
+   against width in both axes. --cpuck-h stands in for that height — puck heights are uniform
+   where widths are not.
 
    TRANSLATE BEFORE ROTATE, or the shift runs along the screen's x-axis instead of the arm's: the
    list applies right to left, so the rotation would be baked into the displacement. */
 .cnode .cpuck {
   transform: translateX(
       calc(
-        -50% * (1 - var(--ccos, 1)) + var(--cpuck-h, 0rem) * var(--csin, 0) / 2
+        var(--cradius, 13rem) - 50% * (1 - var(--ccos, 1)) +
+          var(--cpuck-h, 0rem) * var(--csin, 0) / 2
       )
     )
     rotate(var(--ca-inv, 0turn));

@@ -35,11 +35,20 @@ import type { PlotParams } from "./schema";
  * over the edge to be cut in half. Un-clipping the sides was the previous answer, and it
  * traded the cut label for one printed over the y-axis ticks in the gutter next door.
  */
+/** The wipe's own offset into the plot's cascade slot, and how long it runs. Separate constants
+ *  because the pair is READ BACK: line-chart times its caption to land after the chart has
+ *  finished drawing, and a hand-copied number there would drift the moment either moves here. */
+const WIPE_AT = 0.15;
+const WIPE_DUR = 1.1;
+
+/** How long the plot takes to draw, measured from the head of its cascade slot. */
+export const PLOT_DRAW_SEC = WIPE_AT + WIPE_DUR;
+
 export const plotAnim = (_p: PlotParams): AnimDescriptor[] => [
   {
     kind: "wipeIn",
     target: "wipe",
-    time: { at: "line", n: 0, plus: 0.15 },
-    opts: { dur: 1.1, ease: "power2.out" },
+    time: { at: "line", n: 0, plus: WIPE_AT },
+    opts: { dur: WIPE_DUR, ease: "power2.out" },
   },
 ];

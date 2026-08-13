@@ -10,7 +10,9 @@ import { LineChartSchema } from "./schema";
  *
  * ONE child, not one per point, because a polyline connects its points — see plot/schema.ts.
  * That also makes this the only child-bearing treatment whose cascade has a single child slot,
- * which is why its caption keys to `index 2` rather than to the caption slot (see anim.ts).
+ * which is what its caption has to work around: one beat is not long enough for the plot to
+ * draw, and there is no second child slot to hide behind, so the caption buys the delay with an
+ * offset instead of a slot (see anim.ts).
  */
 export const LineChart = treatment({
   name: "line-chart",
