@@ -99,11 +99,7 @@
   width: 100%;
   height: 100%;
 }
-.plot .pgrid {
-  stroke: var(--accent-3);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
+.plot .pgrid,
 .plot .pyline {
   stroke: var(--muted-3);
   stroke-width: 0.125rem;
