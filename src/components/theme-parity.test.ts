@@ -14,17 +14,28 @@ import { BACKDROP_NAMES } from "../types/storyboard";
 import "./registry"; // populate the registry
 import { REM_GRID } from "./runtime/css";
 import { scrubDeterminism } from "./runtime/determinism";
-import { renderScene } from "./runtime/emit";
+import { buildPreview, renderScene } from "./runtime/emit";
 import { rootContext } from "./runtime";
 import { allComponents, allTreatments, getComponent, getTreatment, hasComponent, hasTreatment } from "./runtime/registry";
 import type { ComponentFactory, ThemeTokens, TreatmentFactory } from "./runtime/types";
 import { ALL_THEMES } from "./themes/all";
 import { blockTheme } from "./themes/block/theme";
+import { H, PAD_TOP, PLOT_BOX_REM } from "./primitives/plot/metrics";
 
 const VO = ["l1", "l2", "l3", "l4", "l5"];
 const pctx = (theme: ThemeTokens, compId: string) => rootContext(compId, theme, { voIds: VO });
 const nameOf = (f: ComponentFactory | TreatmentFactory): string =>
   "treatmentName" in f ? f.treatmentName : f.componentName;
+
+/**
+ * CSS with its prose removed.
+ *
+ * Every assertion that greps a stylesheet has to run through this first. These skins explain
+ * themselves at length and routinely quote their own selectors and dimensions — so a bare match
+ * reads a number out of a paragraph about the number, which is how the wordmark budget check was
+ * vacuous on the day it was written.
+ */
+export const stripComments = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /** The declarations inside `selector { … }`, or "" when the skin does not state the rule. */
 const ruleBody = (css: string, selector: string): string => {
@@ -842,6 +853,278 @@ describe("plotted-figure reservation (tripwire)", () => {
   });
 });
 
+// ----------------------------------------------------------- cluster occlusion ---
+/**
+ * THE NODE CLUSTER'S HUB AND PUCKS MUST BE OPAQUE, in every theme.
+ *
+ * Unlike every other fill in the library this is not a look, it is the diagram working: each arm
+ * is a box rotated about the ring's exact centre (cluster-node.css), so the hub sits on top of
+ * ALL of them and each puck sits on the tip of its own. Painting nothing — or tinting into
+ * `transparent`, which four themes did — lets the connector lines read straight through the type.
+ * The fix is to mix into `var(--ground)` (the emitter stamps the scene's resolved ground as a
+ * custom property; runtime/css.ts), which keeps each theme's own tint and still occludes.
+ *
+ * A tripwire rather than a note, because a new theme's skin is written by copying an existing one
+ * and `transparent` is the natural thing to type — and the result renders, just wrongly.
+ *
+ * It lives HERE and not in registry.test.ts because it is a sweep over ALL_THEMES, which is this
+ * file's charter — and because the copy that lived there brought its own weaker `ruleBody` with
+ * it: anchored on a bare `indexOf(selector)` rather than `selector + " {"`, it would happily
+ * return a DIFFERENT rule's body when a skin named the selector in a comment first, and these
+ * sheets cross-reference their own selectors in prose constantly.
+ */
+describe("cluster hub and pucks occlude (tripwire)", () => {
+  test.each(ALL_THEMES)("$name's cluster hub and pucks are opaque", (theme) => {
+    for (const [skin, selector] of [
+      ["node-cluster", ".node-cluster .hub"],
+      ["cluster-node", ".cnode .cpuck"],
+    ] as const) {
+      const css = stripComments(theme.skins?.[skin] ?? "");
+      expect(css, `${theme.name} has no ${skin} skin`).toContain(selector);
+      const bg = /^\s*background:\s*([^;]+);/m.exec(ruleBody(css, selector))?.[1];
+      expect(bg, `${theme.name}/${skin} — ${selector} paints no background`).toBeDefined();
+      expect(bg, `${theme.name}/${skin} — ${selector} is see-through; mix into var(--ground)`).not.toContain(
+        "transparent",
+      );
+    }
+  });
+
+  // …and what they mix into has to RESOLVE. `--ground` is stamped by the emitter, and the skins
+  // used to spell out a per-theme fallback for the case where it is not — a bare component
+  // preview — which was five hand-matched copies of `theme.groundDefault`, i.e. data the library
+  // already holds. `buildPreview` stamps the property for a component too now (runtime/emit.ts),
+  // so no skin needs a fallback and none may reintroduce one.
+  test.each(ALL_THEMES)("$name resolves --ground without a per-skin fallback", (theme) => {
+    for (const [name, css] of Object.entries(theme.skins ?? {})) {
+      expect(
+        stripComments(css),
+        `${theme.name}/${name} hardcodes a --ground fallback — it duplicates theme.groundDefault, so the two drift`,
+      ).not.toMatch(/var\(\s*--ground\s*,/);
+    }
+    // A bare COMPONENT preview carries the property, so the un-fallbacked var() above resolves.
+    const html = buildPreview(getComponent("cluster-node")({ label: "A", index: 0, total: 3 }), pctx(theme, "cg")).html;
+    expect(html, `${theme.name}: a bare component preview stamps no --ground`).toContain("--ground: var(--");
+  });
+});
+
+// ------------------------------------------------------------ plot value clipping ---
+// THE LINE PLOT'S VALUE LABELS SIT IN SPACE THE GEOMETRY RESERVES FOR THEM, which makes the
+// room they need a cross-file contract rather than a styling choice. Each point's figure is an
+// absolutely-positioned label ABOVE its dot inside the plot box, so space the reservation does
+// not cover is not merely tight — the figure is sliced off by the entrance's own clip. The
+// series MAXIMUM is the one that hits it, i.e. the number a trend chart exists to show, and it
+// fails in exactly the state every other sweep passes in: the scene builds, lints and inspects
+// clean with a label missing.
+//
+// The reservation is `PAD_TOP` of the plot's own box, and both numbers are IMPORTED here rather
+// than restated. They used to be literals in this file — `HEADROOM = 60 / 400`, `PLOT_BOX_REM =
+// 24` — which meant the guard measured the numbers it was written with instead of the ones that
+// ship: moving PAD_TOP to 48 left every assertion green on a plot that clips.
+describe("plot value-label clipping (tripwire)", () => {
+  /** The fraction of the plot box reserved above `max` for the top point's label stack. */
+  const HEADROOM = PAD_TOP / H;
+
+  /** A `<prop>: <n>rem` declaration, or `undefined` when the rule does not state one.
+   *
+   *  UNDEFINED RATHER THAN ZERO. This defaulted a miss to 0, so a `.pdot` sized in `em`, via a
+   *  `var()`, or through a `width`/`height` shorthand contributed nothing to the stack and the
+   *  assertion below passed on a plot that clips — the one failure it exists to catch. Comments
+   *  are stripped first for the same reason the wordmark tripwire strips them: these skins
+   *  discuss their own dimensions in prose, and a match inside a comment reads an old number
+   *  back as the live one. */
+  const remDecl = (body: string, prop: string): number | undefined => {
+    const m = new RegExp(`${prop}:\\s*([\\d.]+)rem`).exec(stripComments(body));
+    return m ? Number(m[1]) : undefined;
+  };
+
+  // 1. The box the reservation is a fraction OF is now the component's (`--pbox`, from
+  //    plot/metrics.ts via layout()), so a skin CANNOT resize it out from under PAD_TOP. What
+  //    this checks is that the skin has not gone back to declaring its own.
+  test.each(ALL_THEMES)("$name leaves the plot box to the component", (theme) => {
+    const rule = stripComments(ruleBody(theme.skins?.plot ?? "", ".plot .parea"));
+    expect(
+      rule,
+      `${theme.name}: .plot .parea states its own height — the box PAD_TOP reserves ${HEADROOM * 100}% of is plot/metrics.ts's (--pbox), and a skin free to resize it is a skin free to clip the series maximum`,
+    ).not.toMatch(/height:/);
+  });
+
+  // 2. …and the label stack has to FIT that reservation. It is half a dot + `.pval`'s margin +
+  //    one line of type, which is only knowable if the line box is exactly the type size: an
+  //    inherited line-height silently adds 20-60% of a step and overruns the padding.
+  test.each(ALL_THEMES)("$name's value label fits the reserved headroom", (theme) => {
+    const skin = theme.skins?.plot ?? "";
+    const val = stripComments(ruleBody(skin, ".plot .pval"));
+    // `\b` would accept `1.15` (the `.` ends the word), which is exactly the regression named
+    // above — the value has to be bare 1.
+    expect(val, `${theme.name}: .plot .pval states no line-height: 1, so its height is a guess`).toMatch(
+      /line-height:\s*1\s*;/,
+    );
+    const dot = remDecl(ruleBody(skin, ".plot .pdot"), "height");
+    const gap = remDecl(val, "margin-bottom");
+    const size = /font-size:\s*([^;]+);/.exec(val)?.[1]?.trim();
+    expect(dot, `${theme.name}: .plot .pdot states no rem height, so the stack cannot be measured`).toBeDefined();
+    expect(gap, `${theme.name}: .plot .pval states no rem margin-bottom, so the stack cannot be measured`).toBeDefined();
+    expect(size, `${theme.name}: .plot .pval states no font-size, so the stack cannot be measured`).toBeDefined();
+    const stack = dot! / 2 + gap! + resolveFontSize(theme, size!);
+    expect(
+      stack,
+      `${theme.name}: the value label stack is ${stack}rem but only ${HEADROOM * PLOT_BOX_REM}rem is reserved above the top point — the series maximum will be clipped`,
+    ).toBeLessThanOrEqual(HEADROOM * PLOT_BOX_REM);
+  });
+
+  // 3. NO SKIN STATES A CLIP-PATH, and this is the tripwire for the bug that taught us why.
+  //
+  //    The wipe used to be a `from` tween toward whatever the skin declared as the end value,
+  //    and `from` reads that end off the element's COMPUTED style. Blink minifies an inset():
+  //    `inset(0 -6% 0 -6%)` computes as the two-component `inset(0px -6%)`, GSAP pairs the two
+  //    strings' components POSITIONALLY, and a four-component from-state against two components
+  //    fed `100%` into the LEFT inset as well as the right — so the entrance played centre-out
+  //    instead of left-to-right, in every theme, with the authored strings exactly as pinned.
+  //    The old assertion could not see it: it compared source text, and the collapse happens in
+  //    the browser's serializer.
+  //
+  //    `MC.wipeIn` states both endpoints itself, so the computed value is out of the loop — and
+  //    a skin restating a clip-path can only break it again.
+  test.each(ALL_THEMES)("$name states no clip-path on the wiped layer", (theme) => {
+    const skin = stripComments(theme.skins?.plot ?? "");
+    expect(
+      skin,
+      `${theme.name}: the plot skin states a clip-path — the wipe supplies both of its own endpoints (MC.wipeIn), so this cannot configure it, only fight it`,
+    ).not.toMatch(/clip-path:/);
+  });
+
+  // The entrance itself, read off the descriptor the runtime actually emits: a `fromTo` kind, so
+  // that neither the computed value nor Blink's component-minification is ever consulted.
+  test("the plot entrance is a two-ended wipe, not a from-tween", () => {
+    const anims = getComponent("plot")().buildNode(pctx(blockTheme, "pw")).anims;
+    const wipe = anims.find((a) => a.target.endsWith("-wipe"));
+    expect(wipe, "the plot no longer emits its wipe").toBeDefined();
+    expect(
+      wipe!.kind,
+      "the plot wipe is a `from` again — it would interpolate toward the element's computed clip-path, which Blink minifies to a different number of components",
+    ).toBe("wipeIn");
+    expect(wipe!.opts).not.toHaveProperty("clipPath");
+  });
+});
+
+// ------------------------------------------------------------------ plot axis skin ---
+// Both axis labels are drawn by the component (registry.test.ts pins the arithmetic) but PAINTED
+// by each theme, and this paint fails quietly: each row is absolutely positioned off the point
+// scale and sized by a hidden in-flow sizer, so a row lettered in the wrong place is measured for
+// type it never renders — numbers overlapping the plot, or a category row of the wrong height.
+// Neither is caught by "the scene builds".
+describe("plot axis skin (tripwire)", () => {
+  // THE TYPE LIVES ON THE ROW, NOT ON THE LABEL, on both axes. The row's size comes from a hidden
+  // sizer holding the same strings, so the two must be lettered identically — and the only way to
+  // guarantee that is to letter neither and let both inherit. A font-size moved onto `.ptick` or
+  // `.plab` still LOOKS right (the visible labels are absolutely positioned and unaffected) while
+  // the sizer beside it measures something else.
+  const ROWS = [
+    [".plot .pyaxis", ".plot .ptick", "the tick gutter's width"],
+    [".plot .paxis", ".plot .plab", "the category row's height"],
+  ] as const;
+
+  test.each(ALL_THEMES)("$name letters each axis row, so its sizer measures the real labels", (theme) => {
+    const skin = stripComments(theme.skins?.plot ?? "");
+    for (const [row, label, what] of ROWS) {
+      expect(
+        ruleBody(skin, row),
+        `${theme.name}: ${row} names no font-size, so ${what} is measured in the inherited face`,
+      ).toMatch(/font-size:\s*var\(--font-size-/);
+      expect(
+        ruleBody(skin, label),
+        `${theme.name}: ${label} sizes its own type — the sizer beside it does not, so ${what} is measured for the wrong string`,
+      ).not.toMatch(/font-size:/);
+    }
+  });
+
+  // THE GEOMETRY IS NOT THE SKIN'S, and until this PR it was: the two-column grid, both sizers,
+  // every inset and every transform were stamped into all six sheets, ~93% identical, so a
+  // structural fix could be applied to five of them and still build. It lives in the component's
+  // shared sheet now (primitives/plot/geometry.css) and a skin that restates any of it is either
+  // fighting the shared rule or re-opening the drift.
+  //
+  // `position`/`inset`/`transform` are the tell: a plot skin has no legitimate reason to state
+  // one, because nothing it owns — face, weight, colour, stroke width, dot size — is positional.
+  test.each(ALL_THEMES)("$name's plot skin is paint, not structure", (theme) => {
+    const skin = stripComments(theme.skins?.plot ?? "");
+    for (const prop of ["position", "inset", "transform", "grid-template-columns", "visibility"]) {
+      expect(
+        skin,
+        `${theme.name}: the plot skin states \`${prop}\` — the plot's structure is primitives/plot/geometry.css, and a skin restating it is how six near-identical sheets happened`,
+      ).not.toMatch(new RegExp(`(^|[;{\\s])${prop}\\s*:`));
+    }
+  });
+
+  // THE CATEGORY LABELS CANNOT OVERPRINT EACH OTHER, which is a geometry fact and so belongs to
+  // the shared sheet — asserted on what a real build DELIVERS rather than on what any one file
+  // says. Dropping the equal-cell row for absolute positioning dropped the only thing keeping
+  // eight long labels apart: `nowrap` and no width, they simply printed on top of one another and
+  // the two on the ends ran off the frame. The component now gives each label a box (`--lw`) and
+  // anchors the ends inward (`--la`).
+  test.each(ALL_THEMES)("$name's plot gives every category label a bounded box", (theme) => {
+    const built = getComponent("plot")({
+      labels: ["January Forecast", "February", "March", "April Forecast"],
+      values: [1, 2, 3, 4],
+      max: 4,
+    }).build(pctx(theme, "plab"));
+    const css = stripComments(built.css);
+    const lab = ruleBody(css, ".plot .plab");
+    expect(lab, `${theme.name}: .plot .plab has no max-width, so long labels overprint their neighbours`).toMatch(
+      /max-width:[^;]*var\(--lw/,
+    );
+    expect(lab, `${theme.name}: .plot .plab does not clip, so a label wider than its box still overruns`).toMatch(
+      /overflow:\s*hidden/,
+    );
+    // Every label carries a box, and the two on the ends carry an inward anchor.
+    const boxes = [...built.html.matchAll(/class="plab"[^>]*--lw:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
+    expect(boxes, `${theme.name}: a category label was emitted with no box`).toHaveLength(4);
+    const anchors = [...built.html.matchAll(/class="plab"[^>]*--la:\s*(-?[\d.]+)%/g)].map((m) => m[1]);
+    expect(anchors, `${theme.name}: the end labels are not anchored inward, so they hang over the frame`).toEqual([
+      "0",
+      "-100",
+    ]);
+    // The boxes TILE: two half-pitch ends plus the full-pitch middles is the whole row.
+    const total = boxes.reduce((a, b) => a + b, 0);
+    expect(total, `${theme.name}: the label boxes do not tile the row (${total}%)`).toBeCloseTo(100, 1);
+  });
+
+  // THE VERTICAL AXIS RULE IS GONE, in every theme (plot/index.ts, frameSvg). The y-axis is its
+  // ticks: the gridlines already carry the eye across from each number, and a rule down the left
+  // only adds a box edge. A skin that re-adds one would style an element nothing emits — silent,
+  // and the next theme copied from it would inherit the dead rule.
+  test.each(ALL_THEMES)("$name styles no vertical axis rule", (theme) => {
+    expect(
+      theme.skins?.plot ?? "",
+      `${theme.name}: .plot .pyline is styled, but no plot emits one`,
+    ).not.toContain(".pyline");
+  });
+
+  // NEITHER AXIS IS UPPER-CASED, and the two halves of that have different weight.
+  //
+  // On the y-axis it is a CORRECTNESS rule. A tick is a number, and `text-transform` rewrites a
+  // figure's letters: a tick carrying a unit of MINUTES renders `46m` as `46M`, which reads as
+  // millions. (The ticks are bare numbers now — plot/index.ts — so the unit no longer reaches
+  // them, but the rule is kept: it costs nothing and the next edit that puts a unit back would
+  // otherwise restore the bug silently.)
+  //
+  // On the x-axis it is a DESIGN decision (five themes used to upper-case it): a category label
+  // renders as the deck authored it. Both are pinned here because the two rules are one rule to
+  // anyone editing this skin, and a new theme is written by copying an existing one.
+  test.each(ALL_THEMES)("$name leaves both axes' labels in their authored case", (theme) => {
+    const skin = stripComments(theme.skins?.plot ?? "");
+    for (const [sel, why] of [
+      [".plot .pyaxis", "rewrites the unit in every tick"],
+      [".plot .paxis", "overrides the case the deck authored its categories in"],
+    ] as const) {
+      expect(
+        ruleBody(skin, sel),
+        `${theme.name}: ${sel} transforms its case, which ${why}`,
+      ).not.toMatch(/text-transform:\s*(uppercase|capitalize)/);
+    }
+  });
+});
+
 // ------------------------------------------------------- shared-sheet delivery ---
 // THE TWO SHEETS NO THEME OWNS, and the guard the hoist needed and did not have.
 //
@@ -911,6 +1194,33 @@ describe("shared sheets reach every theme (tripwire)", () => {
       /background|border(?!-radius)/.test(rule),
       `${theme.name}: .hud .hud-title paints neither a background nor a border`,
     ).toBe(true);
+  });
+
+  // THE WORDMARK'S LINE BOX IS THE OTHER THING THAT CAN MOVE THE BAND, and it is the one a skin
+  // can still reach: geometry.css shares the SIZE (`--font-size-md`) but leading is a property of
+  // the FACE, so a theme whose display face draws taller ink than the shared `line-height: 1.2`
+  // has to say so — capsule's Bodoni does, and until it did, `overflow: hidden` (the same rule
+  // that gives the wordmark its ellipsis) clipped the brand off top and bottom on every slide.
+  //
+  // The budget is what makes that override safe rather than a hole: the row's height is
+  // `max(the 3rem mark slot, the type in it)`, and `--safe-top` reserves against that number
+  // sight-unseen, so the type box may grow to 3rem and not a pixel further. Resolved off the
+  // BUILT css (geometry + skin, in cascade order) rather than the skin alone, which is what the
+  // browser does and the only way the shared default is accounted for.
+  test.each(ALL_THEMES)("$name's wordmark line box stays inside the 3rem brand slot", (theme) => {
+    // Comments FIRST: these sheets discuss line-height in prose (this very override explains
+    // itself by quoting the shared 1.2 it replaces), and a match inside a comment reads the old
+    // number back as the live one — which made this assertion vacuous when it was written.
+    const css = getComponent("hud")({}).build(pctx(theme, "hud")).css.replace(/\/\*[\s\S]*?\*\//g, "");
+    const lh = [...css.matchAll(/\.hud \.hud-brand-name \{([^}]*)\}/g)]
+      .flatMap((m) => [...m[1]!.matchAll(/line-height:\s*([\d.]+)/g)].map((d) => d[1]!))
+      .at(-1); // last wins, exactly as the cascade resolves it
+    expect(lh, `${theme.name}: nothing sets a line-height on .hud .hud-brand-name`).toBeDefined();
+    const box = sizeScale(theme).md! * Number(lh);
+    expect(
+      box,
+      `${theme.name}: the wordmark's line box is ${box}rem, past the 3rem slot — the band grows and every frame's --safe-top is wrong`,
+    ).toBeLessThanOrEqual(3);
   });
 
   // The rail's height is a CEILING a skin may spend downward, never a licence to exceed it —

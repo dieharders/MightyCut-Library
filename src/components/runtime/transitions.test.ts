@@ -44,15 +44,34 @@ describe("elementIn (component entrance descriptor)", () => {
       opts: { dist: 26, dur: 3 },
     });
   });
-  test("slide/wipe/fall compile to the generic `from` kind with gsap vars", () => {
+  test("slide/fall compile to the generic `from` kind with gsap vars", () => {
     expect(elementIn("slide-left", "item")).toEqual({
       kind: "from",
       target: "item",
       time: { at: "line", n: 0 },
       opts: { x: -120, opacity: 0, duration: 0.6, ease: "power3.out" },
     });
-    expect(elementIn("wipe", "item")!.kind).toBe("from");
-    expect((elementIn("wipe", "item")!.opts as Record<string, unknown>).clipPath).toBe("inset(0 100% 0 0)");
+  });
+
+  // WIPE IS NOT A `from`, and that is the fix for a transition that did nothing when assigned.
+  //
+  // `tl.from(el, { clipPath })` interpolates toward the element's COMPUTED clip-path, which for
+  // an element nobody clipped is `none` — not an interpolable value. Picking `wipe` in the editor
+  // therefore produced no motion, and the in/out timing preset had nothing to apply to. `wipeIn`
+  // states BOTH endpoints in mc.js, so the computed value is never consulted — and neither is
+  // Blink's inset() component-minification, which is what made the same trap break the plot's own
+  // wipe in a different way (see primitives/plot/anim.ts).
+  test("wipe compiles to the two-ended `wipeIn` kind, and its timing preset reaches it", () => {
+    expect(elementIn("wipe", "item")).toEqual({
+      kind: "wipeIn",
+      target: "item",
+      time: { at: "line", n: 0 },
+      opts: { dur: 0.6, ease: "power2.inOut" },
+    });
+    expect(
+      (elementIn("wipe", "item", 3)!.opts as Record<string, unknown>).dur,
+      "the timing preset does not reach the wipe",
+    ).toBe(3);
   });
 });
 

@@ -47,6 +47,12 @@
   height: 12rem;
   border-radius: 50%;
   border: 0.125rem solid var(--accent-3);
+  /* OPAQUE, and that is structural rather than decorative: every arm starts at the ring's exact
+     centre, so an unpainted hub lets five connector lines run visibly through its label. The
+     canvas colour is what the disc paints (--ground, stamped by the emitter — see
+     runtime/css.ts), so it still reads as bare stone inside a hairline ring, and it stays right
+     when a scene grounds itself on the deeper stone. z-index above lifts it over the arms. */
+  background: var(--ground);
   padding: 1rem;
   font-family: var(--disp);
   font-weight: 400;

@@ -68,8 +68,14 @@ export const elementIn = (
       return mk("from", { y: ELEM_DIST, opacity: 0, duration: gsapDur, ease: "power3.out" });
     case "slide-down":
       return mk("from", { y: -ELEM_DIST, opacity: 0, duration: gsapDur, ease: "power3.out" });
+    // `wipeIn`, not `from`. A `from` clip-path tween interpolates toward the element's COMPUTED
+    // value, and an element nobody clipped computes `clip-path: none` — which is not an
+    // interpolable value, so the assigned transition did nothing at all and its timing preset
+    // had nothing to apply to. `wipeIn` states BOTH endpoints (mc.js), so neither the computed
+    // value nor Blink's inset() component-minification is in the loop. Same reason the plot's
+    // own wipe is a `wipeIn` (primitives/plot/anim.ts).
     case "wipe":
-      return mk("from", { clipPath: "inset(0 100% 0 0)", duration: gsapDur, ease: "power2.inOut" });
+      return mk("wipeIn", { dur: gsapDur, ease: "power2.inOut" });
   }
 };
 

@@ -51,15 +51,21 @@ export const ANIM_KINDS = [
   "growBar",
   "scaleIn",
   "from",
+  "wipeIn",
   "backdrop",
 ] as const;
 export type AnimKind = (typeof ANIM_KINDS)[number];
 
 /**
- * The WHOLE-BOX reveal kinds — every kind that compiles to a `tl.from()` driving the
- * element's own opacity. Two of these on one box fight over GSAP's immediateRender (the
- * later tween samples the earlier one's from-state, opacity 0, as its END value), so the
- * box reveals and then vanishes for good.
+ * The WHOLE-BOX reveal kinds — every kind that hides its target and brings it back. Two of
+ * these on one box fight over GSAP's immediateRender (the later tween samples the earlier
+ * one's from-state, opacity 0, as its END value), so the box reveals and then vanishes for
+ * good.
+ *
+ * `wipeIn` is here for the OTHER half of the rule — it is a `fromTo` and so carries no
+ * immediateRender clash, but it is still a whole-element ENTRANCE, and two entrances on one
+ * box is the thing this list keeps a picked transition from creating. A clip wipe running
+ * under a rise is not a crash, it is two entrances arguing.
  *
  * The remaining kinds are NOT reveals and legitimately stack on top of one: `rule`,
  * `float` and `countUp` are to/fromTo tweens, `growBar` is a `from` but on a sub-part's
@@ -69,7 +75,7 @@ export type AnimKind = (typeof ANIM_KINDS)[number];
  * boxless-reveal.test.ts drives the real interpreter kind-by-kind against this list, so
  * the two can't drift.
  */
-export const REVEAL_KINDS = ["riseIn", "fadeIn", "scaleIn", "staggerIn", "from"] as const satisfies readonly AnimKind[];
+export const REVEAL_KINDS = ["riseIn", "fadeIn", "scaleIn", "staggerIn", "from", "wipeIn"] as const satisfies readonly AnimKind[];
 export type RevealKind = (typeof REVEAL_KINDS)[number];
 
 const REVEAL_SET: ReadonlySet<string> = new Set<string>(REVEAL_KINDS);

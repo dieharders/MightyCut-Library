@@ -90,10 +90,34 @@ export const scopeCss = (css: string, root: string): string => scopeSelectors(cs
  */
 const GROUND_DECL = /background:\s*var\(--[a-z0-9-]+\)/;
 
-/** Re-point the first canonical ground declaration in `css` at `ground`. Returns the
- *  input unchanged when there is none to swap (nothing to override). */
+/**
+ * …and the `--ground` custom property stamped BESIDE it (`groundStyle`), which is what makes the
+ * ground READABLE from inside a skin.
+ *
+ * A skin cannot otherwise know what its scene is grounded on: the colour is an inline style on the
+ * page root, resolved from a chain (scene override → theme default → treatment canonical) that no
+ * stylesheet can see. That is fine while every skin paints ON the ground, and it is not fine for
+ * anything that has to OCCLUDE what is behind it — the node cluster's hub and pucks sit on top of
+ * the arms radiating out from the centre, so a transparent one lets the connector lines run
+ * straight through the type. `background: var(--ground)` paints the canvas colour opaquely; a
+ * theme wanting its own tint mixes INTO it (`color-mix(… , var(--ground))`) instead of into
+ * `transparent`, and stays opaque whatever the scene is grounded on.
+ *
+ * It is inherited, so every descendant of `.mc-frame` sees it. Usages still state a fallback —
+ * `var(--ground, var(--muted-1))` — because a component also renders bare in the showcase, where
+ * only a treatment's preview carries the stamp.
+ */
+const GROUND_VAR_DECL = /--ground:\s*var\(--[a-z0-9-]+\)/;
+
+/** The pair a treatment stamps on its page root for `ground`. */
+export const groundStyle = (ground: string): string =>
+  `--ground: var(--${ground}); background: var(--${ground})`;
+
+/** Re-point the first canonical ground declaration in `css` at `ground` — BOTH halves of the
+ *  pair, or the skins reading `--ground` would keep painting the ground the scene replaced.
+ *  Returns the input unchanged when there is none to swap (nothing to override). */
 export const swapGround = (css: string, ground: string): string =>
-  css.replace(GROUND_DECL, `background: var(--${ground})`);
+  css.replace(GROUND_VAR_DECL, `--ground: var(--${ground})`).replace(GROUND_DECL, `background: var(--${ground})`);
 
 /** Collect + dedupe component CSS by component name (each authored once). */
 export const collectCss = (parts: { name: string; css: string }[]): string => {

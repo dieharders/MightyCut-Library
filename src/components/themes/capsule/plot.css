@@ -1,51 +1,37 @@
-/* A line plot: gridlines and a polyline in SVG, every piece of TYPE in HTML over it.
+/* A line plot, PAINT ONLY. The structure — the two-column grid, the layered boxes, both hidden
+   sizers, the label geometry and the box height — is the component's own shared sheet
+   (primitives/plot/geometry.css), emitted ahead of this one. What is left here is what a theme
+   is for: face, weight, size role, tracking, colour, stroke weight, dot size.
 
-   THE SVG STRETCHES, DELIBERATELY (`preserveAspectRatio="none"`), and the box below is sized in
-   rem rather than by an aspect ratio. That is only safe because of how the plot is split: the
-   SVG holds nothing but the gridlines and the polyline, and neither has a shape to lose — a
-   stretched polyline IS the plot, and `vector-effect: non-scaling-stroke` keeps its weight even.
-   Everything that WOULD distort — the point dots, their values, the category labels — is HTML
-   positioned in percent off the same band scale the vertices were computed from, so it tracks
-   the line at any box shape while staying real, theme-scaled type.
+   If you find yourself adding a `position`, an `inset`, a `transform` or a `clip-path` to this
+   file, it belongs in the shared sheet — and in particular the wipe supplies both of its own
+   endpoints (plot/anim.ts), so a `clip-path` here does not configure it, it breaks it. */
 
-   A fixed `aspect-ratio` was the first attempt and it overflowed: at the frame's content width
-   the 1000:400 viewBox is ~700px tall, which pushed the headline up into the HUD band and the
-   caption down through the progress bar. The plot is sized against the FRAME's spare height,
-   not against its own viewBox.
+/* THE TICK TYPE LIVES ON THE ROW, not on .ptick. The gutter's width comes from a hidden sizer
+   holding the same strings, so the two must be lettered identically — and the only way to
+   guarantee that is to letter neither and let both inherit from the column.
 
-   .pwipe states its clip-path EXPLICITLY. It is the element the entrance animates FROM
-   (`inset(0 100% 0 0)`), and `from` interpolates toward the current computed value — `none` is
-   not interpolable, so without this the wipe silently does nothing. */
-.plot {
-  display: flex;
-  flex-direction: column;
+   It is the CATEGORY label's type minus the case transform, deliberately. Both are axis labels
+   and should not be lettered differently, but a category is a word ("Q1", "JAN") while a tick is
+   a number — and `text-transform` on a figure is a correctness risk, so neither row takes one. */
+
+.plot .pyaxis {
+  line-height: 1;
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--dark);
+  letter-spacing: 0.085em;
 }
-.plot .pwipe {
-  position: relative;
-  width: 100%;
-  height: 24rem;
-  clip-path: inset(0 0 0 0);
+/* The panel is commented out rather than deleted — the intended fill is recorded here while the
+   blur alone carries the box. */
+.plot .parea {
   /* background: color-mix(in srgb, var(--accent-3) 72%, transparent); */
   backdrop-filter: blur(0.75rem);
 }
-/* .pgeom is ABSOLUTE so the SVG has a definite box to fill. Left in flow it has auto height,
-   which makes the svg's `height: 100%` indefinite: the browser falls back to intrinsic sizing
-   and lays the drawing out at the viewBox's own 1000:400 ratio — ~690px tall at the frame's
-   content width. The clip-path then cut it off at 24rem, so the line drooped away from its
-   points (drawn against a 690px box while the HTML overlay positioned against a 384px one) and
-   vanished entirely once it descended past the cut. Both symptoms, one missing containing box. */
-.plot .pgeom {
-  position: absolute;
-  inset: 0;
-}
-.plot .psvg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
 .plot .pgrid {
-  stroke: color-mix(in srgb, var(--dark) 12%, transparent);
-  stroke-width: 1;
+  stroke: color-mix(in srgb, var(--dark) 38%, transparent);
+  stroke-width: 0.125rem;
   vector-effect: non-scaling-stroke;
 }
 .plot .pline {
@@ -53,21 +39,6 @@
   stroke-width: 0.3125rem;
   stroke-linejoin: round;
   stroke-linecap: round;
-}
-/* The overlay covers the SVG exactly, so a point placed at (--px, --py) — the same percentages
-   the polyline's vertices were computed from — lands on its vertex. */
-.plot .ppoints {
-  position: absolute;
-  inset: 0;
-}
-.plot .ppoint {
-  position: absolute;
-  left: var(--px);
-  top: var(--py);
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 .plot .pdot {
   width: 1rem;
@@ -77,31 +48,25 @@
   border: 0.25rem solid var(--dark);
   box-sizing: border-box;
 }
-/* Absolutely positioned so the value floats ABOVE its dot without pushing it off the vertex —
-   a flowed label would move the dot by half its own height. */
+/* `line-height` is stated so the label's box is exactly one type size tall: plot/metrics.ts
+   reserves PAD_TOP for this stack (half a dot + this margin + this line), and an inherited
+   line-height would quietly overrun the reservation and clip the top point's figure — the
+   highest number in the series, i.e. the one the chart exists to show. A tripwire measures the
+   stack against the reservation for every theme. */
 .plot .pval {
-  position: absolute;
-  bottom: 100%;
   margin-bottom: 0.625rem;
-  white-space: nowrap;
+  line-height: 1;
   font-family: var(--disp);
   font-weight: 700;
   font-size: var(--font-size-md);
   color: var(--dark);
 }
-/* One equal cell per point (--pn), so a centred label sits under its point — the plot puts its
-   points at cell CENTRES for exactly this reason (plot/index.ts, xAt). */
 .plot .paxis {
-  display: grid;
-  grid-template-columns: repeat(var(--pn, 4), 1fr);
   margin-top: 1.25rem;
-}
-.plot .plab {
-  text-align: center;
+  line-height: 1;
   font-family: var(--body);
   font-weight: 600;
   font-size: var(--font-size-sm);
   color: var(--dark);
-  text-transform: uppercase;
   letter-spacing: 0.085em;
 }

@@ -18,13 +18,15 @@
  * cannot exceed. A skin therefore states colour, radius, border, shadow, font-family, weight and
  * tracking, and never a position or a font-size role.
  *
- * TWO SIZES ARE STILL THE SKIN'S, and both are ceilings it may only spend DOWNWARD, because
- * neither changes what the safe area measured: `--hud-mark`, the brand mark inside its fixed 3rem
- * slot (standard's dot is 1.5rem), and the progress rail's `height` against 0.75rem (standard and
- * future take 0.25rem). Rail weight and mark scale are real parts of a theme's voice — standard's
- * hairline against block's slab — and flattening them was the one thing hoisting the geometry got
- * wrong. Nothing else here is a skin's to restate, and in particular the two 3rem boxes the band
- * height is measured from are not.
+ * THREE SIZES ARE STILL THE SKIN'S, and each is a ceiling it may only spend up to, because none
+ * of them changes what the safe area measured: `--hud-mark`, the brand mark inside its fixed 3rem
+ * slot (standard's dot is 1.5rem); the progress rail's `height` against 0.75rem (standard and
+ * future take 0.25rem); and the wordmark's `line-height` against the same 3rem slot the brand row
+ * is measured from (capsule takes 1.65 — see `.hud-brand-name`). Rail weight, mark scale and
+ * leading are real parts of a theme's voice — standard's hairline against block's slab, Bodoni's
+ * ink against Inter's — and flattening them was the one thing hoisting the geometry got wrong.
+ * Nothing else here is a skin's to restate, and in particular the two 3rem boxes the band height
+ * is measured from are not. (§6 of docs/THEME-AUTHORING.md carries the same table.)
  *
  * THE BAND IS 7.625rem: brand row and title chip are both 3rem boxes on a 4.625rem top edge. Hard
  * shadows are paint and hang below it (creative's 0.625rem is the deepest), which is what the
@@ -113,8 +115,8 @@
  * making. The RESERVE is ours; what gets painted in it is the theme's.
  *
  * Border-box, so the outline weight is a skin decision and not a size one; the wordmark beside it
- * is capped at --font-size-md × 1.2 (≤ 2.7rem in every theme) so the slot — not the type scale —
- * is what sets the row's height, whatever the mark does. */
+ * is capped by the slot rather than by the type scale (see `.hud-brand-name`), so the row's
+ * height is this box whatever the mark or the face does. */
 .hud .hud-brand-mark {
   --hud-mark-size: min(var(--hud-mark, 3rem), 3rem);
   width: var(--hud-mark-size);
@@ -129,8 +131,15 @@
  * the band's height is max(the 3rem boxes, the type in them), `--safe-top` reserves against that
  * number sight-unseen, and a skin free to set its own size here is a skin free to move the number
  * every frame in the deck is padded against — measured from the pre-hoist skins the band ran
- * 7.05rem (future) to 9.73rem (block) for exactly that reason. md × 1.2 is ≤ 2.7rem everywhere,
- * i.e. under the 3rem slot, so the boxes stay the thing that sets the height. See §6 of
+ * 7.05rem (future) to 9.73rem (block) for exactly that reason.
+ *
+ * THE LEADING IS THE SKIN'S, under the same ceiling as the mark. It is stated here as a default
+ * rather than as a rule, because leading is a property of the FACE: Bodoni Moda at 800 draws
+ * ~1.54em of ink between ascender and descender, so capsule's wordmark was clipped top and bottom
+ * by this rule's own `overflow: hidden` until it raised its own to 1.65. What a skin may not do
+ * is exceed the 3rem slot — `--font-size-md` runs 1.75rem to 2.25rem across the six, so the
+ * line box has to stay under `3rem / --font-size-md`, and a tripwire measures each theme's
+ * against its own scale. The BOXES remain the thing that sets the band's height. See §6 of
  * docs/THEME-AUTHORING.md, which records this as the ONE place the type scale is shared. */
 .hud .hud-brand-name {
   font-size: var(--font-size-md);

@@ -246,6 +246,21 @@ describe("ground override via wrapSubComposition parts", () => {
     expect(html).toContain("background: var(--accent-1)");
     expect(html).not.toContain("background: var(--primary)");
   });
+
+  // The ground is also stamped as an inherited custom property, which is the ONLY way a skin can
+  // paint opaquely over what the scene is grounded on (node-cluster's hub + pucks have to occlude
+  // the arms they sit on). Both halves are pinned: emitting one without swapping the other is the
+  // failure that matters — the page would repaint and every skin reading --ground would keep the
+  // colour the scene replaced, which no `background:` assertion above would catch.
+  test("the ground is exposed to skins as --ground", () => {
+    expect(renderScene(StatGrid(), ctx("s"))).toContain("--ground: var(--primary)");
+  });
+
+  test("a ground override re-points --ground too", () => {
+    const html = renderScene(StatGrid(), ctx("s"), { ground: "accent-1" });
+    expect(html).toContain("--ground: var(--accent-1)");
+    expect(html).not.toContain("--ground: var(--primary)");
+  });
 });
 
 describe("backdrop mask", () => {

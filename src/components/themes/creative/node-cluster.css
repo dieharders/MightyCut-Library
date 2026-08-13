@@ -12,9 +12,12 @@
 /* The ring takes the height the h3 and caption leave and the radius is sized to THAT, so the
    diagram shortens its arms rather than crossing the headline — absolutely positioned spokes give
    the ring nothing to measure. Block's node-cluster.css carries the reasoning in full; the two
-   puck customs below are creative's own, being the block's real border box: 10.5rem of text inside
-   1.25rem padding and NO border (this theme's puck is a flat fill), and a 1.75rem/1.2 label over a
-   1.375rem/1.25 detail. */
+   puck customs below are creative's own, being the puck's real border box: 10.5rem of text inside
+   0.625rem/1.25rem padding and the 0.5rem keyline (cluster-node.css), over a 1.75rem/1.2 label
+   and a 1.375rem/1.25 detail. Both numbers are DERIVED, so the keyline had to move both: 10.5 +
+   2×1.25 + 2×0.5 = 14rem wide, and (2.1 + 1.71875) + 1.25 + 1 = 6.06875 → 6.125rem on the grid.
+   Leaving them at the borderless 13/5.125 would have squeezed a rem out of every label and left
+   the seating correction short by the border, poking each arm's tip out past its own puck. */
 .node-cluster .ring {
   position: relative;
   flex: 1;
@@ -23,8 +26,8 @@
 .node-cluster .spokes {
   position: absolute;
   inset: 0;
-  --cpuck-w: 13rem;
-  --cpuck-h: 5.125rem;
+  --cpuck-w: 14rem;
+  --cpuck-h: 6.125rem;
   /* The vertical worst case IS the puck's height — the seating correction pins its near edge at
      --cradius at every angle, so the width never enters this. block/node-cluster.css carries the
      derivation, and the average this used to take cost every theme a visible arm. */

@@ -325,14 +325,27 @@
   };
 
   // Clip-path wipe entrance (reveal left → right).
+  //
+  // fromTo, NEVER from, and that is a correctness requirement rather than a style. `tl.from`
+  // reads the END of a clip-path tween off the element's COMPUTED value, and Blink minifies
+  // an inset(): it drops the 4th component when left == right and the 3rd when bottom == top,
+  // so `inset(0 0 0 0)` computes as the ONE-component `inset(0px)`. GSAP's complex-string
+  // tween pairs slots POSITIONALLY between the two strings, so a 4-component from-state against
+  // a 1- or 2-component end value drives the wrong components: `inset(0 100% 0 -6%)` toward
+  // `inset(0px -6%)` fed 100% into the LEFT inset as well as the right, and the wipe played
+  // centre-out instead of left-to-right. Stating both endpoints here means GSAP only ever sees
+  // strings this file wrote, with matching component counts, and the computed serialization
+  // never enters. (The same trap makes a bare `from` clip-path tween a no-op against the
+  // default `none`, which is not interpolable at all — that is what broke the `wipe` element
+  // transition in the editor.)
+  //
+  // `from`/`to` are overridable so a caller can wipe to something other than the full box —
+  // the plot passes its own pair — while the DEFAULTS stay the plain left-to-right reveal.
   MC.wipeIn = function (tl, target, at, opts) {
     var o = opts || {};
-    tl.fromTo(
-      target,
-      { clipPath: "inset(0 100% 0 0)" },
-      { clipPath: "inset(0 0% 0 0)", duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power2.inOut" },
-      at || 0,
-    );
+    var to = { clipPath: o.to || "inset(0 0% 0 0)", duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power2.inOut" };
+    if (o.stagger) to.stagger = o.stagger;
+    tl.fromTo(target, { clipPath: o.from || "inset(0 100% 0 0)" }, to, at || 0);
     return tl;
   };
 
@@ -457,7 +470,7 @@
     // boxes already claimed by one in THIS call. MIRRORS runtime/anim.ts's REVEAL_KINDS,
     // which the build-time dedupe uses; boxless-reveal.test.ts drives this interpreter
     // kind-by-kind from that list, so the two can't drift.
-    var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1 };
+    var REVEAL_KINDS = { riseIn: 1, fadeIn: 1, scaleIn: 1, staggerIn: 1, from: 1, wipeIn: 1 };
     // The backdrop FX a `backdrop` descriptor may name (see the backdrop arm below).
     // particleBg paints a canvas; washSpin turns a plain element; hueShift drifts a plain
     // element's hue. All answer the same factory contract — fx(el, opts).addTo(tl, atSec, durationSec).
@@ -536,6 +549,9 @@
       if (a.kind === "riseIn") MC.riseIn(tl, box, when, ro);
       else if (a.kind === "fadeIn") MC.fadeIn(tl, box, when, ro);
       else if (a.kind === "staggerIn") MC.staggerIn(tl, boxes, when, o);
+      // A clip-path reveal. It takes `ro` (the fan-out stagger folded in) like the other
+      // whole-box kinds, so a box-less root retargeted onto its children still cascades.
+      else if (a.kind === "wipeIn") MC.wipeIn(tl, box, when, ro);
       else if (a.kind === "rule") MC.rule(tl, el, when, o);
       else if (a.kind === "float") MC.float(tl, el, when, o);
       else if (a.kind === "countUp") MC.countUp(tl, el, when, o);

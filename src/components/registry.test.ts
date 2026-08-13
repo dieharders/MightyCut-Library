@@ -268,6 +268,241 @@ describe("new library components", () => {
     expect(getComponent("hud").frame).toBe(true);
     expect(getComponent("stat").frame).toBeFalsy();
   });
+
+  // ------------------------------------------------------------------ the y-axis ---
+  // AN AXIS THAT DOES NOT LINE UP WITH ITS OWN GRIDLINES IS WORSE THAN NO AXIS: it is a scale
+  // the viewer reads off and gets wrong, and unlike a missing label it looks completely fine.
+  // The lines are drawn in viewBox units inside an SVG and the numbers are HTML positioned in
+  // percent over it — two coordinate systems, one array (GRID_T) — so the correspondence is
+  // arithmetic that can silently drift rather than a layout that visibly breaks.
+  describe("plot y-axis", () => {
+    const plotHtml = (params?: Record<string, unknown>) =>
+      build("plot", params ?? { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+
+    /** Each gridline's y as a PERCENTAGE of the viewBox height — the unit the ticks use. */
+    const gridPct = (html: string): number[] =>
+      [...html.matchAll(/class="pgrid"[^>]*y1="([\d.]+)"/g)].map((m) => (Number(m[1]) / 400) * 100);
+    const tickPct = (html: string): number[] =>
+      [...html.matchAll(/class="ptick" style="--py: ([\d.]+)%/g)].map((m) => Number(m[1]));
+    /** Tick text, visible ones only — the hidden sizer repeats every string. */
+    const tickText = (html: string): string[] =>
+      [...html.matchAll(/class="ptick"[^>]*>([^<]*)</g)].map((m) => m[1]!);
+
+    test("every gridline is labelled and every label sits on a gridline", () => {
+      const html = plotHtml();
+      const [grid, ticks] = [gridPct(html), tickPct(html)];
+      expect(grid.length, "the frame drew no gridlines").toBeGreaterThan(0);
+      expect(ticks.length, "a gridline has no tick, or a tick has no line").toBe(grid.length);
+      for (const [i, pct] of ticks.entries()) expect(pct).toBeCloseTo(grid[i]!, 2);
+    });
+
+    test("the ticks read the scale's own ends, top to bottom", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [30, 90], max: 100, min: 20 }));
+      expect(text.at(0), "the top tick is not the scale's max").toBe("100");
+      expect(text.at(-1), "the bottom tick is not the scale's min").toBe("20");
+    });
+
+    // THE TICKS ARE BARE NUMBERS. They used to repeat the full unitPrefix/unitSuffix on every
+    // line so that the axis and the points could not read as two different scales — but that is
+    // what the shared decimal rule below guarantees, and the gutter sizes itself off the result:
+    // a schema-legal prefix + suffix pair produced 25-character ticks and spent a third of the
+    // frame's width on three copies of the unit. Every point states the unit already.
+    test("a tick is the number alone, however wide the series' units are", () => {
+      const text = tickText(
+        plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "US$MM ", unitSuffix: " subscribers" }),
+      );
+      expect(text).toEqual(["4", "2", "0"]);
+      // …and the point label is where the unit lives.
+      const vals = [...plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" })
+        .matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals).toEqual(["$1M", "$4M"]);
+    });
+
+    // The middle of an odd span lands between two integers. Rounding it prints a number the line
+    // is NOT drawn at, which is the one error an axis must not make.
+    test("a tick between two integers keeps the decimal it would round away", () => {
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 61], max: 61 }))).toEqual(["61", "30.5", "0"]);
+      // …and a whole-numbered scale is NOT given a spurious decimal place.
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 60], max: 60 }))).toEqual(["60", "30", "0"]);
+    });
+
+    // The old rule stopped at ONE decimal place, so a small span printed the same number on two
+    // different lines — the exact failure it was written to prevent, one order of magnitude down.
+    test("a span too small for one decimal still labels every line differently", () => {
+      const text = tickText(plotHtml({ labels: ["a", "b"], values: [0, 0.01], max: 0.01 }));
+      expect(text).toEqual(["0.01", "0.005", "0"]);
+      expect(new Set(text).size, "two gridlines carry the same label").toBe(3);
+    });
+
+    // …and the SAME rule formats the points, which is the property that matters: the old one
+    // bumped the ticks alone, so a series of 0.5 and 2.5 at the default `decimals: 0` drew its
+    // maximum exactly ON the top gridline while labelling the point "3" and the line "2.5".
+    test("a point drawn on a gridline carries the same number as the gridline", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [0.5, 2.5], max: 2.5 });
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals.at(-1), "the top point rounds differently from its own gridline").toBe(
+        tickText(html).at(0)!,
+      );
+      expect(vals).toEqual(["0.5", "2.5"]);
+    });
+
+    // Endpoint ticks are the scale's own numbers, not `max - 1 * (max - min)` — which is
+    // 2.9999999999999996 for a 3…4.2 scale and reads as an axis needing a decimal it does not.
+    test("float drift does not give the scale's ends a spurious decimal", () => {
+      expect(tickText(plotHtml({ labels: ["a", "b"], values: [3, 4.2], max: 4.2, min: 3, decimals: 1 }))).toEqual([
+        "4.2",
+        "3.6",
+        "3.0",
+      ]);
+    });
+
+    // A FLAT SERIES GETS ONE LINE. Three lines would carry three copies of one number at three
+    // heights while the data sat on the middle one — an axis claiming the top and the bottom of
+    // the box are both 50.
+    test("a flat series draws one labelled line, not three saying the same thing", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [50, 50], max: 50, min: 50 });
+      expect(gridPct(html), "a flat scale still draws three gridlines").toHaveLength(1);
+      expect(tickText(html)).toEqual(["50"]);
+      const pts = [...html.matchAll(/class="ppoint" style="[^"]*--py: ([\d.]+)%/g)].map((m) => Number(m[1]));
+      expect(pts.every((y) => Math.abs(y - tickPct(html)[0]!) < 0.01), "the series is off its own line").toBe(true);
+    });
+
+    // The sign belongs in front of the whole figure: `"$" + (-20).toFixed(0)` is `$-20`, which is
+    // not how a negative currency is written anywhere. The y-axis made this reachable in normal
+    // use, since `min` is the parameter most likely to be negative.
+    test("a negative figure keeps its sign outside the unit prefix", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [-10, 90], max: 100, min: -20, unitPrefix: "$" });
+      expect(tickText(html).at(-1)).toBe("-20");
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals[0], "the sign is printed inside the currency mark").toBe("-$10");
+    });
+
+    // `(-0.4).toFixed(0)` is "-0". The decimal rule keeps enough places that a small negative
+    // reads as itself rather than as a signed zero.
+    test("a small negative does not print as -0", () => {
+      const html = plotHtml({ labels: ["a", "b"], values: [-0.4, 1], max: 1, min: -1 });
+      const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
+      expect(vals[0]).toBe("-0.4");
+    });
+
+    // The gutter is sized off the sizer, so it has to hold every tick — one short of the set and
+    // the widest number is the one that overhangs the plot it labels.
+    test("the hidden sizer carries every tick string", () => {
+      const html = plotHtml();
+      const sizer = /class="pysizer">(.*?)<\/span><span class="ptick"/s.exec(html)?.[1] ?? "";
+      for (const t of tickText(html)) expect(sizer, `the sizer is missing "${t}"`).toContain(`>${t}<`);
+    });
+
+    // The frame is drawn OUTSIDE the wiped layer: the scale has to be on screen before the data
+    // read against it, and the tick labels (unclipped HTML) would otherwise hang beside nothing
+    // for the length of the entrance.
+    test("the gridlines are on the static layer, the polyline on the wiped one", () => {
+      const html = plotHtml();
+      const frame = /class="pframe"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
+      expect(frame, "the gridlines left the static frame").toContain('class="pgrid"');
+      expect(frame, "the polyline is on the static layer — it would not wipe in").not.toContain("pline");
+      const wiped = /class="pgeom"[^>]*>(.*?)<\/div>/s.exec(html)?.[1] ?? "";
+      expect(wiped, "the wiped layer draws no line").toContain('class="pline"');
+    });
+
+    // The y-axis is its ticks. A vertical rule was drawn once and removed; this pins the removal,
+    // because "there is no line" is the kind of absence a later edit restores without noticing.
+    test("no vertical axis rule is drawn", () => {
+      expect(plotHtml()).not.toContain("pyline");
+    });
+  });
+
+  // ------------------------------------------------------- the series' reach ---
+  // The points used to sit on a BAND scale (cell centres), which spent a half-cell of the frame
+  // at each end — a quarter of the width on a four-point plot — purely because the label row was
+  // N equal cells and nothing else would line up under them. Both halves changed together, so
+  // both are pinned together: the labels now read the point's own x, and the scale now reaches.
+  describe("plot horizontal scale", () => {
+    const html = () =>
+      build("plot", { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+    const pointX = (h: string): number[] =>
+      [...h.matchAll(/class="ppoint" style="--px: ([\d.]+)%/g)].map((m) => Number(m[1]));
+    const labelX = (h: string): number[] =>
+      [...h.matchAll(/class="plab" style="--lx: ([\d.]+)%/g)].map((m) => Number(m[1]));
+
+    test("every label is centred on its own point's x", () => {
+      const h = html();
+      const [pts, labs] = [pointX(h), labelX(h)];
+      expect(labs.length, "a point has no label, or a label no point").toBe(pts.length);
+      for (const [i, x] of labs.entries()) expect(x, `label ${i} is off its point`).toBeCloseTo(pts[i]!, 2);
+    });
+
+    test("the series runs edge to edge, keeping only the end labels' margin", () => {
+      const pts = pointX(html());
+      expect(pts.at(0), "the first point is not at PAD_X").toBeCloseTo(4, 2);
+      expect(pts.at(-1), "the last point is not at PAD_X from the right").toBeCloseTo(96, 2);
+    });
+
+    // A two-point series is the minimum the schema allows and the one the `n - 1` divisor could
+    // have broken — it must span the box, not collapse onto a single x.
+    // THE LABEL BOXES TILE THE ROW. Dropping the equal-cell row for absolute positioning dropped
+    // the only thing keeping eight long labels off each other: `nowrap` and no width, they simply
+    // printed on top of one another. Each label now gets exactly the room it has before it meets
+    // its neighbour's box — one pitch centred, half a pitch plus the end margin for the two that
+    // anchor to the edge.
+    test("every category label gets the room it has, and no more", () => {
+      const h = build("plot", {
+        labels: ["Jan Forecast", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug Forecast"],
+        values: [1, 2, 3, 4, 5, 6, 7, 8],
+        max: 8,
+      }).html;
+      const boxes = [...h.matchAll(/class="plab"[^>]*--lw:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
+      expect(boxes, "a label was emitted with no box").toHaveLength(8);
+      // The six middles are one pitch; the two ends are half a pitch plus the end margin.
+      const pitch = (100 - 2 * 4) / 7;
+      for (const b of boxes.slice(1, -1)) expect(b).toBeCloseTo(pitch, 1);
+      expect(boxes[0]).toBeCloseTo(4 + pitch / 2, 1);
+      expect(boxes.at(-1)).toBeCloseTo(4 + pitch / 2, 1);
+      // …and together they are the row, with nothing overlapping and nothing spare.
+      expect(boxes.reduce((a, b) => a + b, 0)).toBeCloseTo(100, 1);
+    });
+
+    // The two labels and the two figures on the ends anchor INWARD instead of centring on their
+    // point. Centred, they hung half of themselves over the box — which used to be un-clipped by
+    // giving the wipe a negative side inset, moving the overhang onto the y-axis ticks in the
+    // gutter next door. Anchoring costs no horizontal padding at all.
+    test("the end labels and end figures anchor inward, so nothing hangs over the box", () => {
+      const h = build("plot", { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }).html;
+      expect([...h.matchAll(/class="plab"[^>]*--la:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
+      expect([...h.matchAll(/class="ppoint"[^>]*--va:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
+    });
+
+    test("the smallest series the schema allows still spans the box", () => {
+      const pts = pointX(build("plot", { labels: ["a", "b"], values: [1, 2], max: 2 }).html);
+      expect(pts).toHaveLength(2);
+      expect(pts[0]).toBeCloseTo(4, 2);
+      expect(pts[1]).toBeCloseTo(96, 2);
+    });
+  });
+
+  // ------------------------------------------------------- the scale contains the series ---
+  // The geometry used to CLAMP a stray value onto the top or bottom gridline. That was invisible
+  // while the plot had no axis and a flat contradiction once the lines were labelled: a point
+  // printing "200" sat exactly on the line printing "100", and every value past the scale
+  // rendered in the same place. Refusing it is an authoring error the deck can fix; clamping was
+  // a drawing error it could not see.
+  describe("plot scale validation", () => {
+    test("a value outside the scale is refused, not silently pinned to a gridline", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [10, 200], max: 100 })).toThrow(/outside the scale/);
+      expect(() => build("plot", { labels: ["a", "b"], values: [-50, 50], max: 100 })).toThrow(/outside the scale/);
+    });
+
+    test("an inverted scale is refused", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [4, 8], max: 2, min: 10 })).toThrow(
+        /scale would run backwards/,
+      );
+    });
+
+    // …but a genuinely flat series is a real thing to plot, and is drawn as one labelled line.
+    test("a flat scale is allowed", () => {
+      expect(() => build("plot", { labels: ["a", "b"], values: [5, 5], max: 5, min: 5 })).not.toThrow();
+    });
+  });
 });
 
 /** A family's variant enum as the SCHEMA sees it — what a deck is actually validated
@@ -1713,10 +1948,37 @@ describe("accent plumbing (tripwire)", () => {
     ["rank", "--col"],
   ];
 
+  /**
+   * `theme/component` pairs that deliberately do NOT honour the accent, each with the reason.
+   *
+   * An exemption is a real cost — the WebUI still offers the colour param on that element, and
+   * under this theme it does nothing — so it is only right where honouring the accent is WORSE
+   * than ignoring it, which takes a palette that cannot express a cycle.
+   *
+   * professional/cluster-node is that case. The theme has ONE accent hue (primary, secondary and
+   * accent-1 are all the same cobalt); slot 4 of the shared ACCENT_CYCLE is Ice, a pale surface
+   * its own palette note keeps out of the cycle "on the assumption that 3-item rows never get
+   * that long". A five-spoke cluster reaches slot 4, and every place the colour could go makes
+   * one child look broken rather than accented — as the tile fill Ice at 8% is indistinguishable
+   * from the bare canvas, as the outline it reads as a missing border, as the arm it is the one
+   * pale wire in the ring. All three shipped briefly and were reverted off a render.
+   */
+  const ACCENT_EXEMPT: Record<string, readonly string[]> = { professional: ["cluster-node"] };
+
   for (const theme of ALL_THEMES) {
     test.each(ACCENT_PROPS)(`${theme.name}'s %s skin consumes %s`, (name, prop) => {
       const css = theme.skins?.[name];
       expect(css, `${theme.name} has no skin for '${name}'`).toBeTruthy();
+      if (ACCENT_EXEMPT[theme.name]?.includes(name)) {
+        // An exemption must be ACTIVE, not a stale line someone forgot to delete: assert the skin
+        // really ignores the prop. Re-honouring the accent and leaving the exemption behind would
+        // otherwise silently un-cover this pair for every future edit.
+        expect(
+          css!,
+          `${theme.name}/${name}.css consumes ${prop} after all — drop it from ACCENT_EXEMPT so the sweep covers it again`,
+        ).not.toContain(`var(${prop}`);
+        return;
+      }
       expect(css!, `${theme.name}/${name}.css ignores ${prop} — its colour param is dead`).toContain(
         `var(${prop}`,
       );

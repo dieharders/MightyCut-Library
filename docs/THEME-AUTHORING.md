@@ -445,10 +445,23 @@ to reserve for the tallest.
 So the HUD's rule is **space is shared, paint is yours**: the shared file states the maximum each
 part may occupy — the 3rem brand slot, the 3rem title chip, the ≤0.75rem rail, and the type ROLE
 those are measured against — and your skin decides colour, radius, border, shadow, family, weight
-and tracking. Two sizes are yours because they change nothing the safe area measured, and both
-are capped: `--hud-mark` (your brand mark inside its 3rem slot — standard sets 1.5rem) and the
-rail's `height` (standard and future set 0.25rem against the 0.75rem ceiling). Both may only go
-**down**. Your scale still reaches the HUD, because `--font-size-md` is a number you chose.
+and tracking. **Three** things are yours, because none of them changes what the safe area
+measured, and all three are capped by the slot rather than by a number:
+
+| Yours | Ceiling | Who spends it |
+| --- | --- | --- |
+| `--hud-mark` — your brand mark inside its 3rem slot | 3rem, only **down** | standard sets 1.5rem ("a mark, not an object") |
+| the rail's `height` | 0.75rem, only **down** | standard and future set 0.25rem |
+| the wordmark's `line-height` | the 3rem brand slot, i.e. `3rem / --font-size-md` | capsule sets 1.65 |
+
+The leading is yours because leading is a property of the **face**, not of the band: Bodoni Moda
+at 800 draws ~1.54em of ink between ascender and descender, so capsule's wordmark was clipped top
+and bottom by the shared rule's own `overflow: hidden` at the default 1.2. What you may not do is
+push the line box past the 3rem slot — at that point the type, not the box, sets the band's
+height, and `--safe-top` is reserving against the wrong number. A tripwire measures each theme's
+line box against its own `--font-size-md`.
+
+Your scale still reaches the HUD, because `--font-size-md` is a number you chose.
 
 ---
 
