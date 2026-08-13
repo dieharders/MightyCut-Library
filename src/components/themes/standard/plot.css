@@ -99,8 +99,14 @@
   width: 100%;
   height: 100%;
 }
+/* THE GRID IS THIS THEME'S HAIRLINE, which is a role it already has: `accent-3` is named "Line —
+   the universal hairline" and every other rule in the theme is drawn with it. The grid sat on
+   `muted-3` while the gridlines and the vertical axis were stroked as one rule and the axis
+   wanted the heavier tone. The axis is gone (plot/index.ts, frameSvg), and on a theme this quiet
+   a line at the DATA line's own weight and darker than its type read as the loudest thing in the
+   frame — the scale shouting over the series it measures. */
 .plot .pgrid {
-  stroke: var(--muted-3);
+  stroke: var(--accent-3);
   stroke-width: 0.125rem;
   vector-effect: non-scaling-stroke;
 }
