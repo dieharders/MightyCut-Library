@@ -67,14 +67,21 @@
 /* The plot box itself. It owns the HEIGHT and the panel; .pwipe is now only the clip. The panel
    is chart chrome rather than data, so leaving it on the wiped layer would sweep the static
    gridlines and the axis out from under their own tick labels. */
+/* THE PANEL IS A TOP-DOWN FADE, not a flat fill (this replaces the sheet's own long-standing
+   "fade this from top to bottom" note). A telemetry plot in this theme reads as light spilling
+   down from the signal: the top of the box carries the glass panel with a little of the line's
+   own cyan mixed in, and it falls away to nothing by the baseline, so the gridlines at the
+   bottom sit on the deck's ground rather than on a box edge. Mixed from ROLES, never a literal —
+   `transparent` is the one non-role term a skin may name. */
 .plot .parea {
   position: relative;
   height: 24rem;
-  background: color-mix(
-    in srgb,
-    var(--muted-2) 72%,
-    transparent
-  ); /* Add green col and Fade this from top to bottom */
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary) 7%, color-mix(in srgb, var(--muted-3) 66%, transparent)) 0%,
+    color-mix(in srgb, var(--muted-3) 22%, transparent) 55%,
+    transparent 100%
+  );
   backdrop-filter: blur(0.75rem);
 }
 /* The static frame — gridlines + the y-axis line — UNDER the wipe, so the scale is on screen
@@ -130,11 +137,18 @@
   flex-direction: column;
   align-items: center;
 }
+/* The dark ring is what separates the dot from the panel it sits on. Unringed, a cyan dot on the
+   cyan line's own glow has no edge — it reads as a bulge in the stroke rather than as a plotted
+   point. `--dark` is this theme's near-black, so the ring is the ground showing through rather
+   than a colour of its own; `box-sizing` keeps the ring INSIDE the 0.875rem so the dot stays the
+   size the point overlay is centred on. */
 .plot .pdot {
   width: 0.875rem;
   height: 0.875rem;
   border-radius: 50%;
   background: var(--pcol, var(--primary));
+  border: 0.125rem solid var(--dark);
+  box-sizing: border-box;
   box-shadow: 0 0 0.875rem
     color-mix(in srgb, var(--pcol, var(--primary)) 55%, transparent);
 }
@@ -143,7 +157,12 @@
    is exactly one type size tall: plot/index.ts reserves PAD_TOP for this stack (half a dot +
    this margin + this line), and an inherited line-height would quietly overrun the reservation
    and clip the top point's figure — the highest number in the series, i.e. the one the chart
-   exists to show. */
+   exists to show.
+
+   THE FIGURE IS THE LINE'S OWN COLOUR, not the theme's text colour — it reads as a readout off
+   the trace rather than as a caption near it, which is the whole idiom this theme's charts are
+   drawn in. It tracks `--pcol` for the same reason the line and the dots do: an author who
+   re-accents the series must not be left with four labels still in the old colour. */
 .plot .pval {
   position: absolute;
   bottom: 100%;
@@ -153,7 +172,7 @@
   font-family: var(--disp);
   font-weight: 700;
   font-size: var(--font-size-sm);
-  color: var(--light);
+  color: var(--pcol, var(--primary));
 }
 /* A tick sits ON its gridline (shifted up by half its own height) and is set flush to the plot,
    so the numbers read as a column against the axis. */
