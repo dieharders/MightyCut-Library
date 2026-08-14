@@ -49,7 +49,7 @@ export const PillWall = treatment({
     caption: "Every integration is available on day one",
   },
   fill: (p) => ({ headline: p.headline, caption: p.caption ?? null }),
-  // No `variant`: see spec-map.ts's pill-wall case. The accent cycle is unreadable in the
+  // No `accent`: see spec-map.ts's pill-wall case. The accent cycle is unreadable in the
   // themes whose four accent roles are one colour, and a theme that wants variety cycles it in
   // its own skin.
   defaultChildren: () =>

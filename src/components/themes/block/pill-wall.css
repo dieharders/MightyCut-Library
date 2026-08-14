@@ -33,7 +33,7 @@
    pills are CREATED, because the four accent roles are only four colours in a theme that has
    four colours. Standard fills all of them with one brownstone and sets its pill label to the
    same role, so a cycled wall there renders as solid unreadable blocks; professional's
-   `primary` IS its pill's text colour. So the harness passes no variant, every theme gets its
+   `primary` IS its pill's text colour. So the harness passes no accent, every theme gets its
    own legible default, and a theme that wants variety says so HERE, where its palette is known.
    Every fourth pill repeats, which is the point: it reads as a pattern, not as meaning. */
 .pill-wall .pill-c:nth-child(4n + 1) {

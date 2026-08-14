@@ -9,13 +9,13 @@
    rather than the tint block, capsule, professional and future all fall back to. Every one of
    those themes has a chip in the first place; standard's has none, so a default fill would invent
    a piece of chrome the theme doesn't own and put a plate under a label that is meant to sit
-   directly on the stone. Naming a variant still floods the fill, which is the escape hatch for an
+   directly on the stone. Naming an accent still floods the fill, which is the escape hatch for an
    author who wants a tag rather than a label — with one caveat worth knowing: standard's four
    accent-cycle roles are all the SAME brownstone as the label, so a `primary`/`secondary`/`accent-1`/
    `accent-2` pick reads brownstone-on-brownstone. The picks that work are the stones — `muted-2` (the
    recessed stone this theme fills with everywhere else) and `light` (tracing paper) — which is
    also the only kind of fill standard's palette rules allow. Deriving the label colour from the
-   fill would need a literal or a per-variant rule, so the caveat is documented rather than coded.
+   fill would need a literal or a per-accent rule, so the caveat is documented rather than coded.
 
    The padding is half professional's chip inset: enough that an opted-in fill isn't cropped to the
    letterforms, little enough that the bare default — the normal case — still sits essentially

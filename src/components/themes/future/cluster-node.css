@@ -22,23 +22,35 @@
   align-items: center;
 }
 .cnode .cspoke {
-  /* THE ARM'S LENGTH IS THE SPOKE'S, not the node's. It used to sit on .cnode, which made
-     --cradius the distance to the puck's OUTER edge: the puck then grew INWARD from there and
-     the wider ones lapped over the hub. Sizing the connector instead makes --cradius mean the
-     distance from the hub's centre to where the puck STARTS, which is the measurement the ring
-     actually needs to keep clear. */
-  width: var(--cradius, 13rem);
+  /* THE ARM RUNS FROM THE HUB'S CENTRE TO THE PUCK'S, and both ends are covered — the hub over
+     the inner one, the puck over the outer. Stopping at --cradius stopped at the puck's near
+     SUPPORT rather than at the edge the ray actually crosses, which left four of five spokes
+     with a visible gap between the label and its own connector; block's cluster-node.css
+     carries the derivation. Absolutely positioned so it contributes nothing to .cnode's width
+     and the 50% below resolves against the puck alone. */
+  position: absolute;
+  left: 0;
+  /* .cnode is a zero-height line through the hub's centre, so the bar centres on that line. */
+  top: 0;
+  transform: translateY(-50%);
+  width: calc(
+    var(--cradius, 13rem) + var(--ccos, 1) * 50% + var(--csin, 0) * var(--cpuck-h, 0rem) / 2
+  );
   height: 0.125rem;
   background: color-mix(in srgb, var(--primary) 35%, transparent);
 }
-/* Counter-rotated back upright, then SEATED against the arm's tip — the rotation turns about the
-   puck's centre, which leaves it clearing the tip by half a WIDTH when an upright puck only needs
-   half a height. --ccos/--csin close the difference; block's cluster-node.css has the derivation,
-   and the translate must precede the rotate or the shift runs along the screen instead of the arm. */
+/* Counter-rotated back upright, then SEATED so its near support lands exactly --cradius from the
+   hub's centre — the distance the ring reserves for it. The first term is the radius itself (the
+   arm is out of flow now, so this row starts at the hub's centre); the other two are the seating
+   correction, since the rotation turns about the puck's centre and a horizontal puck's support is
+   half its WIDTH where an upright one's is half its height. block's cluster-node.css has the
+   derivation, and the translate must precede the rotate or the shift runs along the screen
+   instead of the arm. */
 .cnode .cpuck {
   transform: translateX(
       calc(
-        -50% * (1 - var(--ccos, 1)) + var(--cpuck-h, 0rem) * var(--csin, 0) / 2
+        var(--cradius, 13rem) - 50% * (1 - var(--ccos, 1)) +
+          var(--cpuck-h, 0rem) * var(--csin, 0) / 2
       )
     )
     rotate(var(--ca-inv, 0turn));

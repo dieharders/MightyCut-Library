@@ -10,6 +10,12 @@ import type { NodeClusterParams } from "./schema";
  * own-anim is treated as a FRAMING element and takes the title's slot, pushing the headline a
  * beat later (titleOffset) — which is right for a quote's backing card and wrong here: the hub
  * is content, and the headline should still land first.
+ *
+ * `index 1` IS child 0's slot, though — the two map to the same beat (see the derivation in
+ * cluster-node/anim.ts), and there is no free slot between the title and the first child to
+ * move the hub into. The ordering is therefore bought on the OTHER side: every spoke waits
+ * `HUB_LEAD_SEC` into that shared slot, so the hub is on screen before the first arm leaves it.
+ * Read this file and that one together — neither states the ordering on its own.
  */
 export const nodeClusterAnim = (p: NodeClusterParams, childCount: number): AnimDescriptor[] => [
   { kind: "riseIn", target: "headline", time: { at: "line", n: 0, plus: 0.1 }, opts: { dist: 30 } },
