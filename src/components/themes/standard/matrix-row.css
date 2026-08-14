@@ -9,7 +9,7 @@
    with a matching inner grid — no gaps on either, so the hairlines meet as one rule. */
 .mrow {
   display: grid;
-  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
 }
 /* THE TABLE ITSELF, and its only structure: every label and mark opens with the theme's one
    hairline across its full track. Because neither grid has gaps, they meet and read as a single
@@ -64,7 +64,7 @@
 .mrow .mcells {
   grid-column: 2 / -1;
   display: grid;
-  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
 }
 .mrow .mcell {
   display: grid;

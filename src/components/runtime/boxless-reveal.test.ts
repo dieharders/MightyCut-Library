@@ -32,7 +32,12 @@ import type { ThemeTokens } from "./types";
 /* ------------------------------------------------------------- mc sandbox --- */
 
 type Tween = { target: unknown; vars: Record<string, unknown>; at: number };
-type Fake = { tweens: Tween[]; kidsOf: (target: string) => object[] };
+/** `tweens` is the MOTION — `sets` is kept apart because a zero-duration `tl.set` is not a
+ *  reveal and must not be counted as one. `MC.wipeIn` schedules exactly one: it drops the
+ *  clip-path once the wipe has finished, since the end state `inset(0 0% 0 0)` is a clip to
+ *  the element's own border box and would otherwise cut every shadow, glow and overhang the
+ *  element paints for the rest of the scene. */
+type Fake = { tweens: Tween[]; sets: Tween[]; kidsOf: (target: string) => object[] };
 
 const MC_SRC = await Bun.file(`${import.meta.dir}/../../../assets/fx/mc.js`).text();
 
@@ -76,6 +81,7 @@ const run = (anims: AnimDescriptor[], boxLess: string[], childCount = 3): Fake =
   };
 
   const tweens: Tween[] = [];
+  const sets: Tween[] = [];
   const tl: Record<string, unknown> = {};
   const record = (target: unknown, vars: Record<string, unknown>, at: number) => {
     tweens.push({ target, vars, at });
@@ -85,6 +91,10 @@ const run = (anims: AnimDescriptor[], boxLess: string[], childCount = 3): Fake =
   tl.to = record;
   tl.fromTo = (t: unknown, from: Record<string, unknown>, vars: Record<string, unknown>, at: number) =>
     record(t, { ...vars, _from: from }, at);
+  tl.set = (t: unknown, vars: Record<string, unknown>, at: number) => {
+    sets.push({ target: t, vars, at });
+    return tl;
+  };
 
   MC.applyAnims(tl, anims, {
     q: elFor,
@@ -97,7 +107,7 @@ const run = (anims: AnimDescriptor[], boxLess: string[], childCount = 3): Fake =
     dur: 8,
     page: {},
   });
-  return { tweens, kidsOf: (target: string) => kidsFor(target) };
+  return { tweens, sets, kidsOf: (target: string) => kidsFor(target) };
 };
 
 const PICKABLE = TRANSITION_NAMES.filter((n) => n !== "none");
@@ -184,6 +194,53 @@ describe("a clip wipe supplies both of its own endpoints", () => {
     // …and it opens left-to-right: the right inset travels, the left stays put.
     expect((vars._from as Record<string, unknown>).clipPath).toBe("inset(0 100% 0 0)");
     expect(vars.clipPath).toBe("inset(0 0% 0 0)");
+  });
+
+  // A FINISHED WIPE MUST LEAVE NOTHING CLIPPED.
+  //
+  // The tween's end state is `inset(0 0% 0 0)`, which reads as "no clip" and is not: it clips to
+  // the element's own BORDER BOX, and it persists for the rest of the scene. Everything an
+  // element paints outside that box is cut away — block's hard `0.5rem 0.5rem 0` shadow,
+  // future's glow, an overhanging outline. Picking `wipe` for one matrix row shaved the bottom
+  // off that row's shadows while its neighbours kept theirs (measured in Chrome: the row held
+  // `inset(0px 0% 0px 0px)` at every frame after 1.6s), so the entrance silently restyled the
+  // element it was applied to.
+  //
+  // `none` cannot BE the tween's end value — it is not interpolable, which is the trap this
+  // whole describe block is about — so it is a separate zero-duration set at the wipe's finish,
+  // which is also what makes it seek-safe under the paused-timeline render.
+  test("the wipe drops its clip when it finishes, so nothing stays cut off", () => {
+    const f = run([elementIn("wipe", "x")!], []);
+    const wipe = f.tweens.find((t) => (t.vars as Record<string, unknown>).clipPath)!;
+    expect(f.sets, "the wipe leaves its border-box clip in place forever").toHaveLength(1);
+    const done = f.sets[0]!;
+    expect(done.vars.clipPath, "the wipe un-clips to something that still clips").toBe("none");
+    expect(done.target, "the un-clip lands on a different element from the wipe").toBe(wipe.target);
+    expect(
+      done.at,
+      "the un-clip does not land on the wipe's finish — early truncates the reveal, late leaves a gap",
+    ).toBeCloseTo(wipe.at + (wipe.vars.duration as number), 5);
+  });
+
+  // The same, for the plot: its geometry wipe used to leave `.pwipe` clipped to the plot box,
+  // which is what made PAD_TOP's headroom reservation the only thing standing between the
+  // series maximum and a clipped label.
+  test("the plot's wipe un-clips too", () => {
+    const plot = getComponent("plot")().buildNode(rootContext("pw", ALL_THEMES[0]!, { voIds: [] })).anims;
+    const f = run(plot as AnimDescriptor[], []);
+    expect(f.sets.map((t) => t.vars.clipPath)).toEqual(["none"]);
+  });
+
+  // A staggered wipe (a box-less root fanned onto its children) finishes at a different instant
+  // per child, so ONE un-clip at the first child's finish would cut the rest of the wave short.
+  test("a staggered wipe carries the same stagger into its un-clip", () => {
+    const f = run([elementIn("wipe", "x")!], ["x"]);
+    const wipe = f.tweens.find((t) => (t.vars as Record<string, unknown>).clipPath)!;
+    expect(wipe.vars.stagger, "this case is only interesting when the wipe fans out").toBeTruthy();
+    expect(f.sets).toHaveLength(1);
+    expect(f.sets[0]!.vars.stagger, "the un-clip fires for every child at once").toEqual(
+      wipe.vars.stagger,
+    );
   });
 
   // The timing preset has to reach it — the whole reason the broken `from` was invisible is that
@@ -381,6 +438,7 @@ describe("display:contents is resolved once per target", () => {
     const tl: Record<string, unknown> = {};
     tl.from = tl.to = () => tl;
     tl.fromTo = () => tl;
+    tl.set = () => tl;
     mc.applyAnims(
       tl,
       [
@@ -517,6 +575,9 @@ describe("raw `from` travel is converted to canvas pixels", () => {
     tl.from = record;
     tl.to = record;
     tl.fromTo = (t: unknown, _f: unknown, vars: Record<string, unknown>, at: number) => record(t, vars, at);
+    // The wipe's un-clip (see the Fake type) is not motion — recorded nowhere, so it cannot be
+    // mistaken for a reveal by the cascade assertions below.
+    tl.set = () => tl;
 
     mc.applyAnims(tl, anims, {
       q: () => el,
