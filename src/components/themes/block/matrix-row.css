@@ -9,11 +9,22 @@
    track as the header, and the strip spans columns 2..-1 with a matching inner grid — same
    track count, same gap, so the marks sit under their criteria.
 
+   THE TRACK COUNT IS --cols, THE TREATMENT'S, and --mcols is only its fallback. The two are two
+   statements of one number — --cols is the criteria count, set on the matrix root and inherited
+   here; --mcols is this row's own cell count — and while the row read --mcols they subdivided
+   two SEPARATE formatting contexts, so a row answering three of four criteria rendered on a
+   different grid from the header above it, right down to the label column's share (1.4/4.4
+   against the header's 1.4/5.4). The whole row shifted and the fourth criterion had no column
+   to be unanswered in. Reading --cols first means a short row leaves its last column empty IN
+   PLACE, which is the truthful drawing of it; the treatment refuses the mismatch outright
+   wherever the caller is checkable (matrix/index.ts, childrenIssue). --mcols still has a job:
+   a row rendered BARE in the showcase has no matrix ancestor to inherit --cols from.
+
    The label is a PILL, per block's "pill or nothing" rule — the same white plate + hard shadow
    the ledger row's label carries, so the two tables read as one device. */
 .mrow {
   display: grid;
-  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
   align-items: stretch;
 }
@@ -54,7 +65,7 @@
 .mrow .mcells {
   grid-column: 2 / -1;
   display: grid;
-  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
 }
 .mrow .mcell {

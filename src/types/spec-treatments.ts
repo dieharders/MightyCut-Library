@@ -1,133 +1,195 @@
-// Spec-kind ↔ treatment mapping — the single source of truth for WHICH frame
-// treatment renders each spec slide kind. This used to be triplicated by hand: a
-// switch in the harness (treatmentForSlide), the agent's prompt table, and a
-// "(kind: …)" fragment smuggled into every treatment's `headline` param
-// description. All three now derive from TREATMENT_MAP here, so they cannot drift,
-// and a param description is free to describe only its param.
+// The LOOK vocabulary — the single source of truth for what a slide can BE.
 //
-// Consumed by: the harness's treatmentForSlide (default pick), the agent prompt
-// generator (treatment table), and deck tooling. A tripwire (spec-treatments.test.ts)
-// asserts SLIDE_KINDS matches the spec's discriminated union and that TREATMENT_MAP
-// covers every treatment with at most one default per kind.
-import { FRAME_TREATMENTS, type FrameTreatment } from "./storyboard";
+// A look has ONE name, and that name is both the spec's slide `kind` (the data shape the
+// writer fills) and the `treatment` (the composed element the themes skin). They used to be
+// two vocabularies related by a hand-written map, which is exactly how they drifted: the
+// outline planner's prompt listed 11 of the 14 kinds, so `pills`, `cluster` and `team` — and
+// the three treatments that render them — were unreachable end to end, by any model, on both
+// the planned and unplanned paths.
+//
+// One name removes the class of bug rather than the instance. There is no pair to get wrong,
+// no default to fall back to, and no compatibility check to run: a look cannot be incompatible
+// with itself. It also makes the NAME carry the guidance — `bar-ranking` in a prompt says more
+// than `chart` plus a separate field the planner was never shown.
+//
+// Everything derives from LOOKS below: SLIDE_KINDS (the spec's discriminator), FRAME_TREATMENTS
+// (the storyboard/deck enum), the planner's and the agent's prompt tables, and the web UI's look
+// picker. Registering a look here makes it selectable everywhere at once — which is the property
+// the old map only claimed to have.
 
-/**
- * The spec slide kinds — the discriminator of SlideSpecSchema (spec.ts). Kept as a
- * runtime tuple so the mapping below can be keyed and exhaustively checked; a
- * tripwire asserts this equals the schema's actual discriminator values.
- */
-export const SLIDE_KINDS = [
-  "title",
-  "bullets",
-  "statement",
-  "chart",
-  "comparison",
-  "stats",
-  "steps",
-  "cards",
-  "pills",
-  "cluster",
-  "team",
-  "matrix",
-  "custom",
-  "outro",
-] as const;
-export type SlideKind = (typeof SLIDE_KINDS)[number];
-
-/** One treatment's entry: the spec kinds it renders, whether it is the DEFAULT pick
- *  for those kinds (vs a sibling alternate the agent may swap to in the storyboard),
- *  and the one-line, agent-facing role blurb the prompt table renders. */
-export type TreatmentMapEntry = {
-  /** Spec kinds this treatment can render (many kinds may share one treatment). */
-  kinds: SlideKind[];
-  /** True for the deterministic default pick; false for a sibling alternate
-   *  (e.g. agenda for `steps`, bar-ranking for `chart`). At most one default per kind. */
-  default: boolean;
-  /** Agent-facing description — the row rendered in the prompt's treatment table. */
-  role: string;
+/** One look: the name, the picker's copy, and the one-line guidance for choosing it. */
+export type LookRow = {
+  /** The single name — the spec slide `kind` AND the treatment. Kebab-case. */
+  name: string;
+  /** Short UI copy for the plan editor's picker. Kept under 32 chars with no em-dash:
+   *  this list is SCANNED by someone choosing, not read. The guidance is `when`. */
+  label: string;
+  /**
+   * When to choose this look, on the slide's CONTENT. This is the description the outline
+   * planner picks from, the writer authors against, and the editor shows as a tooltip — one
+   * string, three audiences, so they cannot disagree about what a look is for.
+   */
+  when: string;
+  /** `false` only for `custom`, the escape hatch: it is a spec kind and a read-only scene
+   *  sentinel, but not a renderable treatment. Absent means renderable. */
+  composable?: false;
 };
 
 /**
- * The SSOT. Insertion order is the order the agent prompt lists treatments, so keep
- * it stable. A kind with no default entry falls through to the placeholder scene —
- * `defaultTreatmentForKind` returns null for it — and `custom` is the only one left
- * (see FALLBACK_KINDS below), by design rather than by omission: it is the kind that
- * MEANS "no treatment can do this, a slide engineer builds it by hand".
+ * The SSOT. Insertion ORDER is the order the prompt tables and the editor's picker list looks,
+ * so keep it stable and grouped by what a slide is doing: open, list, assert, quantify,
+ * sequence, contrast, chart, gather, close.
  */
-export const TREATMENT_MAP: Record<FrameTreatment, TreatmentMapEntry> = {
-  cover: { kinds: ["title"], default: true, role: "title slide — headline · subtitle" },
-  "feature-cards": { kinds: ["cards", "bullets"], default: true, role: "a row of content cards — icon · title · body" },
-  "stat-grid": { kinds: ["stats"], default: true, role: "headline figures that count up — number · label" },
-  timeline: { kinds: ["steps"], default: true, role: "a sequence of numbered steps — num · title · body" },
-  agenda: { kinds: ["steps"], default: false, role: "a sparse numbered index list (sibling of timeline)" },
-  comparison: { kinds: ["comparison"], default: true, role: "a two-column ledger — row label · them · us" },
-  chart: { kinds: ["chart"], default: true, role: "a bar chart — value · label (bar charts only)" },
-  "bar-ranking": { kinds: ["chart"], default: false, role: "a horizontal ranked bar list (sibling of chart)" },
-  "line-chart": { kinds: ["chart"], default: false, role: "a line chart — the only treatment that draws chart.type \"line\"" },
-  matrix: { kinds: ["matrix"], default: true, role: "a check/cross capability table — option · criteria columns" },
-  "pill-wall": { kinds: ["pills"], default: true, role: "a wall of short label pills — breadth at a glance" },
-  team: { kinds: ["team"], default: true, role: "team member frames — monogram · name · role" },
-  "node-cluster": { kinds: ["cluster"], default: true, role: "a hub-and-spoke diagram — one centre, labelled arms" },
-  quote: { kinds: ["statement"], default: true, role: "one big statement + attribution" },
-  "closing-plate": { kinds: ["outro"], default: true, role: "the closer — headline + CTA" },
-};
+export const LOOKS = [
+  {
+    name: "cover",
+    label: "Cover",
+    when: "The deck's opening slide: headline plus subtitle. Always the first slide.",
+  },
+  {
+    name: "list",
+    label: "List",
+    when: "2-5 short claims, one per line — the general-purpose list when each item is a sentence at most.",
+  },
+  {
+    name: "feature-cards",
+    label: "Feature cards",
+    when: "2-4 features explained side by side, each with an icon, a title and a sentence of body.",
+  },
+  {
+    name: "statement",
+    label: "Statement",
+    when: "One big claim or quote alone on the slide — a vision, a thesis, a line worth pausing on.",
+  },
+  {
+    name: "stats",
+    label: "Stats",
+    when: "1-4 headline numbers that count up — quantified impact, not a chart.",
+  },
+  {
+    name: "timeline",
+    label: "Timeline",
+    when: "2-5 numbered steps in order, each explained — a process, a roadmap, a sequence.",
+  },
+  {
+    name: "agenda",
+    label: "Agenda",
+    when: "An agenda or running order: 2-5 numbered parts of a presentation or event, each a title and optional detail. Not a timeline.",
+  },
+  {
+    name: "comparison",
+    label: "Comparison",
+    when: "Us against the status quo: 2-5 rows across exactly 2 named columns.",
+  },
+  {
+    name: "matrix",
+    label: "Capability matrix",
+    when: "3+ alternatives scored against 2-5 yes/no criteria as checks and crosses; the subject's row goes last.",
+  },
+  {
+    name: "bar-chart",
+    label: "Bar chart",
+    when: "2-8 categories compared as vertical bars. Put the subject's own result LAST so it is accented.",
+  },
+  {
+    name: "bar-ranking",
+    label: "Ranked bars",
+    when: "2-8 values as a horizontal ranked list where the ORDER is the point. Put the leader FIRST.",
+  },
+  {
+    name: "trend-line",
+    label: "Trend line",
+    when: "2-8 points over an ordered sequence drawn as a line — a trend through time, never unordered categories.",
+  },
+  {
+    name: "pill-wall",
+    label: "Pill wall",
+    when: "4-14 short labels taken in at a glance — breadth IS the point. For features, capabilities, etc.",
+  },
+  {
+    name: "cluster",
+    label: "Cluster",
+    when: "One central hub with up to 8 labelled spokes. Only for real hub relationship; not a flat list.",
+  },
+  {
+    name: "team",
+    label: "Team",
+    when: "1-5 people, each with name and role. ONLY when the prompt names real people.",
+  },
+  {
+    name: "outro",
+    label: "Outro",
+    when: "The closing slide: headline plus a call to action. Always the last slide.",
+  },
+  {
+    name: "custom",
+    label: "Custom visual",
+    when: "A signature visual no other look can show, hand-built by a slide engineer.",
+    composable: false,
+  },
+] as const satisfies readonly LookRow[];
+
+/** Every look name — the spec's slide `kind` discriminator. A tripwire asserts this equals
+ *  SlideSpecSchema's actual discriminator values, in order. */
+export type SlideKind = (typeof LOOKS)[number]["name"];
+
+/** The names that are NOT renderable treatments (`custom` alone). Derived, so the escape
+ *  hatch is declared once, on its own row, rather than restated as a list. */
+type UncomposableName = Extract<
+  (typeof LOOKS)[number],
+  { readonly composable: false }
+>["name"];
+
+/** A renderable treatment — every look except the `custom` sentinel. */
+export type FrameTreatment = Exclude<SlideKind, UncomposableName>;
+
+/** A look name is also a treatment name, so this is a pure narrowing, not a lookup. */
+export type SlideLook = SlideKind;
+
+/** LOOKS widened to the row type. `as const` narrows every row to its own literal shape, so a
+ *  row that omits `composable` has no such property to read — the widening is what lets the
+ *  derivations below filter on it while the literal types above stay exact. */
+const ROWS: readonly LookRow[] = LOOKS;
+
+export const SLIDE_KINDS = LOOKS.map((l) => l.name) as unknown as readonly [
+  SlideKind,
+  ...SlideKind[],
+];
 
 /**
- * The deterministic default treatment for a spec kind, or null when the kind has no
- * treatment (`custom` → the placeholder scene).
- *
- * NOTE: the chart line-vs-bar distinction can't be expressed by kind alone — both are kind
- * `chart` — so the caller (the harness's `treatmentForSlide`) keeps that one conditional and
- * resolves a line series to the `line-chart` treatment. This returns the BAR default for
- * `chart`, which is why calling it directly on a chart slide is wrong.
+ * The renderable treatments — the storyboard/deck enum. Derived from LOOKS rather than
+ * declared beside it: a second tuple is a second place to forget, and the cross-check tripwire
+ * that guarded the old pair is not a substitute for there being nothing to check.
  */
-export const defaultTreatmentForKind = (kind: SlideKind): FrameTreatment | null => {
-  for (const [treatment, entry] of Object.entries(TREATMENT_MAP)) {
-    if (entry.default && entry.kinds.includes(kind)) return treatment as FrameTreatment;
-  }
-  return null;
-};
+export const FRAME_TREATMENTS = ROWS.filter((l) => l.composable !== false).map(
+  (l) => l.name,
+) as unknown as readonly [FrameTreatment, ...FrameTreatment[]];
 
-/** The spec kinds a given treatment renders. */
-export const kindsForTreatment = (treatment: FrameTreatment): SlideKind[] => TREATMENT_MAP[treatment].kinds;
+/** Kinds with no treatment — they render as the placeholder scene. `custom` alone, by design:
+ *  it is the kind that MEANS "no look can do this, build it by hand". */
+export const UNCOMPOSED_KINDS: SlideKind[] = ROWS.filter(
+  (l) => l.composable === false,
+).map((l) => l.name as SlideKind);
 
-/** Kinds with no default treatment — they fall back to the placeholder scene. */
-export const FALLBACK_KINDS: SlideKind[] = SLIDE_KINDS.filter((k) => defaultTreatmentForKind(k) === null);
+/** Whether a look name renders (i.e. is a treatment) rather than falling to the placeholder. */
+export const isComposableKind = (name: string): name is FrameTreatment =>
+  (FRAME_TREATMENTS as readonly string[]).includes(name);
 
-/** One renderable look: a spec kind paired with a treatment that renders it. */
-export type SlideLook = { kind: SlideKind; treatment: FrameTreatment };
+/** The row for a look name, or undefined if it is not one. */
+export const lookFor = (name: string): LookRow | undefined =>
+  ROWS.find((l) => l.name === name);
+
+/** The picker's copy for a look, falling back to the bare name. */
+export const labelForLook = (name: string): string =>
+  lookFor(name)?.label ?? name;
 
 /**
- * Every renderable look, DERIVED from TREATMENT_MAP rather than listed.
+ * Prompt-table rows: `- <name>  <when>`, in LOOKS order.
  *
- * A slide's appearance is a (kind, treatment) PAIR, and neither half alone identifies it:
- * `cards` and `bullets` both render as `feature-cards`, while `steps` and `chart` each have a
- * non-default SIBLING treatment (`agenda`, `bar-ranking`) that the kind cannot select. A chooser
- * built on kinds alone therefore hides those siblings and labels one option after a treatment
- * that does not exist — which is exactly what the plan editor used to do.
- *
- * It lives HERE, beside the map it derives from, rather than in the harness where it started.
- * Three repos need this list — the harness writes it into storyboard.json, the web UI's plan
- * editor offers it as the look picker, and the library is where the treatments are declared —
- * and while it sat in the harness the web UI hand-mirrored it, pairs and order, in a mirror its
- * own tests looped over (so they could not detect drift by construction). Derivation is what
- * makes "register a treatment and it becomes pickable everywhere" true rather than aspirational.
- *
- * Order follows TREATMENT_MAP's, which is documented as stable and is load-bearing: the editor
- * resolves "no pin" to the FIRST look for a kind, so a default must precede its siblings.
+ * Rendered verbatim into the outline planner's prompt, the writer's prompt, the review pass's
+ * prompt and the slide agent's prompt. Those were four hand-written lists, three of which had
+ * drifted; this is the one that replaces them, and a tripwire asserts every LOOKS row appears
+ * in what the planner is shown.
  */
-export const SLIDE_LOOKS: SlideLook[] = (Object.keys(TREATMENT_MAP) as FrameTreatment[]).flatMap(
-  (treatment) => kindsForTreatment(treatment).map((kind) => ({ kind, treatment })),
-);
-
-/** Prompt-table rows: `- <treatment>  <role>  (kind[s]: <kinds>)`, in TREATMENT_MAP order.
- *  The agent's system prompt renders these verbatim so the mapping it sees is generated
- *  from the same SSOT the builder maps by. */
-export const treatmentTableLines = (): string[] =>
-  (Object.keys(TREATMENT_MAP) as FrameTreatment[]).map((t) => {
-    const { kinds, role } = TREATMENT_MAP[t];
-    const label = `${kinds.length > 1 ? "kinds" : "kind"}: ${kinds.join(", ")}`;
-    return `- ${t.padEnd(14)} ${role} (${label})`;
-  });
-
-export { FRAME_TREATMENTS };
+export const lookTableLines = (): string[] =>
+  LOOKS.map((l) => `- ${l.name.padEnd(14)} ${l.when}`);

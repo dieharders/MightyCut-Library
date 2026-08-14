@@ -48,14 +48,14 @@ import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
 import agendaCss from "./agenda.css" with { type: "text" };
 // Structure overrides (kept in lockstep with the shared marker vocabulary).
@@ -216,14 +216,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       subtitle: "A soft, rounded theme for calm and friendly stories.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Soften the edges and people lean in — the shape does half the talking.",
       attribution: "The System Voice",
       eyebrow: "In Their Words",
     },
   },
-  "closing-plate": { params: { headline: "Stay rounded.", cta: "Say hello" } },
+  "outro": { params: { headline: "Stay rounded.", cta: "Say hello" } },
   "feature-cards": {
     params: { headline: "Cards on candy grounds" },
     children: [
@@ -247,7 +247,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "A quiet tally" },
     children: [
       {
@@ -319,7 +319,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { name: "Jo Park", role: "Support", org: "Customer Care", accent: "accent-1" },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "It gets easier every month",
       caption: "Support tickets per 100 accounts",
@@ -333,7 +333,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "It all connects here",
       hub: "Your workspace",
@@ -358,7 +358,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "Changes", a: "File a ticket", b: "Edit it yourself" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: {
       headline: "Signups by quarter",
       caption: "Measured across the whole programme.",
@@ -404,6 +404,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // decoration takes a reveal cascade slot, so the closer and the quote stay at two; the
 // cover spends FOUR — it is the one frame with margin on all four sides, and its headline
 // can afford the later beat.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Four shapes ringing the headline block, one to a margin: a coral bean lower-right, a
   // sky pill top-right, a steeply tilted mint pill top-left, a lavender pebble lower-left.
@@ -460,7 +465,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A wide yellow dome rising off the bottom edge behind the sign-off card, with one sky
   // squiggle riding in FRONT of it on the same centre line — the theme's only front-layer
   // default, and the reason the dome reads as a horizon rather than as a second card.
-  "closing-plate": [
+  "outro": [
     {
       name: "arch",
       params: {
@@ -486,7 +491,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
     },
   ],
   // The quote card is centred: a mint pebble low-left, a coral spark high-right.
-  quote: [
+  statement: [
     {
       name: "blob",
       params: {
@@ -566,18 +571,22 @@ export const capsuleTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // ONE structure override. The shared coverAnim ALREADY emits a `rule`-kind descriptor for the

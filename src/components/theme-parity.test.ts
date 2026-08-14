@@ -175,7 +175,7 @@ describe("every treatment builds a clean scene under every theme", () => {
 // it — exactly the silent look-drift this file exists to catch. Generic, so a new theme is held to
 // it the moment it joins ALL_THEMES.
 describe("headline accent (tripwire)", () => {
-  const ACCENTED = ["cover", "closing-plate"] as const;
+  const ACCENTED = ["cover", "outro"] as const;
   // An emphasis DEVICE, not just any rule: a `.headline-accent {}` that sets margin would satisfy
   // "has a rule" while still rendering the key word identically to the rest of the line, which is
   // the exact drift being guarded. These four are the only devices §3 allows.
@@ -298,7 +298,7 @@ describe("decoration ownership (tripwire)", () => {
 // compile error rather than a set that sits there rendering nothing — which is why the
 // sweeps below police only the VALUES. They run over every DECLARED key, not just the hero
 // three, so a theme that later dresses `timeline` or `chart` is held to the same rules.
-const HERO_TREATMENTS = ["cover", "closing-plate", "quote"] as const;
+const HERO_TREATMENTS = ["cover", "outro", "statement"] as const;
 
 type DressedFrame = keyof NonNullable<ThemeTokens["decorationDefaults"]>;
 const dressedFrames = (theme: ThemeTokens): DressedFrame[] =>
@@ -412,7 +412,7 @@ describe("caption alignment parity (block is the reference)", () => {
 // them is a leap, not a step, so only the WORKING ramp carries the 1.45x cap.
 const TEXT_STEPS = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "max"] as const;
 const CONTENT_TREATMENTS = [
-  "agenda", "bar-ranking", "chart", "comparison", "feature-cards", "line-chart", "matrix", "node-cluster", "pill-wall", "stat-grid", "team", "timeline",
+  "agenda", "bar-ranking", "bar-chart", "comparison", "feature-cards", "trend-line", "matrix", "cluster", "pill-wall", "stats", "team", "timeline",
 ] as const;
 /** Where a step name sits in the ramp; -1 for an unknown/undefined name. */
 const stepIndex = (s: string | undefined): number =>
@@ -481,9 +481,31 @@ const fontSizeDecls = (css: string): Array<{ selector: string; value: string }> 
 };
 
 /** The step a treatment's `h3` names, e.g. "3xl" — or undefined if it writes a literal. */
+/**
+ * A treatment's private ROOT CLASS, where it differs from the treatment's name.
+ *
+ * Six looks were renamed when the kind and treatment vocabularies collapsed into one name each,
+ * and four of the root classes deliberately did NOT follow. The class is a private hook inside a
+ * stylesheet scoped under the scene's own root, so what matters about it is that it cannot be hit
+ * by anything else — and for these four the OLD name is the more specific one: `.node-cluster`,
+ * `.stat-grid` and `.closing-plate` are unmistakable where `.cluster`, `.stats` and `.outro` are
+ * the kind of bare word another element could easily claim.
+ *
+ * The two that DID follow are the two where the new name is more specific, not less:
+ * `.chart`→`.bar-chart` and `.line-chart`→`.trend-line`. The skin is keyed by the treatment NAME
+ * either way; only the selector inside it can differ.
+ */
+const ROOT_CLASS: Record<string, string> = {
+  statement: "quote",
+  outro: "closing-plate",
+  stats: "stat-grid",
+  cluster: "node-cluster",
+};
+const rootClass = (treatment: string): string => ROOT_CLASS[treatment] ?? treatment;
+
 const h3Step = (theme: ThemeTokens, treatment: string): string | undefined => {
   const value = fontSizeDecls(theme.skins?.[treatment] ?? "").find(
-    (d) => d.selector === `.${treatment} h3`,
+    (d) => d.selector === `.${rootClass(treatment)} h3`,
   )?.value;
   return /var\(\s*--font-size-([a-z0-9]+)\s*\)/.exec(value ?? "")?.[1];
 };
@@ -509,7 +531,7 @@ describe("type scale (tripwire)", () => {
   test.each(SCALED)("$name's steps ascend, sit on the grid, and stay 1.10x apart", (theme) => {
     const scale = sizeScale(theme);
     const rems = TEXT_STEPS.map((s) => scale[s]!);
-    const contentStep = h3Step(theme, "stat-grid");
+    const contentStep = h3Step(theme, "stats");
 
     for (const [i, rem] of rems.entries()) {
       expect(
@@ -564,7 +586,7 @@ describe("type scale (tripwire)", () => {
   // slots up there and land on `3xl`, creative spends three and lands on `2xl`. Pinning the name
   // would forbid that without protecting anything.
   test.each(SCALED)("$name anchors its headlines to the scale", (theme) => {
-    const contentStep = h3Step(theme, "stat-grid");
+    const contentStep = h3Step(theme, "stats");
     expect(contentStep, `${theme.name}'s .stat-grid h3 must name a step`).toBeDefined();
     if (!contentStep) return; // unreachable — the assertion above throws; this narrows the type
 
@@ -579,7 +601,7 @@ describe("type scale (tripwire)", () => {
     expect(h3Step(theme, "cover"), `${theme.name}'s .cover h3 must be --font-size-max`).toBe("max");
     // 3. The closing plate is a display frame too: it names a step, and one above the headline.
     //    Most themes share the cover's; creative's measure is narrower, so it takes its own.
-    const closing = h3Step(theme, "closing-plate");
+    const closing = h3Step(theme, "outro");
     expect(closing, `${theme.name}'s .closing-plate h3 must name a step`).toBeDefined();
     expect(
       stepIndex(closing),
@@ -846,8 +868,8 @@ describe("plotted-figure reservation (tripwire)", () => {
   // able to shrink to share a fixed plot, and left at min-content a wide series overflows
   // `.bars` as a row, off the canvas edge — a hard `hyperframes inspect` error.
   test.each(ALL_THEMES)("$name: the chart re-clamps the column's min-width to 0", (theme) => {
-    const rule = ruleBody(theme.skins?.chart ?? "", ".chart .bars .bar");
-    expect(rule, `${theme.name}: .chart .bars .bar does not reset the standalone min-content`).toContain(
+    const rule = ruleBody(theme.skins?.["bar-chart"] ?? "", ".bar-chart .bars .bar");
+    expect(rule, `${theme.name}: .bar-chart .bars .bar does not reset the standalone min-content`).toContain(
       "min-width: 0",
     );
   });
@@ -876,7 +898,7 @@ describe("plotted-figure reservation (tripwire)", () => {
 describe("cluster hub and pucks occlude (tripwire)", () => {
   test.each(ALL_THEMES)("$name's cluster hub and pucks are opaque", (theme) => {
     for (const [skin, selector] of [
-      ["node-cluster", ".node-cluster .hub"],
+      ["cluster", ".node-cluster .hub"],
       ["cluster-node", ".cnode .cpuck"],
     ] as const) {
       const css = stripComments(theme.skins?.[skin] ?? "");

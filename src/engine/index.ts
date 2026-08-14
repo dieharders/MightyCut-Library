@@ -101,22 +101,28 @@ export {
 } from "../types/storyboard";
 export { COMPONENT_NAMES, TREATMENT_NAMES } from "../types/components";
 
-// The kind ↔ treatment vocabulary. Exported HERE (not only from the Bun entry) because the web
-// UI reaches the library exclusively through `/engine`, and without it the plan editor's look
-// picker had to hand-mirror all of this — the kind tuple, the (kind, treatment) pairs AND their
-// order — in a mirror its own tests looped over, so drift from this file was undetectable by
-// construction and every new treatment had to be added in two repos to become pickable.
-// The web UI still owns the human LABEL for each look; that is UI copy, not vocabulary.
+// The LOOK vocabulary. Exported HERE (not only from the Bun entry) because the web UI reaches
+// the library exclusively through `/engine`, and without it the plan editor's look picker had
+// to hand-mirror it — the kind tuple, the (kind, treatment) pairs AND their order — in a mirror
+// its own tests looped over, so drift from this file was undetectable by construction and every
+// new treatment had to be added in two repos to become pickable.
+//
+// The LABEL now ships from here too. It was left to the web UI as "UI copy, not vocabulary",
+// which sounded right and was not: the copy is keyed by look, so the key drifted with the
+// vocabulary, and the picker's fallback (print the raw name) hid it. `when` — the one-line
+// guidance the planner and the writer choose from — ships with it, so the user reads the same
+// sentence the model does.
 export {
+  LOOKS,
   SLIDE_KINDS,
-  SLIDE_LOOKS,
-  TREATMENT_MAP,
-  FALLBACK_KINDS,
-  defaultTreatmentForKind,
-  kindsForTreatment,
+  UNCOMPOSED_KINDS,
+  isComposableKind,
+  labelForLook,
+  lookFor,
+  lookTableLines,
+  type LookRow,
   type SlideKind,
   type SlideLook,
-  type TreatmentMapEntry,
 } from "../types/spec-treatments";
 
 // Deck contracts (the editor edits + round-trips these).

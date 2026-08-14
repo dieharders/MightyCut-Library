@@ -53,24 +53,25 @@ import { Zag } from "./primitives/zag";
 // treatments (whole-slide archetypes)
 import { Agenda } from "./treatments/agenda";
 import { BarRanking } from "./treatments/bar-ranking";
-import { Chart } from "./treatments/chart";
-import { ClosingPlate } from "./treatments/closing-plate";
+import { BarChart } from "./treatments/bar-chart";
+import { Outro } from "./treatments/outro";
 import { Comparison } from "./treatments/comparison";
 import { Cover } from "./treatments/cover";
 import { FeatureCards } from "./treatments/feature-cards";
+import { List } from "./treatments/list";
 import { Matrix } from "./treatments/matrix";
 import { PillWall } from "./treatments/pill-wall";
-import { LineChart } from "./treatments/line-chart";
-import { NodeCluster } from "./treatments/node-cluster";
+import { TrendLine } from "./treatments/trend-line";
+import { Cluster } from "./treatments/cluster";
 import { Team } from "./treatments/team";
-import { Quote } from "./treatments/quote";
-import { StatGrid } from "./treatments/stat-grid";
+import { Statement } from "./treatments/statement";
+import { Stats } from "./treatments/stats";
 import { Timeline } from "./treatments/timeline";
 
 for (const c of [Stat, Card, Step, AgendaItem, Bar, Rank, Row, MatrixRow, TeamMember, Plot, ClusterNode, Caption, Pill, Cta, ListNumber, Starburst, Slab, Stripe, Badge, NodeDeco, Reticle, Glyph, Signal, Blob, Lozenge, Arch, Confetti, Ring, Keyline, Corner, Grille, Stamp, Marker, Zag, Cutout, Compass, Sweep, Azimuth, Sorts, Icon, Hud]) {
   registerComponent(c);
 }
-for (const t of [Cover, FeatureCards, StatGrid, ClosingPlate, Quote, Timeline, Comparison, Chart, BarRanking, Agenda, Matrix, PillWall, Team, LineChart, NodeCluster]) {
+for (const t of [Cover, List, FeatureCards, Stats, Outro, Statement, Timeline, Comparison, BarChart, BarRanking, Agenda, Matrix, PillWall, Team, TrendLine, Cluster]) {
   registerTreatment(t);
 }
 
@@ -95,12 +96,12 @@ export {
   Icon,
   Keyline,
   ListNumber,
-  LineChart,
+  TrendLine,
   Lozenge,
   Marker,
   Matrix,
   MatrixRow,
-  NodeCluster,
+  Cluster,
   NodeDeco,
   Pill,
   PillWall,
@@ -123,12 +124,13 @@ export {
   Zag,
   Agenda,
   BarRanking,
-  Chart,
-  ClosingPlate,
+  BarChart,
+  Outro,
   Comparison,
   Cover,
   FeatureCards,
-  Quote,
-  StatGrid,
+  List,
+  Statement,
+  Stats,
   Timeline,
 };

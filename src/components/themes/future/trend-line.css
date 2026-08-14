@@ -1,0 +1,29 @@
+/* 14 · Line Chart — chart's sibling over the same spec data, for the one case chart cannot
+   draw: a trend. The plot itself (the aspect box, the overlay, the point positioning) is
+   plot.css; this file owns the frame's padding, its headline rhythm and the caption. */
+.trend-line h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 3.125rem;
+}
+.trend-line h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.trend-line .caption {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  color: color-mix(in srgb, var(--muted-1) 62%, var(--dark));
+  margin-top: 2.5rem;
+  align-self: center;
+}

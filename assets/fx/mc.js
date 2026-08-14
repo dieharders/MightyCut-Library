@@ -341,11 +341,33 @@
   //
   // `from`/`to` are overridable so a caller can wipe to something other than the full box —
   // the plot passes its own pair — while the DEFAULTS stay the plain left-to-right reveal.
+  //
+  // THE CLIP IS DROPPED WHEN THE WIPE ENDS, and that is not tidiness — a finished wipe leaves
+  // `clip-path: inset(0 0% 0 0)` on the element for the rest of the scene, which is not "no
+  // clip". It is a clip to the element's own BORDER BOX, so everything an element paints outside
+  // that box is cut away permanently: block's hard `0.5rem 0.5rem 0` shadow, future's glow,
+  // any outline or decoration that overhangs. Picking `wipe` as a matrix row's entrance shaved
+  // the bottom off that row's shadows while its neighbours kept theirs — the row's own reveal
+  // silently restyled it.
+  //
+  // `none` cannot be the tween's END value (it is not interpolable — the very trap the note
+  // above is about), so it is a separate zero-duration set at the wipe's finish. That is
+  // seek-safe in a way an `onComplete` is not: the render seeks a PAUSED timeline frame by
+  // frame, so a callback may never fire or may fire out of order, while a set is a real tween
+  // at a real position that GSAP applies and reverts as the playhead crosses it.
+  //
+  // It carries the SAME stagger as the wipe. With one, the tween's span is
+  // `duration + stagger × (n − 1)` and a single set at `at + duration` would un-clip every
+  // element at the moment the FIRST one finished, cutting the rest of the wave short.
   MC.wipeIn = function (tl, target, at, opts) {
     var o = opts || {};
     var to = { clipPath: o.to || "inset(0 0% 0 0)", duration: o.dur != null ? o.dur : 0.6, ease: o.ease || "power2.inOut" };
     if (o.stagger) to.stagger = o.stagger;
-    tl.fromTo(target, { clipPath: o.from || "inset(0 100% 0 0)" }, to, at || 0);
+    var start = at || 0;
+    tl.fromTo(target, { clipPath: o.from || "inset(0 100% 0 0)" }, to, start);
+    var done = { clipPath: "none" };
+    if (o.stagger) done.stagger = o.stagger;
+    tl.set(target, done, start + to.duration);
     return tl;
   };
 

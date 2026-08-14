@@ -9,7 +9,7 @@
    with a matching inner grid — same count, same gap, marks under their criteria. */
 .mrow {
   display: grid;
-  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
   align-items: center;
 }
@@ -48,7 +48,7 @@
 .mrow .mcells {
   grid-column: 2 / -1;
   display: grid;
-  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
 }
 /* The same glass plate the ledger's cells wear, so the two tables share one surface vocabulary. */

@@ -45,18 +45,18 @@ import stepCss from "./step.css" with { type: "text" };
 // Treatment skins.
 import agendaCss from "./agenda.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 
 // Palette — professional's colour for each of the 10 shared palette roles (types/palette.ts). The
@@ -220,14 +220,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
         "A consulting-grade theme — one saturated cobalt, soft tinted cards that never shout.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Quiet is the most expensive thing on the page.",
       attribution: "Managing Partner",
       eyebrow: "In Their Words",
     },
   },
-  "closing-plate": {
+  "outro": {
     params: { headline: "Let's talk.", cta: "Book a Briefing" },
   },
   "feature-cards": {
@@ -253,7 +253,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "Q3 at a glance" },
     children: [
       {
@@ -320,7 +320,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { name: "Priya Raman", role: "Data Lead", org: "Analytics", accent: "accent-1" },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "Cost per transaction",
       caption: "Trailing twelve months, indexed",
@@ -334,7 +334,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "A single operating core",
       hub: "Core platform",
@@ -359,7 +359,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "Risk", a: "Carried", b: "Managed" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: { headline: "By quarter", caption: "Measured across the program." },
     children: [
       { value: 42, label: "Q1", max: 96, unitSuffix: "M" },
@@ -401,6 +401,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // sparsest set of the six: cobalt is spent on type and chrome here, so the decoration draws
 // in Ice (accent-2) — a tint barely off the cream ground, present as a watermark rather than
 // as an accent. Each takes a reveal cascade slot.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One dot matrix on the right margin at the vertical centre, clear of the left-set
   // headline — the frame's only mark.
@@ -419,7 +424,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   ],
   // One large centred elbow behind the sign-off card — corner ticks scaled up until they
   // bracket the whole frame rather than a region of it.
-  "closing-plate": [
+  "outro": [
     {
       name: "corner",
       params: {
@@ -435,7 +440,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // The concentric rings the showcase floats behind a pull quote — the `halo` variant draws
   // the pair, centred behind the statement. This replaces the ::before/::after circles the
   // quote skin used to bake in, so a scene can now move, resize or delete them (quote.css).
-  quote: [
+  statement: [
     {
       name: "ring",
       params: {
@@ -497,18 +502,22 @@ export const professionalTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // No template overrides: professional reaches its whole look in CSS alone (the cover panel/dots

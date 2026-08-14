@@ -48,18 +48,18 @@ import stepCss from "./step.css" with { type: "text" };
 // Treatment skins.
 import agendaCss from "./agenda.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 
 // Showcase design data — the block styleguide extracted from
@@ -219,14 +219,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       subtitle: "A maximalist, neobrutalist theme.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Design is not just what it looks like. Design is how it works.",
       attribution: "Steve Jobs",
       eyebrow: "In their words",
     },
   },
-  "closing-plate": {
+  "outro": {
     params: { headline: "Stay loud.", cta: "Start building" },
   },
   "feature-cards": {
@@ -252,7 +252,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "Numbers that moved" },
     children: [
       {
@@ -355,7 +355,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "Losses Keep Falling",
       caption: "Incidents per 1,000 sessions",
@@ -369,7 +369,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "One Hub, Every Feed",
       hub: "Platform",
@@ -422,7 +422,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "Setup", a: "Weeks", b: "Same day" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: { headline: "Revenue by quarter", caption: "Net new revenue" },
     children: [
       { value: 42, label: "Q1", max: 96, unitPrefix: "$", unitSuffix: "M" },
@@ -467,6 +467,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // the showcase seeds its editable decoration rows from, so what a user sees listed is
 // exactly what renders. Two per frame, three on the closer: every decoration takes a reveal
 // cascade slot, so the count is the headline's delay.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
   cover: [
@@ -498,7 +503,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A blue tilt-rect and a yellow star stacked low-left, plus a big blue disc bleeding off
   // the top-right corner. All three sit BEHIND the statement card — the closer's own hard
   // offset is the shape that reads in front, so nothing here competes with it.
-  "closing-plate": [
+  "outro": [
     {
       name: "starburst",
       params: {
@@ -525,7 +530,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   ],
   // The quote card is centred, so both flourishes sit hard in opposite corners: a tilted
   // yellow capsule upper-left, a cream rhombus lower-right.
-  quote: [
+  statement: [
     {
       name: "badge",
       params: {
@@ -589,18 +594,22 @@ export const blockTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // Block's content fonts (Inter, Space Grotesk) are a subset of the always-staged core

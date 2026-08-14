@@ -61,6 +61,9 @@ const fireTimes = (anims: AnimDescriptor[]): { target: string; at: number }[] =>
   tl.from = record;
   tl.to = record;
   tl.fromTo = (t: unknown, _f: unknown, v: Record<string, unknown>, at: number) => record(t, v, at);
+  // A zero-duration set is not motion — MC.wipeIn schedules one to drop the clip when the wipe
+  // ends, and counting it would read as an extra cascade slot.
+  tl.set = () => tl;
 
   MC.applyAnims(tl, anims, {
     q: elFor,
@@ -103,6 +106,7 @@ describe("the ordered cascade fits inside a short scene", () => {
     tl.from = rec;
     tl.to = rec;
     tl.fromTo = (_t: unknown, _f: unknown, _v: unknown, at: number) => rec(_t, _v, at);
+    tl.set = () => tl;
     MC.applyAnims(tl, anims, {
       q: (s: string) => (els.get(s) ?? (els.set(s, { id: s }), els.get(s)))!,
       qa: () => [],

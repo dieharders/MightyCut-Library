@@ -1,11 +1,11 @@
 // VideoSpec — the single source of truth for what a generated video contains.
 // The LLM produces this JSON; the harness generators render it to HyperFrames
-// HTML; the Pi agent customizes the slide sub-compositions. The render-side mirror
-// that must stay in sync with these shapes is the kind→treatment map
-// (components/storyboard-defaults.ts · defaultTreatmentForKind), guarded by tripwire
-// tests in the harness's spec.test.ts / storyboard.test.ts. (The two modules this
-// note used to name — pipeline/theme-css.ts and pipeline/slide-templates.ts' kind
-// dispatch — are both deleted; every theme is a component theme now.)
+// HTML; the Pi agent customizes the slide sub-compositions. There is no longer a render-side
+// MIRROR to keep in sync: a slide's `kind` IS its treatment, so this union's discriminator and
+// the look vocabulary in types/spec-treatments (LOOKS) are the same list, and a tripwire asserts
+// it rather than a map reconciling two. (The modules this note used to name —
+// pipeline/theme-css.ts, pipeline/slide-templates.ts' kind dispatch, and
+// defaultTreatmentForKind — are all deleted; every theme is a component theme now.)
 //
 // Every `.describe()` in this file is PROMPT COPY, not documentation: the whole schema
 // ships verbatim to the writer via z.toJSONSchema(VideoSpecSchema). Edit them as
@@ -13,6 +13,7 @@
 import { z } from "zod";
 import { FRAME_THEME_NAMES } from "./storyboard";
 import { TransitionSpecSchema } from "./transitions";
+import { addIssue } from "../util/issues";
 
 const id = z
   .string()
@@ -41,7 +42,7 @@ export type VOLine = z.infer<typeof VOLineSchema>;
  * frame printed its section name twice. The slot is gone (treatments/cover), and this field
  * means only the corner.
  *
- * Kinds with a `header` object hold it at `header.kicker`; the four without one (title,
+ * Kinds with a `header` object hold it at `header.kicker`; the four without one (cover,
  * statement, outro, custom) hold it top-level. The renderer reads
  * `slide.header?.kicker ?? slide.kicker`, so a header — where there is one — WINS. Coverage is
  * deliberately total: every kind has somewhere to put it, which is what lets the plan editor
@@ -100,7 +101,7 @@ const StatSchema = z.object({
   decimals: z.number().int().min(0).max(2).optional(),
 });
 
-const BulletSchema = z.object({
+const ListItemSchema = z.object({
   icon,
   text: z.string().min(1).max(110),
   detail: z.string().max(160).optional(),
@@ -117,10 +118,19 @@ export const CardContentSchema = z.object({
   text: z.string().min(1).max(150),
 });
 
-export const ChartContentSchema = z.object({
-  type: z
-    .enum(["bar", "line"])
-    .describe("bar for category comparison, line for trends"),
+/**
+ * The series payload, shared verbatim by the three chart looks — `bar-chart`, `bar-ranking`
+ * and `trend-line`.
+ *
+ * It is SPREAD onto each slide rather than nested under a `chart` key, which made `chart` the
+ * only kind in the union that buried its payload one level down. And it no longer carries a
+ * `type: "bar" | "line"` discriminator: bar-vs-line is the LOOK, so the look's name says it.
+ * That field was the single piece of slide DATA that decided which treatment could render a
+ * slide, which is what forced a compatibility check on every pinned treatment — and the check
+ * ran at scaffold time, long after the writer had independently chosen `type`, so a user who
+ * asked for a line chart got bars whenever the two disagreed, silently.
+ */
+const seriesFields = {
   unitPrefix: z
     .string()
     .max(6)
@@ -148,7 +158,21 @@ export const ChartContentSchema = z.object({
     .min(2)
     .max(8),
   caption: z.string().max(140).optional(),
-});
+} as const;
+
+/** The numbered-step payload, shared by the two sequence looks — `timeline` and `agenda`.
+ *  Same data, two ways of drawing it: stepped cards that explain each step, or a sparse
+ *  index that only names them. */
+const stepsField = z
+  .array(
+    z.object({
+      icon,
+      title: z.string().min(1).max(36),
+      text: z.string().max(100).optional(),
+    }),
+  )
+  .min(2)
+  .max(5);
 
 // NOTE: the `composed` kind — a fixed multi-slot layout (LAYOUTS_META / COMPONENT_TYPES /
 // SlotSchema) — was REMOVED, along with its pixel geometry in the harness's pipeline/layouts.ts.
@@ -162,7 +186,7 @@ export const ChartContentSchema = z.object({
 export const SlideSpecSchema = z.discriminatedUnion("kind", [
   z.object({
     id,
-    kind: z.literal("title"),
+    kind: z.literal("cover"),
     transition,
     // The HUD corner label, and nothing else. It USED to be double-duty — the cover treatment's
     // eyebrow pill was filled from this same field — so a section name landed on the opening
@@ -175,11 +199,17 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     id,
-    kind: z.literal("bullets"),
+    kind: z.literal("list"),
     transition,
     background,
     header: HeaderSpecSchema,
-    bullets: z.array(BulletSchema).min(2).max(5),
+    items: z
+      .array(ListItemSchema)
+      .min(2)
+      .max(5)
+      .describe(
+        "2-5 short claims, one per line. Each is a sentence at most; `detail` adds a second line where one item needs it. When every item needs explaining, the look is `feature-cards`.",
+      ),
   }),
   z.object({
     id,
@@ -194,13 +224,34 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     text: z.string().min(1).max(200),
     attribution: z.string().max(80).optional(),
   }),
+  // The three chart looks. Identical payloads (`seriesFields`), three different drawings of
+  // it — which is the whole reason a look is a name and not a data flag: the writer picks the
+  // one whose SHAPE fits the data's meaning, and there is nothing left for the renderer to
+  // second-guess. `bar-chart` compares unordered categories, `bar-ranking` puts an ORDER on
+  // them, `trend-line` reads left-to-right through an ordered sequence.
   z.object({
     id,
-    kind: z.literal("chart"),
+    kind: z.literal("bar-chart"),
     transition,
     background,
     header: HeaderSpecSchema,
-    chart: ChartContentSchema,
+    ...seriesFields,
+  }),
+  z.object({
+    id,
+    kind: z.literal("bar-ranking"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    ...seriesFields,
+  }),
+  z.object({
+    id,
+    kind: z.literal("trend-line"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    ...seriesFields,
   }),
   z.object({
     id,
@@ -235,27 +286,27 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     id,
-    kind: z.literal("steps"),
+    kind: z.literal("timeline"),
     transition,
     background,
     header: HeaderSpecSchema,
-    steps: z
-      .array(
-        z.object({
-          icon,
-          title: z.string().min(1).max(36),
-          text: z.string().max(100).optional(),
-        }),
-      )
-      .min(2)
-      .max(5)
-      .describe(
-        "Numbered process steps, rendered as a connected card sequence",
-      ),
+    steps: stepsField.describe(
+      "Numbered process steps, drawn as a connected card sequence — each step's `text` explains it",
+    ),
   }),
   z.object({
     id,
-    kind: z.literal("cards"),
+    kind: z.literal("agenda"),
+    transition,
+    background,
+    header: HeaderSpecSchema,
+    steps: stepsField.describe(
+      "The ordered parts of the presentation or event — its agenda, drawn as a numbered index or list. Titles carry it; `text` is an optional short qualifier (a duration, phase, tag, time), never an explanation",
+    ),
+  }),
+  z.object({
+    id,
+    kind: z.literal("feature-cards"),
     transition,
     background,
     header: HeaderSpecSchema,
@@ -267,14 +318,14 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     id,
-    kind: z.literal("pills"),
+    kind: z.literal("pill-wall"),
     transition,
     background,
     header: HeaderSpecSchema,
     // The floor is 6, not 2, and it is doing real work. A "wall" of three labels is a bulleted
     // list with the words taken out — the device only reads as a SET, seen at once rather than
     // read in order, once there are enough of them that no single one is the point. Below that
-    // the writer wants `bullets` or `cards`, which say what each item MEANS.
+    // the writer wants `list` or `feature-cards`, which say what each item MEANS.
     pills: z
       .array(z.string().min(1).max(28))
       .min(6)
@@ -294,18 +345,24 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .string()
       .min(1)
       .max(28)
-      .describe("The centre everything connects to — the product, the team, the platform"),
+      .describe(
+        "The centre everything connects to — the product, the team, the platform",
+      ),
     nodes: z
       .array(
         z.object({
           label: z.string().min(1).max(24),
-          detail: z.string().max(40).optional().describe("A short qualifier under the label"),
+          detail: z
+            .string()
+            .max(40)
+            .optional()
+            .describe("A short qualifier under the label"),
         }),
       )
       .min(3)
       .max(8)
       .describe(
-        "The spokes, placed evenly clockwise from the top. Use this only for a genuine hub-and-spoke relationship — everything here must connect to the SAME centre. A flat list of features is `bullets` or `pills`.",
+        "The spokes, placed evenly clockwise from the top. Use this only for a genuine hub-and-spoke relationship — everything here must connect to the SAME centre. A flat list of features is `list` or `pill-wall`.",
       ),
     caption: z.string().max(140).optional(),
   }),
@@ -323,12 +380,16 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
             .string()
             .min(1)
             .max(40)
-            .describe('What they do here, e.g. "Head of Research" — a title, not a biography'),
+            .describe(
+              'What they do here, e.g. "Head of Research" — a title, not a biography',
+            ),
           org: z
             .string()
             .max(32)
             .optional()
-            .describe("Their affiliation, ONLY when it differs from the deck's own"),
+            .describe(
+              "Their affiliation, ONLY when it differs from the deck's own",
+            ),
         }),
       )
       .min(2)
@@ -589,73 +650,46 @@ export const VideoSpecSchema = z
       hud: HudSchema.optional(),
     }),
     // No upper bound: the deck runs as many slides as its runtime target needs.
-    // min(3) is structural — a title and an outro with at least one slide between.
+    // min(3) is structural — a cover and an outro with at least one slide between.
     slides: z.array(SlideSpecSchema).min(3),
     voiceover: z.array(VOLineSchema).min(3),
   })
-  .superRefine((spec, ctx) => {
-    if (spec.slides[0]?.kind !== "title") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides", 0],
-        message: "first slide must be kind 'title'",
-      });
+  .check((ctx) => {
+    const spec = ctx.value;
+    if (spec.slides[0]?.kind !== "cover") {
+      addIssue(ctx, ["slides", 0], "first slide must be kind 'cover'");
     }
     if (spec.slides[spec.slides.length - 1]?.kind !== "outro") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides", spec.slides.length - 1],
-        message: "last slide must be kind 'outro'",
-      });
+      addIssue(ctx, ["slides", spec.slides.length - 1], "last slide must be kind 'outro'");
     }
     const slideIds = new Set(spec.slides.map((s) => s.id));
     if (slideIds.size !== spec.slides.length) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides"],
-        message: "slide ids must be unique",
-      });
+      addIssue(ctx, ["slides"], "slide ids must be unique");
     }
     // Matrix rows must answer every criteria column.
     for (const [i, slide] of spec.slides.entries()) {
       if (slide.kind !== "matrix") continue;
       for (const [r, row] of slide.rows.entries()) {
         if (row.values.length !== slide.criteria.length) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["slides", i, "rows", r, "values"],
-            message: `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`,
-          });
+          addIssue(ctx, ["slides", i, "rows", r, "values"], `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`);
         }
       }
     }
     const lineIds = new Set<string>();
     for (const [i, line] of spec.voiceover.entries()) {
       if (lineIds.has(line.id)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i, "id"],
-          message: `duplicate line id '${line.id}'`,
-        });
+        addIssue(ctx, ["voiceover", i, "id"], `duplicate line id '${line.id}'`);
       }
       lineIds.add(line.id);
       if (!slideIds.has(line.slideId)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i, "slideId"],
-          message: `slideId '${line.slideId}' does not match any slide`,
-        });
+        addIssue(ctx, ["voiceover", i, "slideId"], `slideId '${line.slideId}' does not match any slide`);
       }
     }
     // Every slide needs narration — slides are timed by their VO lines.
     const narrated = new Set(spec.voiceover.map((l) => l.slideId));
     for (const [i, slide] of spec.slides.entries()) {
       if (!narrated.has(slide.id)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["slides", i],
-          message: `slide '${slide.id}' has no voiceover lines`,
-        });
+        addIssue(ctx, ["slides", i], `slide '${slide.id}' has no voiceover lines`);
       }
     }
     // VO lines must be grouped per slide, in slide order, so timing is contiguous.
@@ -664,12 +698,7 @@ export const VideoSpecSchema = z
     for (const [i, line] of spec.voiceover.entries()) {
       const idx = order.indexOf(line.slideId);
       if (idx < prevIdx) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i],
-          message:
-            "voiceover lines must be ordered by slide order (all lines of a slide contiguous)",
-        });
+        addIssue(ctx, ["voiceover", i], "voiceover lines must be ordered by slide order (all lines of a slide contiguous)");
         break;
       }
       prevIdx = idx;

@@ -4,7 +4,7 @@
    one chip above a headline, so block gives it a 0.625rem border, 3.5rem of side padding and
    the `xl` step. Ten of those do not fit on a frame — and would not read as a set if they did,
    because each one is sized to be looked at on its own. The same move chart makes on `bar`
-   (`.chart .bars .bar { min-width: 0 }`): the treatment owns how its children sit INSIDE it,
+   (`.bar-chart .bars .bar { min-width: 0 }`): the treatment owns how its children sit INSIDE it,
    the primitive owns what they are. Everything below the border weight is block's standard
    plate recipe, unchanged — same ink outline, same hard offset, same mono label. */
 .pill-wall h3 {

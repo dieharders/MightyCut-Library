@@ -14,7 +14,7 @@
    rows share a single ink line and the table reads as one printed block. */
 .mrow {
   display: grid;
-  grid-template-columns: 1.4fr repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
 }
 /* Each cell PAINTS the milk block it sits in; the table itself is ink (matrix.css) so a sub-pixel
    row seam shows the rule colour instead of leaking a light hairline. The proposer's row swaps
@@ -68,7 +68,7 @@
 .mrow .mcells {
   grid-column: 2 / -1;
   display: grid;
-  grid-template-columns: repeat(var(--mcols, 3), 1fr);
+  grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
 }
 .mrow .mcell {
   display: grid;

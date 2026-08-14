@@ -47,20 +47,20 @@ import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
 import agendaCss from "./agenda.css" with { type: "text" };
 // Structure overrides (kept in lockstep with the shared marker vocabulary).
 import statTemplate from "./templates/stat.html" with { type: "text" };
 import coverTemplate from "./templates/cover.html" with { type: "text" };
-import quoteTemplate from "./templates/quote.html" with { type: "text" };
+import statementTemplate from "./templates/statement.html" with { type: "text" };
 
 // Palette — future's colour for each of the 10 shared palette roles (types/palette.ts).
 // The SINGLE source of truth for future's colours: it drives the showcase Palette
@@ -206,14 +206,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       subtitle: "Self-healing edge communications for contested environments.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Communications should heal faster than the adversary can break them.",
       attribution: "Atlas Dynamics",
       eyebrow: "From the Field",
     },
   },
-  "closing-plate": {
+  "outro": {
     params: { headline: "Award via Tradewinds today.", cta: "Get Started" },
   },
   "feature-cards": {
@@ -239,7 +239,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "Impact That Compounds" },
     children: [
       {
@@ -319,7 +319,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { name: "Maj. Lena Cruz", role: "Mission Assurance", org: "Test & Eval", accent: "accent-1" },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "Link Latency Trend",
       caption: "Mean round-trip, milliseconds",
@@ -333,7 +333,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "One Relay, Every Sensor",
       hub: "Atlas Relay",
@@ -358,7 +358,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "72-hr deploy", a: "Rarely", b: "Every time" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: {
       headline: "Packet Loss, Falling Fast",
       caption: "Median packet loss under active jamming.",
@@ -397,6 +397,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // navy, never competing with the particle field. Cyan (primary) draws every lit instrument;
 // glass (muted-3) is the one unlit shape, a mass rather than a mark. Every decoration takes
 // a reveal cascade slot, so a heavier set would push the headline late.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One instrument in two parts, both centred on the BOTTOM edge so the pair is cropped to a
   // half: a cyan ring with a bracket set turned 135° around it. It reads as a single
@@ -405,7 +410,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // A single glass triangle at the schema's maximum size, centred DIRECTLY behind the
   // sign-off card — the one place future spends a mass instead of a hairline, so the closer
   // has something to sit on once the constellation stops carrying the frame.
-  "closing-plate": [
+  "outro": [
     {
       name: "glyph",
       params: {
@@ -420,7 +425,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   ],
   // The quote card is centred: a cyan beam raked up from low-left, a cyan hexagon
   // high-right.
-  quote: [
+  statement: [
     {
       name: "signal",
       params: {
@@ -498,25 +503,29 @@ export const futureTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // Structure overrides where future's markup diverges from block (shared markers kept).
   templates: {
     stat: statTemplate,
     cover: coverTemplate,
-    quote: quoteTemplate,
+    statement: statementTemplate,
   },
   // Future's three content fonts (Space Grotesk / Inter / JetBrains Mono) are all in the
   // always-staged core chrome set, so future ships no add-on font of its own. (No `fonts`

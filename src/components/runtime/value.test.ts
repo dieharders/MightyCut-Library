@@ -12,7 +12,7 @@ import "../registry";
 import { Bar } from "../primitives/bar";
 import { Rank } from "../primitives/rank";
 import { BarRanking } from "../treatments/bar-ranking";
-import { Chart } from "../treatments/chart";
+import { BarChart } from "../treatments/bar-chart";
 import { getComponent } from "./registry";
 import { finalValueText, reserveCh, seriesReserveCh, valueReserveCh, zeroValueText } from "./value";
 
@@ -157,10 +157,10 @@ describe("--vlen is hoisted to the container, not left per-child", () => {
           .build(ctx),
     },
     {
-      name: "chart",
+      name: "bar-chart",
       widest: reserveCh("$1200M"),
       built: () =>
-        Chart({ headline: "Revenue", caption: "Net new" })
+        BarChart({ headline: "Revenue", caption: "Net new" })
           .addChildren(
             Bar({ value: 42, label: "Q1", max: 1200, unitPrefix: "$", unitSuffix: "M" }),
             Bar({ value: 42, label: "Q2", max: 90, unitPrefix: "$", unitSuffix: "M" }),

@@ -4,8 +4,8 @@
 // canonical ground, defaultChildren (used when none are added), a responsive
 // layout (childCount → CSS custom properties), and a default anim.
 //
-//   StatGrid().addChildren(Stat(), Stat(), Stat())   // literal composition
-//   StatGrid()                                        // defaultChildren(params)
+//   Stats().addChildren(Stat(), Stat(), Stat())   // literal composition
+//   Stats()                                        // defaultChildren(params)
 //
 // buildScene(ctx) turns the composed frame into SubComposition parts for
 // wrapSubComposition: the treatment root becomes the page wrapper (its classes +
@@ -37,6 +37,7 @@ import type {
   BuildContext,
   BuildNode,
   BuildResult,
+  ChildParams,
   ComponentInstance,
   SubComposition,
   TreatmentFactory,
@@ -60,6 +61,46 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   childComponent?: string;
   /** Children used when the caller adds none (default deck build + showcase). */
   defaultChildren: (p: z.infer<S>) => ComponentInstance[];
+  /**
+   * The whole-element entrance forced onto EVERY child, whatever supplied it.
+   *
+   * Exists for the treatment that reveals its children ITSELF — `pill-wall` aims one
+   * `staggerIn` at the container, which the interpreter expands to `.wall > *`, so a pill
+   * carrying its own entrance is revealed twice. That invariant used to be bought per child in
+   * `defaultChildren` (`Pill({…}).withTransition({ animIn: "none" })`), which is the one path
+   * that supplies children the treatment already controls — and left every OTHER path on the
+   * component's default: `compose.ts` forwards a transition only `if (c.animIn || c.timeIn)`,
+   * and a theme's `examples[*].children` are plain param objects with nowhere to express one.
+   *
+   * The visible cost was NOT the double reveal (the container's wave claims each box first and
+   * `MC.applyAnims` drops the child's own entrance) — it was the TIMING. mc.js's cascade `fit`
+   * pass runs over the raw descriptor array before any DOM lookup or reveal guard, so twelve
+   * dropped entrances still counted as twelve slots and collapsed the whole scene's slot delay
+   * to its 0.15s floor: the headline, the wave and the caption all arrived early, on a scene
+   * nobody had asked to speed up.
+   *
+   * A property of the TREATMENT, so it holds on every path into it rather than on the one that
+   * remembered. It overwrites rather than merges — a treatment that owns its children's reveal
+   * owns it outright, and `"none"` makes any accompanying `timeIn` moot.
+   */
+  childAnimIn?: TransitionName;
+  /**
+   * Cross-CHILD validation: one message describing an incoherent SET, or null.
+   *
+   * The per-element schemas structurally cannot do this. A treatment's schema never sees its
+   * children (`composeTreatment` validates `spec.params`, then each child alone), and a child's
+   * schema never sees its siblings or the treatment's params — so two counts that have to agree
+   * are each validated against their own bounds and never against each other. `matrix` is the
+   * clearest case: `criteria` is `.min(2).max(5)` and a row's `cells` is independently
+   * `.min(2).max(5)`, so four criteria against three cells validates cleanly and renders a
+   * header and a body on DIFFERENT track counts.
+   *
+   * Run by `composeTreatment`, which is the seam every hand-built child set arrives through —
+   * the deck editor, the CLI, and the agent's `build_treatment`, whose error text is fed back
+   * to the model so it self-corrects. NOT run for `addChildren(instance…)` or `defaultChildren`:
+   * an instance no longer exposes its params, and those two paths are the library's own.
+   */
+  childrenIssue?: (p: z.infer<S>, children: readonly ChildParams[]) => string | null;
   /** Own slot fills (headline, caption, …). */
   fill?: (p: z.infer<S>) => Record<string, string | null | undefined>;
   /** Responsive layout: CSS custom properties from the child count. */
@@ -150,6 +191,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         stampAnims(root, ctx.idPrefix); // own data-anim (headline, …)
 
         const children = added ?? def.defaultChildren(p);
+        // A treatment that reveals its own children forces their entrance here rather than
+        // trusting whoever built them to have known (see `childAnimIn`). Applied to the
+        // defaults too, so there is ONE statement of the rule instead of one per path.
+        if (def.childAnimIn) for (const c of children) c.withTransition({ animIn: def.childAnimIn });
         const container = childrenContainer(root);
         if (!container && children.length > 0) {
           throw new Error(`treatment '${def.name}': template has no data-children container`);
@@ -372,6 +417,12 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
     kind: "treatment" as const,
     schema: def.schema,
     childComponent: def.childComponent,
+    // Parses `params` through the treatment's own schema first: the hook is written against
+    // resolved params (defaults applied), and composeTreatment has already validated them.
+    childrenIssue: def.childrenIssue
+      ? (params: unknown, children: readonly ChildParams[]): string | null =>
+          def.childrenIssue!(def.schema.parse(params ?? {}), children)
+      : undefined,
     jsonSchema,
     defaults: () => def.schema.parse(def.example),
   });

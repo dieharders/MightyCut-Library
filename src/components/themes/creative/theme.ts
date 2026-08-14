@@ -51,18 +51,18 @@ import stepCss from "./step.css" with { type: "text" };
 // Treatment skins.
 import agendaCss from "./agenda.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 
 // Palette — creative's colour for each of the 10 shared palette roles (types/palette.ts). The
@@ -256,14 +256,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       subtitle: "A neo-brutalist editorial theme.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Atoms are sacred. Composition is free.",
       attribution: "The Frame Manifesto",
       eyebrow: "The Manifesto",
     },
   },
-  "closing-plate": {
+  "outro": {
     params: { headline: "That's the end!", cta: "Book a Call" },
   },
   "feature-cards": {
@@ -289,7 +289,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "The Numbers Don't Whisper" },
     children: [
       { value: 240, label: "Output Lift", unitSuffix: "%", accent: "primary" },
@@ -351,7 +351,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { name: "Nils Brandt", role: "Print Lead", org: "Bindery", accent: "accent-1" },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "The Line Goes Up",
       caption: "Print runs sold, by quarter",
@@ -365,7 +365,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "One Press, Many Hands",
       hub: "The Studio",
@@ -390,7 +390,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "Accents", a: "Muted", b: "Full saturation" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: { headline: "By Quarter", caption: "Measured across the program." },
     children: [
       { value: 42, label: "Q1", max: 96, unitSuffix: "" },
@@ -434,6 +434,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // actually paints: cream for the cover, pink for quote/closing. Yellow (accent-1) does most
 // of the drawing — it is the one accent that holds on both of those grounds. Two per frame:
 // each takes a reveal cascade slot.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // On the cream ground: a small yellow seal top-right, and an oversized pink medallion
   // bleeding off the lower-right corner — the frame's one large shape, cropped by the edge
@@ -466,7 +471,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   ],
   // On the pink ground: two yellow marker cuts on the diagonal, a caret low-left and a bolt
   // high-right, both in FRONT so they read as marks made ON the frame rather than under it.
-  "closing-plate": [
+  "outro": [
     {
       name: "marker",
       params: {
@@ -495,7 +500,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // The quote card is centred: a wide yellow zigzag along the bottom-left, a yellow rosette
   // tilted high-right. The zigzag is the theme's one UNROTATED default — it carries its own
   // jaggedness, and a tilt on top of that just reads as a mistake.
-  quote: [
+  statement: [
     {
       name: "zag",
       params: {
@@ -570,18 +575,22 @@ export const creativeTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // No template overrides: creative reaches its whole look in CSS alone. The reference's

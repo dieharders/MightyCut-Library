@@ -6,9 +6,9 @@
 
    The grid track is stated in BOTH .mhead and .mrow rather than once on a shared parent,
    because the rows are separate grids (see matrix-row.css for why they are not display:contents
-   into one big grid). --cols is the treatment's criteria count; the rows use their own --mcols,
-   and the spec guarantees the two agree (a matrix slide's values must answer every criterion).
-   A hand-built row that disagrees misaligns visibly, which is the right failure. */
+   into one big grid). --cols is the treatment's criteria count and BOTH read it — a row's own
+   --mcols is only the fallback for a row rendered bare, outside any matrix (matrix-row.css has
+   the account of what reading it first used to cost). */
 .matrix h3 {
   font-weight: 800;
   font-size: var(--font-size-3xl);
