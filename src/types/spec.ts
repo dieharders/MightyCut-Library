@@ -300,7 +300,7 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     background,
     header: HeaderSpecSchema,
     steps: stepsField.describe(
-      "The sections the deck will cover, drawn as a sparse numbered index. Titles carry it; `text` is a short qualifier at most, since nothing here is explained",
+      "The ordered parts of the presentation or event — its agenda, drawn as a numbered index or list. Titles carry it; `text` is an optional short qualifier (a duration, phase, tag, time), never an explanation",
     ),
   }),
   z.object({
@@ -344,12 +344,18 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .string()
       .min(1)
       .max(28)
-      .describe("The centre everything connects to — the product, the team, the platform"),
+      .describe(
+        "The centre everything connects to — the product, the team, the platform",
+      ),
     nodes: z
       .array(
         z.object({
           label: z.string().min(1).max(24),
-          detail: z.string().max(40).optional().describe("A short qualifier under the label"),
+          detail: z
+            .string()
+            .max(40)
+            .optional()
+            .describe("A short qualifier under the label"),
         }),
       )
       .min(3)
@@ -373,12 +379,16 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
             .string()
             .min(1)
             .max(40)
-            .describe('What they do here, e.g. "Head of Research" — a title, not a biography'),
+            .describe(
+              'What they do here, e.g. "Head of Research" — a title, not a biography',
+            ),
           org: z
             .string()
             .max(32)
             .optional()
-            .describe("Their affiliation, ONLY when it differs from the deck's own"),
+            .describe(
+              "Their affiliation, ONLY when it differs from the deck's own",
+            ),
         }),
       )
       .min(2)

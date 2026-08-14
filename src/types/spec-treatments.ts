@@ -73,8 +73,8 @@ export const LOOKS = [
   },
   {
     name: "agenda",
-    label: "Agenda index",
-    when: "A sparse numbered index of what the deck covers — titles only, nothing explained.",
+    label: "Agenda",
+    when: "An agenda or running order: 2-5 numbered parts of a presentation or event, each a title and optional detail. Not a timeline.",
   },
   {
     name: "comparison",
@@ -104,17 +104,17 @@ export const LOOKS = [
   {
     name: "pill-wall",
     label: "Pill wall",
-    when: "6-14 short labels taken in at a glance — breadth IS the point and nothing is explained.",
+    when: "4-14 short labels taken in at a glance — breadth IS the point. For features, capabilities, etc.",
   },
   {
     name: "cluster",
     label: "Cluster",
-    when: "One centre with 3-8 labelled spokes. Only for a real hub relationship; a flat list is a list.",
+    when: "One central hub with up to 8 labelled spokes. Only for real hub relationship; not a flat list.",
   },
   {
     name: "team",
     label: "Team",
-    when: "2-5 people, each a name and a role. ONLY when the prompt names real people.",
+    when: "1-5 people, each with name and role. ONLY when the prompt names real people.",
   },
   {
     name: "outro",
@@ -124,7 +124,7 @@ export const LOOKS = [
   {
     name: "custom",
     label: "Custom visual",
-    when: "A signature visual no other look can show, hand-built by a slide engineer. At most one per deck.",
+    when: "A signature visual no other look can show, hand-built by a slide engineer.",
     composable: false,
   },
 ] as const satisfies readonly LookRow[];
@@ -135,7 +135,10 @@ export type SlideKind = (typeof LOOKS)[number]["name"];
 
 /** The names that are NOT renderable treatments (`custom` alone). Derived, so the escape
  *  hatch is declared once, on its own row, rather than restated as a list. */
-type UncomposableName = Extract<(typeof LOOKS)[number], { readonly composable: false }>["name"];
+type UncomposableName = Extract<
+  (typeof LOOKS)[number],
+  { readonly composable: false }
+>["name"];
 
 /** A renderable treatment — every look except the `custom` sentinel. */
 export type FrameTreatment = Exclude<SlideKind, UncomposableName>;
@@ -164,9 +167,9 @@ export const FRAME_TREATMENTS = ROWS.filter((l) => l.composable !== false).map(
 
 /** Kinds with no treatment — they render as the placeholder scene. `custom` alone, by design:
  *  it is the kind that MEANS "no look can do this, build it by hand". */
-export const UNCOMPOSED_KINDS: SlideKind[] = ROWS.filter((l) => l.composable === false).map(
-  (l) => l.name as SlideKind,
-);
+export const UNCOMPOSED_KINDS: SlideKind[] = ROWS.filter(
+  (l) => l.composable === false,
+).map((l) => l.name as SlideKind);
 
 /** Whether a look name renders (i.e. is a treatment) rather than falling to the placeholder. */
 export const isComposableKind = (name: string): name is FrameTreatment =>
@@ -177,7 +180,8 @@ export const lookFor = (name: string): LookRow | undefined =>
   ROWS.find((l) => l.name === name);
 
 /** The picker's copy for a look, falling back to the bare name. */
-export const labelForLook = (name: string): string => lookFor(name)?.label ?? name;
+export const labelForLook = (name: string): string =>
+  lookFor(name)?.label ?? name;
 
 /**
  * Prompt-table rows: `- <name>  <when>`, in LOOKS order.
