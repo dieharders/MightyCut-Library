@@ -36,10 +36,10 @@ const Stat = component({
 });
 
 const GridSchema = z.object({ headline: z.string() });
-const StatGrid = treatment({
-  name: "stat-grid",
+const Stats = treatment({
+  name: "stats",
   schema: GridSchema,
-  template: `<div class="stat-grid"><h3 class="hd" data-slot="headline" data-anim="headline">Headline</h3><div class="row" data-children></div></div>`,
+  template: `<div class="stats"><h3 class="hd" data-slot="headline" data-anim="headline">Headline</h3><div class="row" data-children></div></div>`,
   css: `.stat-grid { container-type: size }\n.row { display: grid; grid-template-columns: repeat(var(--cols,3),1fr) }`,
   ground: "primary",
   example: { headline: "Numbers that matter" },
@@ -163,7 +163,7 @@ describe("component build", () => {
 
 describe("treatment composition", () => {
   test("default children compose into ordered cascade slots (title → child 0 → child 1), css deduped", () => {
-    const r = StatGrid().build(ctx("s03-metrics"));
+    const r = Stats().build(ctx("s03-metrics"));
     // two default stats -> two uniquely-scoped children
     expect(r.html).toContain("s03-metrics__c0-item");
     expect(r.html).toContain("s03-metrics__c1-item");
@@ -183,7 +183,7 @@ describe("treatment composition", () => {
   });
 
   test("decorations reveal first (slot 0), pushing the title and children back a slot", () => {
-    const r = StatGrid().addDecorations(Deco()).build(ctx("s04-deco"));
+    const r = Stats().addDecorations(Deco()).build(ctx("s04-deco"));
     const deco = r.anims.find((a) => a.target === "s04-deco__d0-shape")!;
     const headline = r.anims.find((a) => a.target === "s04-deco-headline")!;
     const c0 = r.anims.find((a) => a.target === "s04-deco__c0-item")!;
@@ -211,7 +211,7 @@ describe("treatment composition", () => {
   });
 
   test("addChildren overrides defaults and >3 triggers dense layout", () => {
-    const r = StatGrid()
+    const r = Stats()
       .addChildren(Stat({ value: 1, label: "a" }), Stat({ value: 2, label: "b" }), Stat({ value: 3, label: "c" }), Stat({ value: 4, label: "d" }))
       .build(ctx("s"));
     expect(r.html).toContain("--cols: 4");
@@ -219,7 +219,7 @@ describe("treatment composition", () => {
   });
 
   test("buildScene → wrapSubComposition yields a valid, deterministic sub-composition", () => {
-    const html = renderScene(StatGrid(), { compId: "s03-metrics", idPrefix: "s03-metrics", theme: THEME, mode: "render", voIds: ["l1", "l2", "l3"] });
+    const html = renderScene(Stats(), { compId: "s03-metrics", idPrefix: "s03-metrics", theme: THEME, mode: "render", voIds: ["l1", "l2", "l3"] });
     expect(html).toContain('data-composition-id="s03-metrics"');
     expect(html).toContain('window.__timelines["s03-metrics"]');
     expect(html).toContain("MC.applyAnims(tl,");
@@ -231,8 +231,8 @@ describe("treatment composition", () => {
   });
 
   test("scene scoping isolates two instances of the same treatment", () => {
-    const a = StatGrid().build(ctx("s01"));
-    const b = StatGrid().build(ctx("s02"));
+    const a = Stats().build(ctx("s01"));
+    const b = Stats().build(ctx("s02"));
     expect(a.html).toContain("s01__c0-item");
     expect(a.html).not.toContain("s02__c0-item");
     expect(b.html).toContain("s02__c0-item");
@@ -242,7 +242,7 @@ describe("treatment composition", () => {
 
 describe("ground override via wrapSubComposition parts", () => {
   test("storyboard ground replaces the canonical ground", () => {
-    const html = renderScene(StatGrid(), ctx("s"), { ground: "accent-1" });
+    const html = renderScene(Stats(), ctx("s"), { ground: "accent-1" });
     expect(html).toContain("background: var(--accent-1)");
     expect(html).not.toContain("background: var(--primary)");
   });
@@ -253,11 +253,11 @@ describe("ground override via wrapSubComposition parts", () => {
   // failure that matters — the page would repaint and every skin reading --ground would keep the
   // colour the scene replaced, which no `background:` assertion above would catch.
   test("the ground is exposed to skins as --ground", () => {
-    expect(renderScene(StatGrid(), ctx("s"))).toContain("--ground: var(--primary)");
+    expect(renderScene(Stats(), ctx("s"))).toContain("--ground: var(--primary)");
   });
 
   test("a ground override re-points --ground too", () => {
-    const html = renderScene(StatGrid(), ctx("s"), { ground: "accent-1" });
+    const html = renderScene(Stats(), ctx("s"), { ground: "accent-1" });
     expect(html).toContain("--ground: var(--accent-1)");
     expect(html).not.toContain("--ground: var(--primary)");
   });
@@ -268,14 +268,14 @@ describe("backdrop mask", () => {
   const dotsCtx = (compId: string): BuildContext => ({ compId, idPrefix: compId, theme: DOTS, mode: "render" });
 
   test("a theme WITHOUT a backdrop paints no mask (byte-stable)", () => {
-    const html = renderScene(StatGrid(), ctx("s"));
+    const html = renderScene(Stats(), ctx("s"));
     expect(html).not.toContain("mc-backdrop");
     // the ground colour is unaffected
     expect(html).toContain("background: var(--primary)");
   });
 
   test("the theme's canonical backdrop paints the mask overlay", () => {
-    const html = renderScene(StatGrid(), dotsCtx("s"));
+    const html = renderScene(Stats(), dotsCtx("s"));
     expect(html).toContain("mc-backdrop mc-backdrop--dots");
     // The RULES are not in the scene — they ship in the shared BACKDROPS_CSS sheet, staged as
     // a project's read-only assets/backdrops.css so the polish agent can't rewrite a mask's
@@ -288,12 +288,12 @@ describe("backdrop mask", () => {
   });
 
   test("a scene override to 'plain' removes the mask for that scene only", () => {
-    const html = renderScene(StatGrid(), dotsCtx("s"), { backdrop: "plain" });
+    const html = renderScene(Stats(), dotsCtx("s"), { backdrop: "plain" });
     expect(html).not.toContain("mc-backdrop");
   });
 
   test("a scene override selects a different mask design", () => {
-    const html = renderScene(StatGrid(), ctx("s"), { backdrop: "dots" });
+    const html = renderScene(Stats(), ctx("s"), { backdrop: "dots" });
     expect(html).toContain("mc-backdrop--dots");
   });
 });
@@ -314,7 +314,7 @@ describe("ground override accepts every palette role", () => {
   });
 
   test.each(PALETTE_VARS.map((r) => [r]))("renderScene applies ground '%s'", (role) => {
-    const html = renderScene(StatGrid(), ctx("s"), { ground: role as never });
+    const html = renderScene(Stats(), ctx("s"), { ground: role as never });
     expect(html).toContain(`background: var(--${role})`);
   });
 

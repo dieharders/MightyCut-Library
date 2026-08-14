@@ -70,7 +70,7 @@ export type ThemeTokens = {
    *  base type) inlined ONCE per scene (deduped by name). Theme-specific look. */
   frameCss?: string;
   /** Per-element skins, keyed by component OR treatment name (e.g. `{ hud, caption,
-   *  stat, "stat-grid", … }`). The element owns the STRUCTURE (template) + BEHAVIOR
+   *  stat, "stats", … }`). The element owns the STRUCTURE (template) + BEHAVIOR
    *  (anim/schema) — the same across every theme — while each theme styles those
    *  standard class names its own way here. Both `component.buildNode` and
    *  `treatment.buildNode` prefer a theme skin over the element's own `css`, so a

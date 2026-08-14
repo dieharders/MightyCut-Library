@@ -56,18 +56,18 @@ import stepCss from "./step.css" with { type: "text" };
 // Treatment skins.
 import agendaCss from "./agenda.css" with { type: "text" };
 import barRankingCss from "./bar-ranking.css" with { type: "text" };
-import chartCss from "./chart.css" with { type: "text" };
-import closingPlateCss from "./closing-plate.css" with { type: "text" };
+import barChartCss from "./bar-chart.css" with { type: "text" };
+import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
-import lineChartCss from "./line-chart.css" with { type: "text" };
-import nodeClusterCss from "./node-cluster.css" with { type: "text" };
-import quoteCss from "./quote.css" with { type: "text" };
-import statGridCss from "./stat-grid.css" with { type: "text" };
+import trendLineCss from "./trend-line.css" with { type: "text" };
+import clusterCss from "./cluster.css" with { type: "text" };
+import statementCss from "./statement.css" with { type: "text" };
+import statsCss from "./stats.css" with { type: "text" };
 import timelineCss from "./timeline.css" with { type: "text" };
 
 // Palette — standard's colour for each of the 10 shared palette roles (types/palette.ts). The
@@ -255,14 +255,14 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
         "A quiet museum-catalog system in motion — warm stone, one hairline, compass-drafted geometry.",
     },
   },
-  quote: {
+  statement: {
     params: {
       text: "Nothing is bold. Nothing is loud.",
       attribution: "The System Voice",
       eyebrow: "On Measure",
     },
   },
-  "closing-plate": {
+  "outro": {
     params: {
       headline: "Well framed, on stone.",
       cta: "Begin the conversation",
@@ -291,7 +291,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "stat-grid": {
+  "stats": {
     params: { headline: "A measured record" },
     children: [
       {
@@ -384,7 +384,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "line-chart": {
+  "trend-line": {
     params: {
       headline: "Visitors by season",
       caption: "Recorded admissions, in thousands",
@@ -398,7 +398,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       },
     ],
   },
-  "node-cluster": {
+  "cluster": {
     params: {
       headline: "One collection, many rooms",
       hub: "The Collection",
@@ -453,7 +453,7 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       { label: "Colour", a: "Bright accent", b: "Stone and ink" },
     ],
   },
-  chart: {
+  "bar-chart": {
     params: {
       headline: "By quarter",
       caption: "Measured across the programme.",
@@ -496,6 +496,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
 // draws the one lit instrument; Line (accent-3), the hairline stone, carries every mark
 // meant to stay quiet on the sandstone canvas each frame grounds on. Each decoration takes a
 // reveal cascade slot.
+// `list` currently shares feature-cards' skin, so it shares its showcase example too —
+// aliased rather than copied, so the two cannot drift into different copy while rendering
+// identically. When the list-number rendering lands this becomes an entry of its own.
+examples["list"] = examples["feature-cards"]!;
+
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One brownstone dial on the right margin at the vertical centre, cropped by the edge —
   // the cover's single instrument, opposite the left-set headline.
@@ -515,7 +520,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // The same pivot twice, pinned to opposite corners (0,0 and 100,100) so each is quartered
   // by the frame edge — one instrument read as two cropped halves on the diagonal, which is
   // how the reference dresses a closer without adding a second shape to count.
-  "closing-plate": [
+  "outro": [
     {
       name: "azimuth",
       params: {
@@ -542,7 +547,7 @@ const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // The oversized quotation mark, low-left of the centred statement — a real component now
   // rather than the `.qcard::before` the skin used to bake in, so a scene can move it,
   // resize it or drop it (see quote.css). The frame's only mark; it spends one of the two.
-  quote: [
+  statement: [
     {
       name: "sorts",
       params: {
@@ -609,18 +614,22 @@ export const standardTheme: ThemeTokens = {
     // treatments
     agenda: agendaCss,
     "bar-ranking": barRankingCss,
-    chart: chartCss,
-    "closing-plate": closingPlateCss,
+    "bar-chart": barChartCss,
+    "outro": outroCss,
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
+    // `list` shares the feature-cards skin: the two looks compose identically today (both
+    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
+    // list-number rendering lands, this points at its own sheet and nothing else moves.
+    "list": featureCardsCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,
-    "line-chart": lineChartCss,
-    "node-cluster": nodeClusterCss,
-    quote: quoteCss,
-    "stat-grid": statGridCss,
+    "trend-line": trendLineCss,
+    "cluster": clusterCss,
+    statement: statementCss,
+    "stats": statsCss,
     timeline: timelineCss,
   },
   // No template overrides: standard reaches its whole look in CSS alone. The reference's compass

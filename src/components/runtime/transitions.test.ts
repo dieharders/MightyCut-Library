@@ -206,13 +206,13 @@ describe("entrance vs. internal reveal on the same target", () => {
 
 describe("treatment scene transition (render)", () => {
   test("default treatment ⇒ legacy entrance, no exit", () => {
-    const html = renderScene(getTreatment("stat-grid")(), rootContext("s01-def", blockTheme, { voIds: ["l1", "l2"] }));
+    const html = renderScene(getTreatment("stats")(), rootContext("s01-def", blockTheme, { voIds: ["l1", "l2"] }));
     expect(html).toContain('tl.from(page, { opacity: 0, duration: 0.3, ease: "power2.out" }, 0);');
     expect(html).not.toContain("_dout");
   });
   test("assigned animOut is NOT emitted into the sub-composition (leak-safe)", () => {
     const html = renderScene(
-      getTreatment("stat-grid")().withTransition({ animOut: "slide-left", timeOut: "medium" }),
+      getTreatment("stats")().withTransition({ animOut: "slide-left", timeOut: "medium" }),
       rootContext("s01-out", blockTheme, { voIds: ["l1", "l2", "l3"] }),
     );
     // A tween INSIDE a nested sub-composition that drives an element toward a hidden
@@ -227,7 +227,7 @@ describe("treatment scene transition (render)", () => {
   });
   test("assigned animIn replaces the legacy entrance", () => {
     const html = renderScene(
-      getTreatment("stat-grid")().withTransition({ animIn: "wipe", timeIn: "long" }),
+      getTreatment("stats")().withTransition({ animIn: "wipe", timeIn: "long" }),
       rootContext("s01-in", blockTheme, { voIds: ["l1", "l2"] }),
     );
     expect(html).toContain("var _din = Math.min(5, dur);");

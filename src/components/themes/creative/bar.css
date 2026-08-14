@@ -27,7 +27,7 @@
   min-width: min-content;
 }
 /* Standalone plot height above matches chart.css's `.bars` exactly, so a bare Bar in the showcase
-   stands as tall as it does in a real plot; inside the chart, `.chart .bars .bar` overrides
+   stands as tall as it does in a real plot; inside the chart, `.bar-chart .bars .bar` overrides
    flex/height so columns share the row. The FIXED width matters: without it the bar is
    shrink-to-fit, the counting value label's changing text width drives the box, and the width:100%
    column visibly wiggles as the number climbs. `min-width: min-content` is what keeps a LONG value

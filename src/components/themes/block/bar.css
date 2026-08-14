@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   /* Standalone plot height (the chart's .bars is also 28.25rem); the chart overrides
-     `.chart .bars .bar` to flex:1 + height:100% so bars fill and share its plot. */
+     `.bar-chart .bars .bar` to flex:1 + height:100% so bars fill and share its plot. */
   flex: 0 0 auto;
   height: 28.25rem;
   /* FIXED width so the column stays constant: without it the bar is shrink-to-fit, so the

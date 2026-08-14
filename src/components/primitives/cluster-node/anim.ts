@@ -23,7 +23,7 @@ import type { ClusterNodeParams } from "./schema";
 const HUB_LEAD_SEC = 0.3;
 
 /** Default motion: the spoke's connector and puck scale in together on its VO line (the
- *  NodeCluster treatment offsets each spoke to lines 1..N automatically), so the diagram
+ *  Cluster treatment offsets each spoke to lines 1..N automatically), so the diagram
  *  assembles outward from the hub one arm at a time. */
 export const clusterNodeAnim = (_p: ClusterNodeParams): AnimDescriptor[] => [
   {

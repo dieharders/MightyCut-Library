@@ -611,16 +611,17 @@ describe("future decorations", () => {
 // now formalized on the def (drives the showcase child editor).
 describe("treatment → childComponent link", () => {
   const expected: Record<string, string | undefined> = {
-    "stat-grid": "stat",
+    "stats": "stat",
     "feature-cards": "card",
+    list: "card",
     timeline: "step",
     agenda: "agenda-item",
     comparison: "row",
-    chart: "bar",
+    "bar-chart": "bar",
     "bar-ranking": "rank",
     cover: undefined,
-    quote: undefined,
-    "closing-plate": undefined,
+    statement: undefined,
+    "outro": undefined,
   };
   for (const [t, child] of Object.entries(expected)) {
     test(`${t} → ${child ?? "(none)"}`, () => {
@@ -642,7 +643,7 @@ describe("treatment decorations", () => {
     expect(html).toContain("drop-shadow"); // the decoration's block hard shadow (scoped css)
   });
   test("addDecorations overrides defaults + honors coords/layer (any family)", () => {
-    const inst = getTreatment("stat-grid")().addDecorations(
+    const inst = getTreatment("stats")().addDecorations(
       getComponent("starburst")({ variant: "triangle", x: 12, y: 88, layer: "front", accent: "accent-2" }),
       getComponent("badge")({ variant: "shield", x: 90, y: 10, accent: "accent-1" }),
     );
@@ -655,8 +656,8 @@ describe("treatment decorations", () => {
     expect(html).toContain("__d1-item");
   });
   test("a treatment with decorations still builds deterministically", () => {
-    const a = renderScene(getTreatment("closing-plate")(), ctx("s01-closing-plate"));
-    const b = renderScene(getTreatment("closing-plate")(), ctx("s01-closing-plate"));
+    const a = renderScene(getTreatment("outro")(), ctx("s01-closing-plate"));
+    const b = renderScene(getTreatment("outro")(), ctx("s01-closing-plate"));
     expect(a).toBe(b);
   });
 });
@@ -926,14 +927,14 @@ describe("future theme (tripwire)", () => {
   });
 
   test("template override: quote adds a quote mark; stat drops its dot", () => {
-    expect(renderScene(getTreatment("quote")(), fctx("f01-quote"))).toContain("qmark");
-    const statGrid = renderScene(getTreatment("stat-grid")(), fctx("f01-stat-grid"));
+    expect(renderScene(getTreatment("statement")(), fctx("f01-quote"))).toContain("qmark");
+    const statGrid = renderScene(getTreatment("stats")(), fctx("f01-stat-grid"));
     expect(statGrid).not.toContain("stat-dot"); // dropped in templates/stat.html
     expect(statGrid).toContain("stat-number"); // shared markers preserved
   });
 
   test("treatment skin: stat-grid renders future's skin, not block's", () => {
-    const html = renderScene(getTreatment("stat-grid")(), fctx("f01-sg"));
+    const html = renderScene(getTreatment("stats")(), fctx("f01-sg"));
     expect(html).toContain("var(--primary)"); // future stat skin (cyan numerals)
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat box-shadow gone
   });
@@ -1051,14 +1052,14 @@ describe("capsule theme (tripwire)", () => {
     expect(Object.keys(capsuleTheme.templates ?? {})).toEqual(["cover"]);
     // …so the shared stat template's dot SURVIVES here (future deletes it); capsule re-purposes
     // it as the accent underline, painted off the SAME --dot role as the figure.
-    const sg = renderScene(getTreatment("stat-grid")(), cctx("c01-sg"));
+    const sg = renderScene(getTreatment("stats")(), cctx("c01-sg"));
     expect(sg).toContain("stat-dot");
     expect(sg).toContain("stat-number");
     expect(sg).toContain("var(--dot"); // the accent arrives as a param, never :nth-child
   });
 
   test("treatment skin: stat-grid renders capsule's skin, not block's or future's", () => {
-    const html = renderScene(getTreatment("stat-grid")(), cctx("c01-sg2"));
+    const html = renderScene(getTreatment("stats")(), cctx("c01-sg2"));
     // capsule's one shadow colour — a hard 0-blur offset of the ink at 12%, never a literal.
     expect(html).toContain("color-mix(in srgb, var(--dark) 12%, transparent)");
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
@@ -1197,7 +1198,7 @@ describe("professional theme (tripwire)", () => {
   });
 
   test("treatment skin: stat-grid renders professional's skin, not block's or capsule's", () => {
-    const html = renderScene(getTreatment("stat-grid")(), prctx("p01-sg"));
+    const html = renderScene(getTreatment("stats")(), prctx("p01-sg"));
     // professional's soft cobalt-tinted card fill — derived, never a literal.
     expect(html).toContain("color-mix(in srgb, var(--primary) 5%, transparent)");
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
@@ -1305,20 +1306,21 @@ describe("creative theme (tripwire)", () => {
   // canvas. Written out rather than derived so the intended deck rhythm is legible here.
   const GROUND: Record<string, string> = {
     cover: "muted-1", // cream
-    chart: "muted-1", // cream
+    "bar-chart": "muted-1", // cream
     "bar-ranking": "muted-1", // cream
-    "line-chart": "muted-1", // cream — the chart family shares one plane
+    "trend-line": "muted-1", // cream — the chart family shares one plane
     "feature-cards": "secondary", // orange
-    "stat-grid": "accent-2", // green
-    quote: "primary", // pink
-    "closing-plate": "primary", // pink
+    list: "secondary", // orange — shares feature-cards' plane, as it shares its skin
+    "stats": "accent-2", // green
+    statement: "primary", // pink
+    "outro": "primary", // pink
     timeline: "muted-2", // oat
     agenda: "muted-2", // oat
     comparison: "accent-1", // yellow
     matrix: "accent-1", // yellow — the ledger's sibling shares its plane
     "pill-wall": "muted-1", // cream
     team: "muted-1", // cream
-    "node-cluster": "muted-1", // cream
+    "cluster": "muted-1", // cream
   };
 
   for (const factory of allTreatments()) {
@@ -1373,14 +1375,14 @@ describe("creative theme (tripwire)", () => {
     // Creative's one flourish: `<off> <off> 0 var(--secondary)` under an ink spread, 0 blur. The
     // design rule is ONE featured block per frame, so the closer's card wears it and the repeated
     // cards/cells/steps take the quiet ink-only offset.
-    const closer = renderScene(getTreatment("closing-plate")(), crctx("c01-cp"));
+    const closer = renderScene(getTreatment("outro")(), crctx("c01-cp"));
     expect(closer).toContain("0 var(--secondary)");
     const cards = renderScene(getTreatment("feature-cards")(), crctx("c01-fc"));
     expect(cards).not.toContain("0 var(--secondary)");
   });
 
   test("treatment skin: stat-grid renders creative's skin, not block's or professional's", () => {
-    const html = renderScene(getTreatment("stat-grid")(), crctx("c01-sg"));
+    const html = renderScene(getTreatment("stats")(), crctx("c01-sg"));
     expect(html).toContain("var(--dense-scale"); // the density hook is honoured
     expect(html).not.toContain("color-mix(in srgb, var(--primary) 5%, transparent)"); // professional's tint
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat shadow
@@ -1604,7 +1606,7 @@ describe("standard theme (tripwire)", () => {
   });
 
   test("treatment skin: stat-grid renders standard's skin, not professional's or creative's", () => {
-    const html = renderScene(getTreatment("stat-grid")(), sctx("st01-sg"));
+    const html = renderScene(getTreatment("stats")(), sctx("st01-sg"));
     expect(html).toContain("var(--dense-scale"); // the density hook is honoured
     expect(html).toContain("border-top: 0.125rem solid var(--accent-3)"); // the row's one rule
     expect(html).not.toContain("color-mix(in srgb, var(--primary) 5%, transparent)"); // professional's tint
@@ -2072,7 +2074,7 @@ describe("ground resolution (tripwire)", () => {
   test("block (no groundDefault) still uses each treatment's canonical ground", () => {
     expect(blockTheme.groundDefault).toBeUndefined();
     expect(renderScene(getTreatment("cover")(), bctx("g-b"))).toContain("background: var(--muted-1)");
-    expect(renderScene(getTreatment("quote")(), bctx("g-q"))).toContain("background: var(--primary)");
+    expect(renderScene(getTreatment("statement")(), bctx("g-q"))).toContain("background: var(--primary)");
   });
 
   // The dot grid is ink-on-light by default; a dark theme must be able to repaint it.
@@ -2201,10 +2203,10 @@ describe("showcase example parity across live themes (tripwire)", () => {
   const INTENTIONAL: Record<string, string> = {
     // future's chart plots packet-loss percentages; block's plots revenue in dollars.
     // A currency prefix would be wrong on it, so only block seeds one.
-    "chart.children.unitPrefix": "future's chart is a percentage, not a currency",
+    "bar-chart.children.unitPrefix": "future's chart is a percentage, not a currency",
     // block's stats are whole numbers (92, 3, 40); future's leads with 99.7, so only
     // future needs a decimal place.
-    "stat-grid.children.decimals": "block's stat examples are integers",
+    "stats.children.decimals": "block's stat examples are integers",
   };
 
   const paramsOf = (t: (typeof THEMES)[number], name: string) =>
@@ -2258,7 +2260,7 @@ describe("shared-slot orderings (tripwire)", () => {
   const SLOT_SEC = 0.6;
 
   test("node-cluster's hub shares a slot with spoke 0 — and still leads it", () => {
-    const built = getTreatment("node-cluster")().build(ctx("s01-node-cluster"));
+    const built = getTreatment("cluster")().build(ctx("s01-node-cluster"));
     const hub = built.anims.find((a) => a.target.endsWith("-hub"));
     const spoke0 = built.anims.find((a) => a.target === "s01-node-cluster__c0-item");
     expect(hub, "node-cluster emits no hub anim").toBeDefined();
@@ -2275,7 +2277,7 @@ describe("shared-slot orderings (tripwire)", () => {
   });
 
   test("line-chart's caption lands after the plot has finished drawing", () => {
-    const built = getTreatment("line-chart")().build(ctx("s01-line-chart"));
+    const built = getTreatment("trend-line")().build(ctx("s01-line-chart"));
     const wipe = built.anims.find((a) => a.kind === "wipeIn");
     const caption = built.anims.find((a) => a.target.endsWith("-caption"));
     expect(wipe, "line-chart's plot emits no wipe").toBeDefined();

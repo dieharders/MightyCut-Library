@@ -1,0 +1,58 @@
+/* 8 · Chart — outlined columns standing on a heavy ink baseline, on the CREAM ground (--muted-1,
+   this treatment's shared canonical ground). Creative states no groundDefault, so the cream plane
+   is the frame's identity and the skin is authored against it; the emitter stamps that ground
+   inline on `.bar-chart`, so this file never states a background on the root.
+
+   THE PLOT RULE LIVES HERE, not in bar.css: a standalone Bar in the showcase has no plot to stand
+   on, and the rule belongs to the chart the way an axis belongs to a chart. It is drawn at the
+   0.5rem STRUCTURAL weight — this single line is the frame's spine, so it matches the outline
+   round every featured block rather than the 0.375rem inner-rule weight.
+
+   NO HARD SHADOW on this frame. Creative allows one featured block per frame, but the only
+   candidates here are the columns — and those are GSAP-scaled from scaleY 0, so a 0-blur offset
+   would shear with the transform and slide across the baseline as the bar grows. The emphasis is
+   spent on COLOUR instead: the leading column goes green against a row of pink (bar.css).
+
+   Ported from the showcase .bf-chart (cqw × 1.2, cqh × 0.675). */
+.bar-chart h3 {
+  font-size: var(--font-size-2xl);
+  margin: 0 0 2.875rem;
+  text-align: center;
+}
+.bar-chart .bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 2.875rem;
+  height: 27rem;
+  padding: 0 2.375rem 1.875rem;
+  border-bottom: 0.5rem solid var(--dark);
+}
+/* The Bar primitive is a fixed box by default (so it reads bare in the showcase, where nothing
+   gives it a height); inside the plot it fills the height and shares the row equally. Its column
+   is --fill% of the bar in both cases, so no override of the fill is needed. */
+.bar-chart .bars .bar {
+  flex: 1;
+  height: 100%;
+  /* Re-clamp the standalone column's `min-width: min-content` (bar.css) back to 0 INSIDE the
+     plot. That escape hatch exists so a long finished figure widens a bare bar rather than
+     spilling out of it; in a chart it does the opposite, because `flex: 1` columns have to be
+     able to SHRINK to share a fixed plot width. Left at min-content, columns whose figures or
+     category labels are wide overflow `.bars` as a row — past the canvas edge, a hard
+     `hyperframes inspect` error — which is the very failure the hatch was added to prevent,
+     moved up one level. Inside the plot a figure may instead overhang its own column into the
+     gap; that is the cheaper of the two, and the sibling-uniform --vlen (runtime/treatment.ts)
+     reserves the same width on every column, so any overhang is symmetric rather than ragged. */
+  min-width: 0;
+}
+/* QUALIFIED: `.caption` is also the caption primitive's root class, and both stylesheets can be
+   collected into one scene — an unqualified rule here would restyle every rail caption. The
+   caption is the frame's quietest voice: body face at --muted-3 (creative's Ink 2), centred under
+   the plot, deliberately NOT mono — the mono taxonomy is already carrying every bar label. */
+.bar-chart .caption {
+  font-family: var(--body);
+  font-size: var(--font-size-md);
+  color: var(--muted-3);
+  margin-top: 1.625rem;
+  text-align: center;
+}

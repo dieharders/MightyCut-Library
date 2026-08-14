@@ -1,16 +1,14 @@
-// Storyboard — the frame-theme companion to spec.ts. spec.json stays the
-// narrative source of truth (copy + per-kind content + voiceover/timing);
-// storyboard.json only decides, per scene, WHICH frame treatment renders the
-// scene's content and an optional ground color. Slot →
-// spec-field resolution is deterministic in the frame builder, so the agent
-// (and the scaffold default) only choose a treatment, not every slot.
+// Storyboard — the per-scene DRESSING companion to spec.ts. spec.json stays the
+// narrative source of truth (copy + per-look content + voiceover/timing) AND now
+// owns the look itself, since a slide's `kind` is its treatment; storyboard.json
+// decides only how each scene is dressed — ground colour, backdrop mask, transition.
 //
-// This file is additive: it does not change spec.json / script.json /
-// audio-manifest.json. It is consumed by src/pipeline/frame-builder.ts and is
-// only produced for frame themes (isFrameTheme — any theme with a
-// FRAME_THEME_TOKENS entry; block is the reference).
+// It is additive: it does not change spec.json / script.json / audio-manifest.json.
+// The theme names and the ground/backdrop vocabularies live here; the look vocabulary
+// lives in types/spec-treatments (LOOKS) and is re-exported below.
 import { z } from "zod";
 import { PALETTE_VARS, type PaletteVar } from "./palette";
+import { FRAME_TREATMENTS, type FrameTreatment } from "./spec-treatments";
 import { TransitionSpecSchema } from "./transitions";
 
 const id = z.string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
@@ -25,36 +23,13 @@ const id = z.string().regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case")
 export const FRAME_THEME_NAMES = ["block", "capsule", "creative", "professional", "standard", "future"] as const;
 export type FrameThemeName = (typeof FRAME_THEME_NAMES)[number];
 
-/**
- * The render-ready frame treatments — universal frame-system concepts each
- * theme's showcase annotates with data-treatment="<id>". EVERY live theme ships
- * the SAME named set (a tripwire test asserts this list and each showcase's
- * data-treatment ids stay in sync, both directions). `chart` and `bar-ranking`
- * are siblings over the same spec data (chart.series): `chart` is the vertical
- * bar chart, `bar-ranking` the horizontal ranked list — the builder fills both
- * from the same code; orientation is chosen per theme in its showcase markup
- * (data-bar vs data-bar="horizontal"). Likewise `timeline` and `agenda` are
- * siblings over the same spec data (steps): `timeline` is the stepped cards,
- * `agenda` a sparse numbered index list — same builder code, different skin.
- */
-export const FRAME_TREATMENTS = [
-  "cover",
-  "feature-cards",
-  "stat-grid",
-  "closing-plate",
-  "quote",
-  "timeline",
-  "comparison",
-  "chart",
-  "bar-ranking",
-  "agenda",
-  "matrix",
-  "pill-wall",
-  "team",
-  "line-chart",
-  "node-cluster",
-] as const;
-export type FrameTreatment = (typeof FRAME_TREATMENTS)[number];
+// FRAME_TREATMENTS MOVED to types/spec-treatments (the LOOKS table), where it is DERIVED from
+// the one look vocabulary rather than declared as a second tuple beside it. A treatment name is
+// now identical to the spec slide `kind` it renders — `bar-chart` and `bar-ranking` are two
+// looks over the same series shape, `timeline` and `agenda` two over the same steps shape — so
+// the pair that used to need a map, a default and a compatibility check is one name. Re-exported
+// here so every `from "./storyboard"` importer is unchanged.
+export { FRAME_TREATMENTS, type FrameTreatment };
 
 /**
  * The grounds that cycle as full-bleed backgrounds across frames. FRAME.md: the
@@ -107,10 +82,18 @@ export type BackdropName = (typeof BACKDROP_NAMES)[number];
 // They survived only as exported symbols with no reader in any of the three repos, which is worse
 // than useless: a closed vocabulary that nothing enforces reads as a constraint on new work.
 
+/**
+ * The storyboard is per-scene PRESENTATION OPTIONS now, and nothing else.
+ *
+ * It used to carry `treatment` as well, which was the scene's look. That look is the spec
+ * slide's own `kind` since the two vocabularies collapsed to one name, so storing it here was
+ * storing a second copy of a field the spec already owns — free to disagree with it, and with
+ * nothing able to say which copy was right. `buildAll` reads the look off the slide; this file
+ * decides only how the scene is DRESSED (ground colour, backdrop mask, transition).
+ */
 const SceneStoryboardSchema = z.object({
   /** MUST equal a spec slide id — the builder cross-checks (tolerate-and-warn). */
   sceneId: id,
-  treatment: z.enum(FRAME_TREATMENTS),
   options: z
     .object({
       ground: z.enum(FRAME_GROUNDS).optional(),

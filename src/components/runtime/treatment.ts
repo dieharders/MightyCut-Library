@@ -4,8 +4,8 @@
 // canonical ground, defaultChildren (used when none are added), a responsive
 // layout (childCount → CSS custom properties), and a default anim.
 //
-//   StatGrid().addChildren(Stat(), Stat(), Stat())   // literal composition
-//   StatGrid()                                        // defaultChildren(params)
+//   Stats().addChildren(Stat(), Stat(), Stat())   // literal composition
+//   Stats()                                        // defaultChildren(params)
 //
 // buildScene(ctx) turns the composed frame into SubComposition parts for
 // wrapSubComposition: the treatment root becomes the page wrapper (its classes +
