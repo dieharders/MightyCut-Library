@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PALETTE_VARS } from "../../../types/palette";
+import { addIssue } from "../../../util/issues";
 
 /**
  * A line plot: the WHOLE series in one component, not one component per point.
@@ -14,7 +15,7 @@ import { PALETTE_VARS } from "../../../types/palette";
  * comma-separated text input and coerces it back to string[] or number[] (`coerceField`,
  * lib/library.ts) — it has no control for an array of objects, so a `series` of pairs would
  * become an unusable text box that rejects whatever was typed into it. Two aligned lists each
- * get a working input. A superRefine keeps them the same length, so the pairing is still
+ * get a working input. A cross-field check keeps them the same length, so the pairing is still
  * enforced; it is just enforced at validation rather than by the shape.
  */
 export const PlotSchema = z
@@ -45,24 +46,22 @@ export const PlotSchema = z
       .optional()
       .describe("Palette role for the line and its points (unset ⇒ the theme's default)"),
   })
-  .superRefine((p, ctx) => {
+  .check((ctx) => {
+    const p = ctx.value;
     if (p.labels.length !== p.values.length) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["values"],
-        message: `values has ${p.values.length} entries but labels has ${p.labels.length} — a point needs both`,
-      });
+      addIssue(
+        ctx,
+        ["values"],
+        `values has ${p.values.length} entries but labels has ${p.labels.length} — a point needs both`,
+        p.values,
+      );
     }
     // AN INVERTED SCALE IS NOT A SCALE. `max < min` renders a y-axis whose numbers increase
     // downward, with no warning and nothing visibly wrong. Equal is allowed: a genuinely flat
     // series is a real thing to plot, and the component draws it as a single labelled line
     // (plot/index.ts, gridTs) rather than as three lines all claiming the same value.
     if (p.max < p.min) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["max"],
-        message: `max (${p.max}) is below min (${p.min}) — the scale would run backwards`,
-      });
+      addIssue(ctx, ["max"], `max (${p.max}) is below min (${p.min}) — the scale would run backwards`, p.max);
     }
     // THE SCALE HAS TO CONTAIN THE SERIES. It did not have to before, because the geometry
     // CLAMPED a stray value onto the top or bottom gridline — invisible while the plot had no
@@ -72,11 +71,12 @@ export const PlotSchema = z
     // error it could not see.
     const outside = p.values.filter((v) => v > p.max || v < p.min);
     if (p.max >= p.min && outside.length > 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["values"],
-        message: `${outside.join(", ")} ${outside.length > 1 ? "are" : "is"} outside the scale ${p.min}…${p.max} — widen max/min or the point cannot be drawn where its label says`,
-      });
+      addIssue(
+        ctx,
+        ["values"],
+        `${outside.join(", ")} ${outside.length > 1 ? "are" : "is"} outside the scale ${p.min}…${p.max} — widen max/min or the point cannot be drawn where its label says`,
+        p.values,
+      );
     }
   });
 export type PlotParams = z.infer<typeof PlotSchema>;

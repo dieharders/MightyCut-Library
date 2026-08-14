@@ -13,6 +13,7 @@
 import { z } from "zod";
 import { FRAME_THEME_NAMES } from "./storyboard";
 import { TransitionSpecSchema } from "./transitions";
+import { addIssue } from "../util/issues";
 
 const id = z
   .string()
@@ -653,69 +654,42 @@ export const VideoSpecSchema = z
     slides: z.array(SlideSpecSchema).min(3),
     voiceover: z.array(VOLineSchema).min(3),
   })
-  .superRefine((spec, ctx) => {
+  .check((ctx) => {
+    const spec = ctx.value;
     if (spec.slides[0]?.kind !== "cover") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides", 0],
-        message: "first slide must be kind 'cover'",
-      });
+      addIssue(ctx, ["slides", 0], "first slide must be kind 'cover'");
     }
     if (spec.slides[spec.slides.length - 1]?.kind !== "outro") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides", spec.slides.length - 1],
-        message: "last slide must be kind 'outro'",
-      });
+      addIssue(ctx, ["slides", spec.slides.length - 1], "last slide must be kind 'outro'");
     }
     const slideIds = new Set(spec.slides.map((s) => s.id));
     if (slideIds.size !== spec.slides.length) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["slides"],
-        message: "slide ids must be unique",
-      });
+      addIssue(ctx, ["slides"], "slide ids must be unique");
     }
     // Matrix rows must answer every criteria column.
     for (const [i, slide] of spec.slides.entries()) {
       if (slide.kind !== "matrix") continue;
       for (const [r, row] of slide.rows.entries()) {
         if (row.values.length !== slide.criteria.length) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["slides", i, "rows", r, "values"],
-            message: `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`,
-          });
+          addIssue(ctx, ["slides", i, "rows", r, "values"], `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`);
         }
       }
     }
     const lineIds = new Set<string>();
     for (const [i, line] of spec.voiceover.entries()) {
       if (lineIds.has(line.id)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i, "id"],
-          message: `duplicate line id '${line.id}'`,
-        });
+        addIssue(ctx, ["voiceover", i, "id"], `duplicate line id '${line.id}'`);
       }
       lineIds.add(line.id);
       if (!slideIds.has(line.slideId)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i, "slideId"],
-          message: `slideId '${line.slideId}' does not match any slide`,
-        });
+        addIssue(ctx, ["voiceover", i, "slideId"], `slideId '${line.slideId}' does not match any slide`);
       }
     }
     // Every slide needs narration — slides are timed by their VO lines.
     const narrated = new Set(spec.voiceover.map((l) => l.slideId));
     for (const [i, slide] of spec.slides.entries()) {
       if (!narrated.has(slide.id)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["slides", i],
-          message: `slide '${slide.id}' has no voiceover lines`,
-        });
+        addIssue(ctx, ["slides", i], `slide '${slide.id}' has no voiceover lines`);
       }
     }
     // VO lines must be grouped per slide, in slide order, so timing is contiguous.
@@ -724,12 +698,7 @@ export const VideoSpecSchema = z
     for (const [i, line] of spec.voiceover.entries()) {
       const idx = order.indexOf(line.slideId);
       if (idx < prevIdx) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["voiceover", i],
-          message:
-            "voiceover lines must be ordered by slide order (all lines of a slide contiguous)",
-        });
+        addIssue(ctx, ["voiceover", i], "voiceover lines must be ordered by slide order (all lines of a slide contiguous)");
         break;
       }
       prevIdx = idx;

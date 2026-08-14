@@ -262,8 +262,15 @@ export type TreatmentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((
   /** The leaf component this treatment repeats as its children (stat-grid→stat, …)
    *  — formalizes the CLI/agent child relationship and drives the showcase child editor. */
   readonly childComponent?: string;
+  /** Cross-child validation — one message, or null when the set is coherent. See the
+   *  `childrenIssue` note on TreatmentDef for why the per-element schemas cannot do this. */
+  childrenIssue?(params: unknown, children: readonly ChildParams[]): string | null;
   jsonSchema(): object;
   defaults(): z.infer<S>;
 };
+
+/** A child as the CALLER wrote it — the raw (name, params) pair, before it becomes an
+ *  instance. `childrenIssue` reads these because an instance no longer exposes its params. */
+export type ChildParams = { name: string; params?: Record<string, unknown> };
 
 export type { AnimDescriptor, SubComposition, FrameGround };

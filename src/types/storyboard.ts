@@ -7,6 +7,7 @@
 // The theme names and the ground/backdrop vocabularies live here; the look vocabulary
 // lives in types/spec-treatments (LOOKS) and is re-exported below.
 import { z } from "zod";
+import { addIssue } from "../util/issues";
 import { PALETTE_VARS, type PaletteVar } from "./palette";
 import { FRAME_TREATMENTS, type FrameTreatment } from "./spec-treatments";
 import { TransitionSpecSchema } from "./transitions";
@@ -109,15 +110,11 @@ export const StoryboardSchema = z
     theme: z.enum(FRAME_THEME_NAMES),
     scenes: z.array(SceneStoryboardSchema).min(3),
   })
-  .superRefine((sb, ctx) => {
+  .check((ctx) => {
     const seen = new Set<string>();
-    for (const [i, scene] of sb.scenes.entries()) {
+    for (const [i, scene] of ctx.value.scenes.entries()) {
       if (seen.has(scene.sceneId)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["scenes", i, "sceneId"],
-          message: `duplicate sceneId '${scene.sceneId}'`,
-        });
+        addIssue(ctx, ["scenes", i, "sceneId"], `duplicate sceneId '${scene.sceneId}'`, scene.sceneId);
       }
       seen.add(scene.sceneId);
     }
