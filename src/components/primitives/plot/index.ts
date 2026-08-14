@@ -268,6 +268,18 @@ const pointsHtml = (p: PlotParams): string => {
 export const Plot = component({
   name: "plot",
   schema: PlotSchema,
+  // THE ROOT CARRIES `data-anim="item"`, like every other content primitive, and it is the
+  // WHOLE-ELEMENT entrance's landing pad rather than anything this component animates itself.
+  // `component()` builds a picked entrance against `def.animTarget ?? "item"` — and no element
+  // in the library sets `animTarget` — so a plot whose root was unmarked emitted a descriptor
+  // aimed at a class `stampAnims` never wrote. `MC.applyAnims` skips a missing target silently
+  // (`if (!el) continue`), with no build error and no runtime warning, so the editor's
+  // transition picker appeared to do nothing on a trend-line and only on a trend-line.
+  //
+  // It does not collide with the wipe below: the runtime's one-reveal-per-box guard drops a
+  // second reveal aimed at the SAME target, and these are two (the root and the clipped
+  // wrapper inside it), so a picked entrance moves the whole chart in while the geometry still
+  // draws itself.
   template,
   // THE STRUCTURE IS NOT THE THEME'S TO DECIDE — the two-column grid, both sizers, the layered
   // boxes, the label geometry. While it lived in the skins the six sheets were ~93% identical

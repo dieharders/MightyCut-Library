@@ -36,7 +36,7 @@ import type { PlotParams } from "./schema";
  * traded the cut label for one printed over the y-axis ticks in the gutter next door.
  */
 /** The wipe's own offset into the plot's cascade slot, and how long it runs. Separate constants
- *  because the pair is READ BACK: line-chart times its caption to land after the chart has
+ *  because the pair is READ BACK: `trend-line` times its caption to land after the chart has
  *  finished drawing, and a hand-copied number there would drift the moment either moves here. */
 const WIPE_AT = 0.15;
 const WIPE_DUR = 1.1;
