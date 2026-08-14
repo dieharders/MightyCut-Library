@@ -34,8 +34,9 @@
 // so a stat-grid with five stats inlines the `.stat` rules exactly once.
 //
 // Component CSS is intentionally FLAT — semantic selectors + declarations, no
-// nested at-rules (rem needs no @container/@media), so the simple tokenizer below is
-// sufficient (a test guards this).
+// at-rules (rem needs no @container/@media), so the simple tokenizer below is sufficient.
+// `scopeSelectors` REFUSES one rather than trusting the convention, and theme-parity.test.ts
+// asserts the same over every element sheet so it is caught at test time rather than at render.
 
 /** The authoring grid, in rem. Every authored and computed size lands on a multiple. */
 export const REM_GRID = 0.125;
@@ -60,9 +61,27 @@ export const remGrid = (n: number, min = REM_GRID): string =>
  * line-chart and the rest carry, which is a different thing that happens to share the word.
  * See `chromeCss` in the harness's components/chrome.ts.
  */
-export const scopeSelectors = (css: string, prefix: string): string =>
-  css
-    .replace(/\/\*[\s\S]*?\*\//g, "") // drop comments (avoid scoping text that looks like a selector)
+export const scopeSelectors = (css: string, prefix: string): string => {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, ""); // drop comments (avoid scoping text that looks like a selector)
+  // AN AT-RULE IS REFUSED, not scoped around. The selector class below is `[^{}@]+`, which
+  // cannot start on `@` — so an at-rule's own line never matches while the rules INSIDE it do,
+  // and the `}` that closes the block is then read as the end of a rule. `@keyframes spin { from
+  // {…} to {…} }` comes out with `from` unscoped and `.prefix to {` invented as a keyframe
+  // selector, silently costing the animation its end state; `@media screen { .a {…} .b {…} }`
+  // scopes `.b` and leaves `.a` bare, which leaks across every scene in the document. Both are
+  // corruption that renders, so they cannot be left to a convention plus a comment — this
+  // function is exported as a general-purpose scoper (the harness stages theme chrome through
+  // it), and its contract has to state what it does not handle in a way a caller cannot miss.
+  const atRule = /(^|[{};])\s*@([a-zA-Z-]+)/.exec(bare);
+  if (atRule) {
+    throw new Error(
+      `scopeSelectors: CSS contains an at-rule (@${atRule[2]}), which this scoper cannot handle — ` +
+        `it would scope the rules inside the block and leave the block itself bare. Component and ` +
+        `theme CSS is authored FLAT (rem is canvas-relative, so no @media/@container is needed); ` +
+        `if an at-rule is genuinely required, teach this function to nest before adding one.`,
+    );
+  }
+  return bare
     .replace(/(^|})\s*([^{}@]+)\{/g, (_m, close: string, selector: string) => {
       const scoped = selector
         .split(",")
@@ -71,6 +90,7 @@ export const scopeSelectors = (css: string, prefix: string): string =>
       return `${close ? `${close}\n` : ""}${scoped} {`;
     })
     .trim();
+};
 
 /** Prefix every top-level rule's selector list with `.<root>-root ` — the SCENE case. */
 export const scopeCss = (css: string, root: string): string => scopeSelectors(css, `.${root}-root`);
