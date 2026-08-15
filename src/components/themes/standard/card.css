@@ -1,6 +1,6 @@
 /* Feature-card = a sheet of TRACING PAPER laid on the stone: one 0.125rem hairline in the Line
-   brownstone (--accent-3) and a 30%-white wash, which with the recessed stone is the only fill standard
-   permits. No radius, no shadow, no tint. The card is not raised off the ground the way block's
+   brownstone (--accent-3) and the white paper wash (--plate), which with the recessed stone is the
+   only fill standard permits. No radius, no shadow, no tint. The card is not raised off the ground the way block's
    shadowed tile or capsule's candy plate is — it is drawn ON it, and the wash is the whole device
    that separates the two on a warm canvas (professional reaches the same separation with a 5%
    cobalt tint; standard has no hue to spend, so it lightens instead).
@@ -19,7 +19,11 @@
    a showcase base that fills it; nothing in this library styles .card-icon, so the badge is simply
    left unfilled and the override is dropped. */
 .card {
-  background: color-mix(in srgb, var(--light) 30%, transparent);
+  /* The paper wash, now --plate (theme.ts) at 70% rather than the 30% this was calibrated at
+     against the sandstone canvas alone. On stone the two are nearly the same lift; on a dark or
+     saturated slide ground 30% white is a grey veil that takes the ink title and the gray body
+     down with it, and the sheet has to hold its own paper under the type wherever it lands. */
+  background: var(--plate);
   border: 0.125rem solid var(--accent-3);
   padding: 2.625rem 2.375rem;
   display: flex;

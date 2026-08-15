@@ -47,12 +47,14 @@
   height: 12rem;
   border-radius: 50%;
   border: 0.125rem solid var(--accent-3);
-  /* OPAQUE, and that is structural rather than decorative: every arm starts at the ring's exact
-     centre, so an unpainted hub lets five connector lines run visibly through its label. The
-     canvas colour is what the disc paints (--ground, stamped by the emitter — see
-     runtime/css.ts), so it still reads as bare stone inside a hairline ring, and it stays right
-     when a scene grounds itself on the deeper stone. z-index above lifts it over the arms. */
-  background: var(--ground);
+  /* THE HUB'S FILL IS THE PUCK'S FILL — the identical mix cluster-node.css gives a spoke, so the
+     centre reads as the same object the arms do rather than as a hole in the diagram. It was the
+     bare `--ground`, which is opaque (structural: every arm starts at the ring's exact centre, so
+     an unpainted hub lets five connector lines run visibly through its label) but carries none of
+     the paper the pucks are drawn on, leaving the disc as a ring around nothing.
+     Kept at 30% rather than raised to --plate: mixed into the scene's own --ground this is
+     already fully opaque, so a coloured ground cannot wash it out — see the note in theme.ts. */
+  background: color-mix(in srgb, var(--light) 30%, var(--ground));
   padding: 1rem;
   font-family: var(--disp);
   font-weight: 400;

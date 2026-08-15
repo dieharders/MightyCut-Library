@@ -1,15 +1,20 @@
-/* Standard label pill: the bare brownstone label as a standalone atom — the exact recipe frame.css
-   gives .eyebrow, so a pill dropped loose on a frame is indistinguishable from the eyebrow slot of
-   the treatment beside it. Inter 500, uppercase, tracked 0.22em, in the brownstone accent. NO chip, NO
-   border, NO shadow and NO radius: standard rounds nothing (50% is reserved for true circles) and
-   the theme's position on labels is that they are type, not chrome. The name is historical (the
-   shared primitive is called `pill`); read it as "label".
+/* Standard label pill: the brownstone label as a standalone atom — frame.css's .eyebrow type
+   exactly (Inter 500, uppercase, tracked 0.22em, in the brownstone accent) laid on the theme's
+   tracing-paper wash. NO chip, NO border, NO shadow and NO radius: standard rounds nothing (50% is
+   reserved for true circles) and the theme's position on labels is that they are type, not chrome
+   — the paper below is a surface, not a container. The name is historical (the shared primitive is
+   called `pill`); read it as "label".
 
-   ACCENT PARAM: --pillbg is the OPTIONAL fill, and its default is `transparent` — the bare label —
-   rather than the tint block, capsule, professional and future all fall back to. Every one of
-   those themes has a chip in the first place; standard's has none, so a default fill would invent
-   a piece of chrome the theme doesn't own and put a plate under a label that is meant to sit
-   directly on the stone. Naming an accent still floods the fill, which is the escape hatch for an
+   ACCENT PARAM: --pillbg is the OPTIONAL fill; unset, the label falls back to the theme's own
+   tracing-paper wash (--plate, theme.ts) rather than to `transparent`. The bare default was right
+   on the sandstone canvas — the label sat directly on the stone, which is this theme's position —
+   and wrong everywhere else: a wall of labels on a dark or saturated slide ground is uppercase
+   brownstone type with nothing behind it, at the size the theme sets its smallest step. The paper
+   is not a chip; it is the same neutral sheet the card and the monogram are drawn on, and it
+   leaves the label reading as type rather than as chrome. The one label that stays BARE is
+   frame.css's `.eyebrow` — it sits above a headline on the frame's own ground, where there is
+   nothing to separate from, and giving that a plate would put a box around the deck's section
+   name. Naming an accent still floods the fill, which is the escape hatch for an
    author who wants a tag rather than a label — with one caveat worth knowing: standard's four
    accent-cycle roles are all the SAME brownstone as the label, so a `primary`/`secondary`/`accent-1`/
    `accent-2` pick reads brownstone-on-brownstone. The picks that work are the stones — `muted-2` (the
@@ -23,7 +28,7 @@
    to the 0.125rem grid). */
 .pill-c {
   display: inline-block;
-  background: var(--pillbg, transparent);
+  background: var(--pillbg, var(--plate));
   padding: 0.5rem 1rem;
   font-family: var(--mono);
   font-weight: 500;

@@ -19,6 +19,12 @@
   width: 4.125rem;
   height: 4.125rem;
   border: 0.125rem solid var(--tcol, var(--accent-3));
+  /* THE PAPER, NOT AN ACCENT — the disc takes the same wash the card does (--plate, theme.ts) so
+     the monogram has a sheet under it on a dark or saturated ground instead of a hairline ring
+     around bare canvas. This does NOT break the rule stated above: the fill is the theme's one
+     neutral surface, and --tcol still paints only the ring and the letterform, so a picked colour
+     is still a change of LINE. */
+  background: var(--plate);
   border-radius: 50%;
   display: grid;
   place-items: center;

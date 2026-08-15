@@ -167,14 +167,40 @@ const sizeTokens: Record<string, string> = {
   "font-size-max": "9.5rem",
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
- *  down exactly once (matching block, future, capsule, professional and creative). */
+/** THE TRACING-PAPER PLATE — the one wash this theme fills with, written down once.
+ *
+ *  Standard draws rather than fills: the ledger, the matrix and the timeline are hairlines on
+ *  bare stone, and the only things that take a surface are the ones that must SEPARATE from
+ *  whatever is behind them. That wash used to be `--light 30%` over `transparent`, which is
+ *  calibrated for the sandstone canvas alone — 30% white on near-white stone is the barely-there
+ *  lift the theme wants, but on a dark or saturated slide ground the same 30% is a grey veil,
+ *  and a card's ink title and gray body sink into it. 70% keeps the ground tinting the paper
+ *  (this is still a wash, not an opaque tile — the stone shows through and the frame is still
+ *  drawn on, not stacked on) while holding a light plate under the type on ANY ground.
+ *
+ *  The DIAGRAM's fills are deliberately not this: `.cpuck` and `.hub` mix the wash into
+ *  `--ground` instead of into `transparent`, so they are already fully opaque and cannot be
+ *  washed out by the ground — they stay at 30%, which is the value that reads as bare stone
+ *  inside a hairline. See cluster-node.css.
+ *
+ *  In `:root` rather than frame.css because a component previewed BARE in the showcase gets
+ *  `theme.css` and its own skin but no frame base (engine/mount.ts). */
+const surfaceTokens: Record<string, string> = {
+  plate: "color-mix(in srgb, var(--light) 70%, transparent)",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` + `surfaceTokens` — every hex,
+ *  every size and the one paper wash written down exactly once (matching block, future, capsule,
+ *  professional and creative). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
   ...Object.entries(sizeTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(surfaceTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;
