@@ -207,29 +207,22 @@ const tokensCss = `:root {\n${[
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
-// is not a skin). The whole ramp is two faces and three colours: Playfair/ink for what declares,
-// Inter/gray for what explains, Inter/brownstone for what labels. Colour never carries emphasis.
+// is not a skin). The whole ramp is two faces and two colours: Playfair/ink for what declares and
+// Inter/gray for what explains. Colour never carries emphasis.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Playfair Display 700 · sentence case · line 1.04 — the cover and closing statement, and nothing else",
     sample: "Considered.",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.04; font-size: 92px; color: var(--dark);",
   },
   {
-    token: "heading",
+    token: "title",
     spec: "Playfair Display 600 · sentence case · line 1.1 — the headline on every content frame",
     sample: "Drawn in one line",
     style:
       "font-family: var(--disp); font-weight: 600; letter-spacing: 0; line-height: 1.1; font-size: 56px; color: var(--dark);",
-  },
-  {
-    token: "figure",
-    spec: "Playfair Display 600 · ink · line 1 — a stat figure, a bar value, an agenda numeral; the serif does the numbers too",
-    sample: "24.3",
-    style:
-      "font-family: var(--disp); font-weight: 600; line-height: 1; font-size: 76px; color: var(--dark);",
   },
   {
     token: "body",
@@ -238,13 +231,6 @@ const typography: ThemeTokens["typography"] = [
       "Inter carries every paragraph in warm gray — readable, recessive, never competing with the serif statement above it.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-3);",
-  },
-  {
-    token: "label",
-    spec: "Inter 500 · uppercase · 0.22em · brownstone — every eyebrow, stat label, column head and counter; no chip, no fill",
-    sample: "Section · Eyebrow",
-    style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.22em; font-size: 15px; color: var(--primary);",
   },
 ];
 

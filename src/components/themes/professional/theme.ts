@@ -175,29 +175,22 @@ const tokensCss = `:root {\n${[
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
-// is not a skin). Cobalt is the ONE accent, so it meets type on the metric figure, the eyebrow and
-// the CTA; headlines stay near-black.
+// is not a skin). Cobalt is the ONE accent and it never lands on type here — headlines stay
+// near-black serif, body stays muted gray; the accent is carried by numerals, pills, rules and fills.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Libre Baskerville 700 · serif · near-black — hero titles & the biggest line on a frame",
     sample: "Measured.",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 76px; color: var(--dark);",
   },
   {
-    token: "eyebrow",
-    spec: "IBM Plex Sans 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
-    sample: "Executive Summary",
+    token: "title",
+    spec: "Libre Baskerville 700 · serif · near-black — the headline on every content frame",
+    sample: "Built on Evidence",
     style:
-      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--primary);",
-  },
-  {
-    token: "metric-value",
-    spec: "IBM Plex Sans 600 · tabular · cobalt — the ONE place colour meets type: stats, counts, prices",
-    sample: "$24.3M",
-    style:
-      "font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--primary);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 48px; color: var(--dark);",
   },
   {
     token: "body",
@@ -206,13 +199,6 @@ const typography: ThemeTokens["typography"] = [
       "IBM Plex Sans carries every paragraph in muted gray — readable, premium, never competing with the cobalt accent or the serif headline.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 660px; color: var(--muted-3);",
-  },
-  {
-    token: "cta",
-    spec: "IBM Plex Sans 600 · solid cobalt pill · cream label — the one saturated call to action",
-    sample: "Book a Briefing",
-    style:
-      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.02em; font-size: 17px; color: var(--light);",
   },
 ];
 

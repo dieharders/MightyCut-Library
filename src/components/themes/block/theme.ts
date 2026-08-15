@@ -155,23 +155,16 @@ const displayBase =
   "font-family: var(--disp); text-transform: uppercase; line-height: 0.95; color: var(--dark);";
 const typography: ThemeTokens["typography"] = [
   {
-    token: "heading-xl",
+    token: "heading",
     spec: "Inter 900 · uppercase · hero titles & biggest word on a frame",
     sample: "Maximal.",
     style: `${displayBase} font-weight: 900; letter-spacing: -0.03em; font-size: 80px;`,
   },
   {
-    token: "heading-lg",
+    token: "title",
     spec: "Inter 800 · uppercase · section headlines & secondary titles",
     sample: "Bordered & Bold",
     style: `${displayBase} font-weight: 800; letter-spacing: -0.02em; font-size: 50px;`,
-  },
-  {
-    token: "stat-number",
-    spec: "Inter 900 · line 1 · big numeric callouts: stats, counts, prices",
-    sample: "240",
-    style:
-      "font-family: var(--disp); font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--dark);",
   },
   {
     token: "body",
@@ -180,13 +173,6 @@ const typography: ThemeTokens["typography"] = [
       "Body runs Inter at weight 500, sentence case — the calm against the heavy uppercase display.",
     style:
       "font-family: var(--disp); font-weight: 500; font-size: 18px; line-height: 1.6; max-width: 640px; color: var(--dark);",
-  },
-  {
-    token: "label",
-    spec: "Space Grotesk 600 · uppercase · eyebrows, tags & section kickers above a heading",
-    sample: "Section Eyebrow",
-    style:
-      "display: inline-block; border: 3px solid var(--dark); background: var(--light); box-shadow: 4px 4px 0 var(--dark); padding: 6px 16px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: var(--dark);",
   },
 ];
 
