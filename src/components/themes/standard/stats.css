@@ -1,10 +1,12 @@
-/* 3 · Stat Grid — a row of bare Playfair figures ruled off from the headline by ONE hairline.
-   Standard's stat is not a card: no fill, no border, no shadow, nothing boxing the cell (see
-   stat.css). What holds the row together is the rule ABOVE it — `border-top` on `.row` plus the
-   matching `padding-top` that pushes the figures clear of it — and that rule is this frame's only
-   piece of drawn geometry. It is doing the work three borders do in every other theme, so keep it
-   if the sizes ever move; without it the treatment reads as loose numbers rather than as a
-   catalogue ledger.
+/* 3 · Stat Grid — a row of bare Playfair figures, each opened by its OWN hairline. Standard's
+   stat is not a card: no fill, no border, no shadow, nothing boxing the cell (see stat.css). What
+   holds the row together is the rule above each figure — `border-top` on `.stat` plus the
+   matching `padding-top` that pushes the figure clear of it — and those rules are this frame's
+   only piece of drawn geometry. They are doing the work three borders do in every other theme, so
+   keep them if the sizes ever move; without them the treatment reads as loose numbers rather than
+   as a catalogue ledger. Per-CELL rather than one rule across the row, which is the roster's
+   pattern (team.css) and the reason it reads as a set of entries: a rule that spans the treatment
+   describes the treatment, and these describe the figures.
 
    Two source rules are deliberately NOT restated here:
      · `.bf-stat-grid { background: var(--accent-2) }` — the reference made this its one
@@ -41,16 +43,14 @@
   grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
   justify-content: center;
   gap: var(--col-gap);
-  border-top: 0.125rem solid var(--accent-3);
-  padding-top: 2.875rem;
-  /* The rule's padding is SYMMETRIC here, and the bottom half is load-bearing rather than
-     decorative. Standard's cell is bare (stat.css: no fill, border or padding), so it is not a
-     box of its own — the label's nearest bounding box is this row, which stays put while the
-     cell rises into place from 26px below on its entrance. Without the bottom padding the label's
-     line box sits flush with the row's bottom edge and the whole reveal happens OUTSIDE it (the
-     layout audit catches it mid-tween: `div.stat-label ... overflowed bottom`). Every other theme
-     is immune for free because its .stat is a painted, padded cell that travels with the label.
-     Keep this ≥ the entrance distance; the row has room to spare in the body's centred column. */
+  /* THE RULE IS NOT HERE — each cell draws its own across its own track (stat.css), the way each
+     member of the roster does (team-member.css). A row-wide `border-top` ruled off the treatment
+     instead of the figures, which is why a lone stat sat under a hairline running the frame's
+     full width. Only the bottom padding stays, and it is load-bearing rather than decorative:
+     the cell rises into place from 26px below on its entrance, and without room beneath it the
+     reveal happens outside this row (the layout audit catches it mid-tween: `div.stat-label …
+     overflowed bottom`). Keep this ≥ the entrance distance; the row has room to spare in the
+     body's centred column. */
   padding-bottom: 2.875rem;
 }
 /* The other half of layout()'s density pair — --dense, the boolean hook at 4+ stats — is

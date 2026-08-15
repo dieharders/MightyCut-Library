@@ -7,9 +7,23 @@
    uppercase, brownstone) rather than as a mark. A filled disc here would also be the only solid circle
    in the deck, on the one theme whose rules reserve 50% for true circles and fill almost nothing.
 
-   Hence there is deliberately no `.step` rule at all: no background, no border, no padding, no
-   ::after connector. The step IS its three lines of type, and the space around them is the frame's.
+   Hence the `.step` rule below carries nothing but that hairline: no background, no radius, no
+   ::after connector. The step IS its three lines of type under an opening rule, and the space
+   around them is the frame's.
+
+   THE HAIRLINE IS PER-STEP, not one rule across the row, and it lives here rather than in
+   timeline.css for the reason team-member.css states: the rule opening a column IS this theme's
+   cell. A row-wide rule described the treatment rather than the movements under it — four steps
+   read as one banner with type beneath, and a two-step slide got a hairline running the frame's
+   full width. Each step's own rule is what makes them read as a set of dated entries, which is
+   what the roster does with the same device.
    Ported from the showcase .bf-timeline .step .num / .t / .d (cqw × 1.2). */
+.step {
+  /* The Line brownstone at the grid floor — the one weight every border, rule and ring in this
+     theme wears — with the step breathing below it. */
+  border-top: 0.125rem solid var(--accent-3);
+  padding-top: 2.375rem;
+}
 .step-num {
   font-family: var(--mono);
   font-weight: 500;

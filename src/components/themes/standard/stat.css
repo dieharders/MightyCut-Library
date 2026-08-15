@@ -1,11 +1,23 @@
-/* Stat = BARE TYPE ON THE STONE — a Playfair figure over a brownstone uppercase label, and nothing
-   else. Every other theme makes this cell an object (block's shadowed tile, capsule's candy card,
-   professional's tinted plate); standard's is deliberately not one. Its structure is borrowed
-   from the single hairline drawn above the whole row in stat-grid.css, so giving the cell a fill
-   or a border here would double-draw the frame's one rule and cost the theme its restraint. */
+/* Stat = BARE TYPE ON THE STONE UNDER ITS OWN HAIRLINE — a Playfair figure over a brownstone
+   uppercase label, opened by the theme's one rule and nothing else. Every other theme makes this
+   cell an object (block's shadowed tile, capsule's candy card, professional's tinted plate);
+   standard's is deliberately not one — it takes a fill and a border from nowhere, and the rule is
+   drawn ABOVE it rather than around it.
+
+   THE RULE IS PER-CELL, not per-row, and it belongs here rather than in stats.css for the reason
+   team-member.css states: the hairline opening a column IS this theme's cell, exactly as it opens
+   each row of the ledger and the matrix, so a stat dropped anywhere carries it. It used to span
+   the whole row from `.stat-grid .row`, which ruled off the treatment rather than the figures —
+   a single stat then sat under a rule running the frame's full width, and a three-up row read as
+   one banner instead of three entries in a catalogue. */
 .stat {
   display: flex;
   flex-direction: column;
+  /* The Line brownstone at the grid floor: the single weight every border, track and ring in this
+     theme is drawn at, which is the point of having only one. The padding is what pushes the
+     figure clear of its own rule. */
+  border-top: 0.125rem solid var(--accent-3);
+  padding-top: 2.875rem;
 }
 /* Standard has no corner dot. The shared template's node is hidden rather than removed by a
    templates/stat.html override, because nothing animates it — statAnim only counts up `number` —

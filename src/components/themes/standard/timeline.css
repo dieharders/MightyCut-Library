@@ -1,9 +1,9 @@
-/* 6 · Timeline — the movements read left to right beneath ONE hairline. Standard's timeline has no
-   nodes, no discs and no connectors (the reference titles the frame "1px rule, no nodes" for
-   exactly that reason): the rule across the top of the row IS the timeline, and the steps hang
-   under it the way entries hang under a catalogue heading. The step's brownstone label, serif title and
-   gray copy live in step.css; this file owns the body padding, the headline rhythm, the grid and
-   that rule. Ported from the showcase .bf-timeline (cqw × 1.2, cqh × 0.675). */
+/* 6 · Timeline — the movements read left to right, each under its own hairline. Standard's
+   timeline has no nodes, no discs and no connectors (the reference titles the frame "1px rule, no
+   nodes" for exactly that reason): the rule opening each step IS the timeline, and the steps hang
+   under those rules the way entries hang under a catalogue heading. The step's brownstone label,
+   serif title, gray copy AND its rule live in step.css; this file owns the body padding, the
+   headline rhythm and the grid. Ported from the showcase .bf-timeline (cqw × 1.2, cqh × 0.675). */
 /* The base h3 already carries the family, the 600 weight, the ink and `margin: 0` — all this adds
    is scale and the space down to the rule. No TOP margin: the shared timeline template has no
    eyebrow, so the headline is the first thing in a vertically centred body and has nothing to
@@ -24,10 +24,10 @@
   grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--col-gap)) / 4)));
   justify-content: center;
   gap: var(--col-gap);
-  /* THE timeline: a single hairline in the Line brownstone, the same 0.125rem weight every border, rule
-     and ring in the theme wears, with the row breathing below it. It spans the whole row rather
-     than each column, and that continuity is what makes four separate steps read as one sequence
-     without a mark, a disc or a bridge anywhere. */
-  border-top: 0.125rem solid var(--accent-3);
-  padding-top: 2.375rem;
+  /* THE timeline is drawn PER STEP (step.css), not across this row. A single hairline spanning the
+     whole box gave four steps one continuous line, which is a defensible way to say "sequence"
+     and the wrong one here: it ruled off the treatment rather than the movements, so a two-step
+     slide still got a rule the full width of the frame. Each step now opens with its own, the
+     roster's device (team-member.css), and the sequence is carried by the repetition of the mark
+     rather than by its continuity. */
 }
