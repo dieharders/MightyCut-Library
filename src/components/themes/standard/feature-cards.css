@@ -25,7 +25,13 @@
    var is what the author's card count actually drives. `.row` must stay qualified: the bare class
    is also the root of the comparison `row` primitive. */
 .feature-cards .row {
+  --col-gap: 2.875rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 2.875rem;
+  /* The track CAPS at the width it would take in a full 3-up row and the row centres in what's
+     left, so a one- or two-card slide (this skin also dresses `list`) stays a card rather than
+     stretching into a banner. At 3 the cap IS the 1fr width and at 4 free space is shared out
+     equally below it, so the canonical rows are unchanged. */
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
+  justify-content: center;
+  gap: var(--col-gap);
 }

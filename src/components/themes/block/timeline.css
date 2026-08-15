@@ -4,8 +4,14 @@
   letter-spacing: -0.02em;
   margin: 1.5rem 0 2.875rem;
 }
+/* Tracks CAP at the width they'd take in a full 4-up row and the row centres in what's left, so
+   a one- or two-step slide stays a card rather than stretching into a banner. At 4 the cap IS the
+   1fr width, and beyond it free space is shared out equally below the cap, so nothing about the
+   canonical row changes. */
 .timeline .row {
+  --col-gap: 2.625rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 2.625rem;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--col-gap)) / 4)));
+  justify-content: center;
+  gap: var(--col-gap);
 }

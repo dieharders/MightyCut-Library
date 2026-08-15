@@ -14,9 +14,15 @@
   margin: 1.625rem 0 2.875rem;
 }
 .feature-cards .row {
+  --col-gap: 2.375rem;
   display: grid;
   /* --cols is emitted by the treatment's layout() (min(childCount, 4)); a hardcoded
-     repeat(3, 1fr) — the legacy — breaks a 2- or 4-card slide. */
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 2.375rem;
+     repeat(3, 1fr) — the legacy — breaks a 2- or 4-card slide. The track CAPS at the width it
+     would take in a full 3-up row and the row centres in what's left, so a one- or two-card slide
+     (this skin also dresses `list`) stays a card rather than stretching into a banner. At 3 the
+     cap IS the 1fr width, and at 4 free space is shared out equally below it, so the canonical
+     rows are unchanged. */
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
+  justify-content: center;
+  gap: var(--col-gap);
 }
