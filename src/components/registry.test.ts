@@ -556,8 +556,12 @@ describe("new library components", () => {
 
     // Overlaid lines that cannot be told apart are not a chart. A single plot needs no accent
     // and does not get one; an accent the author DID name survives.
+    /** The LINES' colours — each `.plot` layer's own `--pcol`, not the key's (the key states the
+     *  same colours a second time, which is what it is for). */
+    const colours = (html: string) =>
+      [...html.matchAll(/class="plot [^"]*"[^>]*--pcol: var\(--([a-z0-9-]+)\)/g)].map((m) => m[1]!);
+
     test("overlaid series take distinct colours, and a named accent is kept", () => {
-      const colours = (html: string) => [...html.matchAll(/--pcol: var\(--([a-z0-9-]+)\)/g)].map((m) => m[1]!);
       expect(colours(overlay(A, B))).toEqual(["primary", "secondary"]);
       expect(colours(overlay(A, { ...B, accent: "accent-3" }))).toEqual(["primary", "accent-3"]);
       expect(colours(overlay(A)), "a lone series was coloured it did not ask for").toEqual([]);
@@ -579,6 +583,58 @@ describe("new library components", () => {
       expect(() =>
         overlay(A, { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }),
       ).toThrow(/drawn on ONE x-axis/);
+    });
+
+    // …and refused wherever the set came from. The guard used to run only in `composeTreatment`,
+    // so the INSTANCE path built the incoherent chart happily: two series' second vertices at
+    // different x under one shared row of four labels, with nothing visibly broken.
+    test("…on the instance path too, not just the spec path", () => {
+      const mismatched = () =>
+        getTreatment("trend-line")({ headline: "Two series" })
+          .addChildren(getComponent("plot")(A), getComponent("plot")({ labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }))
+          .build(ctx("t-overlay-inst"));
+      expect(mismatched).toThrow(/drawn on ONE x-axis/);
+    });
+
+    // THE KEY. The overlay takes the point figures off, so colour is the only thing separating
+    // the lines — and a colour code with nothing to decode it is N unlabelled lines. One entry
+    // per series, in draw order, each carrying the colour its own line is drawn in.
+    describe("the key", () => {
+      /** Each key entry as [colour, name], in document order. */
+      const key = (html: string): [string, string][] =>
+        [
+          ...html.matchAll(
+            /<span class="pkey"(?: style="--pcol: var\(--([a-z0-9-]+)\)")?><span class="pswatch"><\/span><span class="pname">([^<]*)<\/span>/g,
+          ),
+        ].map((m) => [m[1] ?? "", m[2]!]);
+
+      test("names every series, in the colour its line is drawn in", () => {
+        const html = overlay({ ...A, series: "Us" }, { ...B, series: "The field" });
+        expect(key(html)).toEqual([
+          ["primary", "Us"],
+          ["secondary", "The field"],
+        ]);
+        // The key states the SAME colours the lines took — the two walk one resolved list, not
+        // two copies of the accent cycle that would have to agree.
+        expect(key(html).map(([c]) => c)).toEqual(colours(html));
+      });
+
+      test("an unnamed series still gets a swatch, keyed to its position", () => {
+        expect(key(overlay({ ...A, series: "Us" }, B))).toEqual([
+          ["primary", "Us"],
+          ["secondary", "Series 2"],
+        ]);
+      });
+
+      // A one-entry key is a label pointing at the only thing on screen, and the lone series
+      // still prints its own figures — so the single-plot frame is exactly what it was.
+      test("a lone series gets no key at all", () => {
+        expect(overlay(A)).not.toContain("plotkey");
+      });
+
+      test("a series name is escaped, not injected", () => {
+        expect(overlay({ ...A, series: "<b>us</b>" }, B)).toContain("&lt;b&gt;us&lt;/b&gt;");
+      });
     });
   });
 });

@@ -70,3 +70,21 @@
   color: var(--dark);
   letter-spacing: 0.085em;
 }
+/* THE KEY — the swatch row under an overlaid chart: the category row's type, and the series'
+   own dot as its mark. See block/plot.css for the reasoning. */
+.plotkey {
+  line-height: 1;
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--dark);
+  letter-spacing: 0.085em;
+}
+.plotkey .pswatch {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--pcol, var(--primary));
+  border: 0.25rem solid var(--dark);
+  box-sizing: border-box;
+}

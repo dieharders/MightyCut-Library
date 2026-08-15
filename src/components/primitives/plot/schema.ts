@@ -45,6 +45,25 @@ export const PlotSchema = z
       .enum(PALETTE_VARS)
       .optional()
       .describe("Palette role for the line and its points (unset ⇒ the theme's default)"),
+    /**
+     * WHAT THIS LINE IS — the only thing a series can say about itself that its geometry cannot.
+     *
+     * A lone plot has no use for it: it is the chart, the headline names it, and drawing a
+     * one-entry key would be a label pointing at the only thing on screen. It exists for the
+     * OVERLAY, where the treatment turns the point figures off (trend-line/index.ts, `layout`)
+     * and colour becomes the only difference between the lines — a key with nothing to key is
+     * N coloured lines and no way to tell which is which.
+     *
+     * Optional, and the key falls back to "Series 1", "Series 2" when it is unset, because an
+     * unnamed overlay is still better served by a swatch that ties a colour to a position than
+     * by no key at all — but the fallback names nothing, and a second series is worth naming.
+     */
+    series: z
+      .string()
+      .min(1)
+      .max(28)
+      .optional()
+      .describe("This line's name, shown in the key when several series share one graph"),
   })
   .check((ctx) => {
     const p = ctx.value;

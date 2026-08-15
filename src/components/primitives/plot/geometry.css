@@ -78,6 +78,41 @@
   backdrop-filter: none;
 }
 
+/* THE KEY. It belongs to the overlay: one series states its numbers on its own points, several
+   cannot (they print through each other), so the treatment takes the figures off and colour
+   becomes the only thing separating the lines — the key is what decodes it. The treatment emits
+   the markup, because which colour went to which series is a fact about the SET
+   (trend-line/index.ts, `legendHtml`); the layout is here for the same reason `.plotbox` is —
+   a treatment's `css` is a FALLBACK a themed treatment never reaches, so a rule written there
+   would be emitted for nobody.
+
+   ONE ROW, CENTRED, WRAPPING. Horizontal because it is read across, in the order the swatches
+   were assigned, under the axis rather than out at the lines' ends — a label pinned near a
+   line's last vertex sits exactly where two converging series overprint, which is the failure
+   the point figures were removed for. `flex-wrap` because eight named series will not fit one
+   line at any type size, and a second row of key is better than a key running off the frame.
+
+   PAINT IS THE THEME'S (its plot.css): the swatch is that theme's dot and the names are its
+   axis type. What is fixed here is that the swatch cannot shrink — `flex: none`, or a long name
+   squeezes the one mark carrying the colour. */
+.plotkey {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.plotkey .pkey {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.plotkey .pswatch {
+  flex: none;
+}
+
 /* TWO COLUMNS, and the first is sized by its CONTENT. The y-axis gutter has to be exactly as
    wide as the widest tick — a fixed rem guess either clips a long figure or leaves a hole beside
    a short one — and `auto` gets that from the hidden sizer in .pyaxis for free. The category

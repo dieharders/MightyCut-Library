@@ -2,9 +2,74 @@ import template from "./template.html" with { type: "text" };
 import { ACCENT_CYCLE } from "../../../types/palette";
 import { Plot } from "../../primitives/plot";
 import type { PlotParams } from "../../primitives/plot/schema";
+import { esc } from "../../runtime/dom";
 import { treatment } from "../../runtime/treatment";
+import type { ComponentInstance } from "../../runtime/types";
 import { trendLineAnim } from "./anim";
 import { TrendLineSchema } from "./schema";
+
+/** The child plots' resolved params, in the order they are drawn. Non-plot children (nothing
+ *  adds one today; the child region is typed by `childComponent`, not enforced) are skipped
+ *  rather than counted, so an index into this list is an index into the series. */
+const seriesOf = (children: readonly ComponentInstance[]): PlotParams[] =>
+  children.filter((c) => c.name === "plot").map((c) => c.params() as PlotParams);
+
+/**
+ * THE KEY — the overlay's only statement of which line is which.
+ *
+ * It is emitted for the overlay ALONE, for the same reason the point figures come off for the
+ * overlay alone (see `layout`): the two are the same decision seen from either side. One line
+ * states its numbers on its points and needs no key, because the headline already names the one
+ * thing drawn. Several lines cannot state their numbers — the figures print through each other —
+ * so the treatment takes them off and the series' identity moves to colour, which is a code
+ * nothing on the frame decodes. A swatch in the line's own colour beside its name is the decode.
+ *
+ * BELOW THE GRAPH AND HORIZONTAL, not beside a line's end: an in-place label would have to be
+ * positioned off the last vertex, which is exactly where two converging series overprint each
+ * other — the failure the figures were removed for, re-created by the thing meant to fix it. A
+ * row under the category axis is read once, in one place, in the order the swatches were
+ * assigned.
+ *
+ * The colour comes from the RECONCILED params, so it is the colour the line is actually drawn in
+ * rather than a second walk of `ACCENT_CYCLE` that would have to agree with the first one. Where
+ * a series names nothing, the fallback is its position — a key that ties a colour to "Series 2"
+ * says less than a name but strictly more than no key.
+ */
+const legendHtml = (children: readonly ComponentInstance[]): string | null => {
+  const series = seriesOf(children);
+  if (series.length < 2) return null;
+  return series
+    .map((s, i) => {
+      const colour = s.accent ? ` style="--pcol: var(--${s.accent})"` : "";
+      return (
+        `<span class="pkey"${colour}>` +
+        `<span class="pswatch"></span>` +
+        `<span class="pname">${esc(s.series ?? `Series ${i + 1}`)}</span>` +
+        `</span>`
+      );
+    })
+    .join("");
+};
+
+/**
+ * ONE X-AXIS, so every series has to have the same number of points.
+ *
+ * The overlay draws each series edge to edge across the same box (plot/index.ts, `xAt`), and
+ * the category row is the FIRST series' — so a four-point line under a six-point line would
+ * put its third point at 50% and its neighbour's third point at 40%, both under a label that
+ * describes only one of them. Nothing looks broken; the chart just quietly means nothing.
+ *
+ * Only the COUNT is checked, not the label text. A second series that spells its categories
+ * differently ("Q1" against "Jan–Mar") is reading the same axis in different words, and the
+ * first series' labels are the ones drawn — an ordinary editorial choice rather than an error
+ * worth refusing a deck over.
+ */
+const pointCountIssue = (counts: readonly number[]): string | null => {
+  const [first] = counts;
+  return counts.every((n) => n === first)
+    ? null
+    : `the series have ${counts.join(", ")} points — they are drawn on ONE x-axis, so every plot needs the same number`;
+};
 
 /**
  * A line chart — `chart`'s sibling over the same spec data (`chart.series`), for the case
@@ -32,6 +97,10 @@ export const TrendLine = treatment({
   ground: "muted-1",
   example: { headline: "Losses fall quarter over quarter", caption: "Incidents per 1,000 sessions" },
   fill: (p) => ({ headline: p.headline, caption: p.caption ?? null }),
+  // The key, which is a statement about the SET and so can only be written here — see
+  // `legendHtml`. It is null for a single series, and an unfilled data-html element removes
+  // itself, so a one-plot trend-line emits exactly the markup it did before.
+  rawFill: (_p, children) => ({ legend: legendHtml(children) }),
   defaultChildren: () => [
     Plot({ labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }),
   ],
@@ -47,28 +116,19 @@ export const TrendLine = treatment({
    * Emitted ONLY in the overlay case, so a single-plot trend-line is byte-identical to what it
    * was; `--pfig` is read by the plot's own sheet (plot/geometry.css) with `block` — the figures
    * — as its default.
+   *
+   * TAKING THE FIGURES OFF IS WHAT PUTS THE KEY ON. Once the numbers are gone the series are
+   * told apart by colour and by nothing else, so the same child count that removes them emits
+   * the key (`rawFill` → `legendHtml`). The two are one decision and must not drift apart: a
+   * frame with neither is N unlabelled coloured lines.
    */
   layout: (childCount): Record<string, string> => (childCount > 1 ? { "--pfig": "none" } : {}),
-  /**
-   * ONE X-AXIS, so every series has to have the same number of points.
-   *
-   * The overlay draws each series edge to edge across the same box (plot/index.ts, `xAt`), and
-   * the category row is the FIRST series' — so a four-point line under a six-point line would
-   * put its third point at 50% and its neighbour's third point at 40%, both under a label that
-   * describes only one of them. Nothing looks broken; the chart just quietly means nothing.
-   *
-   * Only the COUNT is checked, not the label text. A second series that spells its categories
-   * differently ("Q1" against "Jan–Mar") is reading the same axis in different words, and the
-   * first series' labels are the ones drawn — an ordinary editorial choice rather than an error
-   * worth refusing a deck over.
-   */
-  childrenIssue: (_p, children) => {
-    const counts = children.map((c) => (c.params?.values as unknown[] | undefined)?.length ?? 0);
-    const [first] = counts;
-    return counts.every((n) => n === first)
-      ? null
-      : `the series have ${counts.join(", ")} points — they are drawn on ONE x-axis, so every plot needs the same number`;
-  },
+  // ONE X-AXIS — see `pointCountIssue`. The runtime runs this over the children as the caller
+  // wrote them (composeTreatment) AND over the resolved instances (buildNode), so the guard
+  // covers `addChildren` and `defaultChildren` too: `TrendLine().addChildren(Plot(4), Plot(3))`
+  // used to render two series on one four-label row rather than being refused.
+  childrenIssue: (_p, children) =>
+    pointCountIssue(children.map((c) => (c.params?.values as unknown[] | undefined)?.length ?? 0)),
   /**
    * ONE Y-AXIS, resolved rather than demanded.
    *

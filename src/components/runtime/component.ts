@@ -106,6 +106,16 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
         transitionOverride = t;
         return this;
       },
+      // The params AS WRITTEN, not `parse(raw)` — a no-arg instance must keep falling back to
+      // the example and a written one keep its own omissions omitted, exactly as `withParams`
+      // preserves them, so a copy and its original build byte-identically. See
+      // `ComponentInstance.clone` for why the treatment runtime needs one.
+      clone(): ComponentInstance {
+        const copy = factory(raw);
+        if (animOverride) copy.withAnim(animOverride);
+        if (transitionOverride) copy.withTransition(transitionOverride);
+        return copy;
+      },
       buildNode(ctx: BuildContext): BuildNode {
         const p = parse(raw); // fail loud on bad params
         // A theme may override this element's structure (theme.templates[name]) — kept

@@ -24,6 +24,7 @@ import { getComponent } from "./registry";
 import { DEFAULT_ENTRANCE, sceneEntranceJs } from "./transitions";
 import {
   childrenContainer,
+  fillRaw,
   fillSlots,
   mergeStyle,
   pruneRemoved,
@@ -95,10 +96,24 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
    * `.min(2).max(5)`, so four criteria against three cells validates cleanly and renders a
    * header and a body on DIFFERENT track counts.
    *
-   * Run by `composeTreatment`, which is the seam every hand-built child set arrives through —
-   * the deck editor, the CLI, and the agent's `build_treatment`, whose error text is fed back
-   * to the model so it self-corrects. NOT run for `addChildren(instance…)` or `defaultChildren`:
-   * an instance no longer exposes its params, and those two paths are the library's own.
+   * Run on EVERY path, not just the spec one. `composeTreatment` runs it early, while it still
+   * has the children as the caller WROTE them, so the deck editor, the CLI and the agent's
+   * `build_treatment` get the message before anything is built (the agent's error text is fed
+   * back to the model so it self-corrects). `buildNode` runs it again over the resolved child
+   * instances, which is what covers `addChildren(instance…)` and `defaultChildren` — the paths
+   * that used to skip it entirely.
+   *
+   * That gap was not theoretical: `trend-line` refuses series of different lengths because the
+   * overlay draws them all against the FIRST series' category row, and
+   * `TrendLine().addChildren(Plot(4 points), Plot(3 points))` sailed straight past the check
+   * and rendered the two series' second vertices at different x under one shared row of four
+   * labels. Nothing looks broken; the chart just quietly means nothing — the exact failure the
+   * hook exists to refuse, reached by the path it did not cover.
+   *
+   * The instances are asked for their RESOLVED params (`ComponentInstance.params`), so a hook
+   * reading a field with a schema default sees the default rather than `undefined` on this
+   * path. Read a field's presence as "the author omitted it" only where the schema has no
+   * default to supply.
    */
   childrenIssue?: (p: z.infer<S>, children: readonly ChildParams[]) => string | null;
   /**
@@ -117,13 +132,29 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
    * unreconciled one IS wrong, and the library's own defaults have no more claim to being
    * pre-reconciled than the editor's children do.
    *
-   * It mutates the instances in place rather than returning a new list, because an instance
+   * It patches the instances in place rather than returning a new list, because an instance
    * carries more than its params — a per-child `withTransition` from `compose.ts`, a `withAnim`
-   * override — and rebuilding one from its params alone would silently drop them.
+   * override — and rebuilding one from its params alone would silently drop them. The
+   * instances it is handed are the runtime's own COPIES of the caller's (see `buildNode`), so
+   * patching them in place is local to this build.
    */
   reconcileChildren?: (children: readonly ComponentInstance[], p: z.infer<S>) => void;
   /** Own slot fills (headline, caption, …). */
   fill?: (p: z.infer<S>) => Record<string, string | null | undefined>;
+  /**
+   * Own RAW-HTML fills (`data-html="X"`), injected unescaped — the treatment's half of the
+   * component seam (`ComponentDef.rawFill`), for markup an escaped slot cannot carry.
+   *
+   * It is handed the RECONCILED CHILDREN as well as the params, which is the point of it: what
+   * a treatment has to say in its own frame and cannot say from `p` alone is something about
+   * the SET. `trend-line`'s key is the case — N overlaid lines identify themselves by colour,
+   * and the colours are only decided once `reconcileChildren` has walked the set, so the key
+   * cannot be written from the treatment's params and cannot be written by any one child.
+   *
+   * Escaping is the caller's, exactly as it is for a component's `rawFill`: build the markup
+   * with `esc()` around every authored string.
+   */
+  rawFill?: (p: z.infer<S>, children: readonly ComponentInstance[]) => Record<string, string | null | undefined>;
   /** Responsive layout: CSS custom properties from the child count. */
   layout?: (childCount: number, p: z.infer<S>) => Record<string, string>;
   /** Own animations (e.g. the headline reveal). */
@@ -207,16 +238,45 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         addedDecorations = [...(addedDecorations ?? []), ...decorations];
         return this;
       },
+      // `if (added)` / `if (addedDecorations)` rather than `?.length`: an EMPTY list is an
+      // override in its own right here (a deliberately bare frame — see the decoration note in
+      // buildNode), so a copy that dropped it would silently get the theme's defaults back.
+      clone(): TreatmentInstance {
+        const copy = factory(raw);
+        if (added) copy.addChildren(...added);
+        if (addedDecorations) copy.addDecorations(...addedDecorations);
+        if (animOverride) copy.withAnim(animOverride);
+        if (transitionOverride) copy.withTransition(transitionOverride);
+        return copy;
+      },
       buildNode(ctx: BuildContext): BuildNode {
         const p = parse(raw);
-        // A theme may override this treatment's structure (theme.templates[name]); the
-        // override must keep the shared markers so fill/anim/children still resolve.
-        const root = rootElement(ctx.theme.templates?.[def.name] ?? def.template);
-        if (def.fill) fillSlots(root, def.fill(p));
-        pruneRemoved(root);
-        stampAnims(root, ctx.idPrefix); // own data-anim (headline, …)
-
-        const children = added ?? def.defaultChildren(p);
+        // THE CHILDREN ARE RESOLVED BEFORE THE FRAME'S OWN MARKUP, because the frame may have
+        // something to say about them: `rawFill` is handed the reconciled set so a treatment
+        // can describe its children in its own template (trend-line's key), and that has to be
+        // the set as it will actually be drawn.
+        const supplied = added ?? def.defaultChildren(p);
+        // A BUILD DOES NOT WRITE TO ITS CALLER'S INSTANCES. Two hooks below PATCH children — a
+        // shared scale and colour (`reconcileChildren`), a forced entrance (`childAnimIn`) —
+        // and the instances handed to `addChildren` belong to whoever built them: an editor
+        // holds them across rebuilds, and `build` is documented pure and deterministic. Patched
+        // in place, a plot overlaid once carried the overlay's `max`, `decimals` and accent for
+        // the rest of its life, including in its own standalone build, and a second render of
+        // the same treatment reconciled an already-reconciled set. So the patching hooks are
+        // pointed at COPIES (`ComponentInstance.clone`), taken only when there IS such a hook —
+        // nothing else here writes to a child, and a copy nothing writes to buys nothing.
+        const children =
+          def.reconcileChildren || def.childAnimIn ? supplied.map((c) => c.clone()) : supplied;
+        // Cross-child VALIDATION, on this path as well as `composeTreatment`'s — the resolved
+        // instances are asked for their params, which is exactly what an instance-built or
+        // defaulted child set could not be checked from before (see `childrenIssue`). Ahead of
+        // reconciliation, because reconciliation resolves the disagreements that are resolvable
+        // and this refuses the ones that are not.
+        const issue = def.childrenIssue?.(
+          p,
+          children.map((c) => ({ name: c.name, params: c.params() as Record<string, unknown> })),
+        );
+        if (issue) throw new Error(`treatment '${def.name}' children invalid:\n- ${issue}`);
         // Cross-child reconciliation BEFORE anything is built, so a child that has to know
         // about its siblings (a shared scale, a shared colour cycle) is patched while its params
         // are still patchable. See `reconcileChildren`.
@@ -225,6 +285,15 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // trusting whoever built them to have known (see `childAnimIn`). Applied to the
         // defaults too, so there is ONE statement of the rule instead of one per path.
         if (def.childAnimIn) for (const c of children) c.withTransition({ animIn: def.childAnimIn });
+
+        // A theme may override this treatment's structure (theme.templates[name]); the
+        // override must keep the shared markers so fill/anim/children still resolve.
+        const root = rootElement(ctx.theme.templates?.[def.name] ?? def.template);
+        if (def.fill) fillSlots(root, def.fill(p));
+        if (def.rawFill) fillRaw(root, def.rawFill(p, children));
+        pruneRemoved(root);
+        stampAnims(root, ctx.idPrefix); // own data-anim (headline, …)
+
         const container = childrenContainer(root);
         if (!container && children.length > 0) {
           throw new Error(`treatment '${def.name}': template has no data-children container`);
