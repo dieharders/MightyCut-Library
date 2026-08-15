@@ -4,6 +4,8 @@
 .tmember {
   border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
   background: color-mix(in srgb, var(--muted-3) 55%, transparent);
+  /* Same plate as the ledger's cell, so the same frost — see card.css. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 0.875rem;
   padding: 2rem 1.75rem;
   display: flex;

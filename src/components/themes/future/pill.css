@@ -14,7 +14,8 @@
       color-mix(in srgb, var(--dark) 16%, transparent)
     ),
     color-mix(in srgb, var(--muted-3) 55%, transparent);
-  backdrop-filter: blur(2px);
+  /* The chip wears the card's exact plating, so it takes the card's exact frost — see card.css. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 9999px;
   box-shadow: 0 0 1.25rem color-mix(in srgb, var(--chip) 18%, transparent);
   padding: 0.75rem 1.75rem;

@@ -13,7 +13,8 @@
       color-mix(in srgb, var(--dark) 16%, transparent)
     ),
     color-mix(in srgb, var(--muted-3) 55%, transparent);
-  backdrop-filter: blur(2px);
+  /* Future's one glass blur — see card.css for why every panel frosts at 0.75rem. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 1.25rem;
   padding: 2.25rem;
   box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);

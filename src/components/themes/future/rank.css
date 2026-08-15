@@ -28,6 +28,11 @@
   height: 3.125rem;
   background: color-mix(in srgb, var(--muted-3) 55%, transparent);
   border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
+  /* Future's one glass blur (see card.css) — the track is the same plate the ledger's cells
+     wear, and it is the surface the fill is read AGAINST, so an unfrosted one let the
+     constellation compete with the bar for the same pixels. The fill is a CHILD of the track,
+     so it paints over the frost rather than through it, glow and all. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 0.625rem;
   /* No overflow:hidden — the fill rounds itself (below), so its cyan glow can bleed out
      of the track instead of being clipped away. */
