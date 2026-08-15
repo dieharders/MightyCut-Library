@@ -133,14 +133,42 @@ const sizeTokens: Record<string, string> = {
   "font-size-max": "7rem",
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
- *  down exactly once (matching block, future and capsule). */
+/** THE PLATE — the body every tinted panel in this theme is painted ON, written down once.
+ *
+ *  Professional's panels were a cobalt tint over NOTHING (`--primary 5%, transparent`). On the
+ *  cream canvas that reads as intended, because 95% of the panel simply IS the cream. On any
+ *  other ground it is a 5% film: a card on a saturated slide ground showed as its hairline and
+ *  nothing else, which is the whole point of a card gone. So the tint now sits on a half-opaque
+ *  WHITE — the role the palette already names "cards" (--light) — and the ground tints the panel
+ *  through it instead of replacing it.
+ *
+ *  55% is the same weight future gives its own plate (`--muted-3 55%`), the two themes' panels
+ *  being the same object in different keys; it is the ONE number that sets how much a panel
+ *  hides its ground, so tune opacity here rather than per skin. It stays translucent on purpose:
+ *  opaque white would make every frame a stack of paper cut-outs, and this theme's authority
+ *  comes from the canvas showing through. A skin adds its own cobalt ON this — `color-mix(…
+ *  var(--primary) 5%, var(--plate))` — so the emphasis steps (5 → 10 → 14%) still read as depth
+ *  of the one hue.
+ *
+ *  It lives in `:root` rather than frame.css because a component previewed BARE in the showcase
+ *  gets `theme.css` and its own skin but no frame base (engine/mount.ts), and a panel whose plate
+ *  resolved to nothing there would preview as the film this replaces. */
+const surfaceTokens: Record<string, string> = {
+  plate: "color-mix(in srgb, var(--light) 55%, transparent)",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` + `surfaceTokens` — every hex,
+ *  every size and the one panel surface written down exactly once (matching block, future and
+ *  capsule). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
   ...Object.entries(sizeTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
+  ...Object.entries(surfaceTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
 ].join("\n")}\n}\n`;
@@ -195,7 +223,7 @@ const rules: ThemeTokens["rules"] = {
     "Start every frame on warm cream; a single cobalt carries every accent.",
     "Set headlines near-black at neutral tracking (a text serif cramps under negative); eyebrows cobalt, uppercase, 0.08em.",
     "Render every numeral in cobalt IBM Plex Sans 600, tabular.",
-    "Lift content with soft cobalt-TINTED cards — 5% fill, 22% hairline border, gently rounded.",
+    "Lift content with soft cobalt-TINTED cards — a 5% cobalt fill over the half-opaque plate (--plate), a 22% hairline border, gently rounded.",
     "Body in IBM Plex Sans 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
     "The ember orange is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
   ],

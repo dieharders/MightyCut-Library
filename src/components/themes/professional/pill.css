@@ -4,7 +4,7 @@
    unset ⇒ the faint cobalt tint. Ported from the showcase .bframe .pill base. */
 .pill-c {
   display: inline-block;
-  background: var(--pillbg, color-mix(in srgb, var(--primary) 6%, transparent));
+  background: var(--pillbg, color-mix(in srgb, var(--primary) 12%, transparent));
   color: var(--primary);
   border-radius: 9999px;
   padding: 0.625rem 1.625rem;
@@ -14,4 +14,5 @@
   letter-spacing: 0.08em;
   font-size: var(--font-size-xs);
   line-height: 1.35;
+  backdrop-filter: blur(0.75rem);
 }

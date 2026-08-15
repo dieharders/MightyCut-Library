@@ -1333,8 +1333,10 @@ describe("professional theme (tripwire)", () => {
 
   test("treatment skin: stat-grid renders professional's skin, not block's or capsule's", () => {
     const html = renderScene(getTreatment("stats")(), prctx("p01-sg"));
-    // professional's soft cobalt-tinted card fill — derived, never a literal.
-    expect(html).toContain("color-mix(in srgb, var(--primary) 5%, transparent)");
+    // professional's soft cobalt-tinted card fill — derived, never a literal. The tint sits on
+    // --plate (theme.ts), not on `transparent`: over `transparent` the panel is a 5% film that
+    // vanishes on any ground but the cream it was drawn against.
+    expect(html).toContain("color-mix(in srgb, var(--primary) 5%, var(--plate))");
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
     expect(html).not.toContain("color-mix(in srgb, var(--dark) 12%, transparent)"); // capsule's soft offset gone
   });

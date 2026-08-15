@@ -27,7 +27,11 @@
 .rank .track {
   flex: 1;
   height: 3.125rem;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  /* The channel is the PLATE (theme.ts) under the faint tint — it is the surface the fill is read
+     AGAINST, and over a coloured ground an untinted 5% film gave the bar nothing to sit in. The
+     fill is a child, so it paints over the frost rather than through it. */
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   border-radius: 0.75rem;
   overflow: hidden;
 }

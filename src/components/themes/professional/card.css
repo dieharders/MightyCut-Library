@@ -1,11 +1,17 @@
-/* Feature-card = a soft cobalt-tinted card (faint 5% fill, hairline cobalt border, gently
-   rounded, no shadow) opened by a cobalt icon badge. The instance's accent (--ic) fills the
+/* Feature-card = a soft cobalt-tinted card (a faint 5% fill over the plate, hairline cobalt
+   border, gently rounded, no shadow) opened by a cobalt icon badge. The instance's accent (--ic) fills the
    badge and nothing else — under professional every role is cobalt, so a row of cards reads as
    one restrained family. The glyph on the badge is cream (var(--light)). Ported from the
    showcase .bf-feature-cards .c / .ic / .t / .bd (cqw × 1.2). */
 .card {
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  /* The 5% cobalt, now over the PLATE (theme.ts) rather than over nothing — a card has to read
+     as a card on a coloured slide ground, not only on the cream it was drawn against. */
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  /* The plate is half-opaque by design, so what shows through it is DIFFUSED rather than read:
+     the hatch's stripes stop running under the body copy and become texture behind it. 0.75rem
+     is professional's one blur, the value its plot panel already frosts at. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 1.25rem;
   padding: 2.125rem;
   display: flex;

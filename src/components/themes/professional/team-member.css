@@ -5,7 +5,8 @@
 .tmember {
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   padding: 2rem 1.75rem;
   display: flex;
   flex-direction: column;

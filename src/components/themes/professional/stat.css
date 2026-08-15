@@ -1,13 +1,15 @@
-/* Stat = a soft cobalt-TINTED card: a faint (5%) cobalt fill, a hairline cobalt border, gently
-   rounded, NO shadow. The figure is the one place colour meets type here — cobalt IBM Plex Sans,
+/* Stat = a soft cobalt-TINTED card: a faint (5%) cobalt fill over the plate, a hairline cobalt
+   border, gently rounded, NO shadow. The figure is the one place colour meets type here — cobalt IBM Plex Sans,
    arriving per-instance as --dot (professional's roles are all cobalt, so it reads as the single
    accent whatever the author picks). The shared corner dot is hidden — professional has no dot.
    Ported from the showcase .bf-stat-grid .sc / .n / .l (cqw × 1.2). */
 .stat {
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  /* The 5% cobalt over the PLATE, frosted — see card.css. */
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  backdrop-filter: blur(0.75rem);
   border-radius: 1.25rem;
   padding: 2.375rem;
 }
