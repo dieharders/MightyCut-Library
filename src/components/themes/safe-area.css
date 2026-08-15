@@ -55,45 +55,6 @@
   --safe-side: 6rem;
   --safe-bottom: 13.5rem;
 }
-
-/* THE DISTRIBUTION IS SHARED TOO, and for the same reason the padding is. All ninety
- * `.<treatment> > .body` rules (fifteen treatments × six themes) opened with the identical
- * `justify-content: center`, and seventy-two of them contained NOTHING ELSE — byte-identical
- * three-line blocks restating a default that was never in dispute. They are gone; the eighteen
- * that remain say only what is actually theirs (`align-items`, `text-align`).
- *
- * A CONTENT FRAME HUGS THE SAFE BOX; A HERO FRAME CENTRES IN IT. The shared value used to be
- * `safe center` for every frame, so a slide's whole stack floated as one block: the headline sat
- * wherever the content below it happened to leave it, which is a different height on every slide
- * and on every theme, and a deck read as a column of drifting titles. `space-between` pins the
- * FIRST child to the top of the safe box and the LAST to the bottom, so the headline is always on
- * the same line and a caption always closes the frame — the two ends the eye actually tracks
- * across a deck. The content between them keeps whatever spacing its own skin gives it.
- *
- * This is why the frames are authored headline-first with the caption last (each treatment's
- * template.html): the order in the template IS the distribution now, not just reading order.
- * Frames with no caption (agenda · comparison · feature-cards · list · stats · timeline) put
- * their content block on the bottom edge instead, which is the same bargain — the headline is
- * what holds still.
- *
- * THE THREE HERO FRAMES ARE EXEMPT, below. `space-between` distributes SIBLINGS, so it only says
- * anything on a stack of two or more, and on the frames whose whole purpose is one centred block
- * it says the wrong thing: cover would throw its subtitle to the floor away from the headline it
- * belongs to, quote would strand its eyebrow at the ceiling above its card, and closing-plate is
- * a single child, where `space-between` degenerates to flex-start and the plate would ride the
- * top edge instead of sitting in the middle of the frame. Those three are not slides with a
- * header and a body; they are one composition on an empty canvas, and centring is the design.
- *
- * `safe center` there, not `center`, and that word is load-bearing. An unsafe centre overflows in
- * BOTH directions, so a frame whose content exceeds the safe box pushes its top half back up
- * through `--safe-top` and out through the HUD band — chrome that is always painted, over content
- * the viewer is meant to read. `safe` falls back to start-alignment exactly when it does not fit,
- * so an overrun goes DOWN instead, where the worst it can meet is a caption box that may not even
- * be present. It costs nothing when the content fits, which is every ordinary slide. Three frames
- * used to buy the same protection with a deliberate ZERO vertical padding (professional/cover,
- * standard/cover, standard/quote had `padding: 0 <side>`); the shared inset took that away, and
- * this is what replaces it. `space-between` needs no such guard — it already starts at the top
- * edge and grows down. */
 .mc-frame > .body {
   position: absolute;
   inset: 0;
@@ -101,8 +62,14 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: var(--safe-top) var(--safe-side) var(--safe-bottom);
+}
+.mc-frame:not(.cover, .quote, .closing-plate) > .body > :nth-child(2) {
+  margin-top: auto;
+}
+.mc-frame:not(.cover, .quote, .closing-plate) > .body > :last-child {
+  margin-bottom: auto;
 }
 
 /* The hero frames — one composition, centred on the canvas. Selected by treatment class rather
