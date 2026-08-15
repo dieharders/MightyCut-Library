@@ -100,6 +100,15 @@
   align-items: center;
   gap: 1.625rem;
 }
+/* THE TWO STRINGS SHARE A BASELINE, WHICH IS WHY THEY SHARE A BOX. The wordmark and the tagline
+ * are set at different steps (`md` against `xs`)
+ */
+.hud .hud-brand-text {
+  display: flex;
+  align-items: baseline;
+  gap: 1.625rem;
+  min-width: 0;
+}
 /* `nowrap` IS THE BAND'S GUARD ON THIS SIDE, and it is the same defect the title chip's fixed
  * height guards against on the other: a wordmark that wraps to two lines is a 2 × 1.2em line box,
  * i.e. the left half of the band growing past the 3rem slot `--safe-top` was measured from. With
