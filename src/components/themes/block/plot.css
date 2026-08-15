@@ -72,3 +72,24 @@
   color: var(--dark);
   letter-spacing: 0.06em;
 }
+/* THE KEY — the swatch row under an overlaid chart (its layout is the shared sheet's; the
+   markup is the treatment's, since which colour went to which series is a fact about the set).
+   Lettered as the CATEGORY row, because that is what it is: a label under the plot naming part
+   of the drawing. The swatch is the series' own dot at the dot's size, with the dot's ring, so
+   the mark in the key is the mark on the line rather than a second shape standing for it. */
+.plotkey {
+  line-height: 1;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--dark);
+  letter-spacing: 0.06em;
+}
+.plotkey .pswatch {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--pcol, var(--primary));
+  border: 0.25rem solid var(--dark);
+  box-sizing: border-box;
+}

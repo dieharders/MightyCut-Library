@@ -94,3 +94,23 @@
   color: var(--muted-1);
   letter-spacing: 0.105em;
 }
+/* THE KEY — the swatch row under an overlaid chart: the category row's type, and the series'
+   own dot as its mark, glow included (see block/plot.css for the reasoning). The ring is what
+   separates the mark from the panel here exactly as it does on the plot. */
+.plotkey {
+  line-height: 1;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--muted-1);
+  letter-spacing: 0.105em;
+}
+.plotkey .pswatch {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  background: var(--pcol, var(--primary));
+  border: 0.125rem solid var(--dark);
+  box-sizing: border-box;
+  box-shadow: 0 0 0.875rem color-mix(in srgb, var(--pcol, var(--primary)) 55%, transparent);
+}

@@ -240,6 +240,62 @@ describe("treatment composition", () => {
   });
 });
 
+// A treatment that exercises all three child-set seams at once: it refuses a set it cannot
+// draw, patches the set it can, and then DESCRIBES the patched set in its own markup.
+const Reconciled = treatment({
+  name: "reconciled",
+  schema: GridSchema,
+  template: `<div class="rc"><h3 data-slot="headline">H</h3><div class="row" data-children></div><div class="key" data-html="key"></div></div>`,
+  ground: "primary",
+  example: { headline: "H" },
+  childAnimIn: "none",
+  defaultChildren: () => [Stat({ value: 1, label: "a" }), Stat({ value: 2, label: "b" })],
+  childrenIssue: (_p, children) =>
+    children.some((c) => (c.params?.label as string) === "bad") ? "a child is bad" : null,
+  // The set agrees on ONE decimal count — the max of what the children ask for.
+  reconcileChildren: (children) => {
+    const decimals = Math.max(...children.map((c) => (c.params() as { decimals: number }).decimals));
+    for (const c of children) c.withParams({ decimals });
+  },
+  // …and the frame states the resolved set, which is only knowable after the patch.
+  rawFill: (_p, children) => ({
+    key: children.map((c) => (c.params() as { decimals: number }).decimals).join(","),
+  }),
+});
+
+describe("the treatment's child-set seams", () => {
+  // `build` is documented pure, and the instances a caller hands to addChildren are the
+  // CALLER'S: an editor holds them across rebuilds. Patched in place, a child came back from
+  // one build carrying the set's decisions and rendered them in its own standalone build.
+  test("reconciliation patches what is drawn, not the caller's instance", () => {
+    const a = Stat({ value: 1, label: "a" });
+    const b = Stat({ value: 2, label: "b", decimals: 2 });
+    const r = Reconciled().addChildren(a, b).build(ctx("s-rec"));
+    expect(r.html, "the drawn set did not agree on the resolved decimals").toContain("2,2");
+    expect((a.params() as { decimals: number }).decimals, "the caller's child was rewritten").toBe(0);
+  });
+
+  test("…nor does a forced child entrance (childAnimIn) reach the caller's instance", () => {
+    const a = Stat({ value: 1, label: "a" });
+    const before = a.build(ctx("s-solo")).anims;
+    Reconciled().addChildren(a).build(ctx("s-anim"));
+    expect(a.build(ctx("s-solo")).anims, "the child kept the treatment's forced entrance").toEqual(before);
+  });
+
+  test("building the same treatment twice is the same bytes (no accumulated patching)", () => {
+    const t = Reconciled().addChildren(Stat({ value: 1, label: "a" }), Stat({ value: 2, label: "b", decimals: 2 }));
+    expect(t.build(ctx("s-twice")).html).toBe(t.build(ctx("s-twice")).html);
+  });
+
+  // The cross-child check used to run only in `composeTreatment`, so a hand-built or defaulted
+  // child set skipped it — an incoherent set that a schema cannot catch rendered anyway.
+  test("the cross-child check runs on the instance path too", () => {
+    expect(() => Reconciled().addChildren(Stat({ value: 1, label: "bad" })).build(ctx("s-bad"))).toThrow(
+      /children invalid:\n- a child is bad/,
+    );
+  });
+});
+
 describe("ground override via wrapSubComposition parts", () => {
   test("storyboard ground replaces the canonical ground", () => {
     const html = renderScene(Stats(), ctx("s"), { ground: "accent-1" });

@@ -211,6 +211,27 @@ export interface ComponentInstance {
   jsonSchema(): object;
   /** The parsed example params (drives showcase render + defaults). */
   defaults(): unknown;
+  /** THIS instance's resolved params — exactly what `buildNode` will render, schema defaults
+   *  applied. Paired with `withParams` for the one caller that needs it: a treatment reconciling
+   *  a child SET (see `TreatmentDef.reconcileChildren`). Everything else builds and forgets. */
+  params(): unknown;
+  /** Merge `patch` over this instance's params. The merge is over the params as WRITTEN (or the
+   *  example, for a no-arg instance) and is re-validated at build, so a patch that breaks the
+   *  schema fails loud rather than rendering something the schema forbids. */
+  withParams(patch: Record<string, unknown>): this;
+  /**
+   * An independent copy of this instance — the same params AS WRITTEN plus any `withAnim` /
+   * `withTransition` override, in a fresh closure nothing else holds a reference to.
+   *
+   * Exists because the patching hooks are patching SOMEBODY'S instance. `withParams` and
+   * `withTransition` mutate, and a treatment that reconciles a child set (`reconcileChildren`)
+   * or forces its children's entrance (`childAnimIn`) would otherwise write those decisions
+   * into objects its CALLER owns and keeps — so a plot handed to a two-series trend-line came
+   * back carrying the overlay's scale and colour, and its own standalone `build` then emitted
+   * them. The treatment runtime clones before it patches; `build` stays the pure function it is
+   * documented to be.
+   */
+  clone(): ComponentInstance;
   /** Replace this instance's default animations. */
   withAnim(anims: AnimDescriptor[]): this;
   /** Override the whole-element entrance transition (animIn + timing). */
@@ -222,6 +243,10 @@ export interface TreatmentInstance extends ComponentInstance {
   readonly ground: FrameGround;
   /** Override the whole-scene page transition (animIn/animOut + timing). */
   withTransition(t: TransitionSpec): this;
+  /** An independent copy — params, overrides, added children and decorations. The child/
+   *  decoration INSTANCES are shared with the copy rather than cloned in turn: the runtime
+   *  clones them itself at the point it patches them (see `ComponentInstance.clone`). */
+  clone(): TreatmentInstance;
   addChildren(...children: ComponentInstance[]): this;
   /** Add positioned decoration components (any treatment can carry these) —
    *  appended to the page root and layered fore/back by their own z-index. */
