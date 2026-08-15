@@ -143,29 +143,21 @@ const tokensCss = `:root {\n${[
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase applies to each live sample (px is fine here — a
-// sample is not a skin). Bodoni is ALWAYS ink and sentence case; the stat figure is the one
-// role where colour is allowed to meet type.
+// sample is not a skin). Bodoni is ALWAYS ink and sentence case.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Bodoni Moda 800 · sentence case · −0.03em · ink, never coloured",
     sample: "Inflated.",
     style:
       "font-family: var(--disp); font-weight: 800; letter-spacing: -0.03em; line-height: 0.9; font-size: 88px; color: var(--dark);",
   },
   {
-    token: "headline",
+    token: "title",
     spec: "Bodoni Moda 700 · sentence case · −0.02em · ink, never coloured",
     sample: "A friendly pill",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; line-height: 1; font-size: 54px; color: var(--dark);",
-  },
-  {
-    token: "stat-number",
-    spec: "Bodoni Moda 800 · −0.03em · the ONE place colour meets type",
-    sample: "240%",
-    style:
-      "font-family: var(--disp); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-size: 64px; color: var(--primary);",
   },
   {
     token: "body",
@@ -174,13 +166,6 @@ const typography: ThemeTokens["typography"] = [
       "Space Grotesk carries every paragraph and label — the clean grotesque against Bodoni's glamour.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 680px; color: color-mix(in srgb, var(--dark) 65%, transparent);",
-  },
-  {
-    token: "pill-text",
-    spec: "Space Grotesk 600 · uppercase · 0.12em · in a yellow outlined pill",
-    sample: "Featured",
-    style:
-      "display: inline-block; border: 3px solid var(--dark); border-radius: 9999px; background: var(--accent-1); box-shadow: 5px 5px 0 color-mix(in srgb, var(--dark) 12%, transparent); padding: 7px 22px; font-family: var(--body); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; font-size: 14px; color: var(--dark);",
   },
 ];
 

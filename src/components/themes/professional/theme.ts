@@ -133,8 +133,33 @@ const sizeTokens: Record<string, string> = {
   "font-size-max": "7rem",
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
- *  down exactly once (matching block, future and capsule). */
+/** THE PLATE — the body every tinted panel in this theme is painted ON, written down once.
+ *
+ *  Professional's panels were a cobalt tint over NOTHING (`--primary 5%, transparent`). On the
+ *  cream canvas that reads as intended, because 95% of the panel simply IS the cream. On any
+ *  other ground it is a 5% film: a card on a saturated slide ground showed as its hairline and
+ *  nothing else, which is the whole point of a card gone. So the tint now sits on a half-opaque
+ *  WHITE — the role the palette already names "cards" (--light) — and the ground tints the panel
+ *  through it instead of replacing it.
+ *
+ *  55% is the same weight future gives its own plate (`--muted-3 55%`), the two themes' panels
+ *  being the same object in different keys; it is the ONE number that sets how much a panel
+ *  hides its ground, so tune opacity here rather than per skin. It stays translucent on purpose:
+ *  opaque white would make every frame a stack of paper cut-outs, and this theme's authority
+ *  comes from the canvas showing through. A skin adds its own cobalt ON this — `color-mix(…
+ *  var(--primary) 5%, var(--plate))` — so the emphasis steps (5 → 10 → 14%) still read as depth
+ *  of the one hue.
+ *
+ *  It lives in `:root` rather than frame.css because a component previewed BARE in the showcase
+ *  gets `theme.css` and its own skin but no frame base (engine/mount.ts), and a panel whose plate
+ *  resolved to nothing there would preview as the film this replaces. */
+const surfaceTokens: Record<string, string> = {
+  plate: "color-mix(in srgb, var(--light) 55%, transparent)",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` + `surfaceTokens` — every hex,
+ *  every size and the one panel surface written down exactly once (matching block, future and
+ *  capsule). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
@@ -143,33 +168,29 @@ const tokensCss = `:root {\n${[
   ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
+  ...Object.entries(surfaceTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
 ].join("\n")}\n}\n`;
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
-// is not a skin). Cobalt is the ONE accent, so it meets type on the metric figure, the eyebrow and
-// the CTA; headlines stay near-black.
+// is not a skin). Cobalt is the ONE accent and it never lands on type here — headlines stay
+// near-black serif, body stays muted gray; the accent is carried by numerals, pills, rules and fills.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Libre Baskerville 700 · serif · near-black — hero titles & the biggest line on a frame",
     sample: "Measured.",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 76px; color: var(--dark);",
   },
   {
-    token: "eyebrow",
-    spec: "IBM Plex Sans 600 · uppercase · 0.08em · cobalt — section kickers over a heading",
-    sample: "Executive Summary",
+    token: "title",
+    spec: "Libre Baskerville 700 · serif · near-black — the headline on every content frame",
+    sample: "Built on Evidence",
     style:
-      "display: inline-block; border-radius: 9999px; background: color-mix(in srgb, var(--primary) 6%, transparent); padding: 8px 20px; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--primary);",
-  },
-  {
-    token: "metric-value",
-    spec: "IBM Plex Sans 600 · tabular · cobalt — the ONE place colour meets type: stats, counts, prices",
-    sample: "$24.3M",
-    style:
-      "font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-size: 64px; color: var(--primary);",
+      "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.16; font-size: 48px; color: var(--dark);",
   },
   {
     token: "body",
@@ -178,13 +199,6 @@ const typography: ThemeTokens["typography"] = [
       "IBM Plex Sans carries every paragraph in muted gray — readable, premium, never competing with the cobalt accent or the serif headline.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 17px; line-height: 1.6; max-width: 660px; color: var(--muted-3);",
-  },
-  {
-    token: "cta",
-    spec: "IBM Plex Sans 600 · solid cobalt pill · cream label — the one saturated call to action",
-    sample: "Book a Briefing",
-    style:
-      "display: inline-block; border-radius: 9999px; background: var(--primary); padding: 12px 30px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.02em; font-size: 17px; color: var(--light);",
   },
 ];
 
@@ -195,7 +209,7 @@ const rules: ThemeTokens["rules"] = {
     "Start every frame on warm cream; a single cobalt carries every accent.",
     "Set headlines near-black at neutral tracking (a text serif cramps under negative); eyebrows cobalt, uppercase, 0.08em.",
     "Render every numeral in cobalt IBM Plex Sans 600, tabular.",
-    "Lift content with soft cobalt-TINTED cards — 5% fill, 22% hairline border, gently rounded.",
+    "Lift content with soft cobalt-TINTED cards — a 5% cobalt fill over the half-opaque plate (--plate), a 22% hairline border, gently rounded.",
     "Body in IBM Plex Sans 400, muted gray, line 1.6; the one saturated CTA is a solid cobalt pill.",
     "The ember orange is the ONE complement — reserved for the leading/positive value (chart & rank leader); never a decorative accent.",
   ],

@@ -32,8 +32,11 @@
   text-align: center;
   align-self: center;
 }
+/* The same tint-on-plate the cells below it wear (row.css) — the head and its column are one
+   object, so a head left on the bare film would be the one see-through chip in the table. */
 .comparison .ch.a {
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   color: var(--muted-3);
 }

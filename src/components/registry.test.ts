@@ -1333,8 +1333,10 @@ describe("professional theme (tripwire)", () => {
 
   test("treatment skin: stat-grid renders professional's skin, not block's or capsule's", () => {
     const html = renderScene(getTreatment("stats")(), prctx("p01-sg"));
-    // professional's soft cobalt-tinted card fill — derived, never a literal.
-    expect(html).toContain("color-mix(in srgb, var(--primary) 5%, transparent)");
+    // professional's soft cobalt-tinted card fill — derived, never a literal. The tint sits on
+    // --plate (theme.ts), not on `transparent`: over `transparent` the panel is a 5% film that
+    // vanishes on any ground but the cream it was drawn against.
+    expect(html).toContain("color-mix(in srgb, var(--primary) 5%, var(--plate))");
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's opaque stat shadow gone
     expect(html).not.toContain("color-mix(in srgb, var(--dark) 12%, transparent)"); // capsule's soft offset gone
   });
@@ -1742,7 +1744,7 @@ describe("standard theme (tripwire)", () => {
   test("treatment skin: stat-grid renders standard's skin, not professional's or creative's", () => {
     const html = renderScene(getTreatment("stats")(), sctx("st01-sg"));
     expect(html).toContain("var(--dense-scale"); // the density hook is honoured
-    expect(html).toContain("border-top: 0.125rem solid var(--accent-3)"); // the row's one rule
+    expect(html).toContain("border-top: 0.125rem solid var(--accent-3)"); // each cell's own rule
     expect(html).not.toContain("color-mix(in srgb, var(--primary) 5%, transparent)"); // professional's tint
     expect(html).not.toContain("0.5rem 0.5rem 0 var(--dark)"); // block's stat shadow
   });

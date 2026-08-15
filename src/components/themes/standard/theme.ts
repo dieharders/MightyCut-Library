@@ -167,8 +167,31 @@ const sizeTokens: Record<string, string> = {
   "font-size-max": "9.5rem",
 };
 
-/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` — every hex and every size written
- *  down exactly once (matching block, future, capsule, professional and creative). */
+/** THE TRACING-PAPER PLATE — the one wash this theme fills with, written down once.
+ *
+ *  Standard draws rather than fills: the ledger, the matrix and the timeline are hairlines on
+ *  bare stone, and the only things that take a surface are the ones that must SEPARATE from
+ *  whatever is behind them. That wash used to be `--light 30%` over `transparent`, which is
+ *  calibrated for the sandstone canvas alone — 30% white on near-white stone is the barely-there
+ *  lift the theme wants, but on a dark or saturated slide ground the same 30% is a grey veil,
+ *  and a card's ink title and gray body sink into it. 70% keeps the ground tinting the paper
+ *  (this is still a wash, not an opaque tile — the stone shows through and the frame is still
+ *  drawn on, not stacked on) while holding a light plate under the type on ANY ground.
+ *
+ *  The DIAGRAM's fills are deliberately not this: `.cpuck` and `.hub` mix the wash into
+ *  `--ground` instead of into `transparent`, so they are already fully opaque and cannot be
+ *  washed out by the ground — they stay at 30%, which is the value that reads as bare stone
+ *  inside a hairline. See cluster-node.css.
+ *
+ *  In `:root` rather than frame.css because a component previewed BARE in the showcase gets
+ *  `theme.css` and its own skin but no frame base (engine/mount.ts). */
+const surfaceTokens: Record<string, string> = {
+  plate: "color-mix(in srgb, var(--light) 70%, transparent)",
+};
+
+/** :root, DERIVED from `palette` + `fontTokens` + `sizeTokens` + `surfaceTokens` — every hex,
+ *  every size and the one paper wash written down exactly once (matching block, future, capsule,
+ *  professional and creative). */
 const tokensCss = `:root {\n${[
   ...palette.map((p) => `  --${p.varName}: ${p.hex.toLowerCase()};`),
   ...Object.entries(fontTokens).map(
@@ -177,33 +200,29 @@ const tokensCss = `:root {\n${[
   ...Object.entries(sizeTokens).map(
     ([name, value]) => `  --${name}: ${value};`,
   ),
+  ...Object.entries(surfaceTokens).map(
+    ([name, value]) => `  --${name}: ${value};`,
+  ),
 ].join("\n")}\n}\n`;
 
 // Typography — the type roles (frame-showcase.html TYPOGRAPHY section). `style` is the
 // self-contained inline CSS the showcase renders each live sample with (px is fine here — a sample
-// is not a skin). The whole ramp is two faces and three colours: Playfair/ink for what declares,
-// Inter/gray for what explains, Inter/brownstone for what labels. Colour never carries emphasis.
+// is not a skin). The whole ramp is two faces and two colours: Playfair/ink for what declares and
+// Inter/gray for what explains. Colour never carries emphasis.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Playfair Display 700 · sentence case · line 1.04 — the cover and closing statement, and nothing else",
     sample: "Considered.",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: 0; line-height: 1.04; font-size: 92px; color: var(--dark);",
   },
   {
-    token: "heading",
+    token: "title",
     spec: "Playfair Display 600 · sentence case · line 1.1 — the headline on every content frame",
     sample: "Drawn in one line",
     style:
       "font-family: var(--disp); font-weight: 600; letter-spacing: 0; line-height: 1.1; font-size: 56px; color: var(--dark);",
-  },
-  {
-    token: "figure",
-    spec: "Playfair Display 600 · ink · line 1 — a stat figure, a bar value, an agenda numeral; the serif does the numbers too",
-    sample: "24.3",
-    style:
-      "font-family: var(--disp); font-weight: 600; line-height: 1; font-size: 76px; color: var(--dark);",
   },
   {
     token: "body",
@@ -212,13 +231,6 @@ const typography: ThemeTokens["typography"] = [
       "Inter carries every paragraph in warm gray — readable, recessive, never competing with the serif statement above it.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-3);",
-  },
-  {
-    token: "label",
-    spec: "Inter 500 · uppercase · 0.22em · brownstone — every eyebrow, stat label, column head and counter; no chip, no fill",
-    sample: "Section · Eyebrow",
-    style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.22em; font-size: 15px; color: var(--primary);",
   },
 ];
 

@@ -47,7 +47,9 @@
   padding: 0.875rem 1rem;
   border-radius: 0.875rem;
   text-align: center;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  /* The same tint-on-plate the marks below it wear (matrix-row.css) — see comparison.css. */
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   color: var(--muted-3);
 }

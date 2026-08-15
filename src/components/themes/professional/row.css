@@ -13,13 +13,15 @@
   color: var(--dark);
   align-self: center;
 }
-/* Each cell is a soft cobalt-tinted capsule of copy: a faint 5% fill, a hairline cobalt border,
-   gently rounded. The "our approach" cell (.cell.b) reads as the answer — a stronger 10% tint and
-   near-black text. No shadow. */
+/* Each cell is a soft cobalt-tinted capsule of copy: a faint 5% fill over the PLATE (theme.ts),
+   a hairline cobalt border, gently rounded. The "our approach" cell (.cell.b) reads as the
+   answer — a stronger 10% tint on the same plate and near-black text. No shadow. Both cells
+   frost: the pair differs in tint depth, never in surface. */
 .row .cell {
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   padding: 1.125rem 1.5rem;
   font-family: var(--body);
   font-weight: 600;
@@ -29,7 +31,7 @@
   align-self: center;
 }
 .row .cell.b {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, var(--plate));
   color: var(--dark);
   font-weight: 500;
 }

@@ -188,37 +188,24 @@ const displayBase =
   "font-family: var(--disp); text-transform: uppercase; color: var(--dark);";
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display-hero",
+    token: "heading",
     spec: "Archivo Black · uppercase · line 0.86 · −0.02em — the cover word and nothing else",
     sample: "Loud.",
     style: `${displayBase} line-height: 0.86; letter-spacing: -0.02em; font-size: 128px;`,
   },
   {
-    token: "display-md",
+    token: "title",
     spec: "Archivo Black · uppercase · line 0.92 · −0.01em — section headlines on every content frame",
     sample: "Make It Move",
     style: `${displayBase} line-height: 0.92; letter-spacing: -0.01em; font-size: 76px;`,
   },
   {
-    token: "stat-num",
-    spec: "Archivo Black · line 0.88 — the figure on a stat plate, a step numeral, a bar value",
-    sample: "240%",
-    style: `${displayBase} line-height: 0.88; font-size: 88px;`,
-  },
-  {
-    token: "body-lg",
+    token: "body",
     spec: "Space Grotesk 400 · line 1.4 · left-aligned — the reading ramp; it explains while the display declares",
     sample:
       "Body copy sits in Space Grotesk — left-aligned, never centred. It explains while the display type declares.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 24px; line-height: 1.4; max-width: 760px; color: var(--muted-3);",
-  },
-  {
-    token: "mono-kicker",
-    spec: "JetBrains Mono · uppercase · 0.14em · cream on an ink plate — the inverted kicker-block that opens a frame",
-    sample: "Fig. 02 — Type Specimen",
-    style:
-      "display: inline-block; background: var(--dark); color: var(--muted-1); padding: 8px 18px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: 22px;",
   },
 ];
 

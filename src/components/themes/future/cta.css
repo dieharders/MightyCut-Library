@@ -4,6 +4,10 @@
   align-items: center;
   border: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
   background: color-mix(in srgb, var(--primary) 10%, transparent);
+  /* Future's one glass blur (see card.css). The pill is 10% cyan over nothing — the thinnest
+     plate in the theme — so it is the one that most needs the frost: unblurred, the closing
+     plate's constellation runs straight through the label it is meant to sit behind. */
+  backdrop-filter: blur(0.75rem);
   box-shadow: 0 0 3rem color-mix(in srgb, var(--primary) 28%, transparent);
   border-radius: 9999px;
   padding: 2rem 5rem;

@@ -426,12 +426,24 @@ still keeps the render correct.
 
 ### Typography — your type scale
 
-`ThemeTokens.typography` is your theme's own scale: an array of type ROLES (block and future
-both ship five — display, section heading, stat figure, body, label), each with a token name,
+`ThemeTokens.typography` is your theme's own scale: an array of type ROLES, each with a token name,
 a human spec line, a sample string, and self-contained inline CSS the showcase renders live.
 It documents the scale and drives the showcase Typography section; the actual sizes your
-slides use live in your skins. Sizes and weights are yours to choose — nothing is shared here
-but the shape of the field.
+slides use live in your skins.
+
+The token NAMES are standardised — every theme ships exactly these three, in this order of
+size:
+
+| token     | the role                                                     |
+| --------- | ------------------------------------------------------------ |
+| `heading` | the cover word / the biggest line on any frame               |
+| `title`   | the headline on a content frame                              |
+| `body`    | paragraphs & supporting copy                                 |
+
+That is so the showcase Typography table reads the same whichever theme is selected, and a
+role can be compared theme-to-theme. Everything BEHIND a name is yours: the face, the size,
+the case, the tracking, the colour. Block's `heading` is Inter 900 uppercase at 80px; standard's
+is Playfair 700 sentence-case at 92px. Same three names, six different voices.
 
 **One exception, and it is deliberate: the HUD.** `primitives/hud/geometry.css` pins
 `.hud-brand-name` and `.hud-counter-item` to `--font-size-md` and `.hud-tagline` to
@@ -816,7 +828,7 @@ export const neonTheme: ThemeTokens = {
   },
   // templates: { stat: statTemplate },   // only where CSS can't reach the structure
   palette,
-  typography, // 5 roles — see block/theme.ts for the shape
+  typography, // heading / title / body — see block/theme.ts for the shape
   rules, // do / dont bullets for the showcase
   examples, // per-treatment on-theme sample copy (showcase only)
   decorations: [...NEON_DECORATION_COMPONENTS],

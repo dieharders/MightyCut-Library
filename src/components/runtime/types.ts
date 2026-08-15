@@ -36,7 +36,10 @@ export type PaletteSwatch = {
 /** One typographic role — token name, human spec line, a live sample, and the
  *  inline CSS that styles the sample in the showcase Typography section. */
 export type TypeSpec = {
-  /** Token id, e.g. "heading-xl". */
+  /** Token id. STANDARDISED across every theme — "heading", "title", "body", in that
+   *  order of size — so the showcase reads as one table whichever theme is selected and
+   *  a role can be compared theme-to-theme. The FACE, size, case and colour behind each
+   *  name are the theme's own; only the names are shared. */
   token: string;
   /** Human-readable spec line, e.g. "Inter 900 · uppercase · −0.03em". */
   spec: string;

@@ -14,7 +14,13 @@
       color-mix(in srgb, var(--dark) 16%, transparent)
     ),
     color-mix(in srgb, var(--muted-3) 55%, transparent);
-  backdrop-filter: blur(2px);
+  /* THE FROST IS THE GLASS. The plate is only 55% opaque, so without a blur behind it the
+     constellation reads straight through the panel and the card looks like tinted film rather
+     than glass — the theme's own rule is "translucent navy, BLUR, a thin hairline". 0.75rem is
+     future's one glass blur, the value the plot panel already frosts at, so every panel in the
+     theme diffuses its backdrop by the same amount; the 2px this used to carry was a px
+     off-grid AND far too little to read at the frame's scale. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 1.25rem;
   padding: 2.375rem 2.375rem 2.625rem;
   display: flex;

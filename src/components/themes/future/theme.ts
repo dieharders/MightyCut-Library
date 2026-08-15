@@ -137,25 +137,18 @@ const tokensCss = `:root {\n${[
 // self-contained inline CSS the showcase applies to each live sample.
 const typography: ThemeTokens["typography"] = [
   {
-    token: "display",
+    token: "heading",
     spec: "Space Grotesk 700 · sentence case · −0.03em · hero titles",
     sample: "Command Center.",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-size: 84px; color: var(--light);",
   },
   {
-    token: "h2",
+    token: "title",
     spec: "Space Grotesk 700 · slide headlines",
     sample: "Built for the Edge",
     style:
       "font-family: var(--disp); font-weight: 700; letter-spacing: -0.015em; font-size: 52px; color: var(--light);",
-  },
-  {
-    token: "stat-number",
-    spec: "Space Grotesk 700 · cyan · big numeric callouts",
-    sample: "99.7%",
-    style:
-      "font-family: var(--disp); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-size: 60px; color: var(--primary);",
   },
   {
     token: "body",
@@ -164,13 +157,6 @@ const typography: ThemeTokens["typography"] = [
       "Inter carries every paragraph in cool muted blue — readable, recessive, never competing with the cyan statement above it.",
     style:
       "font-family: var(--body); font-weight: 400; font-size: 18px; line-height: 1.55; max-width: 680px; color: var(--muted-1);",
-  },
-  {
-    token: "label",
-    spec: "JetBrains Mono 500 · uppercase · wide track · cyan — eyebrows, counters, HUD",
-    sample: "Section · Eyebrow",
-    style:
-      "font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; font-size: 13px; color: var(--primary);",
   },
   // NOTE: the quote glyph is deliberately NOT a type role — it belongs solely to the quote
   // treatment (templates/quote.html's .qmark + quote.css). Keep this list to the general roles

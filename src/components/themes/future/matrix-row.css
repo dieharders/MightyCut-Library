@@ -24,6 +24,11 @@
   border: 0.125rem solid color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 55%), transparent);
   background: color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 8%), transparent);
   box-shadow: 0 0 calc(var(--mhi, 0) * 1.875rem) color-mix(in srgb, var(--primary) 22%, transparent);
+  /* Future's one glass blur (see card.css), and MIXED OFF THE SAME FLAG the plate is: an unlit
+     stub is bare type on the ground, so frosting it unconditionally would paint a rectangle of
+     diffused backdrop where the row is meant to have no surface at all. blur(0) is a no-op, so
+     the lit row is the only one that reads as glass — one declaration, no second rule. */
+  backdrop-filter: blur(calc(var(--mhi, 0) * 0.75rem));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -55,6 +60,8 @@
 .mrow .mcell {
   border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
   background: color-mix(in srgb, var(--muted-3) 55%, transparent);
+  /* Same plate as the ledger's cell, so the same frost — see card.css. */
+  backdrop-filter: blur(0.75rem);
   border-radius: 0.875rem;
   display: grid;
   place-items: center;

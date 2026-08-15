@@ -20,7 +20,17 @@
 .mrow .ml {
   padding: 0.75rem 1.25rem;
   border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 10%), transparent);
+  /* THE PLATE SCALES OFF THE SAME FLAG THE TINT DOES. An unlit stub is bare type on the ground,
+     so it must get no plate and no frost either — otherwise every row but the recommended one
+     grows a white rectangle where it is meant to have no surface. Mixing --plate (theme.ts)
+     toward `transparent` by --mhi keeps the 55% written down in exactly one place; at 1 the mix
+     is the plate itself, at 0 it is nothing, and blur(0) is a no-op. */
+  background: color-mix(
+    in srgb,
+    var(--primary) calc(var(--mhi, 0) * 10%),
+    color-mix(in srgb, var(--plate) calc(var(--mhi, 0) * 100%), transparent)
+  );
+  backdrop-filter: blur(calc(var(--mhi, 0) * 0.75rem));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -53,7 +63,8 @@
 .mrow .mcell {
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  backdrop-filter: blur(0.75rem);
   display: grid;
   place-items: center;
   padding: 0.875rem;
@@ -67,7 +78,7 @@
   height: 2.25rem;
 }
 .mrow .mcell--yes {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  background: color-mix(in srgb, var(--primary) 14%, var(--plate));
   color: var(--primary);
 }
 .mrow .mcell--no {
