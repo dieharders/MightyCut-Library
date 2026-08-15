@@ -2,9 +2,9 @@
 
    Capsule's pill is already the right object for this: a neutral white tag capsule, and the one
    theme whose pill needs almost no resizing for wall use (its eyebrow inset is modest to begin
-   with). Only the type steps up a notch, because at wall scale the label is the content rather
-   than a caption above it. The same move chart makes on `bar`: the treatment owns how its
-   children sit INSIDE it, the primitive owns what they are. */
+   with). The type steps up a notch, because at wall scale the label is the content rather
+   than a caption above it, and the fill CYCLES (see below). The same move chart makes on `bar`:
+   the treatment owns how its children sit INSIDE it, the primitive owns what they are. */
 .pill-wall h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;
@@ -22,6 +22,41 @@
   padding: 0.875rem 2rem;
   font-size: var(--font-size-md);
   letter-spacing: 0.085em;
+}
+/* THE COLOUR CYCLE LIVES HERE, not in the caller — block's pill-wall.css has the full account of
+   why (the harness passes NO accent, because the four accent roles are one colour in some themes
+   and a cycled wall there renders as unreadable slabs; a theme that wants variety says so in its
+   own skin, where its palette is known). Capsule wants it: pill.css keeps the bare chip WHITE so
+   a lone eyebrow never reads as a CTA, but a wall of sixteen white capsules on the cream canvas
+   is a blank crossword, not candy. The fill is the only thing that changes — ink outline, ink
+   label and soft offset are the primitive's and stay put, which is why every one of these five
+   is legible under the same ink text.
+
+   FIVE steps, not the shared ACCENT_CYCLE's four. Capsule's candy set IS five (coral, sky,
+   yellow, mint, lavender — peach and shell are grounds, white is cards and tracks), and against
+   a wall that wraps at an even count a four-step cycle stacks the same colour into vertical
+   columns, which reads as a table. Five never aligns with an even wrap, so the repeat stays a
+   texture rather than a grid. The order is ACCENT_CYCLE's with lavender appended, so the roles
+   a reader has already met on stat dots and icon discs arrive in the same sequence here.
+
+   Each step keeps the `--pillbg` fallback the primitive states: a caller that DID pin an accent
+   on a pill still wins over the cycle, exactly as it does everywhere else the param is honoured.
+   Capsule's pills sit STRAIGHT — block pairs its cycle with a seven-step tilt, and that is
+   block's identity, not this one (stats.css says the same about the stat cards). */
+.pill-wall .pill-c:nth-child(5n + 1) {
+  background: var(--pillbg, var(--primary));
+}
+.pill-wall .pill-c:nth-child(5n + 2) {
+  background: var(--pillbg, var(--secondary));
+}
+.pill-wall .pill-c:nth-child(5n + 3) {
+  background: var(--pillbg, var(--accent-1));
+}
+.pill-wall .pill-c:nth-child(5n + 4) {
+  background: var(--pillbg, var(--accent-2));
+}
+.pill-wall .pill-c:nth-child(5n + 5) {
+  background: var(--pillbg, var(--accent-3));
 }
 .pill-wall .caption {
   font-family: var(--body);

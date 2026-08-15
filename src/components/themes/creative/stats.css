@@ -41,10 +41,16 @@
    breaks a 2- or 4-stat slide. `.row` stays qualified — the bare class is also the comparison
    `row` primitive's root. The gap is wide on purpose: the white plates each carry a 0.75rem ink
    offset, so the gutter has to clear the shadow before it reads as a gutter. */
+/* The track CAPS at the width it would take in a full 3-up row and the row centres in what's left,
+   so a one- or two-stat slide stays a plate rather than stretching into a banner (the move
+   team.css makes with its 24rem cap). At 3 the cap IS the 1fr width and at 4 free space is shared
+   out equally below it, so the canonical rows are unchanged. */
 .stat-grid .row {
+  --col-gap: 2.375rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 2.375rem;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
+  justify-content: center;
+  gap: var(--col-gap);
 }
 /* The other half of layout()'s density pair — --dense, the boolean hook at 4+ stats — is
    deliberately UNUSED here, as in block, capsule and professional: creative answers density with

@@ -8,11 +8,16 @@
   margin: 1.25rem 0 3.125rem;
 }
 .timeline .row {
+  --col-gap: 2.375rem;
   display: grid;
   /* --cols is emitted by the treatment's layout() (min(childCount, 4)); the connector in step.css
-     is positioned inside this gap — change one, change both. */
-  grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 2.375rem;
+     is positioned inside this gap — change one, change both. The track CAPS at the width it would
+     take in a full 4-up row and the row centres in what's left, so a one- or two-step slide stays
+     a step rather than stretching into a banner. At 4 the cap IS the 1fr width, so the canonical
+     row is unchanged. */
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--col-gap)) / 4)));
+  justify-content: center;
+  gap: var(--col-gap);
 }
 /* Fade the numbered discs into the future — each step dimmer than the last. Count-agnostic via
    nth-child (targets the shared step's .step-num), so it holds for any step count the builder

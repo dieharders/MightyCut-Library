@@ -30,9 +30,17 @@
    grid floor, 0.125rem: the same single weight every border, track and compass ring in the theme
    is drawn at, which is the point of having only one. */
 .stat-grid .row {
+  --col-gap: 2.875rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 2.875rem;
+  /* The track CAPS at the width it would take in a full 3-up row and the figures centre in what's
+     left, so a one- or two-stat slide stays a column rather than stretching into a banner (the
+     move team.css makes with its 24rem cap). At 3 the cap IS the 1fr width and at 4 free space is
+     shared out equally below it, so the canonical rows are unchanged. The RULE below is unaffected
+     either way — it is drawn on this row box, which stays full width; only the tracks inside it
+     narrow, which is what keeps a lone figure sitting under a full-width rule. */
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
+  justify-content: center;
+  gap: var(--col-gap);
   border-top: 0.125rem solid var(--accent-3);
   padding-top: 2.875rem;
   /* The rule's padding is SYMMETRIC here, and the bottom half is load-bearing rather than

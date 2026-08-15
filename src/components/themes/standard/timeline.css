@@ -13,12 +13,17 @@
   margin-bottom: 1.875rem;
 }
 .timeline .row {
+  --col-gap: 2.875rem;
   display: grid;
   /* --cols is emitted by the treatment's layout() (min(childCount, 4)). Unlike every sibling
      theme, nothing is drawn INTO this gap — standard's step has no connector to keep in sync with
-     it — so the gap is pure negative space and can be changed on its own. */
-  grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 2.875rem;
+     it — so the gap is pure negative space and can be changed on its own. The track CAPS at the
+     width it would take in a full 4-up row and the steps centre in what's left, so a one- or
+     two-step slide stays a column rather than stretching into a banner; at 4 the cap IS the 1fr
+     width, so the canonical row is unchanged. The rule below spans this row box either way. */
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--col-gap)) / 4)));
+  justify-content: center;
+  gap: var(--col-gap);
   /* THE timeline: a single hairline in the Line brownstone, the same 0.125rem weight every border, rule
      and ring in the theme wears, with the row breathing below it. It spans the whole row rather
      than each column, and that continuity is what makes four separate steps read as one sequence

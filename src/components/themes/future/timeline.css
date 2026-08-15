@@ -18,9 +18,15 @@
     color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
+/* Tracks CAP at the width they'd take in a full 4-up row and the row centres in what's left, so a
+   one- or two-step slide stays a panel rather than stretching into a banner. At 4 the cap IS the
+   1fr width, so the canonical row is unchanged. --step-gap does double duty here: it is the gutter
+   AND the width step.css reaches into for the arrow connector, so the cap is stated off it rather
+   than off a second copy of the number. */
 .timeline .row {
   --step-gap: 2.875rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--step-gap)) / 4)));
+  justify-content: center;
   gap: var(--step-gap);
 }

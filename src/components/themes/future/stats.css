@@ -18,9 +18,16 @@
     color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
   );
 }
+/* Tracks CAP at the width they'd take in a full 3-up row and the row centres in what's left, so a
+   one- or two-stat slide stays a panel rather than stretching into a banner (the move team.css
+   makes with its 24rem cap). At 3 the cap IS the 1fr width and at 4 free space is shared out
+   equally below it, so the canonical rows are unchanged. The percentage resolves against the
+   content box, so the side padding below is already out of the sum. */
 .stat-grid .row {
+  --col-gap: 3.625rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 3.625rem;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, calc((100% - 2 * var(--col-gap)) / 3)));
+  justify-content: center;
+  gap: var(--col-gap);
   padding: 0 1.25rem;
 }

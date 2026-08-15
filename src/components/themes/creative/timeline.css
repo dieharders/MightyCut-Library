@@ -41,10 +41,15 @@
    is what the author's step count actually drives. The gutter is the reference's 1.4cqw: each
    card carries a 0.75rem ink offset into it, leaving 0.875rem of oat still showing between one
    card's shadow and its neighbour's edge — enough that the offset reads as depth, not as a join. */
+/* The track CAPS at the width it would take in a full 4-up row and the row centres in what's left,
+   so a one- or two-step slide stays a card rather than stretching into a banner. At 4 the cap IS
+   the 1fr width, so the canonical row is unchanged. */
 .timeline .row {
+  --col-gap: 1.625rem;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 1.625rem;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, calc((100% - 3 * var(--col-gap)) / 4)));
+  justify-content: center;
+  gap: var(--col-gap);
 }
 /* NO HEIGHT FLOOR — deliberately. The reference's 30cqh lived here as `min-height: 20.25rem`, a
    CONTENT-box minimum (the card states no box-sizing, so padding and outline added to it and the
