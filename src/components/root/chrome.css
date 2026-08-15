@@ -10,8 +10,8 @@
  * links it.
  *
  * THE SAFE AREA IS NOT DEFINED HERE. It is `themes/safe-area.css`, one file for all six themes,
- * and the runtime pushes it into every scene (`@safe-area` in runtime/treatment.ts) — 6.875rem top
- * (110px), 13.5rem bottom (216px), 6rem sides (96px) at DESIGN_CANVAS. This header used to print
+ * and the runtime pushes it into every scene (`@safe-area` in runtime/treatment.ts) — 6.375rem top
+ * (102px), 13.5rem bottom (216px), 6rem sides (96px) at DESIGN_CANVAS. This header used to print
  * a SECOND set of numbers (140 / 200 / 80) under a "must match the root markup" warning, and all
  * three disagreed with the real ones, so the next person to place root chrome would have sized
  * against a safe area no frame has ever used. Its parenthetical was wrong twice over besides —

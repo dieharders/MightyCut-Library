@@ -14,12 +14,13 @@
  * The vertical is identical in every theme and on every treatment:
  *
  *   --safe-top     clears the HUD band. The band is ONE height everywhere — brand row and title
- *                  chip are both 3rem boxes on a 3rem top edge, ending at 6rem
+ *                  chip are both 3rem boxes on a 2.5rem top edge, ending at 5.5rem
  *                  (primitives/hud/geometry.css). The remaining 0.875rem reserves for the
  *                  deepest hard shadow in the set, creative's 0.625rem offset, which is paint
  *                  and hangs below the band. It was 8.5rem against a band that opened at
- *                  4.625rem; the band moved up to sit closer to the canvas edge and this number
- *                  followed it, which is the whole of what that move bought the frames.
+ *                  4.625rem; the band moved up to the canvas edge — to future's corner brackets,
+ *                  which is where the shared file settled it — and this number followed, which is
+ *                  the whole of what that move bought the frames.
  *   --safe-bottom  clears the caption rail (root/chrome.css, `bottom: 4.875rem`) plus a
  *                  two-line caption box. The rail is theme-agnostic, so this is too. It did NOT
  *                  move when the counter and the progress rail did (5rem → 3.375rem, 3.625rem →
@@ -51,7 +52,7 @@
  * rather than a second, competing definition of where the frame's edges are. */
 
 .mc-frame {
-  --safe-top: 6.875rem;
+  --safe-top: 6.375rem;
   --safe-side: 6rem;
   --safe-bottom: 13.5rem;
 }

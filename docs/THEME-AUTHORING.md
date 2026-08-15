@@ -437,7 +437,7 @@ but the shape of the field.
 `.hud-brand-name` and `.hud-counter-item` to `--font-size-md` and `.hud-tagline` to
 `--font-size-xs`, and your `hud.css` states no font-size at all. That is not the type scale
 leaking into shared code — it is the same standardisation as the positions beside it. The HUD is
-**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 6rem band
+**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 5.5rem band
 that `--safe-top` reserves for sight-unseen (`themes/safe-area.css`), and the band's height is
 just `max(the 3rem boxes, the type in them)`. A skin free to set its own size there is a skin
 free to move the number every frame in every theme is padded against — which is exactly what

@@ -28,20 +28,29 @@
  * Nothing else here is a skin's to restate, and in particular the two 3rem boxes the band height
  * is measured from are not. (§6 of docs/THEME-AUTHORING.md carries the same table.)
  *
- * THE BAND IS 6rem: brand row and title chip are both 3rem boxes on a 3rem top edge. Hard
+ * THE BAND IS 5.5rem: brand row and title chip are both 3rem boxes on a 2.5rem top edge. Hard
  * shadows are paint and hang below it (creative's 0.625rem is the deepest), which is what the
- * 6.875rem `--safe-top` reserves for.
+ * 6.375rem `--safe-top` reserves for.
  *
- * THE TOP EDGE WAS 4.625rem AND THE BOTTOM CHROME SAT 1.625rem HIGHER, and both moved outward by
- * that same 1.625rem so the frames get the room instead. The chrome is a label on the deck, not a
- * box around it, so it belongs as close to the canvas edge as the safe area can still reserve
- * for: brand and chip now open at 3rem, the counter rests at 3.375rem and the rail at 2rem. The
- * top move is the one that pays — `--safe-top` follows the band down to 6.875rem, so every frame
- * in every theme gains 1.625rem of headroom. The bottom move is presentation only: `--safe-bottom`
- * clears the CAPTION RAIL (root/chrome.css, `bottom: 4.875rem`), which is deeper than either piece
- * of bottom chrome was before the move and is deliberately left where it is, so 13.5rem does not
- * change. Keep the two 3rem boxes and the ≤0.75rem rail whatever else moves — those are the
- * budget; the offsets below are just where the budget is spent.
+ * THE TOP EDGE WAS 4.625rem AND THE BOTTOM CHROME SAT 1.625rem HIGHER, and both moved outward so
+ * the frames get the room instead. The chrome is a label on the deck, not a box around it, so it
+ * belongs as close to the canvas edge as the safe area can still reserve for: brand and chip now
+ * open at 2.5rem, the counter rests at 3.375rem and the rail at 2rem. The top move is the one
+ * that pays — `--safe-top` follows the band up to 6.375rem, so every frame in every theme gains
+ * 2.125rem of headroom. The bottom move is presentation only: `--safe-bottom` clears the CAPTION
+ * RAIL (root/chrome.css, `bottom: 4.875rem`), which is deeper than either piece of bottom chrome
+ * was before the move and is deliberately left where it is, so 13.5rem does not change. Keep the
+ * two 3rem boxes and the ≤0.75rem rail whatever else moves — those are the budget; the offsets
+ * below are just where the budget is spent.
+ *
+ * 2.5rem IS FUTURE'S CORNER BRACKET, and it is shared for the same reason every other number
+ * here is. That theme draws an L at each corner of the canvas (themes/future/hud.css, an SVG
+ * mask on the 1920×1080 design canvas) whose arms sit at y=40 — 2.5rem at the design canvas's
+ * 16px root, since the mask scales with the frame. A band opening at 3rem put the wordmark half
+ * a rem below a bracket that is visibly pointing at it, in the one theme that draws the corner
+ * explicitly. Aligning the two is a future decision that the OTHER FIVE themes take as well:
+ * a per-theme top edge is precisely the drift this file was written to end, and 2.5rem is a
+ * better edge for all of them — the brackets only make the argument visible.
  *
  * Two consequences worth knowing. The mark and the title chip are BORDER-BOX, so a theme's
  * outline weight — block's 0.375rem, creative's 0.5rem — changes its look without changing the
@@ -85,7 +94,7 @@
  * signature. Clipping belongs on the text spans, which is where it is. */
 .hud .hud-brand {
   position: absolute;
-  top: 3rem;
+  top: 2.5rem;
   left: 8.25rem;
   display: flex;
   align-items: center;
@@ -182,7 +191,7 @@
  * chip out of the left half of the band where the brand row lives. */
 .hud .hud-title {
   position: absolute;
-  top: 3rem;
+  top: 2.5rem;
   right: 8.25rem;
   box-sizing: border-box;
   height: 3rem;
