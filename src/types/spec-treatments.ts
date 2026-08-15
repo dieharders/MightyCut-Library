@@ -99,7 +99,7 @@ export const LOOKS = [
   {
     name: "trend-line",
     label: "Trend line",
-    when: "2-8 points over an ordered sequence drawn as a line — a trend through time, never unordered categories.",
+    when: "2-8 points over an ordered sequence drawn as a line — a trend through time, never unordered categories. Up to 4 series can share the graph when data need comparison.",
   },
   {
     name: "pill-wall",

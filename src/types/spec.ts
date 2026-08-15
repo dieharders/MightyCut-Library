@@ -245,6 +245,11 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     header: HeaderSpecSchema,
     ...seriesFields,
   }),
+  // …and trend-line ALONE can overlay a second reading of the same axis. The other two cannot:
+  // a bar owns its slot, so a second set of values means a second bar per category (a grouped
+  // chart nothing in the library draws), while a polyline is a shape ACROSS the categories and a
+  // second one is simply a second shape in the same box. That is the whole difference, and it is
+  // why the extra lines live on this member instead of in `seriesFields`.
   z.object({
     id,
     kind: z.literal("trend-line"),
@@ -252,6 +257,31 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     background,
     header: HeaderSpecSchema,
     ...seriesFields,
+    seriesName: z
+      .string()
+      .min(1)
+      .max(28)
+      .optional()
+      .describe(
+        'Names the line `series` draws, e.g. "Our platform" — shown in the key. REQUIRED when `lines` adds more, pointless without them (one line needs no key)',
+      ),
+    lines: z
+      .array(
+        z.object({
+          name: z.string().min(1).max(28).describe('This line\'s name in the key, e.g. "Status quo"'),
+          values: z
+            .array(z.number())
+            .min(2)
+            .max(8)
+            .describe("One value per point in `series`, in the same order — same length, same categories"),
+        }),
+      )
+      .min(1)
+      .max(3)
+      .optional()
+      .describe(
+        "ADDITIONAL lines drawn over the same categories — use when the point is a COMPARISON between series (us against the field, this year against last). Omit for a single trend. Max 3 here, i.e. 4 lines in all",
+      ),
   }),
   z.object({
     id,
@@ -673,6 +703,34 @@ export const VideoSpecSchema = z
         if (row.values.length !== slide.criteria.length) {
           addIssue(ctx, ["slides", i, "rows", r, "values"], `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`);
         }
+      }
+    }
+    // OVERLAID LINES READ ONE X-AXIS AND ONE KEY, and both facts are checkable only here — the
+    // extra lines are validated against their own bounds, never against `series`.
+    //
+    // A line with a different number of values is the same defect the matrix rows above have: the
+    // categories drawn are `series`', so a shorter line puts its third point under the fourth
+    // label and the chart quietly means nothing (the treatment refuses it too, but by then it is
+    // a failed build rather than a field the writer can fix). And an overlay whose FIRST line is
+    // unnamed prints a key reading "Series 1" beside two real names — the one entry that most
+    // needs a name is the one `lines` has no slot for, so it is required from the slide.
+    for (const [i, slide] of spec.slides.entries()) {
+      if (slide.kind !== "trend-line" || !slide.lines?.length) continue;
+      for (const [l, line] of slide.lines.entries()) {
+        if (line.values.length !== slide.series.length) {
+          addIssue(
+            ctx,
+            ["slides", i, "lines", l, "values"],
+            `line '${line.name}' has ${line.values.length} values but the chart has ${slide.series.length} points — every line is drawn on ONE x-axis, so it needs one value per category`,
+          );
+        }
+      }
+      if (!slide.seriesName) {
+        addIssue(
+          ctx,
+          ["slides", i, "seriesName"],
+          "`lines` overlays a named series on this one, so `seriesName` has to name it too — the key labels every line or none",
+        );
       }
     }
     const lineIds = new Set<string>();
