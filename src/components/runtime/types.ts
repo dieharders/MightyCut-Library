@@ -211,6 +211,14 @@ export interface ComponentInstance {
   jsonSchema(): object;
   /** The parsed example params (drives showcase render + defaults). */
   defaults(): unknown;
+  /** THIS instance's resolved params — exactly what `buildNode` will render, schema defaults
+   *  applied. Paired with `withParams` for the one caller that needs it: a treatment reconciling
+   *  a child SET (see `TreatmentDef.reconcileChildren`). Everything else builds and forgets. */
+  params(): unknown;
+  /** Merge `patch` over this instance's params. The merge is over the params as WRITTEN (or the
+   *  example, for a no-arg instance) and is re-validated at build, so a patch that breaks the
+   *  schema fails loud rather than rendering something the schema forbids. */
+  withParams(patch: Record<string, unknown>): this;
   /** Replace this instance's default animations. */
   withAnim(anims: AnimDescriptor[]): this;
   /** Override the whole-element entrance transition (animIn + timing). */

@@ -101,6 +101,27 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
    * an instance no longer exposes its params, and those two paths are the library's own.
    */
   childrenIssue?: (p: z.infer<S>, children: readonly ChildParams[]) => string | null;
+  /**
+   * Make the child SET agree on something no child can decide alone — the treatment's one
+   * chance to reach across its children before any of them is built.
+   *
+   * `childrenIssue` is the same blind spot seen as VALIDATION, and validation is not always the
+   * answer. `trend-line` overlays its plots on one graph, so the series share a y-axis: two
+   * children each declaring their own `max` are not incoherent, they are two halves of a scale
+   * nobody has resolved yet, and refusing them would make the ordinary act of adding a second
+   * line an error to fix by hand. So this hook resolves it instead — union the scales, patch
+   * both children (`ComponentInstance.withParams`), and the axis they now share is true of both.
+   *
+   * Runs on EVERY path into the treatment, `defaultChildren` included, and that is the whole
+   * difference from `childrenIssue`: an unvalidated set merely might be wrong, while an
+   * unreconciled one IS wrong, and the library's own defaults have no more claim to being
+   * pre-reconciled than the editor's children do.
+   *
+   * It mutates the instances in place rather than returning a new list, because an instance
+   * carries more than its params — a per-child `withTransition` from `compose.ts`, a `withAnim`
+   * override — and rebuilding one from its params alone would silently drop them.
+   */
+  reconcileChildren?: (children: readonly ComponentInstance[], p: z.infer<S>) => void;
   /** Own slot fills (headline, caption, …). */
   fill?: (p: z.infer<S>) => Record<string, string | null | undefined>;
   /** Responsive layout: CSS custom properties from the child count. */
@@ -165,6 +186,11 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
       ground: def.ground,
       jsonSchema,
       defaults: () => def.schema.parse(def.example),
+      params: () => parse(raw),
+      withParams(patch) {
+        raw = { ...((raw ?? def.example) as Partial<z.input<S>>), ...patch } as Partial<z.input<S>>;
+        return this;
+      },
       withAnim(anims) {
         animOverride = anims;
         return this;
@@ -191,6 +217,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         stampAnims(root, ctx.idPrefix); // own data-anim (headline, …)
 
         const children = added ?? def.defaultChildren(p);
+        // Cross-child reconciliation BEFORE anything is built, so a child that has to know
+        // about its siblings (a shared scale, a shared colour cycle) is patched while its params
+        // are still patchable. See `reconcileChildren`.
+        def.reconcileChildren?.(children, p);
         // A treatment that reveals its own children forces their entrance here rather than
         // trusting whoever built them to have known (see `childAnimIn`). Applied to the
         // defaults too, so there is ONE statement of the rule instead of one per path.

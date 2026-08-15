@@ -28,6 +28,56 @@
  * the frame's content width the 1000:400 viewBox is ~700px tall, which pushed the headline into
  * the HUD band and the caption through the progress bar. */
 
+/* N SERIES, ONE GRAPH — the overlay.
+ *
+ * A plot is one series (a polyline connects its points, so the series cannot be split across
+ * children — see plot/schema.ts), which makes a second series a second `.plot`. Left in flow
+ * those stack VERTICALLY: adding a line to a chart drew a whole second chart underneath it,
+ * complete with its own gridlines, its own axis and its own labels. Every plot goes in the same
+ * grid cell instead, and the layers above the first drop the chrome the first one already draws.
+ *
+ * IT LIVES HERE, in the plot's own sheet, rather than in trend-line's. `.plotbox` is the
+ * treatment's container, but a treatment's `css` is a FALLBACK — `theme.skins[name] ?? def.css`,
+ * an either/or, not the JOIN a component gets — and every theme ships a trend-line skin, so a
+ * rule written there would never be emitted at all. The alternative is six copies in six skins,
+ * which is the exact duplication the top of this file exists to have ended. What stacks a plot
+ * is plot geometry wherever the box came from.
+ *
+ * THE LAYERS ALIGN BECAUSE THEIR GUTTERS DO. Column 1 is sized per-plot by that plot's own
+ * hidden tick sizer, so two layers whose ticks read differently would start their plot areas at
+ * different x and draw the same point at two places. That is not left to chance: the treatment
+ * unions `min`, `max` and `decimals` across the children before any of them is built
+ * (trend-line/index.ts, `reconcileChildren`), and a tick's text is a function of exactly those
+ * three — so the layers render identical strings into identical gutters. Which is also why the
+ * SIZERS stay while the visible ticks and labels go: a hidden sizer is the measurement, and a
+ * layer that stopped measuring would collapse its own gutter and slide sideways.
+ *
+ * ONE definite column rather than an `auto` track, because `.plot` sizes itself with
+ * `width: 100%` (see below) — against an intrinsically-sized track that is a percentage
+ * resolving against a track sized by its contents, and the plot has no in-flow contents to
+ * size from. */
+.plotbox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.plotbox > .plot {
+  grid-area: 1 / 1;
+}
+/* The chrome the FIRST layer already draws: the gridlines, the tick numbers and the category
+   row. Redrawn per layer they do not merely waste ink — identical strokes stacked N deep paint
+   heavier than the ruling they are meant to be, and N label rows overprint into an unreadable
+   smear. `display: none` rather than `visibility: hidden`: all three are absolutely positioned
+   and contribute no layout, so there is nothing to preserve by keeping their boxes. */
+.plotbox > .plot:nth-child(n + 2) .pframe,
+.plotbox > .plot:nth-child(n + 2) .ptick,
+.plotbox > .plot:nth-child(n + 2) .plab {
+  display: none;
+}
+.plotbox > .plot:nth-child(n + 2) .parea {
+  background: none;
+  backdrop-filter: none;
+}
+
 /* TWO COLUMNS, and the first is sized by its CONTENT. The y-axis gutter has to be exactly as
    wide as the widest tick — a fixed rem guess either clips a long figure or leaves a hole beside
    a short one — and `auto` gets that from the hidden sizer in .pyaxis for free. The category
@@ -119,6 +169,14 @@
    tick numbers. The two end points anchor INWARD instead (0% / -100%, plot/index.ts), so nothing
    crosses the edge and no extra padding is spent covering something that no longer happens. */
 .plot .pval {
+  /* THE FIGURES ARE THE SINGLE-SERIES CASE. One line has no other way to state its numbers, so
+     it prints them on its points. Several lines DO — the y-axis — and printing them anyway is
+     not merely redundant: the labels are centred on their dots and every series shares the box,
+     so two points that pass close print their figures through each other, in the same ink, with
+     nothing to say which line either belongs to. The treatment turns them off from its child
+     count (trend-line/index.ts, `layout`), which is what that hook is for; a plot on its own
+     never sees the property and keeps its figures. */
+  display: var(--pfig, block);
   position: absolute;
   bottom: 100%;
   left: 50%;

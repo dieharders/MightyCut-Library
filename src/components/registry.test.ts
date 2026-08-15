@@ -505,6 +505,82 @@ describe("new library components", () => {
       expect(() => build("plot", { labels: ["a", "b"], values: [5, 5], max: 5, min: 5 })).not.toThrow();
     });
   });
+
+  // ------------------------------------------------------------- N series, ONE graph ---
+  // A plot is one series, so a second series is a second `.plot` child — and left to itself that
+  // drew a whole SECOND CHART underneath the first, with its own gridlines, axis and labels,
+  // rather than a second line on the same graph. Stacking them is CSS (plot/geometry.css); the
+  // part that can silently go wrong, and so is pinned here, is the SCALE: the layers align only
+  // because the ticks they render are identical, and a series drawn against its own `max` inside
+  // a graph labelled with another's is a chart that lies with nothing visibly broken.
+  describe("trend-line overlay", () => {
+    const overlay = (...plots: Record<string, unknown>[]) =>
+      composeTreatment({
+        treatment: "trend-line",
+        params: { headline: "Two series" },
+        children: plots.map((params) => ({ name: "plot", params })),
+      }).build(ctx("t-overlay")).html;
+
+    const A = { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 };
+    const B = { labels: ["Q1", "Q2", "Q3", "Q4"], values: [42, 68, 51, 29], max: 68 };
+    /** Every layer's ticks, in document order, as one array per `.plot`. */
+    const ticksPerPlot = (html: string): string[][] =>
+      html
+        .split('<div class="plot ') // the anim class follows it; `.plotbox` has no space
+        .slice(1)
+        .map((layer) => [...layer.matchAll(/class="ptick"[^>]*>([^<]*)</g)].map((m) => m[1]!));
+
+    test("both series render into ONE plot box", () => {
+      const html = overlay(A, B);
+      expect((html.match(/class="plotbox"/g) ?? []).length, "a second box was drawn").toBe(1);
+      expect((html.match(/class="pline"/g) ?? []).length, "a line went missing").toBe(2);
+    });
+
+    // The union, not the first child's and not the last one's: a scale that clipped either
+    // series would put a point off the graph it prints its own figure beside.
+    test("the layers share one scale — the union of what they ask for", () => {
+      const perPlot = ticksPerPlot(overlay(A, B));
+      expect(perPlot).toHaveLength(2);
+      expect(perPlot[0], "the first layer kept its own narrower scale").toEqual(["68", "34", "0"]);
+      expect(perPlot[1], "the layers disagree about the axis they share").toEqual(perPlot[0]!);
+    });
+
+    // The gutter is sized by each layer's own hidden tick sizer, so identical tick TEXT is what
+    // keeps the layers from sliding sideways against each other. `decimals` is a MINIMUM place
+    // count, which makes it part of the scale rather than a per-series preference.
+    test("a series asking for more decimals sets them for every layer", () => {
+      const perPlot = ticksPerPlot(overlay({ ...A, decimals: 0 }, { ...A, decimals: 2 }));
+      expect(perPlot[0]).toEqual(["61.00", "30.50", "0.00"]);
+      expect(perPlot[1]).toEqual(perPlot[0]!);
+    });
+
+    // Overlaid lines that cannot be told apart are not a chart. A single plot needs no accent
+    // and does not get one; an accent the author DID name survives.
+    test("overlaid series take distinct colours, and a named accent is kept", () => {
+      const colours = (html: string) => [...html.matchAll(/--pcol: var\(--([a-z0-9-]+)\)/g)].map((m) => m[1]!);
+      expect(colours(overlay(A, B))).toEqual(["primary", "secondary"]);
+      expect(colours(overlay(A, { ...B, accent: "accent-3" }))).toEqual(["primary", "accent-3"]);
+      expect(colours(overlay(A)), "a lone series was coloured it did not ask for").toEqual([]);
+    });
+
+    // A lone line prints its numbers on its points because it has no other way to state them.
+    // Overlaid, those labels are centred on their dots in one shared box and one colour, so two
+    // points passing close print through each other with nothing to say whose figure is whose —
+    // and the reconciled y-axis states the same thing once. The switch is the treatment's child
+    // count, and it is emitted ONLY for the overlay so the single-series bytes are unchanged.
+    test("the point figures come off once there is an axis shared between series", () => {
+      expect(overlay(A, B)).toContain("--pfig: none");
+      expect(overlay(A), "a lone series lost the only figures it had").not.toContain("--pfig");
+    });
+
+    // ONE x-axis: the first series' category row is the only one drawn, so series of different
+    // lengths would put two different points under the same label.
+    test("series of different lengths are refused", () => {
+      expect(() =>
+        overlay(A, { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }),
+      ).toThrow(/drawn on ONE x-axis/);
+    });
+  });
 });
 
 /** A family's variant enum as the SCHEMA sees it — what a deck is actually validated

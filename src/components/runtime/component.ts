@@ -89,6 +89,15 @@ export function component<S extends z.ZodTypeAny>(def: ComponentDef<S>): Compone
       kind: "component",
       jsonSchema,
       defaults: () => def.schema.parse(def.example),
+      params: () => parse(raw),
+      // Merged over the params as WRITTEN rather than over `parse(raw)`, so a no-arg instance
+      // keeps falling back to the example for everything the patch does not name and a written
+      // one keeps its own omissions omitted. The result is re-parsed by buildNode like any other
+      // params, so a patch the schema refuses throws there rather than rendering.
+      withParams(patch) {
+        raw = { ...((raw ?? def.example) as Partial<z.input<S>>), ...patch } as Partial<z.input<S>>;
+        return this;
+      },
       withAnim(anims) {
         animOverride = anims;
         return this;
