@@ -10,8 +10,8 @@
  * links it.
  *
  * THE SAFE AREA IS NOT DEFINED HERE. It is `themes/safe-area.css`, one file for all six themes,
- * and the runtime pushes it into every scene (`@safe-area` in runtime/treatment.ts) — 8.5rem top
- * (136px), 13.5rem bottom (216px), 6rem sides (96px) at DESIGN_CANVAS. This header used to print
+ * and the runtime pushes it into every scene (`@safe-area` in runtime/treatment.ts) — 6.375rem top
+ * (102px), 13.5rem bottom (216px), 6rem sides (96px) at DESIGN_CANVAS. This header used to print
  * a SECOND set of numbers (140 / 200 / 80) under a "must match the root markup" warning, and all
  * three disagreed with the real ones, so the next person to place root chrome would have sized
  * against a safe area no frame has ever used. Its parenthetical was wrong twice over besides —
@@ -22,6 +22,11 @@
  * 4.875rem` below, and the HUD band via primitives/hud/geometry.css. Change one of those and
  * `--safe-top` / `--safe-bottom` are what has to move with it; safe-area.css says so from its
  * side too.
+ *
+ * THE RAIL IS THE REASON `--safe-bottom` IS STILL 13.5rem. The HUD's counter and progress bar
+ * both moved DOWN toward the canvas edge (geometry.css) while the band above moved up, and only
+ * the top move reached the safe area: the caption box hanging off this 4.875rem rail is deeper
+ * than either of them and did not move, so it remains what the bottom inset is measured against.
  *
  * Units: layout and type measures are rem, and they DO rescale with the canvas — the render
  * document sets a canvas-derived root font-size (types/canvas.ts rootFontSizePx), so 1rem is

@@ -1164,20 +1164,29 @@ describe("plot axis skin (tripwire)", () => {
 describe("shared sheets reach every theme (tripwire)", () => {
   test.each(ALL_THEMES)("$name: a composed scene carries the safe area", (theme) => {
     const html = renderScene(getTreatment("cover")({ headline: "H" }), pctx(theme, "sa"));
-    for (const token of ["--safe-top: 8.5rem", "--safe-side: 6rem", "--safe-bottom: 13.5rem"]) {
+    for (const token of ["--safe-top: 6.375rem", "--safe-side: 6rem", "--safe-bottom: 13.5rem"]) {
       expect(html, `${theme.name}: composed scene is missing ${token}`).toContain(token);
     }
-    // The box the tokens pad, and the centring hoisted out of 72 per-treatment rules.
+    // The box the tokens pad, and the distribution hoisted out of 72 per-treatment rules.
     expect(html, `${theme.name}: composed scene has no .mc-frame > .body rule`).toContain(
       "padding: var(--safe-top) var(--safe-side) var(--safe-bottom)",
     );
-    expect(html, `${theme.name}: the body's centring is not overflow-safe`).toContain(
+    // A content frame pins its headline to the top of the safe box and centres everything below
+    // it in what is left — two auto margins, which is a distribution no `justify-content` keyword
+    // names. Both have to arrive: with only the first, the block below the headline sits on the
+    // bottom edge (`space-between` by another name), which is the layout these replaced.
+    for (const edge of ["margin-top: auto", "margin-bottom: auto"]) {
+      expect(html, `${theme.name}: composed scene is missing the body's ${edge}`).toContain(edge);
+    }
+    // The three hero frames stay centred instead, and THEIR centring is the overflow-safe kind —
+    // an unsafe centre pushes an overlong stack back up through the HUD band.
+    expect(html, `${theme.name}: the hero frames' centring is not overflow-safe`).toContain(
       "justify-content: safe center",
     );
     // FIRST, before the theme's own frame block. safe-area.css's "NOTHING OVERRIDES ANY OF THIS"
     // is a claim about cascade position at identical specificity, so the order is the contract.
     expect(
-      html.indexOf("--safe-top: 8.5rem"),
+      html.indexOf("--safe-top: 6.375rem"),
       `${theme.name}: the theme's frame CSS is emitted BEFORE the safe area`,
     ).toBeLessThan(html.indexOf(".mc-frame {\n  position: absolute"));
   });
@@ -1199,7 +1208,7 @@ describe("shared sheets reach every theme (tripwire)", () => {
   test.each(ALL_THEMES)("$name: the built HUD carries the band geometry AND the theme's paint", (theme) => {
     const { css } = getComponent("hud")({}).build(pctx(theme, "hud"));
     // Geometry: the band's two anchors, the rail, and the title chip that must not grow.
-    for (const decl of ["top: 4.625rem", "right: 8.25rem", ".hud-track", "height: 3rem"]) {
+    for (const decl of ["top: 2.5rem", "right: 8.25rem", ".hud-track", "height: 3rem"]) {
       expect(css, `${theme.name}: the HUD build is missing the shared ${decl}`).toContain(decl);
     }
     // Paint: the join must not have replaced the skin with the base, which is what the old

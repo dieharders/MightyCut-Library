@@ -14,6 +14,22 @@
   font-family: var(--mono);
   color: var(--light);
 }
+/* THE BRACKETS ARE ON THE SHARED CHROME'S LINES, TOP AND BOTTOM, and that is what fixes their
+   four y-values. The mask is authored on the 1920×1080 DESIGN CANVAS and drawn at `mask-size:
+   100% 100%`, so its units are design px against a 16px root — 16 of them to the authored rem —
+   and it rescales with the frame exactly as the rem geometry does. That makes the arithmetic
+   between this file and primitives/hud/geometry.css exact rather than approximate:
+
+     y=40    the top arms, 2.5rem, the band's own top edge. The brand row and the title chip open
+             on this line (geometry.css), so the bracket points at the wordmark instead of
+             hanging half a rem above it. The shared band moved to MEET this number.
+     y=1046  the bottom arms, level with the progress rail's centre line — the rail rests at
+             `bottom: 2rem` and future paints it 0.25rem tall, so its middle is 2.125rem up,
+             i.e. 1080 − 34. The bracket and the rail now read as one line closing the frame.
+
+   Both bottom paths therefore start 36 design px higher, at y=1010, so the arms still run the
+   same length up from the corner. IF THE RAIL'S OFFSET OR THIS THEME'S RAIL HEIGHT MOVES, 1046
+   is what has to move with it — it is derived from both, and nothing checks the arithmetic. */
 .hud::before {
   content: "";
   position: absolute;
@@ -22,8 +38,8 @@
   /* Corner brackets. The SVG is a MASK stencil, not artwork — its stroke keyword is an
      alpha channel only, so the bracket colour is the cyan primary role at 50%. */
   background-color: color-mix(in srgb, var(--primary) 50%, transparent);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201920%201080'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='2'%3E%3Cpath%20d='M40%2076V40h36'/%3E%3Cpath%20d='M1844%2040h36v36'/%3E%3Cpath%20d='M40%201004v36h36'/%3E%3Cpath%20d='M1880%201004v36h-36'/%3E%3C/g%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201920%201080'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='2'%3E%3Cpath%20d='M40%2076V40h36'/%3E%3Cpath%20d='M1844%2040h36v36'/%3E%3Cpath%20d='M40%201004v36h36'/%3E%3Cpath%20d='M1880%201004v36h-36'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201920%201080'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='2'%3E%3Cpath%20d='M40%2076V40h36'/%3E%3Cpath%20d='M1844%2040h36v36'/%3E%3Cpath%20d='M40%201010v36h36'/%3E%3Cpath%20d='M1880%201010v36h-36'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201920%201080'%3E%3Cg%20fill='none'%20stroke='white'%20stroke-width='2'%3E%3Cpath%20d='M40%2076V40h36'/%3E%3Cpath%20d='M1844%2040h36v36'/%3E%3Cpath%20d='M40%201010v36h36'/%3E%3Cpath%20d='M1880%201010v36h-36'/%3E%3C/g%3E%3C/svg%3E");
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-size: 100% 100%;

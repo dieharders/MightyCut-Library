@@ -42,7 +42,9 @@ every theme**. A theme supplies the CSS those class names resolve against.
    Enforced: `theme-parity.test.ts` → _"skin coverage"_.
    **Two sheets are the exception, and you neither write nor wire them:**
    - `themes/safe-area.css` — `.mc-frame > .body`'s box: `--safe-top` / `--safe-side` /
-     `--safe-bottom`, the flex column, and the overflow-safe centring. The RUNTIME pushes it
+     `--safe-bottom`, the flex column, and its main-axis distribution (headline on the top edge
+     with everything below it auto-margined to the middle on a content frame; overflow-safe
+     centring of the whole stack on the three hero frames). The RUNTIME pushes it
      into every scene of every theme (`runtime/treatment.ts`), so your `frame.css` states no
      safe-area value and no per-treatment exception. Adding one is not an override to weigh up:
      the shared sheet is emitted FIRST at identical specificity, so a later copy of yours
@@ -435,7 +437,7 @@ but the shape of the field.
 `.hud-brand-name` and `.hud-counter-item` to `--font-size-md` and `.hud-tagline` to
 `--font-size-xs`, and your `hud.css` states no font-size at all. That is not the type scale
 leaking into shared code — it is the same standardisation as the positions beside it. The HUD is
-**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 7.625rem band
+**root chrome**, not a frame: it is drawn over every slide in the deck, at a fixed 5.5rem band
 that `--safe-top` reserves for sight-unseen (`themes/safe-area.css`), and the band's height is
 just `max(the 3rem boxes, the type in them)`. A skin free to set its own size there is a skin
 free to move the number every frame in every theme is padded against — which is exactly what
@@ -840,7 +842,7 @@ export const neonTheme: ThemeTokens = {
 }
 /* NO `.mc-frame > .body` RULE HERE. It used to be the next thing in this file and it is now
    shared: themes/safe-area.css owns the wrapper's position, its z-index, its flex column, its
-   `--safe-*` padding and its overflow-safe centring, and runtime/treatment.ts emits it ahead of
+   `--safe-*` padding and its main-axis distribution, and runtime/treatment.ts emits it ahead of
    this file for every theme. Copying the old block back would not merely duplicate it — the
    shared sheet comes FIRST at identical specificity, so yours would win, and a padding-less
    `.body` un-does the safe area for every frame in your theme. */

@@ -14,12 +14,18 @@
  * The vertical is identical in every theme and on every treatment:
  *
  *   --safe-top     clears the HUD band. The band is ONE height everywhere — brand row and title
- *                  chip are both 3rem boxes on a 4.625rem top edge, ending at 7.625rem
+ *                  chip are both 3rem boxes on a 2.5rem top edge, ending at 5.5rem
  *                  (primitives/hud/geometry.css). The remaining 0.875rem reserves for the
  *                  deepest hard shadow in the set, creative's 0.625rem offset, which is paint
- *                  and hangs below the band.
+ *                  and hangs below the band. It was 8.5rem against a band that opened at
+ *                  4.625rem; the band moved up to the canvas edge — to future's corner brackets,
+ *                  which is where the shared file settled it — and this number followed, which is
+ *                  the whole of what that move bought the frames.
  *   --safe-bottom  clears the caption rail (root/chrome.css, `bottom: 4.875rem`) plus a
- *                  two-line caption box. The rail is theme-agnostic, so this is too.
+ *                  two-line caption box. The rail is theme-agnostic, so this is too. It did NOT
+ *                  move when the counter and the progress rail did (5rem → 3.375rem, 3.625rem →
+ *                  2rem): the caption is the deepest thing in the bottom chrome and it stays put,
+ *                  so the bottom inset is unchanged and the bottom move is presentation only.
  *
  *   --safe-side    is NOT clearance — no chrome sits in the side margins. It is simply where the
  *                  frame's left and right edges are, and it is set WIDE: 6rem is the most
@@ -46,26 +52,10 @@
  * rather than a second, competing definition of where the frame's edges are. */
 
 .mc-frame {
-  --safe-top: 8.5rem;
+  --safe-top: 6.375rem;
   --safe-side: 6rem;
   --safe-bottom: 13.5rem;
 }
-
-/* THE CENTRING IS SHARED TOO, and for the same reason the padding is. All ninety
- * `.<treatment> > .body` rules (fifteen treatments × six themes) opened with the identical
- * `justify-content: center`, and seventy-two of them contained NOTHING ELSE — byte-identical
- * three-line blocks restating a default that was never in dispute. They are gone; the eighteen
- * that remain say only what is actually theirs (`align-items`, `text-align`).
- *
- * `safe center`, not `center`, and that word is load-bearing. An unsafe centre overflows in BOTH
- * directions, so a frame whose content exceeds the safe box pushes its top half back up through
- * `--safe-top` and out through the HUD band — chrome that is always painted, over content the
- * viewer is meant to read. `safe` falls back to start-alignment exactly when it does not fit, so
- * an overrun goes DOWN instead, where the worst it can meet is a caption box that may not even be
- * present. It costs nothing when the content fits, which is every ordinary slide. Three frames
- * used to buy the same protection with a deliberate ZERO vertical padding (professional/cover,
- * standard/cover, standard/quote had `padding: 0 <side>`); the shared inset took that away, and
- * this is what replaces it — for every frame rather than the three that thought to ask. */
 .mc-frame > .body {
   position: absolute;
   inset: 0;
@@ -73,6 +63,22 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: safe center;
+  justify-content: flex-start;
   padding: var(--safe-top) var(--safe-side) var(--safe-bottom);
+}
+.mc-frame:not(.cover, .quote, .closing-plate) > .body > :nth-child(2) {
+  margin-top: auto;
+}
+.mc-frame:not(.cover, .quote, .closing-plate) > .body > :last-child {
+  margin-bottom: auto;
+}
+
+/* The hero frames — one composition, centred on the canvas. Selected by treatment class rather
+ * than by a modifier so a theme's own `.cover > .body` (which states `align-items` / `text-align`
+ * and nothing about the main axis) keeps working untouched; this is the same shared file stating
+ * the same shared decision, not a per-theme exception. */
+.cover > .body,
+.quote > .body,
+.closing-plate > .body {
+  justify-content: safe center;
 }
