@@ -490,10 +490,11 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
         // tweens do NOT leak (captions, HUD and the progress bar animate there cleanly), and a
         // clip-level `tl.to(#clip, {autoAlpha:0, …})` was verified to hold the content for the
         // whole scene and slide out only in its own window. That IS where the animated exit now
-        // lives: the harness resolves each scene's animOut through `pageOutFor` into a
-        // page-exits.json sidecar and pipeline/root-html.ts emits `MC.<fn>(tl, "#<clip>", …)`,
-        // clamped so the exit never begins before the scene's narration ends. A scene with no
-        // animOut (or a consumer with no sidecar) hard-cuts via the root's autoAlpha set.
+        // lives: the harness's components/root-scenes.ts resolves each scene's animOut through
+        // `pageOutFor` AT ROOT-WRITE TIME — reading the persisted deck, else spec + storyboard,
+        // with no sidecar in between — and pipeline/root-html.ts emits `MC.<fn>(tl, "#<clip>",
+        // …)`, clamped so the exit never begins before the scene's narration ends. A scene with
+        // no animOut (or a consumer that resolves none) hard-cuts via the root's autoAlpha set.
         scrubDeterminism(`${entranceJs}\n${bodyJs}`, def.name);
         return {
           compId: ctx.compId,
@@ -516,6 +517,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
     kind: "treatment" as const,
     schema: def.schema,
     childComponent: def.childComponent,
+    // The canonical ground, readable without building an instance (see TreatmentFactory.ground).
+    // `def.ground` is a required static literal, so this is the same value every instance of this
+    // treatment reports — there is nothing per-instance for the two to drift over.
+    ground: def.ground,
     // Parses `params` through the treatment's own schema first: the hook is written against
     // resolved params (defaults applied), and composeTreatment has already validated them.
     childrenIssue: def.childrenIssue

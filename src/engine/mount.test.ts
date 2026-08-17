@@ -15,7 +15,7 @@
 import { describe, expect, test } from "bun:test";
 import { BACKDROPS, BACKDROPS_CSS } from "../components/primitives/backdrops";
 import "../components/registry"; // populate the registry
-import { getTreatment } from "../components/runtime/registry";
+import { getComponent, getTreatment } from "../components/runtime/registry";
 import { blockTheme } from "../components/themes/block/theme";
 import { mountPreview, type MountPreviewOptions } from "./mount";
 
@@ -74,10 +74,10 @@ g.document = { createElement: (tag: string) => el(tag), head: el("head") };
 g.window = globalThis;
 g.requestAnimationFrame = () => 0;
 
-/** Mount block's `cover` treatment and hand back the shadow's stylesheet + scene markup. */
-const mount = (opts: MountPreviewOptions = {}): { css: string; html: string } => {
+/** Mount a block treatment (default `cover`) and hand back the shadow's stylesheet + markup. */
+const mount = (opts: MountPreviewOptions = {}, treatment = "cover"): { css: string; html: string } => {
   const container = el("div");
-  mountPreview(container as unknown as HTMLElement, getTreatment("cover")(), blockTheme, opts);
+  mountPreview(container as unknown as HTMLElement, getTreatment(treatment)(), blockTheme, opts);
   const shadow = container.shadowRoot!;
   const style = shadow.childNodes.find((n) => n.tagName === "style")!;
   const stage = shadow.childNodes.find((n) => n.tagName === "div")!;
@@ -103,5 +103,39 @@ describe("preview shadow stylesheet (tripwire)", () => {
     // The overlay base is what makes the mask full-bleed behind the content; without it the
     // element mounts at auto size and the mask is effectively absent.
     expect(css, "the shared overlay base is missing from the preview shadow").toContain(".mc-backdrop {");
+  });
+});
+
+// The surface UNDER a scene is the only thing a page-transition replay plays over — both page
+// factories tween the scene root, and the ground travels with it. Painting the theme's neutral
+// stage colour there faded every scene up from a near-white plate (block pins no previewBg, so
+// `#fafafa`), which is both the washed-out look the preview exists to let you judge AND a
+// disagreement with the render, where the root's ground rail holds the scene's own colour.
+describe("preview stage surface (tripwire)", () => {
+  const stageRule = (css: string): string =>
+    css.split("\n").find((l) => l.startsWith(".mc-preview-stage {"))!;
+
+  test("a scene's stage is grounded on the SCENE, not the theme's preview colour", () => {
+    // cover's canonical ground is muted-1; block pins no groundDefault, so it survives.
+    expect(stageRule(mount().css)).toContain("background: var(--muted-1)");
+    // …and it tracks the treatment, which is the whole point — a per-theme constant could not.
+    expect(stageRule(mount({}, "outro").css)).toContain("background: var(--primary)");
+    expect(stageRule(mount({}, "stats").css)).toContain("background: var(--accent-2)");
+    expect(stageRule(mount().css)).not.toContain("#fafafa");
+  });
+
+  test("a scene ground override moves the surface with the scene", () => {
+    const { css, html } = mount({ ground: "secondary" });
+    expect(stageRule(css)).toContain("background: var(--secondary)");
+    // The pair IS the contract: a surface naming a different role than the scene it sits under
+    // is the same mismatch, just one layer down.
+    expect(html).toContain("background: var(--secondary)");
+  });
+
+  test("a bare COMPONENT keeps the theme's preview surface (it has no ground)", () => {
+    const container = el("div");
+    mountPreview(container as unknown as HTMLElement, getComponent("stat")(), blockTheme, {});
+    const style = container.shadowRoot!.childNodes.find((n) => n.tagName === "style")!;
+    expect(stageRule(style.textContent)).toContain("#fafafa"); // block pins no previewBg
   });
 });

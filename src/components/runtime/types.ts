@@ -290,6 +290,22 @@ export type TreatmentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((
   /** The leaf component this treatment repeats as its children (stat-grid→stat, …)
    *  — formalizes the CLI/agent child relationship and drives the showcase child editor. */
   readonly childComponent?: string;
+  /**
+   * The treatment's CANONICAL full-bleed ground — the LAST term of the resolution chain
+   * (scene override → theme.groundDefault → this; see `groundFor`).
+   *
+   * Mirrors `TreatmentInstance.ground`, but readable WITHOUT constructing an instance. That
+   * is the whole point: it lets a consumer OUTSIDE the build resolve what a scene WILL paint.
+   *
+   * The harness needs exactly this. Its root composition paints the deck ground behind every
+   * scene and has to switch it in step with them, but the root is regenerated independently of
+   * the scenes — from `spec.json` plus the audio manifest, after every TTS run and every agent
+   * spec write — so it cannot re-derive a chain that runs through the deck/storyboard, the
+   * theme and this registry without composing all sixteen scenes it is not otherwise building.
+   * `components/root-scenes.ts` resolves the chain off this field at root-write time instead,
+   * which is what keeps the rail and the composition naming the same role.
+   */
+  readonly ground: FrameGround;
   /** Cross-child validation — one message, or null when the set is coherent. See the
    *  `childrenIssue` note on TreatmentDef for why the per-element schemas cannot do this. */
   childrenIssue?(params: unknown, children: readonly ChildParams[]): string | null;

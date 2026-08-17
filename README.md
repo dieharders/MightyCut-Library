@@ -62,10 +62,12 @@ docs/
   **entrance** but never an **exit** (`sceneExitJs` is retained but unwired). The animated exit
   instead runs on the **root/master** timeline at the clip level — root-level tweens do NOT
   leak (captions, HUD and the progress bar animate there cleanly). The harness's
-  `components/build-project.ts` resolves each scene's `animOut` via `pageOutFor` and persists it
-  to a `page-exits.json` sidecar; `pipeline/root-html.ts` reads it and emits
-  `MC.<fn>(tl, "#<clip>", start, …)`, clamped so the exit never begins before the scene's
-  narration ends. A scene with no `animOut` hard-cuts (a `tl.set` on the clip's `autoAlpha`).
+  `components/root-scenes.ts` resolves each scene's `animOut` via `pageOutFor` **at root-write
+  time** — from the persisted deck, else spec + storyboard, with no sidecar in between — and
+  `pipeline/root-html.ts` emits `MC.<fn>(tl, "#<clip>", start, …)`, clamped so the exit never
+  begins before the scene's narration ends. A scene with no `animOut` hard-cuts (a `tl.set` on
+  the clip's `autoAlpha`). The same pass resolves each scene's **ground** off
+  `TreatmentFactory.ground`, so the root's ground rail switches in step with the scenes.
 - **Verify transition timing against the real MP4, not `hyperframes snapshot`.** A single
   seek (snapshot) does not reproduce the leak above; only the actual render does. Extract
   frames from `final.mp4` with ffmpeg when checking entrance/exit behaviour.

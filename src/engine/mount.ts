@@ -11,6 +11,7 @@ import { BACKDROPS_CSS } from "../components/primitives/backdrops";
 import { swapGround } from "../components/runtime/css";
 import { buildPreview } from "../components/runtime/emit";
 import { rootContext } from "../components/runtime";
+import { groundFor } from "../components/runtime/treatment";
 import { pageInFor, pageOutFor, type PageSpec } from "../components/runtime/transitions";
 import type {
   ComponentInstance,
@@ -107,9 +108,12 @@ const previewCss = (
    right above — must still get border-box. Spelling it .mc-preview-root only ever matched
    the DEFAULT compId, and silently matched nothing once one was passed. */
 .mc-preview-stage, .mc-preview-stage-inner, .${compId}-root { box-sizing: border-box; }
-/* The stage surface is theme-driven (theme.previewBg): a dark theme paints a dark ground so
-   its glass / light-on-dark components read; unset ⇒ a neutral light default for block. This
-   is the surface the user actually sees (it fills the preview box, above the host card). */
+/* The stage surface. For a SCENE (treatment in a frame) it is that scene's own resolved ground,
+   so the page-transition replay resolves out of the scene's colour exactly as the render does —
+   the caller decides it, see the surface note in mountPreview. For a bare component it is
+   theme-driven (theme.previewBg): a dark theme paints a dark ground so its glass / light-on-dark
+   components read; unset ⇒ a neutral light default for block. This is the surface the user
+   actually sees (it fills the preview box, above the host card). */
 .mc-preview-stage { width: 100%; overflow: hidden; background: ${surface}; }
 .mc-preview-stage--frame { position: relative; aspect-ratio: ${canvas.width} / ${canvas.height}; }
 /* THE PREVIEW LAYS OUT IN DESIGN UNITS, NOT CANVAS PIXELS — and that is what lets it match a
@@ -191,6 +195,35 @@ export const mountPreview = (
     backdrop: opts.backdrop,
     ground: opts.ground as FrameGround | undefined,
   });
+  /**
+   * THE STAGE SURFACE UNDER A SCENE IS THAT SCENE'S OWN GROUND — not `theme.previewBg`.
+   *
+   * This is what the whole-page transition replay below happens over, and it is the only time
+   * the surface is visible at all: a frame preview's scene fills the stage exactly (same aspect
+   * ratio, `inset: 0`), so nothing else ever shows it. Painting the theme's neutral stage colour
+   * there made every assigned entrance fade or slide the scene — GROUND INCLUDED — up from a
+   * near-white plate (`#fafafa` for block, which pins no `previewBg`), which is precisely the
+   * washed-out look this preview exists to let you judge.
+   *
+   * It is also no longer what the render does. The root composition now switches its deck fill
+   * to each scene's ground as the deck plays (the harness's ground rail, pipeline/root-html.ts),
+   * so in the final video an entrance resolves out of the scene's OWN colour. Leaving the stage
+   * on `previewBg` would make the hover preview disagree with the MP4 on exactly the frames it
+   * claims to preview — see the WYSIWYG note on the replay below.
+   *
+   * Resolved through `groundFor` with the SAME arguments `buildPreview` uses, so the surface and
+   * the scene it sits under cannot name different roles; `ctx.ground` carries the caller's
+   * override, so the editor's ground picker moves both together.
+   *
+   * Only for a TREATMENT in a frame. A bare component has no ground (nor a frame to paint), and
+   * a frame-flagged component (`hud`) has none either — both keep `previewBg`, which for them is
+   * a deliberate stage colour rather than a stand-in for a scene.
+   */
+  const sceneGround =
+    frame && instance.kind === "treatment"
+      ? groundFor(ctx, (instance as TreatmentInstance).ground)
+      : null;
+  const surface = sceneGround ? `var(--${sceneGround})` : (theme.previewBg ?? "#fafafa");
   const built = buildPreview(instance, ctx);
   const css = built.css;
   const anims = built.anims;
@@ -203,7 +236,9 @@ export const mountPreview = (
   shadow.replaceChildren();
   const style = document.createElement("style");
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
-  // (the stage surface uses the theme's previewBg, else a light default). The safety-net
+  // (the stage surface is the SCENE's ground for a treatment, else the theme's previewBg, else a
+  // light default — see `surface` above; a `var(--role)` resolves because the tokens land on
+  // `:host` on the line before, inside this same shadow root). The safety-net
   // foreground + color-scheme follow the theme's DECLARED previewScheme — never inferred
   // from `previewBg` being set, which would flip a light theme that merely wants a tinted
   // stage to white-on-light text.
@@ -215,7 +250,7 @@ export const mountPreview = (
   // without this the showcase/editor preview would mount the mask element unstyled. Unscoped
   // is correct here — the shadow root already isolates it, and the rules are per-scene
   // invariant by construction.
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, theme.previewBg ?? "#fafafa", fg, scheme, compId, canvas, designBox)}\n${BACKDROPS_CSS}\n${css}`;
+  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, surface, fg, scheme, compId, canvas, designBox)}\n${BACKDROPS_CSS}\n${css}`;
   shadow.appendChild(style);
 
   const stage = document.createElement("div");
@@ -271,6 +306,12 @@ export const mountPreview = (
     // preview reconstructs them here from pageInFor / pageOutFor. This preview is a SINGLE scene,
     // not nested, so replaying the exit on the scene root is safe and matches the final video —
     // otherwise the hover would show the entrance but never the exit.
+    //
+    // WHAT IT PLAYS OVER is half of that WYSIWYG claim, and the easier half to lose: both
+    // factories tween the scene root, whose descendant carries the ground, so the ground travels
+    // with the transition and whatever sits behind the stage IS the transition's backdrop. The
+    // render answers that with the ground rail (the harness's root-html switches the deck fill to
+    // each scene's ground); here it is the stage surface, resolved from the same `groundFor`.
     let holdAt = timeline.duration();
     if (pageTx && (pageTx.animIn || pageTx.animOut)) {
       const pageEl =
