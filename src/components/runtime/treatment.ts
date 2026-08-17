@@ -516,6 +516,10 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
     kind: "treatment" as const,
     schema: def.schema,
     childComponent: def.childComponent,
+    // The canonical ground, readable without building an instance (see TreatmentFactory.ground).
+    // `def.ground` is a required static literal, so this is the same value every instance of this
+    // treatment reports — there is nothing per-instance for the two to drift over.
+    ground: def.ground,
     // Parses `params` through the treatment's own schema first: the hook is written against
     // resolved params (defaults applied), and composeTreatment has already validated them.
     childrenIssue: def.childrenIssue

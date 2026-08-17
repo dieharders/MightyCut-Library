@@ -154,6 +154,10 @@ describe("treatment build-smoke", () => {
       expect(html).toContain(`window.__timelines["${compId}"]`);
       expect(html).toContain(`.${compId}-root .mc-frame`);
       expect(html).toContain(`background: var(--${inst.ground})`);
+      // The FACTORY reports the same canonical ground as an instance. Load-bearing for the
+      // harness, which resolves what a scene will paint (scene override → theme.groundDefault →
+      // this) WITHOUT building one, to switch the root's deck ground in step with the scenes.
+      expect(factory.ground, `${factory.treatmentName}: factory.ground must mirror the instance's`).toBe(inst.ground);
       // block's canonical backdrop mask paints over every scene's ground
       expect(html).toContain("mc-backdrop--dots");
       expect(html).not.toContain("data-slot");
