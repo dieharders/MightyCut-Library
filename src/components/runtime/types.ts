@@ -296,10 +296,14 @@ export type TreatmentFactory<S extends z.ZodTypeAny = z.ZodTypeAny> = ((
    *
    * Mirrors `TreatmentInstance.ground`, but readable WITHOUT constructing an instance. That
    * is the whole point: it lets a consumer OUTSIDE the build resolve what a scene WILL paint.
-   * The harness needs exactly this for its scene-grounds sidecar — the root composition paints
-   * the deck ground behind every scene and has to switch it in step with the scenes, but it is
-   * regenerated independently from spec + manifest and cannot re-derive a chain that runs
-   * through the storyboard, the theme and this registry.
+   *
+   * The harness needs exactly this. Its root composition paints the deck ground behind every
+   * scene and has to switch it in step with them, but the root is regenerated independently of
+   * the scenes — from `spec.json` plus the audio manifest, after every TTS run and every agent
+   * spec write — so it cannot re-derive a chain that runs through the deck/storyboard, the
+   * theme and this registry without composing all sixteen scenes it is not otherwise building.
+   * `components/root-scenes.ts` resolves the chain off this field at root-write time instead,
+   * which is what keeps the rail and the composition naming the same role.
    */
   readonly ground: FrameGround;
   /** Cross-child validation — one message, or null when the set is coherent. See the
