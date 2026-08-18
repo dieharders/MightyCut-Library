@@ -266,6 +266,20 @@
      box rather than added to it, so the row still spans exactly the plot. */
   max-width: calc(var(--lw) - 1rem);
   white-space: nowrap;
-  overflow: hidden;
+  /* THE CLIP IS INLINE-AXIS ONLY. What the overflow is FOR is the ellipsis above, which is a
+     horizontal fit — but `overflow: hidden` clips the block axis too, and this box is exactly one
+     line box: every skin sets `line-height: 1` on `.paxis` so the hidden sizer reserves exactly one
+     type size, and one em is smaller than the ink the face draws. So every category row was cut
+     flat at the baseline's own em box — "Q3" lost the tail of its Q, and a "January"/"Aug" row lost
+     every descender at once, which reads as a chart whose labels were painted too low rather than
+     as a clip.
+     `clip` rather than `hidden` on the axis, because `overflow-x: hidden` beside
+     `overflow-y: visible` computes the visible one to `auto` (CSS Overflow §3) — a scroll container
+     instead of a relaxed clip. `clip` leaves the other axis genuinely visible and still ellipsises,
+     which is checked in Chromium, the renderer the deck is rasterised in. The row's HEIGHT is
+     unchanged: the sizer still measures one line, and descender ink bleeds a fraction of an em into
+     the gap the key and the caption already leave under the axis. */
+  overflow-x: clip;
+  overflow-y: visible;
   text-overflow: ellipsis;
 }

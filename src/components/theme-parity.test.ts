@@ -1095,9 +1095,25 @@ describe("plot axis skin (tripwire)", () => {
     expect(lab, `${theme.name}: .plot .plab has no max-width, so long labels overprint their neighbours`).toMatch(
       /max-width:[^;]*var\(--lw/,
     );
-    expect(lab, `${theme.name}: .plot .plab does not clip, so a label wider than its box still overruns`).toMatch(
-      /overflow:\s*hidden/,
-    );
+    expect(
+      lab,
+      `${theme.name}: .plot .plab does not clip its inline axis, so a label wider than its box still overruns`,
+    ).toMatch(/overflow-x:\s*clip/);
+    // …AND NOT ON THE BLOCK AXIS. The clip is there for the ellipsis, which is a horizontal fit,
+    // but the label's box is exactly one line box — every skin sets `line-height: 1` on `.paxis` so
+    // the hidden sizer reserves exactly one type size — and a face draws more ink than an em. A
+    // block-axis clip therefore cuts the tail off "Q3" and takes every descender out of a
+    // "January" row, flat across the baseline. `clip` rather than `hidden` on the inline axis
+    // because `overflow-x: hidden` beside `overflow-y: visible` computes the visible one back to
+    // `auto` (CSS Overflow §3), i.e. a scroll container rather than a relaxed clip.
+    expect(
+      lab,
+      `${theme.name}: .plot .plab clips its block axis, which cuts the descenders off the category row`,
+    ).toMatch(/overflow-y:\s*visible/);
+    expect(
+      lab,
+      `${theme.name}: .plot .plab clips both axes at once — the shorthand takes the block axis with it`,
+    ).not.toMatch(/overflow:\s*(?:hidden|clip|auto|scroll)/);
     // Every label carries a box, and the two on the ends carry an inward anchor.
     const boxes = [...built.html.matchAll(/class="plab"[^>]*--lw:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
     expect(boxes, `${theme.name}: a category label was emitted with no box`).toHaveLength(4);
