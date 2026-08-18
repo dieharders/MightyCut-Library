@@ -2097,15 +2097,20 @@ describe("accent plumbing (tripwire)", () => {
    * under this theme it does nothing — so it is only right where honouring the accent is WORSE
    * than ignoring it, which takes a palette that cannot express a cycle.
    *
-   * professional/cluster-node is that case. The theme has ONE accent hue (primary, secondary and
-   * accent-1 are all the same cobalt); slot 4 of the shared ACCENT_CYCLE is Ice, a pale surface
-   * its own palette note keeps out of the cycle "on the assumption that 3-item rows never get
-   * that long". A five-spoke cluster reaches slot 4, and every place the colour could go makes
-   * one child look broken rather than accented — as the tile fill Ice at 8% is indistinguishable
-   * from the bare canvas, as the outline it reads as a missing border, as the arm it is the one
-   * pale wire in the ring. All three shipped briefly and were reverted off a render.
+   * THE MAP IS EMPTY, and the one entry it ever held is why the bar is set this high.
+   * professional/cluster-node was exempt on the grounds that the theme has ONE accent hue
+   * (primary, secondary and accent-1 are all the same cobalt) while slot 4 of the shared
+   * ACCENT_CYCLE is Ice, a pale surface its own palette note keeps out of the cycle "on the
+   * assumption that 3-item rows never get that long" — an assumption a five-spoke cluster
+   * breaks. Three placements had shipped and been reverted off a render, and each was read as
+   * evidence that the colour had nowhere to go. Every one of them failed at a DILUTED strength
+   * (tile fill 8%, outline 22%, arm 30%); undiluted on an opaque tile the outline carries Ice
+   * as a soft keyline, and the exemption was simply the wrong conclusion — under it the WebUI
+   * offered a colour picker that did nothing on that theme, which is the cost this comment
+   * always described. Read a proposed exemption as a sign the placement is wrong before
+   * concluding the palette is.
    */
-  const ACCENT_EXEMPT: Record<string, readonly string[]> = { professional: ["cluster-node"] };
+  const ACCENT_EXEMPT: Record<string, readonly string[]> = {};
 
   for (const theme of ALL_THEMES) {
     test.each(ACCENT_PROPS)(`${theme.name}'s %s skin consumes %s`, (name, prop) => {
