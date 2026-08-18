@@ -40,8 +40,8 @@
   /* THE ARM STAYS COBALT even when its puck is accented — see the accent note on .cpuck below.
      A wire is a hairline against the slide ground with nothing behind it to carry a pale role,
      so accenting it is the one placement that DOES make a spoke look broken rather than
-     coloured: Ice at 30% is the single invisible line in an otherwise cobalt ring. The puck is
-     an opaque tile, which is why the colour lands there instead. */
+     coloured: Ice at 30% is the single invisible line in an otherwise cobalt ring. The puck is a
+     filled tile, which is why the colour lands there instead. */
   background: color-mix(in srgb, var(--primary) 30%, transparent);
 }
 /* Counter-rotated back upright, then SEATED so its near support lands exactly --cradius from the
@@ -65,39 +65,31 @@
   text-align: center;
   padding: 0.75rem 1.375rem;
   border-radius: 0.875rem;
-  /* THE ACCENT IS THE OUTLINE, AT FULL STRENGTH — the one placement that reads for every role
-     this theme has. Professional carries ONE accent hue (primary, secondary and accent-1 are all
-     the same cobalt), so the cycle's fourth slot is ICE, a pale surface its palette note keeps
-     out of the cycle's reach "on the assumption that 3-item rows never get that long" — an
-     assumption a five-spoke ring breaks. This skin ignored `--ccol` entirely for that reason,
-     which made the WebUI's colour picker do nothing under professional; the fix is STRENGTH, not
-     abstinence. Each of the three placements that were tried and reverted failed at a diluted
-     one: the tile fill at 8% (Ice lands within a couple of levels of the canvas — one puck in
-     five renders as unfilled), the outline at 22% (reads as a missing border) and the arm at 30%
-     (the one pale wire in the ring — see .cspoke above, which is why the arm keeps its cobalt).
-     Undiluted on an opaque near-white tile, Ice is a soft periwinkle keyline, Ember a warm one
-     and cobalt the theme's own: pale, but present and deliberate in every case.
+  /* THE ACCENT IS THE BACKING, and there is NO OUTLINE — the tile is found by its colour, not by
+     a line around it. This skin ignored `--ccol` entirely until now (the WebUI offered a colour
+     picker that did nothing on this theme), and the outline it briefly wore was too fine to read
+     at puck scale whatever colour it carried, which is the same complaint the earlier 22% cobalt
+     hairline earned. A filled tile has area; a 0.125rem edge does not.
 
-     UNSET keeps the 22% cobalt hairline, so an un-accented puck is exactly the tile it always
-     was and only a picked colour steps up. The fallback lives inside the `var()` rather than in a
-     color-mix so the two cases can differ in weight as well as hue. */
-  border: 0.125rem solid var(--ccol, color-mix(in srgb, var(--primary) 22%, transparent));
-  /* An 8% accent tint over a 90% WHITE plate — professional's card/stat idiom (a faint fill of
-     the one hue over --plate), reached here through the accent so the tile carries a hint of the
-     colour its outline states.
+     45%, NOT 100%, AND THAT IS FORCED BY THE PALETTE — the one real constraint here. Professional
+     carries a single accent hue (primary, secondary and accent-1 are all the same cobalt), so the
+     shared cycle's fourth slot lands on ICE, a pale surface its palette note keeps out of the
+     cycle's reach "on the assumption that 3-item rows never get that long" — an assumption every
+     4+-spoke ring breaks, and spec-map cycles the roles, so Ice is not a corner case here but a
+     guarantee. At full saturation the ring would need two different label colours to stay legible
+     (cream on cobalt, ink on Ice) and CSS has no contrast-aware pick, so ONE of the five pucks
+     would ship unreadable whichever is chosen. Mixed 45% into the theme's own paper, every role
+     lands light enough for the near-black label (cobalt ≈ 8.6:1, Ember and Ice higher) while
+     staying unmistakably its own colour — and it also keeps professional's standing rule that the
+     accent never lands on TYPE here.
 
-     90/10 IS THE OPACITY FIX. This was `var(--primary) 8%, var(--ground)` — 92% of the scene's
-     own ground, i.e. a tile that occluded its arm (which is all the cluster-occlusion tripwire
-     asks) but took nearly the ground's full colour and value. On the cream canvas that reads as
-     intended; on a saturated slide ground (Ember, Ice) the puck came out barely a step off the
-     backdrop and its near-black label lost most of its contrast. The ground now tints the plate
-     rather than being it, exactly as --plate does for every other panel in this theme. Still
-     mixed into `var(--ground)` and not `transparent`, so it occludes as before. */
-  background: color-mix(
-    in srgb,
-    var(--ccol, var(--primary)) 8%,
-    color-mix(in srgb, var(--light) 90%, var(--ground))
-  );
+     UNSET ⇒ cobalt, the theme's one accent, matching the icon badge's `var(--icol, var(--primary))`.
+
+     Mixed into --light rather than `var(--ground)`: the tile is now fully opaque, so it occludes
+     its own arm outright (the cluster-occlusion tripwire) instead of relying on a ground mix, and
+     a saturated slide ground can no longer wash it out — which was the bleed-through this pass
+     started from. */
+  background: color-mix(in srgb, var(--ccol, var(--primary)) 45%, var(--light));
   /* Border-box, and the cap is --cpuck-w from .spokes (node-cluster.css) — the width a puck may
      grow to and the width the radius reserves for it are ONE declaration and cannot drift.
      13.5rem border-box leaves the same 10.5rem of text the content-box cap did. */
@@ -117,5 +109,11 @@
   font-weight: 400;
   font-size: var(--font-size-xs);
   line-height: 1.25;
-  color: var(--muted-3);
+  /* THE QUALIFIER IS DARKENED SLATE, not the bare body gray every other panel in this theme uses.
+     Slate is drawn for the cream canvas and the 5% tints over it; on the 45% accent backing above
+     it falls to 2.43:1 on cobalt — a caption-sized line at the theme's lightest weight, on the
+     busiest tile in the frame. Pulled 55% toward ink it runs 5.2:1 (cobalt) to 9.3:1 (Ice) while
+     staying a clear step quieter than the near-black label, which is the only job the gray was
+     doing. */
+  color: color-mix(in srgb, var(--muted-3) 45%, var(--dark));
 }
