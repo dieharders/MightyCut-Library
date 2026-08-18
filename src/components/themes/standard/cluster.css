@@ -47,14 +47,15 @@
   height: 12rem;
   border-radius: 50%;
   border: 0.125rem solid var(--accent-3);
-  /* THE HUB'S FILL IS THE PUCK'S FILL — the identical mix cluster-node.css gives a spoke, so the
-     centre reads as the same object the arms do rather than as a hole in the diagram. It was the
-     bare `--ground`, which is opaque (structural: every arm starts at the ring's exact centre, so
-     an unpainted hub lets five connector lines run visibly through its label) but carries none of
-     the paper the pucks are drawn on, leaving the disc as a ring around nothing.
-     Kept at 30% rather than raised to --plate: mixed into the scene's own --ground this is
-     already fully opaque, so a coloured ground cannot wash it out — see the note in theme.ts. */
-  background: color-mix(in srgb, var(--light) 30%, var(--ground));
+  /* THE HUB'S FILL IS THE PUCK'S FILL — the identical value cluster-node.css gives a spoke, so
+     the centre reads as the same object the arms do rather than as a hole in the diagram. It was
+     the bare `--ground`, which is opaque (structural: every arm starts at the ring's exact
+     centre, so an unpainted hub lets five connector lines run visibly through its label) but
+     carries none of the paper the pucks are drawn on, leaving the disc as a ring around nothing.
+     It follows the puck to SOLID paper for the same reason the puck went there (cluster-node.css
+     carries it), and follows it as a matter of contract rather than coincidence: a 30% hub among
+     opaque pucks is the hole this line exists to close, reopened. */
+  background: var(--light);
   padding: 1rem;
   font-family: var(--disp);
   font-weight: 400;

@@ -69,12 +69,19 @@
      all one brownstone, so a picked colour reads as emphasis of WEIGHT rather than of hue; the
      hairline is what makes each spoke a bounded thing instead of loose type on the arm. */
   border: 0.125rem solid var(--ccol, var(--accent-3));
-  /* THE FILL IS OPAQUE, and it is not an accent — see above. A puck sits at the end of its own
-     arm and over any that pass behind it, so a transparent one shows the connector through its
-     label. The 30% paper wash is card.css's, mixed into the scene's own ground (--ground, from
-     the emitter) rather than into `transparent`: same barely-there lift off the stone, but it
-     occludes. */
-  background: color-mix(in srgb, var(--light) 30%, var(--ground));
+  /* THE FILL IS SOLID PAPER, and it is not an accent — see above. A puck sits at the end of its
+     own arm and over any that pass behind it, so a transparent one shows the connector through
+     its label.
+
+     FULLY OPAQUE, not card.css's 30% wash. Mixed into the scene's own ground that wash occluded
+     the arm — which is all the cluster-occlusion tripwire asks — but 70% of it WAS the ground, so
+     the tile only ever sat a couple of levels off its backdrop and its label read against very
+     nearly the canvas. Every other box in this theme is a panel the eye can find; a puck is the
+     one that has to be found while a hairline runs underneath it. Solid white is the strongest
+     read the palette offers and the only fill that holds it on a saturated slide ground, which
+     is a ground role a deck picks freely. (The palette's "never a ground" note on --light is
+     about SLIDE grounds — this is a component fill, the same job card.css's wash was doing.) */
+  background: var(--light);
   /* No z-index is needed to put it over its own arm, and it MATTERS now that the arm runs to the
      puck's centre rather than stopping at its edge: both are stacking contexts (each carries a
      transform), so they paint in TREE ORDER and the puck is second. Between spokes it is tree
