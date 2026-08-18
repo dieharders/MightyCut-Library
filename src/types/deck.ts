@@ -12,6 +12,7 @@
 // round-trips untouched — the merge itself belongs to whichever editor owns the
 // controls (the web UI patches per control), not here.
 import { z } from "zod";
+import { addIssue } from "../util/issues";
 import { AnimDescriptorSchema } from "../components/runtime/anim";
 import { BACKDROP_NAMES, FRAME_GROUNDS, FRAME_THEME_NAMES, FRAME_TREATMENTS } from "./storyboard";
 import { TIMING_PRESETS, TRANSITION_NAMES, TransitionSpecSchema } from "./transitions";
@@ -82,14 +83,39 @@ export const DeckMetaSchema = z
   })
   .loose();
 
+/**
+ * The most scenes a deck may carry.
+ *
+ * A deck is CLIENT-SUPPLIED on the editor's rebuild path and is persisted verbatim (to
+ * `project/deck.json` and to the `projects.deck` column), so an unbounded `scenes` array is an
+ * unbounded write. The ceiling is generous against real decks — the planner's own cap is
+ * `maxSlidesFor(600)` = 100 beats for a ten-minute video, and a deck that long is already past
+ * what the product makes — but it is a ceiling, which an array with none is not.
+ */
+export const MAX_DECK_SCENES = 50;
+
 export const DeckDocumentSchema = z
   .object({
     version: z.literal(1),
     theme: z.enum(FRAME_THEME_NAMES),
     meta: DeckMetaSchema.optional(),
-    scenes: z.array(DeckSceneSchema),
+    scenes: z.array(DeckSceneSchema).max(MAX_DECK_SCENES),
   })
-  .loose();
+  .loose()
+  // Scene ids must be UNIQUE, exactly as `StoryboardSchema` requires of `sceneId`. Consumers key
+  // by id against the spec's slide roster — `fromDeck` builds `Record<compId, RootScene>` and
+  // `buildDeckCompositions` writes one file per scene — so two scenes sharing an id silently
+  // overwrite each other, and the count-based guards downstream still pass because the totals
+  // are unchanged. Rejecting here is the only place that catches it while the offender is still
+  // nameable.
+  .check((ctx) => {
+    const seen = new Set<string>();
+    for (const [i, scene] of ctx.value.scenes.entries()) {
+      if (seen.has(scene.id))
+        addIssue(ctx, ["scenes", i, "id"], `duplicate scene id '${scene.id}'`, scene.id);
+      seen.add(scene.id);
+    }
+  });
 
 export type DeckScene = z.infer<typeof DeckSceneSchema>;
 export type DeckMeta = z.infer<typeof DeckMetaSchema>;
