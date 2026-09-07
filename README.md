@@ -1,31 +1,35 @@
 # @mightycut/library
 
-The shared **single source of truth** for MightyCut's component system — components, treatments, themes, FX descriptors, and the Zod contracts. Consumed by BOTH the render harness (`../MightyCut`) and the web UI (`../MightyCut-WebUI`), so the exact same component `build()` code drives final MP4 renders and interactive previews.
+The **single source of truth** for MightyCut's component system — components, treatments, themes,
+FX descriptors, and the Zod contracts. The same component `build()` code drives final MP4 renders
+and interactive previews.
+
+**One consumer: the MotionBuff desktop app**, which includes this repo as a git submodule at
+`packages/library`. The render harness and the web UI used to be the other two; neither is any
+more — the harness *became* MotionBuff, and the web UI no longer depends on this library.
 
 ## Quick Start
 
-If additions or edits are made to the library,
-
-1. Commit the new code and push to origin
-
-To sync changes to the WebUI consumer, pull latest from the submodule:
+Edit here, commit, push. Then in MotionBuff:
 
 ```bash
-git submodule update --remote packages/mightycut-library
+git submodule update --remote packages/library   # take the latest
+# ...or pin a specific commit:
+git -C packages/library checkout <sha>
+git add packages/library                         # record the new pointer
 ```
 
-This is run automatically for you during the build/dev step to rebuild the engine:
+The pointer is a real commit, which is the point of the submodule: checking out an old MotionBuff
+commit gets the library that was current *then*, not whatever is newest.
+
+After a fresh clone of a consumer:
 
 ```bash
-pnpm build:engine
-```
-
-To sync changes to the media server consumer:
-
-```bash
-# after a normal clone:
 git submodule update --init --recursive
 ```
+
+The browser engine (`dist/`) is **not committed** — the consumer rebuilds it with
+`bun run build:engine`. See [Scripts](#scripts).
 
 ## Layout
 
@@ -72,23 +76,38 @@ docs/
   seek (snapshot) does not reproduce the leak above; only the actual render does. Extract
   frames from `final.mp4` with ffmpeg when checking entrance/exit behaviour.
 
-## Consumers
+## The consumer
 
-- **Harness (Bun):** resolves this package to TS source via a `tsconfig` `paths` alias (`@mightycut/library/*` → `../MightyCut-Library/src/*`). Bun handles the trio's `import … with { type: "text" }` natively; no build step, code is used raw.
+**MotionBuff** uses this library two ways at once, which is why both the source and a built
+engine matter:
 
-- **Web UI (Vite):** imports the browser engine build (`@mightycut/library/engine`), which the consumer produces by running `pnpm build:engine` here during its own install/build step (`dist/` is not committed — see [Scripts](#scripts)). Vite produces `dist/engine/` with the base runtime in one chunk and each theme's registration code-split into its own `register-<theme>.js`, so the UI lazy-loads one payload per theme (`loadTheme('block')`); `tsc` emits matching types to `dist/types/`.
+- **Server side (Bun):** resolves to TS **source** through `tsconfig` `paths`
+  (`mightycut-library/*` → `packages/library/src/*`). Bun handles the trio's
+  `import … with { type: "text" }` natively — no build step, the code is used raw.
+
+- **Browser side (the in-app showcase and deck editor):** imports the built engine
+  (`mightycut-library/engine`), because `src/engine/fx.ts` uses Vite's `?raw` suffix, which
+  Bun's bundler cannot parse. That entry deliberately has **no `paths` mapping** in MotionBuff,
+  so it falls through to this package's own `exports` map — `import` → `dist/engine/index.js`,
+  `types` → `dist/types/engine/index.d.ts`. Vite code-splits each theme's registration into
+  `register-<theme>.js`, so one payload loads per theme (`loadTheme('block')`).
 
 ## Scripts
 
+Run with any package manager; the pre-steps shell out to **bun** rather than pnpm, so a CI
+runner needs no extra package manager installed.
+
 ```
-pnpm gen:fonts      # inline theme fonts → src/engine/block-fonts.generated.ts
-pnpm typecheck      # tsc --noEmit
-pnpm test           # bun test (runtime + registry tripwires)
-pnpm build:engine   # vite build → dist/engine (per-theme lazy chunks) + tsc → dist/types
+bun run gen:fonts      # inline theme fonts → src/engine/<theme>-fonts.generated.ts
+bun run typecheck      # tsc --noEmit
+bun run test           # bun test (runtime + registry tripwires)
+bun run build:engine   # vite build → dist/engine (per-theme lazy chunks) + tsc → dist/types
 ```
 
-> `gen:fonts` runs automatically as a prestep before `typecheck`, `test`, and `build:engine`. **`dist/` and `src/engine/block-fonts.generated.ts` are generated, not committed.**
+> `gen:fonts` runs automatically as a prestep before `typecheck`, `test`, and `build:engine`.
+> **`dist/` and `src/engine/*-fonts.generated.ts` are generated, not committed.**
 
-> `src/` is the source of truth; the WebUI consumer rebuilds the engine (`pnpm build:engine`) in its own install/build step, so there's no `dist/` to commit here.
+> `src/` is the source of truth; the consumer rebuilds the engine (`bun run build:engine`) in its
+> own build step, so there is no `dist/` to commit here.
 
 > Keep zod pinned to the exact version the harness uses (`4.0.0`) — a version skew makes schemas typed by one side incompatible with the other.

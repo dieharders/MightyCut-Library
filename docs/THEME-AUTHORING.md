@@ -961,8 +961,7 @@ Copy the real bodies from `decoration-shapes.ts` (solid/box shapes) or
 | 5    | `assets/fonts/` + `scripts/gen-inline-fonts.mjs` — **only if** your faces aren't installed yet | see §6: drop the woff2 in, ship `assets/fonts/<theme>-fonts.css`, then inline it for the browser engine. Naming already-installed families ⇒ skip this step |
 | 6    | harness `src/types/storyboard.ts`                                                              | add the name to `FRAME_THEME_NAMES`                                                                                                                         |
 | 7    | harness `src/pipeline/generate-content.ts`                                                     | `FRAME_TO_THEME[<name>] = "<name>"` + a one-line blurb in `THEME_SELECT_SYSTEM` so the auto-selector can pick it                                            |
-| 8    | WebUI `src/lib/themes.ts`                                                                      | add label + blurb; generate the card image with `bun src/scripts/gen-theme-previews.ts` in the harness                                                      |
-| 9    | consumers                                                                                      | `pnpm build:engine` here, then bump the `packages/library` submodule pointer in the harness and the WebUI                                                   |
+| 8    | consumer                                                                                       | `bun run build:engine` here, then bump the `packages/library` submodule pointer in MotionBuff                                                               |
 
 ---
 
@@ -998,7 +997,7 @@ Then run the real thing:
 
 ```bash
 # library
-pnpm typecheck && pnpm test && pnpm build:engine
+bun run typecheck && bun run test && bun run build:engine
 
 # harness (from the MightyCut repo) — a real 1920×1080 render per live theme
 bun run typecheck && bun test

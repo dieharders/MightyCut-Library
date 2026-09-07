@@ -1,7 +1,7 @@
 {
   "name": "mightycut-library",
-  "version": "0.7.16",
-  "description": "MightyCut shared component library — the single source of truth for components, treatments, themes, FX, and Zod contracts, consumed by both the render harness and the web UI.",
+  "version": "0.7.17",
+  "description": "MightyCut shared component library — the single source of truth for components, treatments, themes, FX, and Zod contracts. Consumed by the MotionBuff desktop app.",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.9",
@@ -40,11 +40,11 @@
   "scripts": {
     "gen:fonts": "node scripts/gen-inline-fonts.mjs",
     "lint": "eslint .",
-    "pretypecheck": "pnpm gen:fonts",
+    "pretypecheck": "bun run gen:fonts",
     "typecheck": "tsc --noEmit",
-    "pretest": "pnpm gen:fonts",
+    "pretest": "bun run gen:fonts",
     "test": "bun test",
-    "prebuild:engine": "pnpm gen:fonts",
+    "prebuild:engine": "bun run gen:fonts",
     "build:engine": "vite build && tsc -p tsconfig.types.json"
   },
   "dependencies": {
