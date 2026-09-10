@@ -1,6 +1,6 @@
 {
   "name": "mightycut-library",
-  "version": "0.7.17",
+  "version": "0.7.18",
   "description": "MightyCut shared component library — the single source of truth for components, treatments, themes, FX, and Zod contracts. Consumed by the MotionBuff desktop app.",
   "private": true,
   "type": "module",

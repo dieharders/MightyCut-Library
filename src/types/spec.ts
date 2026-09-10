@@ -15,6 +15,15 @@ import { FRAME_THEME_NAMES } from "./storyboard";
 import { TransitionSpecSchema } from "./transitions";
 import { addIssue } from "../util/issues";
 
+/**
+ * The SHAPE of a Microsoft Edge neural voice name ("en-US-AriaNeural") — the TTS engine speaks
+ * nothing else, and the harness's generate-tts.mjs applies this same guard to every line. The
+ * catalog of actual voices is the HARNESS's (app/src/types/voices.ts, a generated snapshot);
+ * this library states only the shape, so the spec can validate a voice without carrying ~300
+ * names into a schema that ships to the writer as prompt copy.
+ */
+export const EDGE_VOICE_SHAPE = /^[a-z]{2,3}-[A-Z]{2}-.+Neural$/;
+
 const id = z
   .string()
   .regex(/^[a-z][a-z0-9-]*$/, "ids are lowercase kebab-case");
@@ -655,17 +664,31 @@ export const VideoSpecSchema = z
       // FRAME_THEME_NAMES so this enum, the storyboard schema, and FRAME_THEME_TOKENS
       // can't drift. Default standard (the neutral frame theme).
       theme: z.enum(FRAME_THEME_NAMES).default("standard"),
-      // Microsoft Edge neural voices only (the TTS engine) — others fail.
+      // The narration voice — a Microsoft Edge neural voice ShortName (the TTS engine speaks
+      // nothing else; generate-tts.mjs applies the same shape guard per line). NOT an enum of
+      // the catalog: this schema is prompt copy, and the ~300-name catalog would ride into every
+      // create for a field the writer must never author. The harness STAMPS it after generation
+      // (resolveVoice in the harness's types/voices.ts), exactly like meta.theme and meta.hud;
+      // validity against the catalog is enforced where a caller's pick ENTERS (the harness's
+      // request schemas), not here.
       voice: z
-        .enum([
-          "en-US-GuyNeural",
-          "en-US-ChristopherNeural",
-          "en-US-EricNeural",
-          "en-US-AriaNeural",
-          "en-US-JennyNeural",
-          "en-US-MichelleNeural",
-        ])
-        .optional(),
+        .string()
+        .regex(EDGE_VOICE_SHAPE)
+        .optional()
+        .describe(
+          "DO NOT WRITE IT. The narration voice is the caller's setting, stamped after you answer.",
+        ),
+      // The language the deck is WRITTEN in. Two readers: the root's <html lang> (line-breaking
+      // and font fallback for the preview and render) and the harness's narration-locale
+      // fallback when the caller left the voice on Auto. The writer is the only party that
+      // knows what language it wrote in when the caller named none, which is why it is asked.
+      language: z
+        .string()
+        .regex(/^[a-z]{2,3}$/)
+        .optional()
+        .describe(
+          'BCP-47 primary language tag of the language you wrote the deck in ("en", "es", "ja"): the language the prompt asks for, else the language the prompt is written in.',
+        ),
       // `fps` / `width` / `height` are GONE. They were required literals — 30 / 1920 / 1080,
       // the only values the schema ever accepted — so they carried no information: the writer
       // spent three fields of every spec restating a constant, and a repair round on any of
