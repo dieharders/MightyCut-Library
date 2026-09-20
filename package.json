@@ -1,6 +1,6 @@
 {
   "name": "mightycut-library",
-  "version": "0.7.18",
+  "version": "0.7.19",
   "description": "MightyCut shared component library — the single source of truth for components, treatments, themes, FX, and Zod contracts. Consumed by the MotionBuff desktop app.",
   "private": true,
   "type": "module",
@@ -51,13 +51,13 @@
     "zod": "4.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
+    "@eslint/js": "^10.0.1",
     "@types/bun": "1.2.0",
-    "eslint": "^9.17.0",
-    "globals": "^15.14.0",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.0",
+    "typescript-eslint": "^8.65.0",
+    "vite": "^5.4.21",
     "vite-plugin-dts": "^5.0.3"
   }
 }
