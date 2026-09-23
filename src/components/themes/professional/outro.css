@@ -39,3 +39,11 @@
   font-size: var(--font-size-xl);
   letter-spacing: 0.02em;
 }
+/* The optional contact line: plain body type in softened ink under the cobalt pill, inside the
+   white card — the address the action points to, set quieter than the action itself. */
+.closing-plate .contact {
+  margin-top: 1.75rem;
+  font-family: var(--body);
+  font-size: var(--font-size-md);
+  color: color-mix(in srgb, var(--dark) 72%, transparent);
+}

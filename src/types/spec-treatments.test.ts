@@ -51,8 +51,8 @@ describe("LOOKS vocabulary (tripwire)", () => {
   });
 
   // `custom` is the ONE escape hatch and is supposed to stay the one: it means "no look can do
-  // this, a slide engineer builds it by hand". A second uncomposable name would be a kind that
-  // silently renders as a placeholder, which is the defect `composed` was deleted for.
+  // this, so it is built from scratch". A second uncomposable name would be a kind that silently
+  // renders as a placeholder, which is the defect `composed` was deleted for.
   test("custom is the only uncomposable look", () => {
     expect([...UNCOMPOSED_KINDS].sort()).toEqual(["custom"]);
     expect(isComposableKind("custom")).toBe(false);

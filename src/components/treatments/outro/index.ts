@@ -4,7 +4,8 @@ import { outroAnim } from "./anim";
 import { OutroSchema } from "./schema";
 
 /** A full-bleed sign-off: one bold statement card on the theme's primary ground, with
- *  an optional CTA chip. The shapes popping off its corner are DECORATIONS, declared
+ *  an optional CTA chip and an optional contact line beneath it. Either one absent removes
+ *  its node outright (fillSlots). The shapes popping off its corner are DECORATIONS, declared
  *  per theme (theme.decorationDefaults["outro"]) — see cover/index.ts. */
 export const Outro = treatment({
   name: "outro",
@@ -13,6 +14,6 @@ export const Outro = treatment({
   ground: "primary",
   example: { headline: "Stay loud.", cta: "Start building" },
   defaultChildren: () => [],
-  fill: (p) => ({ headline: p.headline, cta: p.cta ?? null }),
+  fill: (p) => ({ headline: p.headline, cta: p.cta ?? null, contact: p.contact ?? null }),
   anim: outroAnim,
 });

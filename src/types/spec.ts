@@ -189,7 +189,7 @@ const stepsField = z
 // ONE data-children container, while a composed slide needed 2-4 heterogeneous slots across six
 // layouts. So it was a kind that always rendered as a placeholder — a second escape hatch beside
 // `custom`, which is the only one there should be. Anything the library can't compose is a
-// `custom` slide, hand-built by the slide engineer. Do not re-add it as a spec kind unless the
+// `custom` slide, built from scratch for that slide. Do not re-add it as a spec kind unless the
 // treatment runtime grows real multi-slot support first.
 
 export const SlideSpecSchema = z.discriminatedUnion("kind", [
@@ -489,7 +489,7 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .min(10)
       .max(400)
       .describe(
-        "Plain-language description of the visual to build (the slide engineer hand-builds it)",
+        "Plain-language description of what the slide shows and how it moves — words, shapes, a diagram, an illustration, a layout, any mix. It is built from scratch for this slide",
       ),
     data: z
       .array(
@@ -515,7 +515,11 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     kicker: sectionKicker,
     title: z.string().min(1).max(80),
     cta: z.string().min(1).max(120),
-    contact: z.string().max(120).optional(),
+    contact: z
+      .string()
+      .max(120)
+      .optional()
+      .describe("Optional contact line under the call to action: a location, an email, a web address"),
   }),
 ]);
 export type SlideSpec = z.infer<typeof SlideSpecSchema>;
