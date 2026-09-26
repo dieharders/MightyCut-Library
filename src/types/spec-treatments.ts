@@ -124,7 +124,7 @@ export const LOOKS = [
   {
     name: "custom",
     label: "Custom slide",
-    when: "Anything no other look can show, built from scratch for this slide: a diagram, an illustration, a typographic or text layout, an animated sequence, or any mix of words, shapes and SVG.",
+    when: "Anything no other look can show, built from scratch: a diagram, illustration, infographic or text layout, animated sequence, or any mix of words, shapes and SVG.",
     composable: false,
   },
 ] as const satisfies readonly LookRow[];
