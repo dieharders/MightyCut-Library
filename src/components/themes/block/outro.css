@@ -38,3 +38,12 @@
   color: var(--dark);
   text-transform: uppercase;
 }
+/* The optional contact line: mono in ink on the plate, under the slab button — no border and no
+   shadow, so it reads as the address, not a second button. */
+.closing-plate .contact {
+  margin-top: 1.75rem;
+  font-family: var(--mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.06em;
+  color: var(--dark);
+}

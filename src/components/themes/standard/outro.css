@@ -50,6 +50,16 @@
   font-size: var(--font-size-sm);
   color: var(--primary);
 }
+/* The optional contact line: body type in ink, set small under the label and above the ink rule
+   (the rule is the stack's ::after, so it still closes the stack) — a reference line, not a
+   second action. */
+.closing-plate .contact {
+  margin-top: 1.5rem;
+  font-family: var(--body);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.04em;
+  color: var(--dark);
+}
 /* THE ONE INK RULE. The reference draws it as a separate .ha node — its "horizontal accent"
    decoration, parked inside the card — but standard's decoration roster has no such family, and
    closingPlateAnim only targets card / headline / cta, so a real node would be inert markup that

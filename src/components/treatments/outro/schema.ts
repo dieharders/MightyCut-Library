@@ -7,5 +7,10 @@ export const OutroSchema = z.object({
     .max(120)
     .optional()
     .describe('Optional call-to-action chip below the headline, e.g. "Get started"'),
+  contact: z
+    .string()
+    .max(120)
+    .optional()
+    .describe('Optional contact line below the call to action, e.g. "hello@acme.com | acme.com"'),
 });
 export type OutroParams = z.infer<typeof OutroSchema>;

@@ -123,8 +123,8 @@ export const LOOKS = [
   },
   {
     name: "custom",
-    label: "Custom visual",
-    when: "A signature visual no other look can show, hand-built by a slide engineer.",
+    label: "Custom slide",
+    when: "Anything no other look can show, built from scratch: a diagram, illustration, infographic or text layout, animated sequence, or any mix of words, shapes and SVG.",
     composable: false,
   },
 ] as const satisfies readonly LookRow[];

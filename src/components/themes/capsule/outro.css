@@ -54,3 +54,12 @@
   font-size: var(--font-size-md);
   color: var(--dark);
 }
+/* The optional contact line: body type in ink under the yellow capsule, uncapsuled — an open
+   line on the open plate, so the capsule stays the one object that asks for the click. */
+.closing-plate .contact {
+  margin-top: 1.75rem;
+  font-family: var(--body);
+  font-size: var(--font-size-md);
+  letter-spacing: 0.02em;
+  color: var(--dark);
+}

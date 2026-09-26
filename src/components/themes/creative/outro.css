@@ -51,3 +51,12 @@
   font-size: var(--font-size-md);
   line-height: 1.2;
 }
+/* The optional contact line: mono in ink on the cream plate, under the seal — no outline, no
+   fill, no shadow, because the plate has already spent the frame's one flourish. */
+.closing-plate .contact {
+  margin-top: 2.25rem;
+  font-family: var(--mono);
+  font-size: var(--font-size-md);
+  letter-spacing: 0.04em;
+  color: var(--dark);
+}

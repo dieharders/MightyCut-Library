@@ -34,3 +34,13 @@
   font-size: var(--font-size-lg);
   color: var(--primary);
 }
+/* The optional contact line: a quiet reference row in the HUD's own voice — mono, tracked, in
+   the body-text Frost — so it reads as an address under the pill rather than a second call to
+   action competing with it. */
+.closing-plate .contact {
+  margin-top: 2.5rem;
+  font-family: var(--mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.08em;
+  color: var(--muted-1);
+}
