@@ -277,12 +277,18 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
     lines: z
       .array(
         z.object({
-          name: z.string().min(1).max(28).describe('This line\'s name in the key, e.g. "Status quo"'),
+          name: z
+            .string()
+            .min(1)
+            .max(28)
+            .describe('This line\'s name in the key, e.g. "Status quo"'),
           values: z
             .array(z.number())
             .min(2)
             .max(8)
-            .describe("One value per point in `series`, in the same order — same length, same categories"),
+            .describe(
+              "One value per point in `series`, in the same order — same length, same categories",
+            ),
         }),
       )
       .min(1)
@@ -489,7 +495,7 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .min(10)
       .max(400)
       .describe(
-        "Plain-language description of what the slide shows and how it moves — words, shapes, a diagram, an illustration, a layout, any mix. It is built from scratch for this slide",
+        "Plain-language description of what the slide shows or what idea/info it conveys",
       ),
     data: z
       .array(
@@ -519,7 +525,9 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .string()
       .max(120)
       .optional()
-      .describe("Optional contact line under the call to action: a location, an email, a web address"),
+      .describe(
+        "Optional contact line under the call to action: a location, an email, a web address",
+      ),
   }),
 ]);
 export type SlideSpec = z.infer<typeof SlideSpecSchema>;
@@ -717,7 +725,11 @@ export const VideoSpecSchema = z
       addIssue(ctx, ["slides", 0], "first slide must be kind 'cover'");
     }
     if (spec.slides[spec.slides.length - 1]?.kind !== "outro") {
-      addIssue(ctx, ["slides", spec.slides.length - 1], "last slide must be kind 'outro'");
+      addIssue(
+        ctx,
+        ["slides", spec.slides.length - 1],
+        "last slide must be kind 'outro'",
+      );
     }
     const slideIds = new Set(spec.slides.map((s) => s.id));
     if (slideIds.size !== spec.slides.length) {
@@ -728,7 +740,11 @@ export const VideoSpecSchema = z
       if (slide.kind !== "matrix") continue;
       for (const [r, row] of slide.rows.entries()) {
         if (row.values.length !== slide.criteria.length) {
-          addIssue(ctx, ["slides", i, "rows", r, "values"], `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`);
+          addIssue(
+            ctx,
+            ["slides", i, "rows", r, "values"],
+            `row has ${row.values.length} values but there are ${slide.criteria.length} criteria`,
+          );
         }
       }
     }
@@ -767,14 +783,22 @@ export const VideoSpecSchema = z
       }
       lineIds.add(line.id);
       if (!slideIds.has(line.slideId)) {
-        addIssue(ctx, ["voiceover", i, "slideId"], `slideId '${line.slideId}' does not match any slide`);
+        addIssue(
+          ctx,
+          ["voiceover", i, "slideId"],
+          `slideId '${line.slideId}' does not match any slide`,
+        );
       }
     }
     // Every slide needs narration — slides are timed by their VO lines.
     const narrated = new Set(spec.voiceover.map((l) => l.slideId));
     for (const [i, slide] of spec.slides.entries()) {
       if (!narrated.has(slide.id)) {
-        addIssue(ctx, ["slides", i], `slide '${slide.id}' has no voiceover lines`);
+        addIssue(
+          ctx,
+          ["slides", i],
+          `slide '${slide.id}' has no voiceover lines`,
+        );
       }
     }
     // VO lines must be grouped per slide, in slide order, so timing is contiguous.
@@ -783,7 +807,11 @@ export const VideoSpecSchema = z
     for (const [i, line] of spec.voiceover.entries()) {
       const idx = order.indexOf(line.slideId);
       if (idx < prevIdx) {
-        addIssue(ctx, ["voiceover", i], "voiceover lines must be ordered by slide order (all lines of a slide contiguous)");
+        addIssue(
+          ctx,
+          ["voiceover", i],
+          "voiceover lines must be ordered by slide order (all lines of a slide contiguous)",
+        );
         break;
       }
       prevIdx = idx;
