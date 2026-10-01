@@ -12,7 +12,7 @@
 // mountPreview actually touches — the same sandbox approach boxless-reveal.test.ts takes
 // with mc.js. requestAnimationFrame is a no-op: the settle/scale pass needs real layout and
 // a real gsap, and nothing here is about animation.
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { BACKDROPS, BACKDROPS_CSS } from "../components/primitives/backdrops";
 import "../components/registry"; // populate the registry
 import { getComponent, getTreatment } from "../components/runtime/registry";
@@ -137,5 +137,120 @@ describe("preview stage surface (tripwire)", () => {
     mountPreview(container as unknown as HTMLElement, getComponent("stat")(), blockTheme, {});
     const style = container.shadowRoot!.childNodes.find((n) => n.tagName === "style")!;
     expect(stageRule(style.textContent)).toContain("#fafafa"); // block pins no previewBg
+  });
+});
+
+// Every preview is its own shadow root, and a <style> there is parsed for that root alone — so a
+// page of previews parsed the same ~9 KB of theme tokens, stage rules and backdrop masks once per
+// card. That was the lag when stepping through themes in the showcase. Where the webview has
+// constructable sheets, each distinct text is parsed ONCE and adopted by every shadow that needs it.
+describe("preview sheets are parsed once and shared", () => {
+  class FakeSheet {
+    text = "";
+    replaceSync(text: string): void {
+      parses.push(text);
+      this.text = text;
+    }
+  }
+  const parses: string[] = [];
+  type AdoptingShadow = FakeEl & { adoptedStyleSheets: FakeSheet[] };
+
+  beforeAll(() => {
+    g.CSSStyleSheet = FakeSheet;
+  });
+  afterAll(() => {
+    delete g.CSSStyleSheet;
+  });
+
+  /** Mount into a container whose shadow root supports adoptedStyleSheets. */
+  const mountAdopting = (treatment = "cover") => {
+    const container = el("div");
+    container.attachShadow = () =>
+      (container.shadowRoot = Object.assign(el("#shadow-root"), { adoptedStyleSheets: [] }));
+    const handle = mountPreview(container as unknown as HTMLElement, getTreatment(treatment)(), blockTheme, {});
+    return { shadow: container.shadowRoot as AdoptingShadow, handle };
+  };
+
+  test("the theme sheet is parsed once however many previews mount", () => {
+    const themeText = blockTheme.css.replace(/:root/g, ":host");
+    const mounted = ["cover", "outro", "stats", "cover"].map((t) => mountAdopting(t).shadow);
+
+    expect(parses.filter((t) => t === themeText)).toHaveLength(1);
+    // Shared by identity, not merely equal: that is what spares the parse.
+    for (const shadow of mounted) expect(shadow.adoptedStyleSheets[0]).toBe(mounted[0].adoptedStyleSheets[0]);
+    // Two previews of the same thing share every layer, so the second parses nothing new.
+    expect(mounted[3].adoptedStyleSheets).toEqual(mounted[0].adoptedStyleSheets);
+  });
+
+  test("layers keep the cascade order, the element's own CSS last", () => {
+    const { shadow } = mountAdopting();
+    const [theme, stage, backdrops, element] = shadow.adoptedStyleSheets.map((s) => s.text);
+
+    expect(shadow.adoptedStyleSheets).toHaveLength(4);
+    expect(theme).toContain(":host");
+    expect(stage).toContain(".mc-preview-stage {");
+    expect(backdrops).toBe(BACKDROPS_CSS);
+    expect(element.length).toBeGreaterThan(0);
+    // Adopted sheets cascade AFTER a shadow's own <style>, so a leftover <style> would sit
+    // behind every layer above instead of in its place.
+    expect(shadow.childNodes.some((n) => n.tagName === "style")).toBe(false);
+  });
+
+  test("destroy releases the adopted sheets", () => {
+    const { shadow, handle } = mountAdopting();
+    handle.destroy();
+    expect(shadow.adoptedStyleSheets).toHaveLength(0);
+  });
+});
+
+// The timeline is built in the first animation frame after the mount (gsap needs real layout), so
+// a replay asked for before then has nothing to restart. A preview mounted on demand and replayed
+// straight away (the editor's Replay on a slide that has only just been mounted) must still play.
+describe("replay before the first settle", () => {
+  let frames: (() => void)[] = [];
+  let restarts = 0;
+  let timelines = 0;
+
+  beforeAll(() => {
+    const tl = {
+      restart: () => void restarts++,
+      progress: () => tl,
+      pause: () => tl,
+      kill: () => {},
+      duration: () => 0,
+      time: () => tl,
+      eventCallback: () => tl,
+    };
+    g.gsap = { timeline: () => (timelines++, tl) };
+    g.MC = { applyAnims: () => {}, showcaseCtx: () => ({}) };
+    g.requestAnimationFrame = (cb: () => void) => frames.push(cb);
+  });
+  afterAll(() => {
+    delete g.gsap;
+    delete g.MC;
+    g.requestAnimationFrame = () => 0;
+  });
+
+  const mountFresh = () => {
+    frames = [];
+    restarts = 0;
+    timelines = 0;
+    return mountPreview(el("div") as unknown as HTMLElement, getTreatment("cover")(), blockTheme, {});
+  };
+
+  test("is held and played once the timeline exists", () => {
+    const handle = mountFresh();
+    handle.replay();
+    expect(restarts).toBe(0);
+
+    frames.forEach((f) => f());
+    expect(restarts).toBe(1);
+  });
+
+  test("a preview destroyed before its first frame never builds a timeline", () => {
+    const handle = mountFresh();
+    handle.destroy();
+    frames.forEach((f) => f());
+    expect(timelines).toBe(0);
   });
 });

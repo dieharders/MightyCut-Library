@@ -152,6 +152,46 @@ ${frame ? "" : ".mc-preview-stage--comp .mc-preview-stage-inner > * { position: 
 // Fraction of the preview box a fitted component fills (when it's larger than the box).
 const COMP_FILL = 0.85;
 
+/**
+ * PARSED SHEETS ARE SHARED ACROSS PREVIEWS, keyed by their text.
+ *
+ * Every preview is its own shadow root, and a `<style>` there is parsed for that root alone. Each
+ * one carried ~11–15 KB, ~9 KB of it identical in every card (theme tokens, stage rules, backdrop
+ * masks), so a page of previews parsed the same text once per card: a theme switch in the showcase
+ * remounts ~37 cards, ~400 KB of CSS in one task, and the editor reel paid it per slide. A
+ * constructable sheet is parsed once and adopted by every shadow that needs it, so only the first
+ * mount of each distinct text pays.
+ *
+ * ALL FOUR layers are adopted, element CSS included, because adopted sheets cascade AFTER a
+ * shadow's own `<style>` elements: leaving the element's sheet as a `<style>` would quietly put it
+ * BEHIND the stage and backdrop rules it is meant to override.
+ *
+ * Bounded (least-recently-used out) because element CSS varies with what is mounted. Dropping a
+ * sheet from here never unstyles a mounted preview, whose shadow still holds it.
+ */
+const SHEET_CACHE_MAX = 128;
+const sheets = new Map<string, CSSStyleSheet>();
+
+const sheetFor = (text: string): CSSStyleSheet => {
+  const hit = sheets.get(text);
+  if (hit) {
+    sheets.delete(text); // re-insert: Map order is the recency order
+    sheets.set(text, hit);
+    return hit;
+  }
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(text);
+  sheets.set(text, sheet);
+  if (sheets.size > SHEET_CACHE_MAX) sheets.delete(sheets.keys().next().value!);
+  return sheet;
+};
+
+/** Constructable sheets: WebKit 16.4+, Chromium 73+. Anything older falls back to one `<style>`. */
+const canAdopt = (shadow: ShadowRoot): boolean =>
+  "adoptedStyleSheets" in shadow &&
+  typeof CSSStyleSheet === "function" &&
+  typeof CSSStyleSheet.prototype.replaceSync === "function";
+
 /** Visual bounding rect of a preview's content, used to fit-scale it. Normally the root's
  *  single child box; but a display:contents fragment (the ledger Row) has no box of its own
  *  (reports 0×0), so fall back to the union of its descendant boxes. Returns null when empty. */
@@ -234,7 +274,6 @@ export const mountPreview = (
   const shadow =
     container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
-  const style = document.createElement("style");
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
   // (the stage surface is the SCENE's ground for a treatment, else the theme's previewBg, else a
   // light default — see `surface` above; a `var(--role)` resolves because the tokens land on
@@ -250,8 +289,20 @@ export const mountPreview = (
   // without this the showcase/editor preview would mount the mask element unstyled. Unscoped
   // is correct here — the shadow root already isolates it, and the rules are per-scene
   // invariant by construction.
-  style.textContent = `${theme.css.replace(/:root/g, ":host")}\n${previewCss(frame, surface, fg, scheme, compId, canvas, designBox)}\n${BACKDROPS_CSS}\n${css}`;
-  shadow.appendChild(style);
+  const layers = [
+    theme.css.replace(/:root/g, ":host"),
+    previewCss(frame, surface, fg, scheme, compId, canvas, designBox),
+    BACKDROPS_CSS,
+    css,
+  ];
+  const adopt = canAdopt(shadow);
+  if (adopt) {
+    shadow.adoptedStyleSheets = layers.map(sheetFor); // see `sheets` above
+  } else {
+    const style = document.createElement("style");
+    style.textContent = layers.join("\n");
+    shadow.appendChild(style);
+  }
 
   const stage = document.createElement("div");
   stage.className = frame
@@ -332,12 +383,19 @@ export const mountPreview = (
     timeline.time(holdAt).pause(); // settle to the composed frame so content is visible at rest
   };
 
+  // A replay asked for before the first settle has no timeline to restart yet. It is held and
+  // played once there is one, rather than dropped: a caller that mounts and immediately replays
+  // (a preview mounted on demand, then asked to replay) would otherwise get nothing.
+  let replayQueued = false;
+  let destroyed = false;
   // Settle + scale after the shadow is attached + laid out (gsap needs real layout).
   // Settle FIRST so any count-up text is at its final (widest) value before we measure
   // the content to fit-scale it — otherwise a stat sized on "0" would over-scale.
   requestAnimationFrame(() => {
+    if (destroyed) return; // destroyed in the same frame: nothing to settle, and no tl to leak
     settle();
     scale();
+    if (replayQueued) tl?.restart();
   });
   const ro =
     typeof ResizeObserver !== "undefined"
@@ -350,11 +408,16 @@ export const mountPreview = (
   fonts?.ready?.then(() => scale()).catch(() => {});
 
   return {
-    replay: () => tl?.restart(),
+    replay: () => {
+      if (tl) tl.restart();
+      else replayQueued = true;
+    },
     destroy: () => {
+      destroyed = true;
       ro?.disconnect();
       tl?.kill();
       shadow.replaceChildren();
+      if (adopt) shadow.adoptedStyleSheets = [];
     },
   };
 };
