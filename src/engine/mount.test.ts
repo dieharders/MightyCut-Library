@@ -17,7 +17,7 @@ import { BACKDROPS, BACKDROPS_CSS } from "../components/primitives/backdrops";
 import "../components/registry"; // populate the registry
 import { getComponent, getTreatment } from "../components/runtime/registry";
 import { blockTheme } from "../components/themes/block/theme";
-import { mountPreview, type MountPreviewOptions } from "./mount";
+import { mountPreview, resetPreviewSheetCache, type MountPreviewOptions } from "./mount";
 
 /* ------------------------------------------------------------- fake DOM --- */
 
@@ -74,14 +74,19 @@ g.document = { createElement: (tag: string) => el(tag), head: el("head") };
 g.window = globalThis;
 g.requestAnimationFrame = () => 0;
 
+/** The shadow's CSS on either path: adopted sheets where the window has them, else the one <style>. */
+const shadowCss = (shadow: FakeEl & { adoptedStyleSheets?: { text: string }[] }): string =>
+  shadow.adoptedStyleSheets?.length
+    ? shadow.adoptedStyleSheets.map((s) => s.text).join("\n")
+    : shadow.childNodes.find((n) => n.tagName === "style")!.textContent;
+
 /** Mount a block treatment (default `cover`) and hand back the shadow's stylesheet + markup. */
 const mount = (opts: MountPreviewOptions = {}, treatment = "cover"): { css: string; html: string } => {
   const container = el("div");
   mountPreview(container as unknown as HTMLElement, getTreatment(treatment)(), blockTheme, opts);
   const shadow = container.shadowRoot!;
-  const style = shadow.childNodes.find((n) => n.tagName === "style")!;
   const stage = shadow.childNodes.find((n) => n.tagName === "div")!;
-  return { css: style.textContent, html: stage.childNodes[0].innerHTML };
+  return { css: shadowCss(shadow), html: stage.childNodes[0].innerHTML };
 };
 
 /* ---------------------------------------------------------------- tests --- */
@@ -135,8 +140,7 @@ describe("preview stage surface (tripwire)", () => {
   test("a bare COMPONENT keeps the theme's preview surface (it has no ground)", () => {
     const container = el("div");
     mountPreview(container as unknown as HTMLElement, getComponent("stat")(), blockTheme, {});
-    const style = container.shadowRoot!.childNodes.find((n) => n.tagName === "style")!;
-    expect(stageRule(style.textContent)).toContain("#fafafa"); // block pins no previewBg
+    expect(stageRule(shadowCss(container.shadowRoot!))).toContain("#fafafa"); // block pins no previewBg
   });
 });
 
@@ -155,31 +159,85 @@ describe("preview sheets are parsed once and shared", () => {
   const parses: string[] = [];
   type AdoptingShadow = FakeEl & { adoptedStyleSheets: FakeSheet[] };
 
+  // The sheet cache is module state: reset on both sides so no other suite's sheets answer here,
+  // and none of these FakeSheets answer a later suite's lookups.
   beforeAll(() => {
+    resetPreviewSheetCache();
     g.CSSStyleSheet = FakeSheet;
   });
   afterAll(() => {
     delete g.CSSStyleSheet;
+    resetPreviewSheetCache();
   });
 
-  /** Mount into a container whose shadow root supports adoptedStyleSheets. */
-  const mountAdopting = (treatment = "cover") => {
+  const adoptingShadow = (extra: Partial<AdoptingShadow> = {}): AdoptingShadow =>
+    Object.assign(el("#shadow-root"), { adoptedStyleSheets: [] as FakeSheet[] }, extra);
+
+  /** Mount into a container whose shadow root supports adoptedStyleSheets (or into `shadow`, reused). */
+  const mountAdopting = (treatment = "cover", shadow?: AdoptingShadow) => {
     const container = el("div");
-    container.attachShadow = () =>
-      (container.shadowRoot = Object.assign(el("#shadow-root"), { adoptedStyleSheets: [] }));
+    if (shadow) container.shadowRoot = shadow;
+    container.attachShadow = () => (container.shadowRoot = adoptingShadow());
     const handle = mountPreview(container as unknown as HTMLElement, getTreatment(treatment)(), blockTheme, {});
     return { shadow: container.shadowRoot as AdoptingShadow, handle };
   };
 
   test("the theme sheet is parsed once however many previews mount", () => {
     const themeText = blockTheme.css.replace(/:root/g, ":host");
-    const mounted = ["cover", "outro", "stats", "cover"].map((t) => mountAdopting(t).shadow);
+    const mounted = ["cover", "outro", "stats"].map((t) => mountAdopting(t).shadow);
 
     expect(parses.filter((t) => t === themeText)).toHaveLength(1);
     // Shared by identity, not merely equal: that is what spares the parse.
     for (const shadow of mounted) expect(shadow.adoptedStyleSheets[0]).toBe(mounted[0].adoptedStyleSheets[0]);
-    // Two previews of the same thing share every layer, so the second parses nothing new.
-    expect(mounted[3].adoptedStyleSheets).toEqual(mounted[0].adoptedStyleSheets);
+
+    // A second preview of the same thing shares EVERY layer by identity and parses nothing new.
+    const before = parses.length;
+    const again = mountAdopting("cover").shadow;
+    expect(parses.length).toBe(before);
+    again.adoptedStyleSheets.forEach((s, i) => expect(s).toBe(mounted[0].adoptedStyleSheets[i]));
+  });
+
+  test("a container in another document gets sheets built by THAT window", () => {
+    // Adopting a sheet built by another document's constructor throws NotAllowedError.
+    class FrameSheet extends FakeSheet {}
+    const frameDoc = { defaultView: { CSSStyleSheet: FrameSheet } };
+    const { shadow } = mountAdopting("cover", adoptingShadow({ ownerDocument: frameDoc } as never));
+
+    expect(shadow.adoptedStyleSheets).toHaveLength(4);
+    for (const s of shadow.adoptedStyleSheets) expect(s).toBeInstanceOf(FrameSheet);
+    // …and the host document's cache is not handed the frame's sheets either.
+    expect(mountAdopting().shadow.adoptedStyleSheets[0]).not.toBeInstanceOf(FrameSheet);
+  });
+
+  test("sheets the host adopted survive mount and destroy, ahead of the preview's", () => {
+    const hostSheet = new FakeSheet();
+    const { shadow, handle } = mountAdopting("cover", adoptingShadow({ adoptedStyleSheets: [hostSheet] }));
+
+    expect(shadow.adoptedStyleSheets).toHaveLength(5);
+    expect(shadow.adoptedStyleSheets[0]).toBe(hostSheet);
+    handle.destroy();
+    expect(shadow.adoptedStyleSheets).toEqual([hostSheet]);
+  });
+
+  test("a remount into the same shadow replaces the old preview's sheets", () => {
+    const { shadow } = mountAdopting("cover");
+    mountAdopting("outro", shadow);
+    expect(shadow.adoptedStyleSheets).toHaveLength(4);
+  });
+
+  test("a stale handle destroyed after a remount leaves the live preview alone", () => {
+    const { shadow, handle: stale } = mountAdopting("cover");
+    const { handle: live } = mountAdopting("outro", shadow); // new mount first, then the old destroy
+    const sheets = [...shadow.adoptedStyleSheets];
+    const children = [...shadow.childNodes];
+
+    stale.destroy();
+    expect(shadow.adoptedStyleSheets).toEqual(sheets);
+    expect(shadow.childNodes).toEqual(children);
+
+    live.destroy();
+    expect(shadow.adoptedStyleSheets).toHaveLength(0);
+    expect(shadow.childNodes).toHaveLength(0);
   });
 
   test("layers keep the cascade order, the element's own CSS last", () => {
@@ -252,5 +310,72 @@ describe("replay before the first settle", () => {
     handle.destroy();
     frames.forEach((f) => f());
     expect(timelines).toBe(0);
+  });
+
+  /** Run the frames queued so far (not ones they queue in turn). */
+  const tick = () => {
+    const now = frames;
+    frames = [];
+    now.forEach((f) => f());
+  };
+
+  // bootstrapFx injects gsap + mc.js as <script>s, which may not have evaluated by the first frame.
+  test("a queued replay survives gsap arriving after the first frame", () => {
+    const gsap = g.gsap;
+    delete g.gsap;
+    const handle = mountFresh();
+    handle.replay();
+    tick(); // no gsap yet: nothing to settle, and the settle is retried next frame
+    expect(timelines).toBe(0);
+
+    g.gsap = gsap;
+    tick();
+    expect(timelines).toBe(1);
+    expect(restarts).toBe(1);
+  });
+
+  test("a replay after the first frame builds the timeline gsap was missing for", () => {
+    const gsap = g.gsap;
+    delete g.gsap;
+    const handle = mountFresh();
+    tick();
+    g.gsap = gsap;
+
+    handle.replay();
+    expect(timelines).toBe(1);
+    expect(restarts).toBe(1);
+    tick(); // the pending retry must not build a second timeline
+    expect(timelines).toBe(1);
+  });
+});
+
+// Webfonts re-fit the preview once they load, which can be long after the card is gone.
+describe("a destroyed preview is never re-fit", () => {
+  const doc = g.document as Record<string, unknown>;
+  const created: FakeEl[] = [];
+  let loadFonts = () => {};
+
+  beforeAll(() => {
+    doc.createElement = (tag: string) => {
+      const node = el(tag);
+      created.push(node);
+      return node;
+    };
+    doc.fonts = { ready: new Promise<void>((resolve) => (loadFonts = resolve)) };
+  });
+  afterAll(() => {
+    doc.createElement = (tag: string) => el(tag);
+    delete doc.fonts;
+  });
+
+  test("fonts.ready resolving after destroy leaves the stage untouched", async () => {
+    const handle = mountPreview(el("div") as unknown as HTMLElement, getTreatment("cover")(), blockTheme, {});
+    const inner = created.find((n) => n.className === "mc-preview-stage-inner")!;
+    handle.destroy();
+
+    loadFonts();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(inner.style.transform).toBeUndefined();
   });
 });

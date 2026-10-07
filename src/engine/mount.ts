@@ -168,29 +168,81 @@ const COMP_FILL = 0.85;
  *
  * Bounded (least-recently-used out) because element CSS varies with what is mounted. Dropping a
  * sheet from here never unstyles a mounted preview, whose shadow still holds it.
+ *
+ * ONE CACHE PER DOCUMENT. A constructed sheet can only be adopted in the document whose
+ * CSSStyleSheet built it, so a container in an iframe or pop-out window gets sheets built by that
+ * window's constructor, never the host's (adopting a host sheet there throws NotAllowedError).
+ *
+ * THE SHARED SHEETS ARE READ-ONLY. One sheet object styles every preview of the same text, so an
+ * in-place edit (`insertRule`, `replaceSync`, devtools) on one card's sheet restyles all of them and
+ * every later mount that hits the cache. Restyle a single card by adopting an extra sheet of your
+ * own into its shadow (mount and destroy leave sheets they did not build alone), never by mutating
+ * one of these.
  */
 const SHEET_CACHE_MAX = 128;
-const sheets = new Map<string, CSSStyleSheet>();
+type SheetCache = Map<string, CSSStyleSheet>;
+let sheetCaches = new WeakMap<Document, SheetCache>();
+/** Every sheet this module built — how mount/destroy tell their own sheets from the host's. */
+let ownSheets = new WeakSet<CSSStyleSheet>();
 
-const sheetFor = (text: string): CSSStyleSheet => {
+/** Test hook: forget every cached sheet so one suite's fakes can't answer another's lookups. */
+export const resetPreviewSheetCache = (): void => {
+  sheetCaches = new WeakMap();
+  ownSheets = new WeakSet();
+};
+
+const sheetFor = (doc: Document, Sheet: typeof CSSStyleSheet, text: string): CSSStyleSheet => {
+  let sheets = sheetCaches.get(doc);
+  if (!sheets) sheetCaches.set(doc, (sheets = new Map()));
   const hit = sheets.get(text);
   if (hit) {
     sheets.delete(text); // re-insert: Map order is the recency order
     sheets.set(text, hit);
     return hit;
   }
-  const sheet = new CSSStyleSheet();
+  const sheet = new Sheet();
   sheet.replaceSync(text);
+  ownSheets.add(sheet);
   sheets.set(text, sheet);
   if (sheets.size > SHEET_CACHE_MAX) sheets.delete(sheets.keys().next().value!);
   return sheet;
 };
 
-/** Constructable sheets: WebKit 16.4+, Chromium 73+. Anything older falls back to one `<style>`. */
-const canAdopt = (shadow: ShadowRoot): boolean =>
-  "adoptedStyleSheets" in shadow &&
-  typeof CSSStyleSheet === "function" &&
-  typeof CSSStyleSheet.prototype.replaceSync === "function";
+/**
+ * The CSSStyleSheet constructor of the window that owns `shadow`, or null when that window can't
+ * build constructable sheets (WebKit before 16.4, Chromium before 73), which falls back to one `<style>`.
+ */
+const sheetCtorFor = (shadow: ShadowRoot): typeof CSSStyleSheet | null => {
+  if (!("adoptedStyleSheets" in shadow)) return null;
+  const doc = shadow.ownerDocument ?? document;
+  const view = (doc === document ? globalThis : doc.defaultView) as
+    | { CSSStyleSheet?: typeof CSSStyleSheet }
+    | null;
+  const Sheet = view?.CSSStyleSheet;
+  return typeof Sheet === "function" && typeof Sheet.prototype.replaceSync === "function"
+    ? Sheet
+    : null;
+};
+
+/**
+ * The theme's `:root` tokens re-scoped to `:host`, memoised per theme. Without it every mount
+ * re-ran the regex over ~9 KB and handed the sheet cache a NEW string, which it then hashed and
+ * compared in full. The same string instance keeps its cached hash and compares by pointer.
+ */
+const hostCssMemo = new WeakMap<ThemeTokens, { src: string; out: string }>();
+const hostCssFor = (theme: ThemeTokens): string => {
+  const memo = hostCssMemo.get(theme);
+  if (memo && memo.src === theme.css) return memo.out;
+  const out = theme.css.replace(/:root/g, ":host");
+  hostCssMemo.set(theme, { src: theme.css, out });
+  return out;
+};
+
+/** Which mount currently owns each shadow root, so a superseded handle's destroy leaves it alone. */
+const currentMount = new WeakMap<ShadowRoot, object>();
+
+/** How many frames the first settle waits for gsap + mc.js (injected by bootstrapFx) to evaluate. */
+const SETTLE_RETRY_FRAMES = 120;
 
 /** Visual bounding rect of a preview's content, used to fit-scale it. Normally the root's
  *  single child box; but a display:contents fragment (the ledger Row) has no box of its own
@@ -273,6 +325,8 @@ export const mountPreview = (
 
   const shadow =
     container.shadowRoot ?? container.attachShadow({ mode: "open" });
+  const token = {};
+  currentMount.set(shadow, token); // any earlier handle on this shadow is now superseded
   shadow.replaceChildren();
   // theme `:root` tokens → `:host` (isolated, inherited by shadow content) + preview CSS
   // (the stage surface is the SCENE's ground for a treatment, else the theme's previewBg, else a
@@ -290,14 +344,23 @@ export const mountPreview = (
   // is correct here — the shadow root already isolates it, and the rules are per-scene
   // invariant by construction.
   const layers = [
-    theme.css.replace(/:root/g, ":host"),
+    hostCssFor(theme),
     previewCss(frame, surface, fg, scheme, compId, canvas, designBox),
     BACKDROPS_CSS,
     css,
   ];
-  const adopt = canAdopt(shadow);
-  if (adopt) {
-    shadow.adoptedStyleSheets = layers.map(sheetFor); // see `sheets` above
+  const Sheet = sheetCtorFor(shadow);
+  const adopt = Sheet !== null;
+  if (Sheet) {
+    // See `sheetCaches` above. Sheets the host adopted into a shadow it provided stay, ahead of
+    // ours so the preview's layers still win the cascade; a previous mount's sheets are replaced.
+    // NOTE the shadow then holds NO <style> element: code that inspects a preview's CSS reads
+    // `shadow.adoptedStyleSheets` here and the <style> only on the fallback path below.
+    const doc = shadow.ownerDocument ?? document;
+    shadow.adoptedStyleSheets = [
+      ...shadow.adoptedStyleSheets.filter((s) => !ownSheets.has(s)),
+      ...layers.map((text) => sheetFor(doc, Sheet, text)),
+    ];
   } else {
     const style = document.createElement("style");
     style.textContent = layers.join("\n");
@@ -314,9 +377,9 @@ export const mountPreview = (
   stage.appendChild(inner);
   shadow.appendChild(stage);
 
-  const gsap = (window as unknown as { gsap?: GsapGlobal }).gsap;
-  const MC = (window as unknown as { MC?: McGlobal }).MC;
+  let destroyed = false;
   const scale = (): void => {
+    if (destroyed) return; // a late fonts.ready / queued resize must not touch a torn-down preview
     if (frame) {
       // Frame: scale the design-unit scene onto the visible stage. The divisor MUST be the
       // box previewCss actually sized the inner element with — hence one `designBox` for both.
@@ -346,6 +409,11 @@ export const mountPreview = (
       ? (instance as TreatmentInstance).pageTransition()
       : null;
   const settle = (): void => {
+    if (tl) return; // one timeline per mount
+    // Read at settle time, not mount time: bootstrapFx may have injected gsap + mc.js only now,
+    // and they define these globals when they evaluate, which can be a frame or more later.
+    const gsap = (window as unknown as { gsap?: GsapGlobal }).gsap;
+    const MC = (window as unknown as { MC?: McGlobal }).MC;
     if (!gsap || !MC) return;
     const timeline = (tl = gsap.timeline({ paused: true }));
     MC.applyAnims(timeline, anims, MC.showcaseCtx(inner));
@@ -387,16 +455,24 @@ export const mountPreview = (
   // played once there is one, rather than dropped: a caller that mounts and immediately replays
   // (a preview mounted on demand, then asked to replay) would otherwise get nothing.
   let replayQueued = false;
-  let destroyed = false;
+  let laidOut = false; // the first frame has run, so settle() has real layout to work with
   // Settle + scale after the shadow is attached + laid out (gsap needs real layout).
   // Settle FIRST so any count-up text is at its final (widest) value before we measure
   // the content to fit-scale it — otherwise a stat sized on "0" would over-scale.
-  requestAnimationFrame(() => {
-    if (destroyed) return; // destroyed in the same frame: nothing to settle, and no tl to leak
+  // If gsap/mc.js haven't evaluated yet, settle() leaves tl null; retry on later frames
+  // (bounded) so the timeline, and any replay queued meanwhile, isn't lost for good.
+  let tries = 0;
+  const firstSettle = (): void => {
+    if (destroyed) return; // destroyed before this frame: nothing to settle, and no tl to leak
+    laidOut = true;
     settle();
     scale();
-    if (replayQueued) tl?.restart();
-  });
+    if (tl) {
+      if (replayQueued) tl.restart();
+      replayQueued = false;
+    } else if (++tries < SETTLE_RETRY_FRAMES) requestAnimationFrame(firstSettle);
+  };
+  requestAnimationFrame(firstSettle);
   const ro =
     typeof ResizeObserver !== "undefined"
       ? new ResizeObserver(() => scale())
@@ -409,15 +485,27 @@ export const mountPreview = (
 
   return {
     replay: () => {
+      if (destroyed) return;
+      // Past the first frame with no timeline yet (gsap/mc.js arrived late): build it now.
+      if (!tl && laidOut) {
+        settle();
+        scale();
+      }
       if (tl) tl.restart();
       else replayQueued = true;
     },
     destroy: () => {
+      if (destroyed) return;
       destroyed = true;
       ro?.disconnect();
       tl?.kill();
+      // A later mount into the same shadow owns its children and sheets now; a stale handle
+      // destroyed after that remount must not strip the live preview.
+      if (currentMount.get(shadow) !== token) return;
+      currentMount.delete(shadow);
       shadow.replaceChildren();
-      if (adopt) shadow.adoptedStyleSheets = [];
+      // Only the sheets this module adopted go; a host's own sheets stay.
+      if (adopt) shadow.adoptedStyleSheets = shadow.adoptedStyleSheets.filter((s) => !ownSheets.has(s));
     },
   };
 };
