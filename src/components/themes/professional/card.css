@@ -45,3 +45,11 @@
   color: var(--muted-3);
   margin-top: 0.875rem;
 }
+/* THE BADGE DRAWS AN ICON, not typed text: the card primitive injects the shared icon set's
+   inline SVG (icons.ts), and the glyph paints through currentColor — cream on the cobalt fill,
+   the same reading icon.css gives the standalone badge. 55% of the badge. */
+.card-icon svg {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+}

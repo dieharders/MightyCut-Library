@@ -35,21 +35,12 @@
   color: var(--dark);
   max-width: 80rem;
 }
-/* The seal. Same object as the cta component (see cta.css) — green fill, cream mono label, square,
-   0.5rem ink outline — but deliberately WITHOUT the offset shadow: the frame's one flourish is
-   already spent on the plate, and stacking a second would break the "fires once per frame" rule
-   that makes the first one read. */
-.closing-plate .cta {
+/* THE SEAL IS THE CTA COMPONENT (cta.css: green fill, cream mono label, square, 0.5rem ink
+   outline, and no shadow — see there for why the stamp casts none anywhere in this theme). This
+   is its one child; all the plate states is the gap under the headline. The frame's one flourish
+   is already spent on the plate, so the seal rightly adds none. */
+.closing-plate .cta-c {
   margin-top: 3.625rem;
-  background: var(--accent-2);
-  color: var(--light);
-  border: 0.5rem solid var(--dark);
-  padding: 1.5rem 3.125rem;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: var(--font-size-md);
-  line-height: 1.2;
 }
 /* The optional contact line: mono in ink on the cream plate, under the seal — no outline, no
    fill, no shadow, because the plate has already spent the frame's one flourish. */

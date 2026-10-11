@@ -1,4 +1,13 @@
-/* A scored matrix row: an option label plus one check/cross per criteria column.
+/* A scored matrix row: ONE GLASS PANEL holding the option label and one mark per criteria column.
+
+   THE ROW IS THE CONTAINER. The plate used to sit on the label alone, with every mark in a plate
+   of its own — a row of five buttons beside a label — so the eye read six objects per option
+   instead of one. The panel now wraps the whole row (the reference frame: Legacy SATCOM, its
+   qualifier and its four marks inside one hairlined glass plate), and the marks are small
+   square-aspect icons set on the glass, not plates. The proposed system's panel lights up: a
+   cyan keyline and glow, its label in cyan — mixed off the `--mhi` 0/1 flag rather than selected
+   on, so the component keeps one contract and each theme spends it in its own language. `--mhi`
+   also scales the glow, which is exactly what a numeric flag is for.
 
    NOT display:contents, unlike the comparison `row` next door. That row has three fixed children
    which can each be a direct item of one shared ledger grid; this one has two — a label and a
@@ -12,33 +21,39 @@
   grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
   align-items: center;
-}
-/* The label is bare type on the ground, as the ledger's stub is. The proposed system is the
-   exception: it lights up, taking the cyan keyline and glow the ledger's answer cell wears, mixed
-   off the `--mhi` 0/1 flag rather than selected on — the component keeps one contract and each
-   theme spends it in its own language. `--mhi` also scales the glow, which is exactly what a
-   numeric flag is for: an unlit row's shadow has zero spread rather than a second rule. */
-.mrow .ml {
-  padding: 0.75rem 1.25rem;
+  padding: 1.25rem 2rem;
   border-radius: 0.875rem;
-  border: 0.125rem solid color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 55%), transparent);
-  background: color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 8%), transparent);
-  box-shadow: 0 0 calc(var(--mhi, 0) * 1.875rem) color-mix(in srgb, var(--primary) 22%, transparent);
-  /* Future's one glass blur (see card.css), and MIXED OFF THE SAME FLAG the plate is: an unlit
-     stub is bare type on the ground, so frosting it unconditionally would paint a rectangle of
-     diffused backdrop where the row is meant to have no surface at all. blur(0) is a no-op, so
-     the lit row is the only one that reads as glass — one declaration, no second rule. */
-  backdrop-filter: blur(calc(var(--mhi, 0) * 0.75rem));
+  border: 0.125rem solid
+    color-mix(
+      in srgb,
+      var(--primary) calc(var(--mhi, 0) * 55%),
+      color-mix(in srgb, var(--muted-1) 16%, transparent)
+    );
+  background: color-mix(
+    in srgb,
+    var(--primary) calc(var(--mhi, 0) * 6%),
+    color-mix(in srgb, var(--muted-3) 55%, transparent)
+  );
+  /* Future's one glass blur (see card.css): the panel is translucent, so without the frost the
+     constellation runs straight through the label. */
+  backdrop-filter: blur(0.75rem);
+  box-shadow: 0 0 calc(var(--mhi, 0) * 2rem) color-mix(in srgb, var(--primary) 22%, transparent);
+}
+/* The label is bare type ON the panel — the panel is the row's, not the label's. */
+.mrow .ml {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
+/* Near-white, and cyan on the lit row — mixed off the same flag as the plate so the type turns
+   with the panel it sits on. */
 .mrow .mlabel {
   font-family: var(--disp);
   font-weight: 700;
-  font-size: var(--font-size-sm);
-  color: var(--light);
+  font-size: var(--font-size-md);
   line-height: 1.2;
+  color: color-mix(in srgb, var(--primary) calc(var(--mhi, 0) * 100%), var(--light));
 }
 /* The one piece of running copy in the table — the body face in the dimmer ink, so it qualifies
    the label rather than competing with it. Pruned when absent, leaving no gap on a bare row. */
@@ -55,31 +70,33 @@
   display: grid;
   grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
+  align-items: center;
 }
-/* The same glass plate the ledger's cells wear, so the two tables share one surface vocabulary. */
+/* THE MARK IS AN ICON, NOT A BUTTON: one square-aspect ring, centred in its column, the glyph
+   inside it. Sized in rem (canvas-relative, on the 0.125 grid) rather than by font-size — it is
+   an inline SVG, not type, with its stroke weight set on the element by iconSvg. */
 .mrow .mcell {
-  border: 0.125rem solid color-mix(in srgb, var(--muted-1) 16%, transparent);
-  background: color-mix(in srgb, var(--muted-3) 55%, transparent);
-  /* Same plate as the ledger's cell, so the same frost — see card.css. */
-  backdrop-filter: blur(0.75rem);
-  border-radius: 0.875rem;
+  box-sizing: border-box;
+  width: 2.75rem;
+  height: 2.75rem;
+  justify-self: center;
+  border-radius: 50%;
+  border: 0.125rem solid color-mix(in srgb, var(--muted-1) 25%, transparent);
   display: grid;
   place-items: center;
-  padding: 0.875rem;
 }
-/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
-   element by iconSvg. A yes lights the plate cyan the way the answer column does; a no stays
-   unlit glass with the mark in the dimmer ink. Future's emphasis is LUMINANCE, never a second
-   hue, so there is no red here. */
 .mrow .mcell svg {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
+/* A yes is the GREEN ring — future's one positive role (accent-1), the colour the reference
+   checks every box in — with a breath of green glow behind it. A no stays an unlit ring with
+   the cross in the dimmer ink: the ABSENCE of the signal, never a red. */
 .mrow .mcell--yes {
-  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
-  box-shadow: 0 0 1.875rem color-mix(in srgb, var(--primary) 22%, transparent);
-  color: var(--primary);
+  border-color: color-mix(in srgb, var(--accent-1) 60%, transparent);
+  background: color-mix(in srgb, var(--accent-1) 10%, transparent);
+  box-shadow: 0 0 0.875rem color-mix(in srgb, var(--accent-1) 25%, transparent);
+  color: var(--accent-1);
 }
 .mrow .mcell--no {
   color: color-mix(in srgb, var(--muted-1) 45%, transparent);

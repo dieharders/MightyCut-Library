@@ -22,3 +22,22 @@
   font-size: var(--font-size-2xl);
   color: var(--dark);
 }
+/* The text column: the item line, with the optional detail line stacked under it. The detail
+   is the card body's voice — display face at the small step, 500, ink softened — so a row with a
+   second line reads as "claim, then consequence" rather than as two claims. Pruned when absent. */
+.listnum-c .ln-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.listnum-c .ln-text {
+  line-height: 1.15;
+}
+.listnum-c .ln-detail {
+  margin-top: 0.5rem;
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--dark) 80%, transparent);
+}

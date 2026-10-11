@@ -201,8 +201,16 @@ const yAxisHtml = (p: PlotParams): string =>
  * The category labels, positioned off the SAME percentages as the points rather than laid out as
  * N equal cells.
  *
- * The cell row is what used to force the band scale (see `PAD_X`), and it only ever aligned by
- * coincidence of the two formulas agreeing. Reading the point's own x is exact at any spacing.
+ * THE ROW IS THE TREATMENT'S, not the plot's. A plot is one series — its values and the scale
+ * they are read against — and the categories those values sit on are the x-axis, which every
+ * series on the graph shares. While each plot carried its own `labels`, an overlay of three
+ * series carried three copies of one row and drew the first; the author filled the same list
+ * three times in the editor and the treatment refused the set when the copies disagreed. So
+ * `trend-line` holds the labels once and calls this to draw them into its own `.paxis` row
+ * (treatments/trend-line, `rawFill`), under the plot area the subgrid lines it up with
+ * (geometry.css). The GEOMETRY stays here, beside the point maths it has to agree with: a label
+ * is centred on its point by reading the point's own x, which is exact at any spacing — the
+ * N-equal-cell row this replaced only ever aligned by coincidence of two formulas agreeing.
  *
  * EACH LABEL GETS A BOX, AND THE BOXES TILE THE ROW. Dropping the cells dropped the only thing
  * keeping eight long labels off each other: absolutely positioned and `nowrap`, they printed on
@@ -213,15 +221,15 @@ const yAxisHtml = (p: PlotParams): string =>
  * plot, which is what keeps the side margin at `PAD_X` rather than growing it to cover half a
  * label.
  */
-const labelsHtml = (p: PlotParams): string => {
-  const n = p.labels.length;
+export const categoryAxisHtml = (labels: readonly string[]): string => {
+  const n = labels.length;
   const pitch = (100 - 2 * PAD_X_PCT) / (n - 1);
   const endBox = PAD_X_PCT + pitch / 2;
   return axisRow(
     "pxsizer",
     "plab",
     "lx",
-    p.labels.map((l, i) => ({
+    labels.map((l, i) => ({
       pos: `${pctX(xAt(i, n))}%`,
       text: l,
       extra:
@@ -263,8 +271,9 @@ const pointsHtml = (p: PlotParams): string => {
     .join("");
 };
 
-/** A line plot: the whole series as one component — gridlines, a polyline, a dot and value per
- *  point, and a category label row. `line-chart`'s only child. */
+/** A line plot: one series as one component — gridlines, a polyline, a dot and value per point,
+ *  and the y-axis they are read against. `trend-line`'s child, one per series; the category row
+ *  under the graph is the treatment's (`categoryAxisHtml` above). */
 export const Plot = component({
   name: "plot",
   schema: PlotSchema,
@@ -288,7 +297,6 @@ export const Plot = component({
   // HUD's band uses (primitives/hud/geometry.css).
   css: geometryCss,
   example: {
-    labels: ["Q1", "Q2", "Q3", "Q4"],
     values: [18, 34, 29, 61],
     max: 61,
   },
@@ -297,7 +305,6 @@ export const Plot = component({
     svg: geomSvg(p),
     points: pointsHtml(p),
     yaxis: yAxisHtml(p),
-    labels: labelsHtml(p),
   }),
   // The one piece of geometry the SHEET needs, PUBLISHED rather than restated: `--pbox` is the
   // plot's height, which `PAD_TOP` reserves a fraction OF. That was a TypeScript constant and six

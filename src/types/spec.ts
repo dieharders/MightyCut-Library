@@ -11,6 +11,7 @@
 // ships verbatim to the writer via z.toJSONSchema(VideoSpecSchema). Edit them as
 // instructions to a model, and keep them true — a stale one steers every create.
 import { z } from "zod";
+import { ICON_NAMES } from "../components/icons";
 import { FRAME_THEME_NAMES } from "./storyboard";
 import { TransitionSpecSchema } from "./transitions";
 import { addIssue } from "../util/issues";
@@ -91,10 +92,14 @@ const background = backgroundKind
   .optional()
   .describe("Backdrop behind this slide only (default: deck-wide background)");
 
+// Named rather than enumerated, deliberately: a name off the set costs the writer a repair
+// round on a field that is decoration, and the harness maps an unknown name onto the set's
+// fallback glyph at the seam (spec-map) instead. The full set IS stated, because this string
+// is prompt copy and the feature cards now draw it.
 const icon = z
   .string()
   .optional()
-  .describe('Icon name from the core Icon set (e.g. "shield", "database")');
+  .describe(`Icon name from the core Icon set — one of: ${ICON_NAMES.join(", ")}`);
 
 /* ----- reusable content shapes ------------------------------------------------ */
 
@@ -115,6 +120,7 @@ const ListItemSchema = z.object({
   text: z.string().min(1).max(110),
   detail: z.string().max(160).optional(),
 });
+
 
 export const CardContentSchema = z.object({
   kicker: z
@@ -217,7 +223,7 @@ export const SlideSpecSchema = z.discriminatedUnion("kind", [
       .min(2)
       .max(5)
       .describe(
-        "2-5 short claims, one per line. Each is a sentence at most; `detail` adds a second line where one item needs it. When every item needs explaining, the look is `feature-cards`.",
+        "2-5 short claims, drawn as numbered rows. Each is a sentence at most; `detail` adds a second line where one item needs it. When every item needs explaining, the look is `feature-cards`.",
       ),
   }),
   z.object({

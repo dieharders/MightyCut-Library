@@ -61,3 +61,11 @@
   color: var(--muted-1);
   margin-top: 1rem;
 }
+/* THE TILE DRAWS AN ICON, not typed text: the card primitive injects the shared icon set's
+   inline SVG (icons.ts), and the glyph paints through currentColor — the instance accent, the
+   same hue the tile's keyline and the card's left rule carry. 55% of the tile. */
+.card-icon svg {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+}

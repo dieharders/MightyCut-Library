@@ -68,3 +68,12 @@
   color: var(--muted-3);
   margin-top: 1rem;
 }
+/* THE RING DRAWS AN ICON, not a roman numeral: the card primitive injects the shared icon set's
+   inline SVG (icons.ts), and the glyph paints through currentColor — the accent, or the
+   brownstone it falls back to, exactly as icon.css paints the standalone ring. Half the ring, so
+   the hairline circle still reads as a circle and not as an outline hugging the glyph. */
+.card-icon svg {
+  display: block;
+  width: 2.125rem;
+  height: 2.125rem;
+}

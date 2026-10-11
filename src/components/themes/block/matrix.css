@@ -4,11 +4,16 @@
    devices for one idea. The differences are only where the CONTENT differs: the columns here
    are terse criteria rather than a them/us pair, and a cell is a mark, not a phrase.
 
+   EACH OPTION IS ONE PLATE — the label and its marks inside one white ink-bordered,
+   hard-shadowed tile (matrix-row.css), the proposer's tile painted pink. The criteria float
+   above as this theme's chip row.
+
    The grid track is stated in BOTH .mhead and .mrow rather than once on a shared parent,
    because the rows are separate grids (see matrix-row.css for why they are not display:contents
    into one big grid). --cols is the treatment's criteria count and BOTH read it — a row's own
    --mcols is only the fallback for a row rendered bare, outside any matrix (matrix-row.css has
-   the account of what reading it first used to cost). */
+   the account of what reading it first used to cost). The head carries the row's horizontal
+   padding so its columns sit exactly over the marks below. */
 .matrix h3 {
   font-weight: 800;
   font-size: var(--font-size-3xl);
@@ -20,7 +25,7 @@
   flex-direction: column;
   gap: 1.25rem;
 }
-/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
+/* The plates FLOAT, like every other plate in this theme, so they need the same gap the
    header sits off by — otherwise each row's hard shadow is covered by the plate below it
    and the stack reads as one welded block instead of a set of cards. (creative and
    standard deliberately go flush here: their tables are ruled, not floated.) */
@@ -34,6 +39,7 @@
   grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
   gap: 1.75rem;
   align-items: end;
+  padding: 0 1.75rem;
 }
 /* The corner is deliberately empty and deliberately UNSTYLED — the one cell in the table that
    answers nothing. Block draws a box around everything else, so leaving this one bare is what
@@ -46,9 +52,9 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   text-align: center;
-  padding: 0.75rem 0.5rem;
+  padding: 0.625rem 0.5rem;
   border: 0.25rem solid var(--dark);
   box-shadow: 0.375rem 0.375rem 0 var(--dark);
   background: var(--secondary);

@@ -1,0 +1,58 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the glass panel card.css draws
+   (the hairline, the gradient over translucent navy, the frost, the soft drop), one per claim,
+   stacked under a Space Grotesk headline opened by the cyan rule. The chip and the text are the
+   `list-number` primitive's (list-number.css); this file owns the headline, the stack and the
+   plate. */
+.list h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 3rem;
+}
+.list h3::after {
+  content: "";
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  margin-top: 1.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 45%, transparent) 12%,
+    color-mix(in srgb, var(--muted-1) 14%, transparent) 42%,
+    color-mix(in srgb, var(--muted-1) 5%, transparent) 100%
+  );
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  padding: 1.25rem 2.125rem;
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 16%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--light) 6%, transparent),
+      color-mix(in srgb, var(--dark) 16%, transparent)
+    ),
+    color-mix(in srgb, var(--muted-3) 55%, transparent);
+  /* Future's one glass blur (see card.css): the plate is 55% opaque, so without the frost the
+     constellation runs straight through the claim. */
+  backdrop-filter: blur(0.75rem);
+  border-radius: 1.25rem;
+  box-shadow: 0 1.5rem 3.625rem color-mix(in srgb, var(--dark) 35%, transparent);
+}
+/* The numeral tile at the card badge's scale (card.css: 4.125rem). */
+.list .ln-chip {
+  width: 4.125rem;
+  height: 4.125rem;
+  font-size: var(--font-size-md);
+}
+.list .ln-text {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}

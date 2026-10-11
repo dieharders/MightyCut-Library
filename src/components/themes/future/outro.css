@@ -22,17 +22,15 @@
   letter-spacing: -0.03em;
   line-height: 0.98;
 }
-.closing-plate .cta {
+/* THE CALL TO ACTION IS THE CTA COMPONENT (cta.css draws the glass pill; this is its one child).
+   Stated here is only how it sits under the headline: the gap, one type step down from the
+   standalone pill, and the glow opened a little wider — this is the frame the theme's rules
+   reserve the cyan glow FOR. */
+.closing-plate .cta-c {
   margin-top: 3.625rem;
-  border: 0.125rem solid color-mix(in srgb, var(--primary) 55%, transparent);
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
   box-shadow: 0 0 3.625rem color-mix(in srgb, var(--primary) 28%, transparent);
-  border-radius: 9999px;
   padding: 1.5rem 3.625rem;
-  font-family: var(--disp);
-  font-weight: 700;
   font-size: var(--font-size-lg);
-  color: var(--primary);
 }
 /* The optional contact line: a quiet reference row in the HUD's own voice — mono, tracked, in
    the body-text Frost — so it reads as an address under the pill rather than a second call to

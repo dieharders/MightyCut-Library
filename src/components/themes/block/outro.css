@@ -26,17 +26,16 @@
   line-height: 0.95;
   color: var(--dark);
 }
-.closing-plate .cta {
+/* THE CALL TO ACTION IS THE CTA COMPONENT (cta.css draws it; this is its one child). What is
+   stated here is only how it sits ON the plate: the gap under the headline, and a step down
+   from the standalone button's weight — a 0.375rem border and 0.5rem offset under a 0.375rem
+   plate, where the standalone's 0.625rem/0.875rem would out-weigh the plate it sits on. */
+.closing-plate .cta-c {
   margin-top: 2.5rem;
-  border: 0.375rem solid var(--dark);
-  background: var(--accent-1);
+  border-width: 0.375rem;
   box-shadow: 0.5rem 0.5rem 0 var(--dark);
   padding: 1.25rem 2.875rem;
-  font-family: var(--disp);
-  font-weight: 700;
   font-size: var(--font-size-md);
-  color: var(--dark);
-  text-transform: uppercase;
 }
 /* The optional contact line: mono in ink on the plate, under the slab button — no border and no
    shadow, so it reads as the address, not a second button. */

@@ -1,7 +1,8 @@
 /* 4 · Closing Plate — a centred WHITE card (hairline cobalt border, gently rounded, no shadow)
-   carrying a near-black headline and a solid cobalt CTA pill, on the cream ground the emitter
-   stamps. Ported from the showcase .bf-closing-plate. The .cta here is the treatment's own node
-   (a plain div in the shared template), styled to the same cobalt pill as the cta component. */
+   carrying a near-black headline and the solid cobalt CTA pill, on the cream ground the emitter
+   stamps. Ported from the showcase .bf-closing-plate. The call to action is the cta COMPONENT
+   itself, composed as the plate's one child, so it and a CTA dropped anywhere else in the deck
+   are one object drawn by one skin (cta.css). */
 .closing-plate > .body {
   align-items: center;
   text-align: center;
@@ -28,16 +29,11 @@
   line-height: 1.14;
   color: var(--dark);
 }
-.closing-plate .cta {
+/* How the pill sits on the card: the gap under the headline, and one type step UP from the
+   standalone button — under a display-size headline the md label read as small print. */
+.closing-plate .cta-c {
   margin-top: 2.375rem;
-  background: var(--primary);
-  color: var(--light);
-  border-radius: 9999px;
-  padding: 1.25rem 3.125rem;
-  font-family: var(--mono);
-  font-weight: 600;
   font-size: var(--font-size-xl);
-  letter-spacing: 0.02em;
 }
 /* The optional contact line: plain body type in softened ink under the cobalt pill, inside the
    white card — the address the action points to, set quieter than the action itself. */

@@ -44,6 +44,7 @@ import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 // Treatment skins.
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -200,7 +201,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "outro": {
-    params: { headline: "Award via Tradewinds today.", cta: "Get Started" },
+    params: { headline: "Award via Tradewinds today." },
+    children: [{ text: "Get Started", arrow: false }],
   },
   "feature-cards": {
     params: { headline: "Built for the Edge" },
@@ -208,19 +210,19 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         title: "Edge Mesh",
         body: "Every node routes for every other — no single point of failure.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "Auto-Failover",
         body: "Links re-form around jamming in under two seconds.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Zero Trust",
         body: "Mutual TLS between every pair of nodes; keys rotate hourly.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-2",
       },
     ],
@@ -309,10 +311,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Link Latency Trend",
       caption: "Mean round-trip, milliseconds",
+      labels: ["T+0","T+30","T+60","T+90"],
     },
     children: [
       {
-        labels: ["T+0","T+30","T+60","T+90"],
         values: [240,180,120,64],
         max: 240,
         unitSuffix: "ms",
@@ -326,11 +328,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Each source normalised on the way in",
     },
     children: [
-      { label: "Radar", detail: "12 feeds", index: 0, total: 5, accent: "primary" },
-      { label: "EO/IR", detail: "8 feeds", index: 1, total: 5, accent: "secondary" },
-      { label: "SIGINT", detail: "4 feeds", index: 2, total: 5, accent: "accent-1" },
-      { label: "AIS", detail: "global", index: 3, total: 5, accent: "accent-2" },
-      { label: "Telemetry", detail: "live", index: 4, total: 5, accent: "primary" },
+      { label: "Radar", detail: "12 feeds", accent: "primary" },
+      { label: "EO/IR", detail: "8 feeds", accent: "secondary" },
+      { label: "SIGINT", detail: "4 feeds", accent: "accent-1" },
+      { label: "AIS", detail: "global", accent: "accent-2" },
+      { label: "Telemetry", detail: "live", accent: "primary" },
     ],
   },
   comparison: {
@@ -378,15 +380,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Future's hero-frame decorations. The constellation backdrop already carries the theme's
-// motion, so these stay SPARSE — one or two instruments per frame, hairline strokes on the
-// navy, never competing with the particle field. Cyan (primary) draws every lit instrument;
-// glass (muted-3) is the one unlit shape, a mass rather than a mark. Every decoration takes
-// a reveal cascade slot, so a heavier set would push the headline late.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "Why the mesh holds" },
+  children: [
+      { num: "01", text: "Every node routes for every other." },
+      { num: "02", text: "Links re-form around jamming in under two seconds.", detail: "Measured in contested RF" },
+      { num: "03", text: "Keys rotate hourly." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One instrument in two parts, both centred on the BOTTOM edge so the pair is cropped to a
@@ -494,10 +496,8 @@ export const futureTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

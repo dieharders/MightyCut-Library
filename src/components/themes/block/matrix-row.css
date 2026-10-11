@@ -1,4 +1,12 @@
-/* A scored matrix row: an option label plus one check/cross per criteria column.
+/* A scored matrix row: ONE PLATE holding the option label and one mark per criteria column.
+
+   THE ROW IS THE CONTAINER. The plate used to sit on the label alone, with every mark on a plate
+   of its own — a pill beside a row of five shadowed buttons — so the eye read six objects per
+   option instead of one. The white tile now wraps the whole row, with block's ink border and
+   hard offset, and the marks are small square-aspect icons set on it. The proposer's tile goes
+   PINK, mixed off the `--mhi` 0/1 flag rather than selected on — the flag is the component's
+   contract and every theme reads it its own way (see matrix-row/index.ts). The marks keep their
+   own white squares, so they read on the pink as well as on the white.
 
    NOT display:contents, unlike the comparison `row` it otherwise mirrors. That row has three
    fixed children which can each be a direct item of one shared ledger grid; this one has two —
@@ -13,26 +21,16 @@
    statements of one number — --cols is the criteria count, set on the matrix root and inherited
    here; --mcols is this row's own cell count — and while the row read --mcols they subdivided
    two SEPARATE formatting contexts, so a row answering three of four criteria rendered on a
-   different grid from the header above it, right down to the label column's share (1.4/4.4
-   against the header's 1.4/5.4). The whole row shifted and the fourth criterion had no column
-   to be unanswered in. Reading --cols first means a short row leaves its last column empty IN
-   PLACE, which is the truthful drawing of it; the treatment refuses the mismatch outright
-   wherever the caller is checkable (matrix/index.ts, childrenIssue). --mcols still has a job:
-   a row rendered BARE in the showcase has no matrix ancestor to inherit --cols from.
-
-   The label is a PILL, per block's "pill or nothing" rule — the same white plate + hard shadow
-   the ledger row's label carries, so the two tables read as one device. */
+   different grid from the header above it. Reading --cols first means a short row leaves its
+   last column empty IN PLACE, which is the truthful drawing of it; the treatment refuses the
+   mismatch outright wherever the caller is checkable (matrix/index.ts, childrenIssue). --mcols
+   still has a job: a row rendered BARE in the showcase has no matrix ancestor to inherit from. */
 .mrow {
   display: grid;
   grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
-  align-items: stretch;
-}
-/* The proposer's row gets highlighted and white on every other, mixed off the
-   `--mhi` 0/1 flag rather than selected on — the flag is the component's contract and every
-   theme reads it its own way (see matrix-row/index.ts). Only the label takes the accent:
-   colouring the whole row would drown the marks, which are what the reader is comparing. */
-.mrow .ml {
+  align-items: center;
+  padding: 1rem 1.75rem;
   border: 0.25rem solid var(--dark);
   background: color-mix(
     in srgb,
@@ -40,16 +38,19 @@
     var(--light)
   );
   box-shadow: 0.375rem 0.375rem 0 var(--dark);
-  padding: 0.75rem 1.25rem;
+}
+/* The label is bare type ON the plate — the plate is the row's, not the label's. */
+.mrow .ml {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 .mrow .mlabel {
   font-family: var(--disp);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   line-height: 1.15;
 }
 /* Sentence case and the lighter face: the sublabel is the one piece of running copy in the
@@ -67,23 +68,27 @@
   display: grid;
   grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.75rem;
+  align-items: center;
 }
+/* THE MARK IS AN ICON, NOT A BUTTON: one square-aspect ink-bordered box, centred in its column,
+   the glyph inside it. Sized in rem (canvas-relative, on the 0.125 grid) rather than by
+   font-size — an inline SVG, not type, its stroke weight set on the element by iconSvg. */
 .mrow .mcell {
+  box-sizing: border-box;
+  width: 2.75rem;
+  height: 2.75rem;
+  justify-self: center;
   border: 0.25rem solid var(--dark);
   background: var(--light);
-  box-shadow: 0.375rem 0.375rem 0 var(--dark);
   display: grid;
   place-items: center;
-  padding: 0.875rem;
 }
-/* The mark is sized in rem (canvas-relative, on the 0.125 grid) rather than by font-size —
-   it is an inline SVG, not type, and the stroke weight is set on the svg element itself by
-   iconSvg. Green for a yes, and for a no the same plate with the mark in ink: block has no
-   red role, and "wrong" here is the ABSENCE of the accent rather than a warning colour. */
 .mrow .mcell svg {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.375rem;
+  height: 1.375rem;
 }
+/* Green for a yes, and for a no the same box with the mark in ink: block has no red role, and
+   "wrong" here is the ABSENCE of the accent rather than a warning colour. */
 .mrow .mcell--yes {
   background: var(--accent-2);
 }

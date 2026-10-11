@@ -4,10 +4,15 @@
    one idea. What differs is only what the content is: terse criteria instead of a them/us
    pair, and a mark instead of a phrase.
 
+   EACH OPTION IS ONE CAPSULE PLATE — the label and its marks inside one white, ink-outlined,
+   softly lifted plate (matrix-row.css), the proposer's plate filled mint. The criteria sit above
+   as the ledger's plain white chips.
+
    The track is stated in BOTH .mhead and .mrow rather than once on a shared parent, because
    the rows are separate grids here (matrix-row.css says why they are not display:contents into
    one big grid). --cols is the treatment's criteria count and BOTH read it — a row's own
-   --mcols is only the fallback for a row rendered bare (see block/matrix-row.css). */
+   --mcols is only the fallback for a row rendered bare (see block/matrix-row.css). The head
+   carries the row's horizontal padding so its columns sit exactly over the marks below. */
 .matrix h3 {
   font-size: var(--font-size-3xl);
   margin: 1.625rem 0 2.625rem;
@@ -17,10 +22,9 @@
   flex-direction: column;
   gap: 1.375rem;
 }
-/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
-   header sits off by — otherwise each row's hard shadow is covered by the plate below it
-   and the stack reads as one welded block instead of a set of cards. (creative and
-   standard deliberately go flush here: their tables are ruled, not floated.) */
+/* The plates FLOAT, like every other plate in this theme, so they need the same gap the
+   header sits off by — otherwise each row's soft shadow is covered by the plate below it
+   and the stack reads as one welded block instead of a set of cards. */
 .matrix .mrows {
   display: flex;
   flex-direction: column;
@@ -31,6 +35,7 @@
   grid-template-columns: 1.3fr repeat(var(--cols, 3), 1fr);
   gap: 1.625rem;
   align-items: end;
+  padding: 0 1.75rem;
 }
 /* Deliberately bare — the one cell in the table that answers nothing. Capsule chips
    everything else, so leaving this unchipped is what makes the top row read as labels. */
@@ -45,9 +50,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.085em;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--dark);
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 9999px;
   text-align: center;
   background: var(--light);

@@ -1,22 +1,24 @@
 /* 11 · Matrix — creative's scored TABLE, and the comparison ledger's sibling: one ink-ruled
-   block printed onto the ground, its head row a solid bar of ink, its marks ruled beneath.
+   block printed onto the ground, its head row a solid bar of ink, its options ruled beneath.
    Skinned to match the ledger deliberately — both are rows answering columns, and giving them
    different furniture would read as two unrelated devices for one idea.
 
    NO GAP, RULES INSTEAD, exactly as the ledger. The head bar is solid ink edge to edge and each
-   body row draws its own ink border-top (matrix-row.css), so the table reads as one printed
-   block. Floating, gapped, individually-outlined chips are block's idiom; creative must not read
-   as a block re-skin.
+   option is ONE oat band opened by its own ink rule (matrix-row.css) — the row is the container,
+   label and marks together on one band — so the table reads as one printed block. Floating,
+   gapped, individually-outlined chips are block's idiom; creative must not read as a block
+   re-skin.
 
-   THE GROUND IS INK, NOT OAT — the oat block is painted by the CELLS, which also draw the rules.
-   Grid rows land on fractional pixels once a font's metrics set the row height, and a cell's
+   THE GROUND IS INK, NOT OAT — the oat is painted by the ROWS, which also draw the rules. Grid
+   rows land on fractional pixels once a font's metrics set the row height, and a band's
    background box rounds inward from that edge: a ground lighter than the rules leaks a hairline
    of itself between two rows. Ink here makes that seam the rule colour, so the worst case is a
    rule a hair fatter rather than a stray light line. (Same reasoning as comparison.css.)
 
    The signature ORANGE+INK hard offset lands here for the same reason it lands on the ledger:
    this is the frame's single featured block, and nothing inside it is GSAP-scaled (a 0-blur
-   offset shears with a transform, which is why chart and bar-ranking spend nothing on shadow). */
+   offset shears with a transform, which is why chart and bar-ranking spend nothing on shadow).
+   The head carries the row's horizontal padding so its columns sit exactly over the marks. */
 .matrix h3 {
   font-size: var(--font-size-2xl);
   margin: 0 0 2.375rem;
@@ -32,6 +34,9 @@
 .matrix .mhead {
   display: grid;
   grid-template-columns: 1.4fr repeat(var(--cols, 3), 1fr);
+  gap: 1.5rem;
+  padding: 0 1.625rem;
+  background: var(--dark);
 }
 /* Painted INK so the head reads as one uninterrupted bar rather than an oat notch beside the
    criteria. QUALIFIED, because `.mcorner` sits inside a frame that may also carry decoration
@@ -39,8 +44,8 @@
 .matrix .mcorner {
   background: var(--dark);
 }
-/* Criteria heads: inverted ink plates carrying CREAM Archivo — the same move the ledger's column
-   heads make, at table scale. Archivo Black ships one weight, so none is stated. */
+/* Criteria heads: CREAM Archivo on the ink bar — the same move the ledger's column heads make,
+   at table scale. Archivo Black ships one weight, so none is stated. */
 .matrix .mcrit {
   display: flex;
   align-items: center;
@@ -50,9 +55,8 @@
   text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 0.92;
-  font-size: var(--font-size-md);
-  padding: 1.5rem 1.25rem;
-  background: var(--dark);
+  font-size: var(--font-size-sm);
+  padding: 1.375rem 0;
   color: var(--muted-1);
 }
 .matrix .caption {

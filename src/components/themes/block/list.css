@@ -1,0 +1,39 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the same white ink-bordered,
+   hard-shadowed tile card.css draws (0.375rem outline, 0.75rem ink offset), one per claim,
+   stacked down the frame. The chip and the text are the `list-number` primitive's
+   (list-number.css); this file owns the headline, the stack and the plate. The plates FLOAT,
+   so they take a gap rather than a rule — welded, the hard shadows would be covered by the
+   plate below. */
+.list h3 {
+  font-weight: 800;
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 2.625rem;
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: center;
+  gap: 2.125rem;
+  padding: 1.5rem 2.125rem;
+  border: 0.375rem solid var(--dark);
+  background: var(--light);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+}
+/* The numeral chip at the card badge's scale (card.css: 4.75rem), one outline weight down from
+   the standalone chip — it sits inside a plate now, and two 0.625rem borders a gap apart read
+   as one thick line. */
+.list .ln-chip {
+  width: 4.75rem;
+  height: 4.75rem;
+  border-width: 0.375rem;
+  font-size: var(--font-size-lg);
+}
+.list .ln-text {
+  font-weight: 700;
+  font-size: var(--font-size-xl);
+}
