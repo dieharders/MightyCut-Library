@@ -115,8 +115,10 @@ const StatSchema = z.object({
   decimals: z.number().int().min(0).max(2).optional(),
 });
 
+// NO `icon`: a list item is drawn as a `list-number` row (numeral chip + text + detail), which
+// has no icon slot, so a name here reached nothing. It stayed over from when `list` composed as
+// cards; a field nothing reads is dead prompt copy the writer still spends tokens on.
 const ListItemSchema = z.object({
-  icon,
   text: z.string().min(1).max(110),
   detail: z.string().max(160).optional(),
 });
