@@ -1,4 +1,10 @@
-/* A scored matrix row: an option label plus one check/cross per criteria column.
+/* A scored matrix row: ONE RULED BAND holding the option label and one mark per criteria column.
+
+   THE ROW IS THE CONTAINER, and its only structure is the theme's one hairline across the top.
+   The label and each mark used to open with a rule of their own, meeting edge to edge to read as
+   one; the band draws it once now, the whole width, and the marks sit on it as small
+   square-aspect hairline rings — the compass-drawn circle 50% is reserved for. No capsule, no
+   fill, no shadow — professional's tinted-plate table is the thing this must not be.
 
    NOT display:contents, unlike the comparison `row` next door. That row has three fixed children
    which can each be a direct item of one shared ledger grid; this one has two — a label and a
@@ -6,35 +12,28 @@
    pile up. It matters for motion too: applyAnims retargets a display:contents root to its
    children, and a display:contents strip has no box to transform, so the cells would silently
    never animate. Each row is its own grid on the head's track, and the strip spans columns 2..-1
-   with a matching inner grid — no gaps on either, so the hairlines meet as one rule. */
+   with a matching inner grid — no gaps on either, so the columns sit under their heads. */
 .mrow {
   display: grid;
   grid-template-columns: 1.4fr repeat(var(--cols, var(--mcols, 3)), 1fr);
-}
-/* THE TABLE ITSELF, and its only structure: every label and mark opens with the theme's one
-   hairline across its full track. Because neither grid has gaps, they meet and read as a single
-   rule ruled across the frame, once per row. No capsule, no fill, no radius — professional's
-   tinted-chip table is the thing this must not be. */
-.mrow .ml,
-.mrow .mcell {
-  border-top: 0.125rem solid var(--accent-3);
+  align-items: center;
   padding: 1.5rem 1.25rem;
+  border-top: 0.125rem solid var(--accent-3);
 }
 .mrow .ml {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 /* THE WHOLE COMPARISON DEVICE, in one declaration. Standard spends no accent colour here, so the
    proposer's row is distinguished purely by TONAL VALUE: ink where every other row is warm gray,
    mixed off the `--mhi` 0/1 flag rather than selected on. It is the same move `.cell.b` makes in
    the ledger, and the same reason — no hue to spend, so weight of tone is the emphasis.
 
-   The unhighlighted end is the body gray lifted 10% toward white, not the raw --muted-3: at
-   display size the serif's thin strokes carry more weight than body copy at the same value, and
-   the extra step of air is what keeps the losing rows reading as ground for the ink one. Mixed
-   with --light rather than the sandstone canvas on purpose — --muted-3 is a neutral gray, and a
-   mix toward the warm ground would shift its hue instead of only its value. */
+   The unhighlighted end is the body gray lifted toward white, not the raw --muted-3: at display
+   size the serif's thin strokes carry more weight than body copy at the same value, and the
+   extra step of air is what keeps the losing rows reading as ground for the ink one. */
 .mrow .mlabel {
   font-family: var(--disp);
   font-weight: 400;
@@ -65,20 +64,31 @@
   grid-column: 2 / -1;
   display: grid;
   grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
+  align-items: center;
 }
+/* THE MARK IS AN ICON, NOT A BUTTON: one square-aspect hairline ring, centred in its column, the
+   glyph inside it. Sized in rem, not by font-size: an inline SVG, not type, with its stroke
+   weight set on the element by iconSvg. The ring is the theme's one hairline in the Line
+   brownstone; nothing fills it. */
 .mrow .mcell {
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.5rem;
+  justify-self: center;
+  border-radius: 50%;
+  border: 0.125rem solid var(--accent-3);
   display: grid;
   place-items: center;
 }
-/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
-   element by iconSvg. Ink for a yes, warm gray for a no — tonal value again, the only device this
-   theme has. No fill behind either: the hairline is the structure, and a filled cell would be the
-   drop shadow this theme spent its whole ramp avoiding. */
 .mrow .mcell svg {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
+/* Ink for a yes, warm gray for a no — tonal value again, the only device this theme has. The
+   yes ring goes ink as well, so the mark reads as drawn rather than as a tick dropped in a
+   circle. */
 .mrow .mcell--yes {
+  border-color: var(--dark);
   color: var(--dark);
 }
 .mrow .mcell--no {

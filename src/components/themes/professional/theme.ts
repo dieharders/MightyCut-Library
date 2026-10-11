@@ -50,6 +50,7 @@ import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -242,7 +243,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "outro": {
-    params: { headline: "Let's talk.", cta: "Book a Briefing" },
+    params: { headline: "Let's talk." },
+    children: [{ text: "Book a Briefing", arrow: false }],
   },
   "feature-cards": {
     params: { headline: "What you get" },
@@ -250,19 +252,19 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         title: "Single Accent",
         body: "One cobalt carries every emphasis across the deck.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "Soft Tints",
         body: "Cards lift on a faint cobalt fill — no borders that shout, no shadows.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Quiet Density",
         body: "Substance over noise: measured type, generous margins.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-1",
       },
     ],
@@ -338,10 +340,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Cost per transaction",
       caption: "Trailing twelve months, indexed",
+      labels: ["Q1","Q2","Q3","Q4"],
     },
     children: [
       {
-        labels: ["Q1","Q2","Q3","Q4"],
         values: [100,86,71,58],
         max: 100,
         unitSuffix: "",
@@ -355,11 +357,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Systems in scope for phase one",
     },
     children: [
-      { label: "ERP", detail: "finance", index: 0, total: 5, accent: "primary" },
-      { label: "CRM", detail: "pipeline", index: 1, total: 5, accent: "secondary" },
-      { label: "Payroll", detail: "HR", index: 2, total: 5, accent: "accent-1" },
-      { label: "Treasury", detail: "cash", index: 3, total: 5, accent: "accent-2" },
-      { label: "Reporting", detail: "board", index: 4, total: 5, accent: "primary" },
+      { label: "ERP", detail: "finance", accent: "primary" },
+      { label: "CRM", detail: "pipeline", accent: "secondary" },
+      { label: "Payroll", detail: "HR", accent: "accent-1" },
+      { label: "Treasury", detail: "cash", accent: "accent-2" },
+      { label: "Reporting", detail: "board", accent: "primary" },
     ],
   },
   comparison: {
@@ -410,15 +412,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Professional's hero-frame decorations — drafting marks, not ornament: hairlines and dot
-// fields, never rotated (this theme owes its authority to the square). ONE per frame, the
-// sparsest set of the six: cobalt is spent on type and chrome here, so the decoration draws
-// in Ice (accent-2) — a tint barely off the cream ground, present as a watermark rather than
-// as an accent. Each takes a reveal cascade slot.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "Why the board signs off" },
+  children: [
+      { num: "01", text: "One number per slide, sourced." },
+      { num: "02", text: "Cobalt reserved for the recommendation.", detail: "Everything else stays tinted" },
+      { num: "03", text: "A briefing, not a brochure." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One dot matrix on the right margin at the vertical centre, clear of the left-set
@@ -521,10 +523,8 @@ export const professionalTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

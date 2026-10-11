@@ -56,6 +56,7 @@ import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -251,7 +252,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "outro": {
-    params: { headline: "That's the end!", cta: "Book a Call" },
+    params: { headline: "That's the end!" },
+    children: [{ text: "Book a Call", arrow: false }],
   },
   "feature-cards": {
     params: { headline: "What You Get" },
@@ -259,19 +261,19 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         title: "Block",
         body: "Lay the colour planes flat — one ground per frame, no half measures.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "Stamp",
         body: "Drop the one hard shadow. Orange under ink, never blurred.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Cut",
         body: "Swap the ground and end the beat. The rotation carries the deck.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-1",
       },
     ],
@@ -342,10 +344,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "The Line Goes Up",
       caption: "Print runs sold, by quarter",
+      labels: ["Q1","Q2","Q3","Q4"],
     },
     children: [
       {
-        labels: ["Q1","Q2","Q3","Q4"],
         values: [120,260,340,520],
         max: 520,
         unitSuffix: "",
@@ -359,11 +361,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Every service under one roof",
     },
     children: [
-      { label: "Riso", detail: "two colour", index: 0, total: 5, accent: "primary" },
-      { label: "Letterpress", detail: "short runs", index: 1, total: 5, accent: "secondary" },
-      { label: "Binding", detail: "by hand", index: 2, total: 5, accent: "accent-1" },
-      { label: "Foil", detail: "hot stamp", index: 3, total: 5, accent: "accent-2" },
-      { label: "Deliver", detail: "next day", index: 4, total: 5, accent: "primary" },
+      { label: "Riso", detail: "two colour", accent: "primary" },
+      { label: "Letterpress", detail: "short runs", accent: "secondary" },
+      { label: "Binding", detail: "by hand", accent: "accent-1" },
+      { label: "Foil", detail: "hot stamp", accent: "accent-2" },
+      { label: "Deliver", detail: "next day", accent: "primary" },
     ],
   },
   comparison: {
@@ -415,16 +417,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Creative's hero-frame decorations — zine furniture: printer's stamps, a hand-cut bolt, a
-// torn zigzag, all knocked a few degrees off square. Creative rotates the GROUND per
-// treatment (see the header note), so each set is picked against the ground that frame
-// actually paints: cream for the cover, pink for quote/closing. Yellow (accent-1) does most
-// of the drawing — it is the one accent that holds on both of those grounds. Two per frame:
-// each takes a reveal cascade slot.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "House rules" },
+  children: [
+      { num: "01", text: "One featured block per frame." },
+      { num: "02", text: "Square corners, always.", detail: "A capsule is somebody else's idiom" },
+      { num: "03", text: "Ink outlines, cream ink." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // On the cream ground: a small yellow seal top-right, and an oversized pink medallion
@@ -567,10 +568,8 @@ export const creativeTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

@@ -283,7 +283,7 @@ describe("new library components", () => {
   // arithmetic that can silently drift rather than a layout that visibly breaks.
   describe("plot y-axis", () => {
     const plotHtml = (params?: Record<string, unknown>) =>
-      build("plot", params ?? { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+      build("plot", params ?? { values: [18, 34, 29, 61], max: 61 }).html;
 
     /** Each gridline's y as a PERCENTAGE of the viewBox height — the unit the ticks use. */
     const gridPct = (html: string): number[] =>
@@ -303,7 +303,7 @@ describe("new library components", () => {
     });
 
     test("the ticks read the scale's own ends, top to bottom", () => {
-      const text = tickText(plotHtml({ labels: ["a", "b"], values: [30, 90], max: 100, min: 20 }));
+      const text = tickText(plotHtml({ values: [30, 90], max: 100, min: 20 }));
       expect(text.at(0), "the top tick is not the scale's max").toBe("100");
       expect(text.at(-1), "the bottom tick is not the scale's min").toBe("20");
     });
@@ -315,11 +315,11 @@ describe("new library components", () => {
     // frame's width on three copies of the unit. Every point states the unit already.
     test("a tick is the number alone, however wide the series' units are", () => {
       const text = tickText(
-        plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "US$MM ", unitSuffix: " subscribers" }),
+        plotHtml({ values: [1, 4], max: 4, unitPrefix: "US$MM ", unitSuffix: " subscribers" }),
       );
       expect(text).toEqual(["4", "2", "0"]);
       // …and the point label is where the unit lives.
-      const vals = [...plotHtml({ labels: ["a", "b"], values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" })
+      const vals = [...plotHtml({ values: [1, 4], max: 4, unitPrefix: "$", unitSuffix: "M" })
         .matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
       expect(vals).toEqual(["$1M", "$4M"]);
     });
@@ -327,15 +327,15 @@ describe("new library components", () => {
     // The middle of an odd span lands between two integers. Rounding it prints a number the line
     // is NOT drawn at, which is the one error an axis must not make.
     test("a tick between two integers keeps the decimal it would round away", () => {
-      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 61], max: 61 }))).toEqual(["61", "30.5", "0"]);
+      expect(tickText(plotHtml({ values: [0, 61], max: 61 }))).toEqual(["61", "30.5", "0"]);
       // …and a whole-numbered scale is NOT given a spurious decimal place.
-      expect(tickText(plotHtml({ labels: ["a", "b"], values: [0, 60], max: 60 }))).toEqual(["60", "30", "0"]);
+      expect(tickText(plotHtml({ values: [0, 60], max: 60 }))).toEqual(["60", "30", "0"]);
     });
 
     // The old rule stopped at ONE decimal place, so a small span printed the same number on two
     // different lines — the exact failure it was written to prevent, one order of magnitude down.
     test("a span too small for one decimal still labels every line differently", () => {
-      const text = tickText(plotHtml({ labels: ["a", "b"], values: [0, 0.01], max: 0.01 }));
+      const text = tickText(plotHtml({ values: [0, 0.01], max: 0.01 }));
       expect(text).toEqual(["0.01", "0.005", "0"]);
       expect(new Set(text).size, "two gridlines carry the same label").toBe(3);
     });
@@ -344,7 +344,7 @@ describe("new library components", () => {
     // bumped the ticks alone, so a series of 0.5 and 2.5 at the default `decimals: 0` drew its
     // maximum exactly ON the top gridline while labelling the point "3" and the line "2.5".
     test("a point drawn on a gridline carries the same number as the gridline", () => {
-      const html = plotHtml({ labels: ["a", "b"], values: [0.5, 2.5], max: 2.5 });
+      const html = plotHtml({ values: [0.5, 2.5], max: 2.5 });
       const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
       expect(vals.at(-1), "the top point rounds differently from its own gridline").toBe(
         tickText(html).at(0)!,
@@ -355,7 +355,7 @@ describe("new library components", () => {
     // Endpoint ticks are the scale's own numbers, not `max - 1 * (max - min)` — which is
     // 2.9999999999999996 for a 3…4.2 scale and reads as an axis needing a decimal it does not.
     test("float drift does not give the scale's ends a spurious decimal", () => {
-      expect(tickText(plotHtml({ labels: ["a", "b"], values: [3, 4.2], max: 4.2, min: 3, decimals: 1 }))).toEqual([
+      expect(tickText(plotHtml({ values: [3, 4.2], max: 4.2, min: 3, decimals: 1 }))).toEqual([
         "4.2",
         "3.6",
         "3.0",
@@ -366,7 +366,7 @@ describe("new library components", () => {
     // heights while the data sat on the middle one — an axis claiming the top and the bottom of
     // the box are both 50.
     test("a flat series draws one labelled line, not three saying the same thing", () => {
-      const html = plotHtml({ labels: ["a", "b"], values: [50, 50], max: 50, min: 50 });
+      const html = plotHtml({ values: [50, 50], max: 50, min: 50 });
       expect(gridPct(html), "a flat scale still draws three gridlines").toHaveLength(1);
       expect(tickText(html)).toEqual(["50"]);
       const pts = [...html.matchAll(/class="ppoint" style="[^"]*--py: ([\d.]+)%/g)].map((m) => Number(m[1]));
@@ -377,7 +377,7 @@ describe("new library components", () => {
     // not how a negative currency is written anywhere. The y-axis made this reachable in normal
     // use, since `min` is the parameter most likely to be negative.
     test("a negative figure keeps its sign outside the unit prefix", () => {
-      const html = plotHtml({ labels: ["a", "b"], values: [-10, 90], max: 100, min: -20, unitPrefix: "$" });
+      const html = plotHtml({ values: [-10, 90], max: 100, min: -20, unitPrefix: "$" });
       expect(tickText(html).at(-1)).toBe("-20");
       const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
       expect(vals[0], "the sign is printed inside the currency mark").toBe("-$10");
@@ -386,7 +386,7 @@ describe("new library components", () => {
     // `(-0.4).toFixed(0)` is "-0". The decimal rule keeps enough places that a small negative
     // reads as itself rather than as a signed zero.
     test("a small negative does not print as -0", () => {
-      const html = plotHtml({ labels: ["a", "b"], values: [-0.4, 1], max: 1, min: -1 });
+      const html = plotHtml({ values: [-0.4, 1], max: 1, min: -1 });
       const vals = [...html.matchAll(/class="pval">([^<]*)</g)].map((m) => m[1]);
       expect(vals[0]).toBe("-0.4");
     });
@@ -423,9 +423,19 @@ describe("new library components", () => {
   // at each end — a quarter of the width on a four-point plot — purely because the label row was
   // N equal cells and nothing else would line up under them. Both halves changed together, so
   // both are pinned together: the labels now read the point's own x, and the scale now reaches.
+  // THE CATEGORY ROW IS THE TREATMENT'S. A plot carries values alone; the x-axis they sit on is
+  // the graph's, held once by `trend-line`'s `labels` and drawn into its own `.paxis` under the
+  // layers — so the label geometry is asserted on a composed trend-line, against the points its
+  // one plot child draws. The two still have to agree to the digit: a label reads its point's own
+  // x (plot/index.ts, `categoryAxisHtml` beside `xAt`).
   describe("plot horizontal scale", () => {
-    const html = () =>
-      build("plot", { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }).html;
+    const graph = (labels: string[], values: number[]) =>
+      composeTreatment({
+        treatment: "trend-line",
+        params: { headline: "h", labels },
+        children: [{ name: "plot", params: { values, max: Math.max(...values) } }],
+      }).build(ctx("t-axis")).html;
+    const html = () => graph(["Q1", "Q2", "Q3", "Q4"], [18, 34, 29, 61]);
     const pointX = (h: string): number[] =>
       [...h.matchAll(/class="ppoint" style="--px: ([\d.]+)%/g)].map((m) => Number(m[1]));
     const labelX = (h: string): number[] =>
@@ -436,6 +446,15 @@ describe("new library components", () => {
       const [pts, labs] = [pointX(h), labelX(h)];
       expect(labs.length, "a point has no label, or a label no point").toBe(pts.length);
       for (const [i, x] of labs.entries()) expect(x, `label ${i} is off its point`).toBeCloseTo(pts[i]!, 2);
+    });
+
+    test("the row is the treatment's, drawn once, outside the plot layers", () => {
+      const h = html();
+      // One `.paxis`, a child of `.plotbox` beside `.plotlayers` — never inside a `.plot`.
+      expect((h.match(/class="paxis"/g) ?? []).length).toBe(1);
+      expect(h.indexOf('class="paxis"')).toBeGreaterThan(h.indexOf("</div>", h.indexOf('class="plot ')));
+      // A plot on its own draws no category row at all.
+      expect(build("plot", { values: [1, 2], max: 2 }).html).not.toContain("plab");
     });
 
     test("the series runs edge to edge, keeping only the end labels' margin", () => {
@@ -452,11 +471,10 @@ describe("new library components", () => {
     // its neighbour's box — one pitch centred, half a pitch plus the end margin for the two that
     // anchor to the edge.
     test("every category label gets the room it has, and no more", () => {
-      const h = build("plot", {
-        labels: ["Jan Forecast", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug Forecast"],
-        values: [1, 2, 3, 4, 5, 6, 7, 8],
-        max: 8,
-      }).html;
+      const h = graph(
+        ["Jan Forecast", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug Forecast"],
+        [1, 2, 3, 4, 5, 6, 7, 8],
+      );
       const boxes = [...h.matchAll(/class="plab"[^>]*--lw:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
       expect(boxes, "a label was emitted with no box").toHaveLength(8);
       // The six middles are one pitch; the two ends are half a pitch plus the end margin.
@@ -473,13 +491,13 @@ describe("new library components", () => {
     // giving the wipe a negative side inset, moving the overhang onto the y-axis ticks in the
     // gutter next door. Anchoring costs no horizontal padding at all.
     test("the end labels and end figures anchor inward, so nothing hangs over the box", () => {
-      const h = build("plot", { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }).html;
+      const h = graph(["a", "b", "c"], [1, 2, 3]);
       expect([...h.matchAll(/class="plab"[^>]*--la:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
       expect([...h.matchAll(/class="ppoint"[^>]*--va:\s*(-?[\d.]+)%/g)].map((m) => m[1])).toEqual(["0", "-100"]);
     });
 
     test("the smallest series the schema allows still spans the box", () => {
-      const pts = pointX(build("plot", { labels: ["a", "b"], values: [1, 2], max: 2 }).html);
+      const pts = pointX(build("plot", { values: [1, 2], max: 2 }).html);
       expect(pts).toHaveLength(2);
       expect(pts[0]).toBeCloseTo(4, 2);
       expect(pts[1]).toBeCloseTo(96, 2);
@@ -494,19 +512,19 @@ describe("new library components", () => {
   // a drawing error it could not see.
   describe("plot scale validation", () => {
     test("a value outside the scale is refused, not silently pinned to a gridline", () => {
-      expect(() => build("plot", { labels: ["a", "b"], values: [10, 200], max: 100 })).toThrow(/outside the scale/);
-      expect(() => build("plot", { labels: ["a", "b"], values: [-50, 50], max: 100 })).toThrow(/outside the scale/);
+      expect(() => build("plot", { values: [10, 200], max: 100 })).toThrow(/outside the scale/);
+      expect(() => build("plot", { values: [-50, 50], max: 100 })).toThrow(/outside the scale/);
     });
 
     test("an inverted scale is refused", () => {
-      expect(() => build("plot", { labels: ["a", "b"], values: [4, 8], max: 2, min: 10 })).toThrow(
+      expect(() => build("plot", { values: [4, 8], max: 2, min: 10 })).toThrow(
         /scale would run backwards/,
       );
     });
 
     // …but a genuinely flat series is a real thing to plot, and is drawn as one labelled line.
     test("a flat scale is allowed", () => {
-      expect(() => build("plot", { labels: ["a", "b"], values: [5, 5], max: 5, min: 5 })).not.toThrow();
+      expect(() => build("plot", { values: [5, 5], max: 5, min: 5 })).not.toThrow();
     });
   });
 
@@ -518,15 +536,17 @@ describe("new library components", () => {
   // because the ticks they render are identical, and a series drawn against its own `max` inside
   // a graph labelled with another's is a chart that lies with nothing visibly broken.
   describe("trend-line overlay", () => {
+    // The x-axis is the TREATMENT's: four categories, shared by every plot drawn on it.
+    const LABELS = ["Q1", "Q2", "Q3", "Q4"];
     const overlay = (...plots: Record<string, unknown>[]) =>
       composeTreatment({
         treatment: "trend-line",
-        params: { headline: "Two series" },
+        params: { headline: "Two series", labels: LABELS },
         children: plots.map((params) => ({ name: "plot", params })),
       }).build(ctx("t-overlay")).html;
 
-    const A = { labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 };
-    const B = { labels: ["Q1", "Q2", "Q3", "Q4"], values: [42, 68, 51, 29], max: 68 };
+    const A = { values: [18, 34, 29, 61], max: 61 };
+    const B = { values: [42, 68, 51, 29], max: 68 };
     /** Every layer's ticks, in document order, as one array per `.plot`. */
     const ticksPerPlot = (html: string): string[][] =>
       html
@@ -581,12 +601,12 @@ describe("new library components", () => {
       expect(overlay(A), "a lone series lost the only figures it had").not.toContain("--pfig");
     });
 
-    // ONE x-axis: the first series' category row is the only one drawn, so series of different
-    // lengths would put two different points under the same label.
-    test("series of different lengths are refused", () => {
-      expect(() =>
-        overlay(A, { labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }),
-      ).toThrow(/drawn on ONE x-axis/);
+    // ONE x-axis: the treatment's category row is the only one drawn, so a series with a
+    // different number of points would put its vertices under the wrong labels.
+    test("a series that does not fit the x-axis is refused", () => {
+      expect(() => overlay(A, { values: [1, 2, 3], max: 3 })).toThrow(/drawn on ONE x-axis/);
+      // …a lone one too: the axis is the treatment's, so there is no "first series" to defer to.
+      expect(() => overlay({ values: [1, 2, 3], max: 3 })).toThrow(/x-axis has 4 categories/);
     });
 
     // …and refused wherever the set came from. The guard used to run only in `composeTreatment`,
@@ -594,8 +614,8 @@ describe("new library components", () => {
     // different x under one shared row of four labels, with nothing visibly broken.
     test("…on the instance path too, not just the spec path", () => {
       const mismatched = () =>
-        getTreatment("trend-line")({ headline: "Two series" })
-          .addChildren(getComponent("plot")(A), getComponent("plot")({ labels: ["a", "b", "c"], values: [1, 2, 3], max: 3 }))
+        getTreatment("trend-line")({ headline: "Two series", labels: LABELS })
+          .addChildren(getComponent("plot")(A), getComponent("plot")({ values: [1, 2, 3], max: 3 }))
           .build(ctx("t-overlay-inst"));
       expect(mismatched).toThrow(/drawn on ONE x-axis/);
     });
@@ -751,15 +771,18 @@ describe("treatment → childComponent link", () => {
   const expected: Record<string, string | undefined> = {
     "stats": "stat",
     "feature-cards": "card",
-    list: "card",
+    list: "list-number",
     timeline: "step",
     agenda: "agenda-item",
     comparison: "row",
     "bar-chart": "bar",
     "bar-ranking": "rank",
+    "trend-line": "plot",
+    cluster: "cluster-node",
     cover: undefined,
     statement: undefined,
-    "outro": undefined,
+    // The closing plate's call to action IS the cta component, composed as its one child.
+    "outro": "cta",
   };
   for (const [t, child] of Object.entries(expected)) {
     test(`${t} → ${child ?? "(none)"}`, () => {
@@ -1450,7 +1473,7 @@ describe("creative theme (tripwire)", () => {
     "bar-ranking": "muted-1", // cream
     "trend-line": "muted-1", // cream — the chart family shares one plane
     "feature-cards": "secondary", // orange
-    list: "secondary", // orange — shares feature-cards' plane, as it shares its skin
+    list: "secondary", // orange — shares feature-cards' plane, as its rows share the card's plate
     "stats": "accent-2", // green
     statement: "primary", // pink
     "outro": "primary", // pink
@@ -2179,7 +2202,7 @@ describe("accent plumbing (tripwire)", () => {
   // The chosen role must survive into the rendered scene under EVERY live theme.
   test.each(ALL_THEMES)("$name honours a per-instance accent end-to-end", (theme) => {
     const inst = getTreatment("feature-cards")().addChildren(
-      getComponent("card")({ title: "T", icon: "I", accent: "accent-3" }),
+      getComponent("card")({ title: "T", icon: "shield", accent: "accent-3" }),
     );
     const html = renderScene(inst, rootContext("s01", theme, { voIds: ["l1"] }));
     expect(html).toContain("--ic: var(--accent-3)");
@@ -2486,35 +2509,44 @@ describe("cross-child validation (tripwire)", () => {
     }
   });
 
-  test("cluster refuses a ring whose spokes disagree with the spoke count", () => {
-    const spoke = (index: number, total: number) => ({
-      name: "cluster-node",
-      params: { label: `s${index}`, index, total },
-    });
-    // Four spokes each placed for a ring of five: a 72° hole, while --cn closes the ring up.
-    expect(
-      compose({
+  // THE RING PLACES ITS OWN SPOKES. A spoke used to carry `index` and `total` as params — two
+  // numbers the editor offered as fields, that had to agree across the set and with the real
+  // child count, and that a `childrenIssue` refused when they did not (delete one of five spokes
+  // and the survivors kept `total: 5`, opening a 72° hole). The treatment now stamps each spoke's
+  // angle from its position among the children (`childLayout`), so there is nothing to disagree.
+  describe("cluster places each spoke from its position in the set", () => {
+    const spoke = (label: string) => ({ name: "cluster-node", params: { label } });
+    const angles = (html: string): string[] =>
+      [...html.matchAll(/class="cnode [^"]*" style="[^"]*--ca: (-?[\d.]+)turn/g)].map((m) => m[1]!);
+    const ring = (n: number) =>
+      composeTreatment({
         treatment: "cluster",
         params: { headline: "h", hub: "H" },
-        children: [spoke(0, 5), spoke(1, 5), spoke(2, 5), spoke(3, 5)],
-      }),
-    ).toThrow(/placed for a ring of 5/);
-    expect(
-      compose({
-        treatment: "cluster",
-        params: { headline: "h", hub: "H" },
-        children: [spoke(0, 3), spoke(1, 3), spoke(2, 3)],
-      }),
-    ).not.toThrow();
-  });
+        children: Array.from({ length: n }, (_, i) => spoke(`s${i}`)),
+      }).build(ctx("t-ring")).html;
 
-  test("a spoke's index must sit inside its own ring", () => {
-    // `index / total - 0.25` is congruent modulo a turn, so an out-of-range index does not land
-    // somewhere odd — it lands exactly on another spoke, seating and all.
-    expect(() => composeComponent("cluster-node", { label: "x", index: 7, total: 3 })).toThrow(
-      /outside a ring of 3/,
-    );
-    expect(() => composeComponent("cluster-node", { label: "x", index: 2, total: 3 })).not.toThrow();
+    test("n spokes are spaced a full turn apart, the first at the top", () => {
+      expect(angles(ring(4))).toEqual(["-0.2500", "0.0000", "0.2500", "0.5000"]);
+      expect(angles(ring(3))).toEqual(["-0.2500", "0.0833", "0.4167"]);
+    });
+
+    test("dropping a spoke closes the ring — the survivors are re-spaced, not left with a hole", () => {
+      // Four spokes placed for four, never four placed for five: --cn and the angles read ONE count.
+      const html = ring(4);
+      expect(html).toContain("--cn: 4");
+      expect(angles(html)).toHaveLength(4);
+      expect(angles(html)).not.toContain("0.5500"); // 4/5 − 0.25: the fifth place of a five-ring
+    });
+
+    test("a spoke carries no placement of its own", () => {
+      // Neither param exists any more — the schema strips what an older deck still carries, and
+      // the treatment's placement wins regardless.
+      const schema = getComponent("cluster-node").jsonSchema() as { properties: Record<string, unknown> };
+      expect(Object.keys(schema.properties).sort()).toEqual(["accent", "detail", "label"]);
+      expect(() => composeComponent("cluster-node", { label: "x", index: 7, total: 3 } as never)).not.toThrow();
+      const bare = getComponent("cluster-node")({ label: "x" }).build(ctx("c")).html;
+      expect(bare).not.toContain("--ca");
+    });
   });
 });
 

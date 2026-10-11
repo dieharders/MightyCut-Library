@@ -42,3 +42,11 @@
   color: color-mix(in srgb, var(--dark) 65%, transparent);
   margin-top: 1rem;
 }
+/* THE DISC DRAWS AN ICON, not typed text: the card primitive injects the shared icon set's
+   inline SVG (icons.ts), and the glyph paints through currentColor — ink on the candy fill, the
+   same reading icon.css gives a standalone disc. 55% of the disc's diameter. */
+.card-icon svg {
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+}

@@ -1,0 +1,35 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the faint cobalt-tinted plate
+   card.css draws (5% cobalt over the paper plate, the hairline cobalt border, the 1.25rem radius,
+   the frost, no shadow), one per claim, stacked under a near-black headline. The disc and the
+   text are the `list-number` primitive's (list-number.css); this file owns the headline, the
+   stack and the plate. */
+.list h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.25rem 0 2.625rem;
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 1.25rem 2.125rem;
+  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
+  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
+  backdrop-filter: blur(0.75rem);
+  border-radius: 1.25rem;
+}
+/* The numeral disc at the card badge's scale (card.css: 4.125rem). */
+.list .ln-chip {
+  width: 4.125rem;
+  height: 4.125rem;
+  font-size: var(--font-size-lg);
+}
+.list .ln-text {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}

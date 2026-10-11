@@ -29,3 +29,22 @@
   font-size: var(--font-size-xl);
   color: var(--dark);
 }
+/* The text column: the item line, with the optional detail line stacked under it — the body
+   face one step down, in the softened ink the card body uses, so the second line qualifies the
+   first instead of competing with it. Pruned when absent. */
+.listnum-c .ln-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.listnum-c .ln-text {
+  line-height: 1.2;
+}
+.listnum-c .ln-detail {
+  margin-top: 0.375rem;
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--dark) 65%, transparent);
+}

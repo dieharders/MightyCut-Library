@@ -54,5 +54,9 @@ export const MatrixRow = component({
     // which fails silently.
     "--mhi": p.highlight ? "1" : "0",
   }),
+  // The ROW rises in as one box — it is the plate now (label and marks on it), so it needs an
+  // entrance of its own; the marks then tick in on it (anim.ts).
+  animIn: "rise",
+  animInOpts: { dist: 18 },
   anim: matrixRowAnim,
 });

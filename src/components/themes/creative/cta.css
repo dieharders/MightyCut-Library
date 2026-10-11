@@ -1,19 +1,22 @@
 /* Creative CTA: the standalone call-to-action — the same sealed stamp the closing plate carries,
-   extracted as a droppable atom. Green fill, cream wide-tracked mono label, a 0.5rem ink outline,
-   SQUARE corners, and the quiet ink-only hard offset. Green is the theme's terminal colour (the
-   reference reserved a whole green frame for the closer), so an author placing a CTA anywhere in
-   the deck is placing the same "this is the end of the argument" mark.
+   and the SAME OBJECT: the plate composes this component for its call to action rather than
+   imitating it. Green fill, cream wide-tracked mono label, a 0.5rem ink outline, SQUARE corners,
+   and NO SHADOW. Green is the theme's terminal colour (the reference reserved a whole green frame
+   for the closer), so an author placing a CTA anywhere in the deck is placing the same "this is
+   the end of the argument" mark.
 
    Two atoms are stated explicitly because every other theme in the library does the opposite here:
    border-radius:0, since a CTA is the one element that is a capsule everywhere else and squareness
-   is the whole point; and the shadow, which is the QUIET ink-only stack (0.75rem, zero blur), not
-   the orange signature — a component can be dropped many times on one frame, and the signature is
-   allowed once per frame, so it can never live in a repeatable atom.
+   is the whole point; and box-shadow:none. The stamp used to carry the quiet ink-only offset while
+   the closing plate's copy of it did not — the plate has already spent the frame's one flourish on
+   itself, and a second offset under the seal broke the "fires once per frame" rule that makes the
+   first one read. Now that the plate composes this component, the seal has ONE recipe and it is
+   the shadowless one: a stamp is pressed onto a surface, not lifted off it. The ink-only offset
+   remains the repeated-element default for plates (card, step, list chip); a seal is not a plate.
 
    The label is mono, not display: creative sends buttons through its taxonomy voice, which is what
    separates it from `block` (Inter/display CTAs). No font-weight — JetBrains Mono's regular is the
-   tracked-label weight the theme uses throughout, and matching the closing plate's stamp exactly
-   matters more than a step in colour weight.
+   tracked-label weight the theme uses throughout.
 
    .cta-arrow's text is a leading space plus the arrow, so it needs white-space:pre or the gap
    between label and glyph collapses. Ported from the showcase .bf-closing-plate .cta. */
@@ -24,7 +27,7 @@
   color: var(--muted-1);
   border: 0.5rem solid var(--dark);
   border-radius: 0;
-  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+  box-shadow: none;
   padding: 1.5rem 3.125rem;
   font-family: var(--mono);
   text-transform: uppercase;

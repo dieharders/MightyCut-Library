@@ -61,7 +61,7 @@
   font-size: var(--font-size-md);
   color: var(--dark);
 }
-.plot .paxis {
+.plotbox .paxis {
   margin-top: 1.25rem;
   line-height: 1;
   font-family: var(--body);

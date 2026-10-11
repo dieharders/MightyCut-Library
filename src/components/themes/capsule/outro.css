@@ -2,7 +2,7 @@
    no shadow on .cardf; just the big sentence-case Bodoni line, a lavender accent rule drawn
    off the headline, and the yellow CTA capsule, centred on the coral ground the emitter
    stamps. The rule is a pseudo-element on purpose — closingPlateAnim targets only
-   card / headline / cta, so a real node would be inert markup that also costs a template
+   card / headline, so a real node would be inert markup that also costs a template
    override the theme does not otherwise need. Ported from legacy .bf-closing-plate. */
 .closing-plate > .body {
   align-items: center;
@@ -37,22 +37,16 @@
   background: var(--accent-3);
   margin: 2.875rem auto 0;
 }
-/* .cta here is closing-plate's OWN node (a plain div in the shared template), not the cta
-   component (.cta-c) — same yellow capsule recipe, one shadow rung lighter because it sits
-   under a headline rather than standing alone. */
-.closing-plate .cta {
+/* THE CALL TO ACTION IS THE CTA COMPONENT (cta.css draws the yellow capsule; this is its one
+   child). Stated here is only how it sits under the headline: the gap, one shadow rung lighter
+   than the standalone capsule because it sits under a headline rather than standing alone, and
+   one type step down with the tracking opened to match. */
+.closing-plate .cta-c {
   margin-top: 3.125rem;
-  border: 0.25rem solid var(--dark);
-  border-radius: 9999px;
-  background: var(--accent-1);
   box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
   padding: 0.875rem 2.375rem;
-  font-family: var(--body);
-  font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.17em;
   font-size: var(--font-size-md);
-  color: var(--dark);
 }
 /* The optional contact line: body type in ink under the yellow capsule, uncapsuled — an open
    line on the open plate, so the capsule stays the one object that asks for the click. */

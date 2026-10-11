@@ -157,6 +157,22 @@ export type TreatmentDef<S extends z.ZodTypeAny> = {
   rawFill?: (p: z.infer<S>, children: readonly ComponentInstance[]) => Record<string, string | null | undefined>;
   /** Responsive layout: CSS custom properties from the child count. */
   layout?: (childCount: number, p: z.infer<S>) => Record<string, string>;
+  /**
+   * PER-CHILD layout: CSS custom properties stamped onto child `i` of `n`, by the treatment.
+   *
+   * `layout` sees the child COUNT and a child's own `layout(p)` sees only its own params, so a
+   * fact about a child's POSITION in the set had nowhere to go but into the child's params —
+   * which is how `cluster-node` came to carry `index` and `total`: two numbers every spoke had
+   * to be told, that the editor exposed as fields nobody could sensibly set (delete one of five
+   * spokes and the survivors keep `total: 5`, leaving a 72° hole), and that `childrenIssue` then
+   * had to police. A position in a set is the SET's knowledge. This hook lets the treatment say
+   * it, per child, from the order the children are actually drawn in.
+   *
+   * Merged onto the child's root node AFTER the child's own `layout`, so a treatment can also
+   * override a property a child emitted. Keyed by index and count only: a treatment that needs
+   * a child's params has `reconcileChildren` for that.
+   */
+  childLayout?: (index: number, childCount: number, p: z.infer<S>) => Record<string, string>;
   /** Own animations (e.g. the headline reveal). */
   anim?: (p: z.infer<S>, childCount: number) => AnimDescriptor[];
   /** Seconds between consecutive cascade slots (decorations → title → child → child …).
@@ -376,6 +392,8 @@ export function treatment<S extends z.ZodTypeAny>(def: TreatmentDef<S>): Treatme
             const bn = child.buildNode(childCtx);
             const own = takeStyleProp(bn.node, "--vlen");
             if (own !== null && Number.isFinite(Number(own))) reserved.push(Number(own));
+            // The treatment's say on where THIS child sits in the set (see `childLayout`).
+            if (def.childLayout) mergeStyle(bn.node, styleProps(def.childLayout(i, children.length, p)));
             container.children.push(bn.node);
             cssParts.push({ name: child.name, css: bn.css });
             for (const a of bn.anims) childAnims.push(toSlot(a, childBase + i, delay));

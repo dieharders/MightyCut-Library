@@ -3,10 +3,15 @@
    columns. What differs is only the content: terse criteria instead of a status-quo/ours pair,
    and a mark instead of a phrase.
 
+   EACH OPTION IS ONE TINTED PLATE — the label and its marks inside one faint cobalt-tinted,
+   hairlined plate (matrix-row.css), the recommended option's plate deepened. The criteria sit
+   above as bare uppercase mono, one per column: they NAME the assessment, they don't win it.
+
    The track is stated in BOTH .mhead and .mrow rather than once on a shared parent, because the
    rows are separate grids here (matrix-row.css says why they are not display:contents into one
    grid). --cols is the treatment's criteria count and BOTH read it — a row's own --mcols is
-   only the fallback for a row rendered bare (see block/matrix-row.css). */
+   only the fallback for a row rendered bare (see block/matrix-row.css). The head carries the
+   row's horizontal padding so its columns sit exactly over the marks below. */
 .matrix h3 {
   font-size: var(--font-size-3xl);
   margin: 1.25rem 0 2.375rem;
@@ -16,10 +21,6 @@
   flex-direction: column;
   gap: 1.25rem;
 }
-/* The rows FLOAT, like every other plate in this theme, so they need the same gap the
-   header sits off by — otherwise each row's hard shadow is covered by the plate below it
-   and the stack reads as one welded block instead of a set of cards. (creative and
-   standard deliberately go flush here: their tables are ruled, not floated.) */
 .matrix .mrows {
   display: flex;
   flex-direction: column;
@@ -30,27 +31,22 @@
   grid-template-columns: 1.3fr repeat(var(--cols, 3), 1fr);
   gap: 1.625rem;
   align-items: end;
+  padding: 0 1.75rem;
 }
 /* Deliberately bare — the one cell that answers nothing. */
 .matrix .mcorner {
   border: 0;
 }
-/* Column heads as the faint tinted chips the ledger's `.ch.a` wears. None takes the solid
-   cobalt: the criteria NAME the assessment, they don't win it, and cream-on-cobalt is reserved
-   in this theme for the recommended answer. */
+/* Column heads as bare uppercase mono in the warm gray — no chip. The plates below are the
+   table's furniture; a chipped head over a plated row would be two plates per column. */
 .matrix .mcrit {
   font-family: var(--mono);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: var(--font-size-md);
-  padding: 0.875rem 1rem;
-  border-radius: 0.875rem;
+  font-size: var(--font-size-sm);
+  padding: 0.5rem 0 0.75rem;
   text-align: center;
-  /* The same tint-on-plate the marks below it wear (matrix-row.css) — see comparison.css. */
-  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
-  backdrop-filter: blur(0.75rem);
-  border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
   color: var(--muted-3);
 }
 .matrix .caption {

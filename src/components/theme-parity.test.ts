@@ -1041,9 +1041,11 @@ describe("plot axis skin (tripwire)", () => {
   // guarantee that is to letter neither and let both inherit. A font-size moved onto `.ptick` or
   // `.plab` still LOOKS right (the visible labels are absolutely positioned and unaffected) while
   // the sizer beside it measures something else.
+  // The category row is the TREATMENT's node (trend-line draws the x-axis once, under every
+  // series — plot/geometry.css), so its paint is keyed on `.plotbox`, the box the row sits in.
   const ROWS = [
     [".plot .pyaxis", ".plot .ptick", "the tick gutter's width"],
-    [".plot .paxis", ".plot .plab", "the category row's height"],
+    [".plotbox .paxis", ".plotbox .plab", "the category row's height"],
   ] as const;
 
   test.each(ALL_THEMES)("$name letters each axis row, so its sizer measures the real labels", (theme) => {
@@ -1085,19 +1087,22 @@ describe("plot axis skin (tripwire)", () => {
   // the two on the ends ran off the frame. The component now gives each label a box (`--lw`) and
   // anchors the ends inward (`--la`).
   test.each(ALL_THEMES)("$name's plot gives every category label a bounded box", (theme) => {
-    const built = getComponent("plot")({
+    // The row is the trend-line's (its `labels`), drawn with the plot's geometry sheet — so the
+    // composed treatment is what delivers it.
+    const built = getTreatment("trend-line")({
+      headline: "h",
       labels: ["January Forecast", "February", "March", "April Forecast"],
-      values: [1, 2, 3, 4],
-      max: 4,
-    }).build(pctx(theme, "plab"));
+    })
+      .addChildren(getComponent("plot")({ values: [1, 2, 3, 4], max: 4 }))
+      .build(pctx(theme, "plab"));
     const css = stripComments(built.css);
-    const lab = ruleBody(css, ".plot .plab");
-    expect(lab, `${theme.name}: .plot .plab has no max-width, so long labels overprint their neighbours`).toMatch(
+    const lab = ruleBody(css, ".plotbox .plab");
+    expect(lab, `${theme.name}: .plotbox .plab has no max-width, so long labels overprint their neighbours`).toMatch(
       /max-width:[^;]*var\(--lw/,
     );
     expect(
       lab,
-      `${theme.name}: .plot .plab does not clip its inline axis, so a label wider than its box still overruns`,
+      `${theme.name}: .plotbox .plab does not clip its inline axis, so a label wider than its box still overruns`,
     ).toMatch(/overflow-x:\s*clip/);
     // …AND NOT ON THE BLOCK AXIS. The clip is there for the ellipsis, which is a horizontal fit,
     // but the label's box is exactly one line box — every skin sets `line-height: 1` on `.paxis` so

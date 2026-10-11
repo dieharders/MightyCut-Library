@@ -1,0 +1,34 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the sheet of tracing paper
+   card.css lays on the stone (the --plate wash, one hairline in the Line brownstone, no radius,
+   no shadow), one per claim, stacked under a Playfair headline in ink. The numeral and the text
+   are the `list-number` primitive's (list-number.css: a bare brownstone figure, since standard
+   encloses nothing); this file owns the headline, the stack and the plate. */
+.list h3 {
+  font-size: var(--font-size-3xl);
+  margin: 0 0 1.875rem;
+  max-width: 84rem;
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: baseline;
+  gap: 1.75rem;
+  padding: 1.5rem 2.375rem;
+  background: var(--plate);
+  border: 0.125rem solid var(--accent-3);
+}
+/* The numeral one step up from the standalone chip, held to a common left edge. */
+.list .ln-chip {
+  min-width: 3.5rem;
+  font-size: var(--font-size-xl);
+}
+.list .ln-text {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  line-height: 1.15;
+}

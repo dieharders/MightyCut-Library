@@ -35,3 +35,15 @@
   color: color-mix(in srgb, var(--dark) 87%, transparent);
   margin-top: 0.875rem;
 }
+/* THE BADGE DRAWS AN ICON, not typed text: the card primitive injects the shared icon set's
+   inline SVG (icons.ts) into the square, and the glyph paints through currentColor — ink on the
+   accent fill, the same reading icon.css gives a standalone icon. 55% of the square, so the
+   0.25rem ring and the glyph's own stroke read as two weights rather than one. */
+.card-icon {
+  color: var(--dark);
+}
+.card-icon svg {
+  display: block;
+  width: 2.625rem;
+  height: 2.625rem;
+}

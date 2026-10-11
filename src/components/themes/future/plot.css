@@ -85,7 +85,7 @@
   font-size: var(--font-size-sm);
   color: var(--pcol, var(--primary));
 }
-.plot .paxis {
+.plotbox .paxis {
   margin-top: 1.25rem;
   line-height: 1;
   font-family: var(--mono);
