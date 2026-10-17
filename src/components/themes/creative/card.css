@@ -73,3 +73,11 @@
   color: var(--muted-3);
   margin-top: 1rem;
 }
+/* THE BADGE DRAWS AN ICON, not typed text: the card primitive injects the shared icon set's
+   inline SVG (icons.ts), and the glyph paints through currentColor — ink on the accent plate,
+   exactly as icon.css paints the standalone square. 55% of the plate. */
+.card-icon svg {
+  display: block;
+  width: 2.625rem;
+  height: 2.625rem;
+}

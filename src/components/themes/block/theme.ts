@@ -53,6 +53,7 @@ import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -213,7 +214,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "outro": {
-    params: { headline: "Stay loud.", cta: "Start building" },
+    params: { headline: "Stay loud." },
+    children: [{ text: "Start building", arrow: false }],
   },
   "feature-cards": {
     params: { headline: "Built for the whole workflow" },
@@ -221,19 +223,19 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         title: "Prompt to preview",
         body: "Describe the video; get a preview-ready deck back in one pass.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "On-brand by default",
         body: "Themed frames, captions, and motion — no timeline surgery.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Render on demand",
         body: "Publish the preview now; render the final MP4 whenever you like.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-2",
       },
     ],
@@ -345,10 +347,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Losses Keep Falling",
       caption: "Incidents per 1,000 sessions",
+      labels: ["Q1", "Q2", "Q3", "Q4"],
     },
     children: [
       {
-        labels: ["Q1", "Q2", "Q3", "Q4"],
         values: [61, 44, 29, 18],
         max: 61,
         unitSuffix: "",
@@ -365,36 +367,26 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         label: "Slack",
         detail: "alerts",
-        index: 0,
-        total: 5,
         accent: "primary",
       },
       {
         label: "Jira",
         detail: "tickets",
-        index: 1,
-        total: 5,
         accent: "secondary",
       },
       {
         label: "GitHub",
         detail: "commits",
-        index: 2,
-        total: 5,
         accent: "accent-1",
       },
       {
         label: "Okta",
         detail: "identity",
-        index: 3,
-        total: 5,
         accent: "accent-2",
       },
       {
         label: "Datadog",
         detail: "metrics",
-        index: 4,
-        total: 5,
         accent: "primary",
       },
     ],
@@ -447,16 +439,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// The shapes block's hero frames wear when a caller adds none — the pink star and blue
-// tilt-rect that have always ridden the cover, now declared HERE rather than on the shared
-// treatment def (only a theme may name its own decoration families). These are also what
-// the showcase seeds its editable decoration rows from, so what a user sees listed is
-// exactly what renders. Two per frame, three on the closer: every decoration takes a reveal
-// cascade slot, so the count is the headline's delay.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "Why teams switch" },
+  children: [
+      { num: "01", text: "Decks that took a week now take an afternoon." },
+      { num: "02", text: "Every frame is on-brand without a designer.", detail: "Themes carry the type, colour and motion." },
+      { num: "03", text: "Preview before you spend a render." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Pink star top-right, blue tilt-rect lower-right — clear of the left-set headline.
@@ -585,10 +576,8 @@ export const blockTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

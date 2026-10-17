@@ -32,3 +32,19 @@
   line-height: 1.5;
   color: var(--dark);
 }
+/* The text column: the item line, with the optional detail line stacked under it — Inter in the
+   warm gray, the paragraph voice, so the second line reads as the qualifier it is against the ink
+   claim above. Pruned when absent. */
+.listnum-c .ln-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.listnum-c .ln-detail {
+  margin-top: 0.25rem;
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--muted-3);
+}

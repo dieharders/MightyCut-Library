@@ -1,6 +1,6 @@
 import template from "./template.html" with { type: "text" };
 import { ACCENT_CYCLE } from "../../../types/palette";
-import { Plot } from "../../primitives/plot";
+import { categoryAxisHtml, Plot } from "../../primitives/plot";
 import type { PlotParams } from "../../primitives/plot/schema";
 import { esc } from "../../runtime/dom";
 import { treatment } from "../../runtime/treatment";
@@ -52,23 +52,18 @@ const legendHtml = (children: readonly ComponentInstance[]): string | null => {
 };
 
 /**
- * ONE X-AXIS, so every series has to have the same number of points.
+ * ONE X-AXIS, so every series has to have one value per category on it.
  *
- * The overlay draws each series edge to edge across the same box (plot/index.ts, `xAt`), and
- * the category row is the FIRST series' — so a four-point line under a six-point line would
- * put its third point at 50% and its neighbour's third point at 40%, both under a label that
- * describes only one of them. Nothing looks broken; the chart just quietly means nothing.
- *
- * Only the COUNT is checked, not the label text. A second series that spells its categories
- * differently ("Q1" against "Jan–Mar") is reading the same axis in different words, and the
- * first series' labels are the ones drawn — an ordinary editorial choice rather than an error
- * worth refusing a deck over.
+ * The axis is the treatment's `labels` and every plot is drawn edge to edge across the same box
+ * (plot/index.ts, `xAt`) — so a four-point line on a six-label axis would put its third point at
+ * 50% and its neighbour's third point at 40%, both under a label that describes only one of
+ * them. Nothing looks broken; the chart just quietly means nothing.
  */
-const pointCountIssue = (counts: readonly number[]): string | null => {
-  const [first] = counts;
-  return counts.every((n) => n === first)
+const pointCountIssue = (labels: number, counts: readonly number[]): string | null => {
+  const wrong = counts.filter((n) => n !== labels);
+  return wrong.length === 0
     ? null
-    : `the series have ${counts.join(", ")} points — they are drawn on ONE x-axis, so every plot needs the same number`;
+    : `the series have ${counts.join(", ")} points but the x-axis has ${labels} categories — every plot is drawn on ONE x-axis, so each needs one value per label`;
 };
 
 /**
@@ -79,6 +74,14 @@ const pointCountIssue = (counts: readonly number[]): string | null => {
  * plot/schema.ts. A second child is therefore a second LINE ON THE SAME GRAPH, not a second
  * graph: the children are stacked in one box by the plot's own sheet (plot/geometry.css) and
  * reconciled onto one scale here.
+ *
+ * THE GRAPH OWNS ITS X-AXIS. The category labels are this treatment's `labels` param, drawn once
+ * into its own `.paxis` row under the layers (`rawFill` → `categoryAxisHtml`), and a plot child
+ * carries values alone. A plot used to carry its own labels, which made the overlay draw the
+ * first child's row and the author type one list once per line; what a plot needs to say is its
+ * numbers, and where those numbers sit is the graph's business. The row lines up with the plot
+ * area because the box is a subgrid (geometry.css) — the plots' own tick gutters size the column
+ * the row is pinned beside.
  *
  * The cascade still gives each series its own slot, which is what an overlay wants anyway —
  * the lines draw themselves one after another rather than all at once. The caption's problem is
@@ -95,15 +98,17 @@ export const TrendLine = treatment({
   // chart's and bar-ranking's ground: the three are the same device seen three ways, and in the
   // two themes that keep per-treatment grounds they should land on the same plane.
   ground: "muted-1",
-  example: { headline: "Losses fall quarter over quarter", caption: "Incidents per 1,000 sessions" },
+  example: {
+    headline: "Losses fall quarter over quarter",
+    labels: ["Q1", "Q2", "Q3", "Q4"],
+    caption: "Incidents per 1,000 sessions",
+  },
   fill: (p) => ({ headline: p.headline, caption: p.caption ?? null }),
-  // The key, which is a statement about the SET and so can only be written here — see
-  // `legendHtml`. It is null for a single series, and an unfilled data-html element removes
-  // itself, so a one-plot trend-line emits exactly the markup it did before.
-  rawFill: (_p, children) => ({ legend: legendHtml(children) }),
-  defaultChildren: () => [
-    Plot({ labels: ["Q1", "Q2", "Q3", "Q4"], values: [18, 34, 29, 61], max: 61 }),
-  ],
+  // The x-axis row (the treatment's own, see above) and the key, which is a statement about the
+  // SET and so can only be written here — see `legendHtml`. The key is null for a single series,
+  // and an unfilled data-html element removes itself.
+  rawFill: (p, children) => ({ axis: categoryAxisHtml(p.labels), legend: legendHtml(children) }),
+  defaultChildren: () => [Plot({ values: [18, 34, 29, 61], max: 61 })],
   /**
    * ONE SERIES PRINTS ITS FIGURES; SEVERAL READ THE AXIS.
    *
@@ -125,10 +130,12 @@ export const TrendLine = treatment({
   layout: (childCount): Record<string, string> => (childCount > 1 ? { "--pfig": "none" } : {}),
   // ONE X-AXIS — see `pointCountIssue`. The runtime runs this over the children as the caller
   // wrote them (composeTreatment) AND over the resolved instances (buildNode), so the guard
-  // covers `addChildren` and `defaultChildren` too: `TrendLine().addChildren(Plot(4), Plot(3))`
-  // used to render two series on one four-label row rather than being refused.
-  childrenIssue: (_p, children) =>
-    pointCountIssue(children.map((c) => (c.params?.values as unknown[] | undefined)?.length ?? 0)),
+  // covers `addChildren` and `defaultChildren` too.
+  childrenIssue: (p, children) =>
+    pointCountIssue(
+      p.labels.length,
+      children.map((c) => (c.params?.values as unknown[] | undefined)?.length ?? 0),
+    ),
   /**
    * ONE Y-AXIS, resolved rather than demanded.
    *

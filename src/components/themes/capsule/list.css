@@ -1,0 +1,34 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the white candy card card.css
+   draws (one ink outline, the 2.125rem radius, the soft never-blurred offset), one per claim,
+   stacked under a Bodoni headline. The disc and the text are the `list-number` primitive's
+   (list-number.css); this file owns the headline, the stack and the plate. */
+.list h3 {
+  font-size: var(--font-size-3xl);
+  margin: 1.625rem 0 2.875rem;
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.375rem 2.125rem;
+  background: var(--light);
+  border: 0.25rem solid var(--dark);
+  border-radius: 2.125rem;
+  box-shadow: 0.75rem 0.75rem 0 color-mix(in srgb, var(--dark) 12%, transparent);
+}
+/* The numeral disc at the card badge's scale (card.css: 5rem). */
+.list .ln-chip {
+  width: 5rem;
+  height: 5rem;
+  font-size: var(--font-size-lg);
+}
+.list .ln-text {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}

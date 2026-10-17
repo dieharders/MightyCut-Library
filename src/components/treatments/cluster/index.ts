@@ -1,5 +1,6 @@
 import template from "./template.html" with { type: "text" };
 import { ClusterNode } from "../../primitives/cluster-node";
+import { ringPlacement } from "../../primitives/cluster-node/ring";
 import { ACCENT_CYCLE } from "../../../types/palette";
 import { treatment } from "../../runtime/treatment";
 import { clusterAnim } from "./anim";
@@ -16,6 +17,14 @@ const SPOKES = ["Radar", "Optical", "Signals", "Telemetry", "Weather"];
  * other rem in the library. The alternative (drawing edges in SVG, as `plot` does for its
  * polyline) buys nothing here: a hub-and-spoke has no path BETWEEN siblings, only a straight
  * run from each one to a fixed centre, and that is exactly what a rotated box already is.
+ *
+ * THE RING PLACES ITS OWN SPOKES. A spoke's angle is a fact about the set — which position it
+ * holds, out of how many — and the treatment is the only thing that knows both, so it stamps the
+ * placement onto each child from its draw order (`childLayout` → `ringPlacement`). The spoke
+ * used to be told `index` and `total` as params, which put two fields in the editor that had to
+ * agree with each other, across every spoke, and with the real count; a `childrenIssue` here
+ * refused the sets that did not. Deleting a spoke now simply closes the ring, and there is
+ * nothing left to disagree.
  */
 export const Cluster = treatment({
   name: "cluster",
@@ -30,36 +39,14 @@ export const Cluster = treatment({
   },
   fill: (p) => ({ headline: p.headline, hub: p.hub, caption: p.caption ?? null }),
   // --cn lets the skin size the ring off the spoke COUNT: eight arms need a wider radius than
-  // three or the pucks touch. It is the REAL child count; each spoke's ANGLE comes from its own
-  // `total` (the runtime hands `layout()` a count but gives a child no per-instance hook, so a
-  // node has to be told where it sits). Those are two statements of one number, and
-  // `childrenIssue` below is what keeps them from disagreeing.
+  // three or the pucks touch. The same count spaces the spokes (`childLayout` below), so the
+  // two can no longer disagree.
   layout: (n) => ({ "--cn": String(n) }),
-  // What a spoke cannot check about itself. `index < total` is the child's own business and its
-  // schema refines it; these three are the SET's:
-  //
-  // `total` is what each spoke spaces itself by, and the ring's radius is sized off the real
-  // child count — two statements of one number. Delete one of five spokes in the editor and the
-  // survivors keep `total: 5`: a 72° hole opens where the deleted arm was, while `--cn: 4`
-  // closes the ring up around it. And two spokes given the same `index` draw at the same angle,
-  // one hidden behind the other, with nothing visible but a ring an arm short.
-  childrenIssue: (_p, children) => {
-    const n = children.length;
-    const totals = [...new Set(children.map((c) => c.params?.total).filter((t) => t !== undefined))];
-    if (totals.length > 1)
-      return `the spokes disagree about \`total\` (${totals.join(", ")}) — every spoke spaces itself by it, so one value has to hold for the whole ring`;
-    if (totals.length === 1 && totals[0] !== n)
-      return `${n} ${n === 1 ? "spoke was" : "spokes were"} given but each is placed for a ring of ${String(totals[0])} — \`total\` IS the ring's size, so it has to equal the spoke count or the arms leave a gap`;
-    if (new Set(children.map((c) => c.params?.index)).size !== n)
-      return `two spokes share an \`index\` — an index is a position in the ring, so a repeat draws both at the same angle and one disappears behind the other`;
-    return null;
-  },
+  childLayout: (i, n) => ringPlacement(i, n),
   defaultChildren: () =>
     SPOKES.map((label, i) =>
       ClusterNode({
         label,
-        index: i,
-        total: SPOKES.length,
         accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length],
       }),
     ),

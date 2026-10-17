@@ -45,6 +45,7 @@ import clusterNodeCss from "./cluster-node.css" with { type: "text" };
 // Treatment skins.
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -208,26 +209,29 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       eyebrow: "In Their Words",
     },
   },
-  "outro": { params: { headline: "Stay rounded.", cta: "Say hello" } },
+  "outro": {
+    params: { headline: "Stay rounded." },
+    children: [{ text: "Say hello", arrow: false }],
+  },
   "feature-cards": {
     params: { headline: "Cards on candy grounds" },
     children: [
       {
         title: "Pill Geometry",
         body: "Every container is fully rounded — chips, cards, tracks and discs.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "Soft Outline",
         body: "One ink stroke wraps every shape, at one weight, everywhere.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Gentle Lift",
         body: "Offset shadows sit under each card — never blurred, never heavy.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-2",
       },
     ],
@@ -308,10 +312,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "It gets easier every month",
       caption: "Support tickets per 100 accounts",
+      labels: ["Jan","Feb","Mar","Apr"],
     },
     children: [
       {
-        labels: ["Jan","Feb","Mar","Apr"],
         values: [48,36,24,15],
         max: 48,
         unitSuffix: "",
@@ -325,11 +329,11 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       caption: "Nothing to wire up yourself",
     },
     children: [
-      { label: "Email", detail: "threads", index: 0, total: 5, accent: "primary" },
-      { label: "Calendar", detail: "events", index: 1, total: 5, accent: "secondary" },
-      { label: "Files", detail: "shared", index: 2, total: 5, accent: "accent-1" },
-      { label: "Chat", detail: "messages", index: 3, total: 5, accent: "accent-2" },
-      { label: "Notes", detail: "synced", index: 4, total: 5, accent: "primary" },
+      { label: "Email", detail: "threads", accent: "primary" },
+      { label: "Calendar", detail: "events", accent: "secondary" },
+      { label: "Files", detail: "shared", accent: "accent-1" },
+      { label: "Chat", detail: "messages", accent: "accent-2" },
+      { label: "Notes", detail: "synced", accent: "primary" },
     ],
   },
   comparison: {
@@ -383,16 +387,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Capsule's hero-frame decorations — soft ink-outlined candy shapes drifting in the cream
-// margins, tilted a few degrees so nothing sits square. Coral (primary) leads; sky
-// (secondary), mint (accent-2), lavender (accent-3) and yellow (accent-1) answer. Every
-// decoration takes a reveal cascade slot, so the closer and the quote stay at two; the
-// cover spends FOUR — it is the one frame with margin on all four sides, and its headline
-// can afford the later beat.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "What's in the box" },
+  children: [
+      { num: "01", text: "Candy-coloured frames, one ink outline." },
+      { num: "02", text: "Soft offset shadows, never blurred.", detail: "Lifted, not floating" },
+      { num: "03", text: "A Bodoni voice for every headline." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // Four shapes ringing the headline block, one to a margin: a coral bean lower-right, a
@@ -561,10 +564,8 @@ export const capsuleTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

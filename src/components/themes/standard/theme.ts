@@ -61,6 +61,7 @@ import outroCss from "./outro.css" with { type: "text" };
 import comparisonCss from "./comparison.css" with { type: "text" };
 import coverCss from "./cover.css" with { type: "text" };
 import featureCardsCss from "./feature-cards.css" with { type: "text" };
+import listCss from "./list.css" with { type: "text" };
 import matrixCss from "./matrix.css" with { type: "text" };
 import pillWallCss from "./pill-wall.css" with { type: "text" };
 import teamCss from "./team.css" with { type: "text" };
@@ -275,10 +276,8 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     },
   },
   "outro": {
-    params: {
-      headline: "Well framed, on stone.",
-      cta: "Begin the conversation",
-    },
+    params: { headline: "Well framed, on stone." },
+    children: [{ text: "Begin the conversation", arrow: false }],
   },
   "feature-cards": {
     params: { headline: "Considered by hand" },
@@ -286,19 +285,19 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         title: "Hairline",
         body: "One brownstone rule carries every border in the deck.",
-        icon: "I",
+        icon: "shield",
         accent: "primary",
       },
       {
         title: "Restraint",
         body: "Emphasis comes from type contrast, never from weight or hue.",
-        icon: "II",
+        icon: "layers",
         accent: "secondary",
       },
       {
         title: "Silence",
         body: "Generous negative space; a frame is allowed to be mostly empty.",
-        icon: "III",
+        icon: "sparkles",
         accent: "accent-1",
       },
     ],
@@ -400,10 +399,10 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
     params: {
       headline: "Visitors by season",
       caption: "Recorded admissions, in thousands",
+      labels: ["Spring", "Summer", "Autumn", "Winter"],
     },
     children: [
       {
-        labels: ["Spring", "Summer", "Autumn", "Winter"],
         values: [42, 68, 51, 29],
         max: 68,
         unitSuffix: "k",
@@ -420,36 +419,26 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
       {
         label: "Drawings",
         detail: "2,400 works",
-        index: 0,
-        total: 5,
         accent: "primary",
       },
       {
         label: "Prints",
         detail: "1,100 works",
-        index: 1,
-        total: 5,
         accent: "secondary",
       },
       {
         label: "Ceramics",
         detail: "640 works",
-        index: 2,
-        total: 5,
         accent: "accent-1",
       },
       {
         label: "Textiles",
         detail: "390 works",
-        index: 3,
-        total: 5,
         accent: "accent-2",
       },
       {
         label: "Glass",
         detail: "210 works",
-        index: 4,
-        total: 5,
         accent: "primary",
       },
     ],
@@ -502,16 +491,15 @@ const examples: NonNullable<ThemeTokens["examples"]> = {
   },
 };
 
-// Standard's hero-frame decorations. This theme runs a `plain` backdrop, so its decorations
-// ARE the atmosphere — which is also why its own rules cap them at TWO per frame, a ceiling
-// the closer reaches and the cover and quote deliberately sit under. Brownstone (primary)
-// draws the one lit instrument; Line (accent-3), the hairline stone, carries every mark
-// meant to stay quiet on the sandstone canvas each frame grounds on. Each decoration takes a
-// reveal cascade slot.
-// `list` currently shares feature-cards' skin, so it shares its showcase example too —
-// aliased rather than copied, so the two cannot drift into different copy while rendering
-// identically. When the list-number rendering lands this becomes an entry of its own.
-examples["list"] = examples["feature-cards"]!;
+// The list: numbered `list-number` rows, each on the card's plate.
+examples["list"] = {
+  params: { headline: "On measure" },
+  children: [
+      { num: "01", text: "One hairline carries every border." },
+      { num: "02", text: "Emphasis comes from type contrast.", detail: "Serif against sans, ink against gray" },
+      { num: "03", text: "A frame is allowed to be mostly empty." },
+  ],
+};
 
 const decorationDefaults: NonNullable<ThemeTokens["decorationDefaults"]> = {
   // One brownstone dial on the right margin at the vertical centre, cropped by the edge —
@@ -631,10 +619,8 @@ export const standardTheme: ThemeTokens = {
     comparison: comparisonCss,
     cover: coverCss,
     "feature-cards": featureCardsCss,
-    // `list` shares the feature-cards skin: the two looks compose identically today (both
-    // emit `card` children), and splitting them is what makes each SELECTABLE. When the
-    // list-number rendering lands, this points at its own sheet and nothing else moves.
-    "list": featureCardsCss,
+    // The list's rows wear the feature card's plate, numbered (list.css).
+    list: listCss,
     matrix: matrixCss,
     "pill-wall": pillWallCss,
     team: teamCss,

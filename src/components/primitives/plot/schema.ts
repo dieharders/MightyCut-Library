@@ -8,28 +8,23 @@ import { addIssue } from "../../../util/issues";
  * That is the opposite of how `chart` works, and it has to be. A bar is self-contained — its
  * height is a function of its own value — so a chart is N `bar` children. A polyline is not: the
  * path CONNECTS siblings, so no child can draw its own segment without knowing the ones on
- * either side. The series therefore lives here, and `line-chart` has exactly one child.
+ * either side. The series therefore lives here, and a single-line `trend-line` has exactly one
+ * child.
  *
- * PARALLEL ARRAYS, not an array of {label, value} objects, and that is a deliberate concession
- * to the editor rather than a modelling preference. The web UI renders an array param as ONE
- * comma-separated text input and coerces it back to string[] or number[] (`coerceField`,
- * lib/library.ts) — it has no control for an array of objects, so a `series` of pairs would
- * become an unusable text box that rejects whatever was typed into it. Two aligned lists each
- * get a working input. A cross-field check keeps them the same length, so the pairing is still
- * enforced; it is just enforced at validation rather than by the shape.
+ * VALUES ONLY — no category labels. The categories are the x-axis, and the x-axis is the
+ * GRAPH's, shared by every series drawn on it: `trend-line` holds the labels once and draws the
+ * row itself (its `labels` param, `rawFill`). While each plot carried its own copy, an overlay of
+ * three series carried three lists that had to be typed in three times and agree. A plot on its
+ * own — the showcase's component preview — is a line against a y-axis, which is exactly what one
+ * series is.
  */
 export const PlotSchema = z
   .object({
-    labels: z
-      .array(z.string().min(1).max(28))
-      .min(2)
-      .max(8)
-      .describe("Category label per point, in order — same length as `values`"),
     values: z
       .array(z.number())
       .min(2)
       .max(8)
-      .describe("The plotted value per point, in order — same length as `labels`"),
+      .describe("The plotted value per point, in order — one per category on the graph's x-axis"),
     max: z.number().describe("Top of the scale — at least every value, normally the series maximum"),
     min: z.number().default(0).describe("Bottom of the scale (default 0) — at most every value"),
     unitPrefix: z.string().max(6).optional().describe('Leading unit, e.g. "$"'),
@@ -67,14 +62,6 @@ export const PlotSchema = z
   })
   .check((ctx) => {
     const p = ctx.value;
-    if (p.labels.length !== p.values.length) {
-      addIssue(
-        ctx,
-        ["values"],
-        `values has ${p.values.length} entries but labels has ${p.labels.length} — a point needs both`,
-        p.values,
-      );
-    }
     // AN INVERTED SCALE IS NOT A SCALE. `max < min` renders a y-axis whose numbers increase
     // downward, with no warning and nothing visibly wrong. Equal is allowed: a genuinely flat
     // series is a real thing to plot, and the component draws it as a single labelled line

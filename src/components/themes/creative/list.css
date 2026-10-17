@@ -1,0 +1,47 @@
+/* 2b · List — numbered rows, each on the FEATURE CARD'S PLATE: the white plate card.css draws
+   (--muted-1 fill, the 0.5rem ink outline, the quiet ink-only offset), one per claim, stacked
+   under an Archivo headline. This treatment lands on the ORANGE plane (the shared canonical
+   --secondary), so the headline goes cream — creative's light ink on a saturated ground, the
+   same call feature-cards.css makes — and the plates are what the orange survives between.
+   The chip and the text are the `list-number` primitive's (list-number.css); this file owns
+   the headline, the stack and the plate. The plate's offset is the quiet ink stack, never the
+   signature orange one: a row of plates is by definition not the frame's one featured block. */
+.list h3 {
+  font-size: var(--font-size-2xl);
+  margin: 0 0 2.875rem;
+  color: var(--muted-1);
+  text-align: center;
+}
+.list .items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.list .listnum-c {
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+  padding: 1.375rem 2.125rem;
+  background: var(--muted-1);
+  border: 0.5rem solid var(--dark);
+  box-shadow: 0.75rem 0.75rem 0 var(--dark);
+}
+/* The numeral plate at the card badge's scale (card.css: 4.75rem, the 0.375rem inner-chrome
+   outline). No offset of its own — it sits on a plate that already has one. */
+.list .ln-chip {
+  width: 4.75rem;
+  height: 4.75rem;
+  box-shadow: none;
+  font-size: var(--font-size-lg);
+}
+.list .ln-text {
+  font-family: var(--disp);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  color: var(--dark);
+}
+.list .ln-detail {
+  color: var(--dark);
+}

@@ -1,4 +1,13 @@
-/* A scored matrix row: an option label plus one check/cross per criteria column.
+/* A scored matrix row: ONE TINTED PLATE holding the option label and one mark per criteria
+   column.
+
+   THE ROW IS THE CONTAINER. The marks used to sit in a tinted capsule each beside a bare label —
+   a row of five buttons per option — so the eye read six objects where there is one. The plate
+   now wraps the whole row (the 5% cobalt over the paper plate, the hairline cobalt border, no
+   shadow anywhere in this theme), and the marks are small square-aspect icons set on it. The
+   recommended option's plate deepens — a stronger tint and a cobalt keyline — mixed off the
+   `--mhi` 0/1 flag rather than selected on, so the component keeps one contract and each theme
+   spends it in its own language. One hue to spend, so emphasis is DEPTH of that hue.
 
    NOT display:contents, unlike the comparison `row` it otherwise mirrors. That row has three
    fixed children which can each be a direct item of one shared ledger grid; this one has two —
@@ -12,33 +21,26 @@
   grid-template-columns: 1.3fr repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.625rem;
   align-items: center;
-}
-/* The label is bare type, as the ledger row's is. The recommended option is the exception: it
-   takes the 10% cobalt tint and near-black text the ledger's winning cell wears, mixed off the
-   `--mhi` 0/1 flag rather than selected on, so the component keeps one contract and each theme
-   spends it in its own language. No shadow anywhere in this theme. */
-.mrow .ml {
-  padding: 0.75rem 1.25rem;
+  padding: 1rem 1.75rem;
   border-radius: 0.875rem;
-  /* THE PLATE SCALES OFF THE SAME FLAG THE TINT DOES. An unlit stub is bare type on the ground,
-     so it must get no plate and no frost either — otherwise every row but the recommended one
-     grows a white rectangle where it is meant to have no surface. Mixing --plate (theme.ts)
-     toward `transparent` by --mhi keeps the 55% written down in exactly one place; at 1 the mix
-     is the plate itself, at 0 it is nothing, and blur(0) is a no-op. */
-  background: color-mix(
-    in srgb,
-    var(--primary) calc(var(--mhi, 0) * 10%),
-    color-mix(in srgb, var(--plate) calc(var(--mhi, 0) * 100%), transparent)
-  );
-  backdrop-filter: blur(calc(var(--mhi, 0) * 0.75rem));
+  border: 0.125rem solid
+    color-mix(in srgb, var(--primary) calc(22% + var(--mhi, 0) * 40%), transparent);
+  background: color-mix(in srgb, var(--primary) calc(5% + var(--mhi, 0) * 7%), var(--plate));
+  /* The plate is half-opaque by design, so what shows through it is DIFFUSED rather than read
+     — professional's one blur, the value its card and plot panel frost at. */
+  backdrop-filter: blur(0.75rem);
+}
+/* The label is bare type ON the plate — the plate is the row's, not the label's. */
+.mrow .ml {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 .mrow .mlabel {
   font-family: var(--disp);
   font-weight: 600;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   color: var(--dark);
   line-height: 1.15;
 }
@@ -47,7 +49,7 @@
 .mrow .msub {
   font-family: var(--body);
   font-weight: 400;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   line-height: 1.3;
   color: var(--muted-3);
   margin-top: 0.25rem;
@@ -57,28 +59,30 @@
   display: grid;
   grid-template-columns: repeat(var(--cols, var(--mcols, 3)), 1fr);
   gap: 1.625rem;
+  align-items: center;
 }
-/* The same faint cobalt-tinted capsule the ledger's cells wear, so the two tables share one
-   surface vocabulary. */
+/* THE MARK IS AN ICON, NOT A BUTTON: one square-aspect hairlined disc, centred in its column,
+   the glyph inside it. Sized in rem, not by font-size: an inline SVG, not type, with its stroke
+   weight set on the element by iconSvg. */
 .mrow .mcell {
+  box-sizing: border-box;
+  width: 2.75rem;
+  height: 2.75rem;
+  justify-self: center;
+  border-radius: 50%;
   border: 0.125rem solid color-mix(in srgb, var(--primary) 22%, transparent);
-  border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--primary) 5%, var(--plate));
-  backdrop-filter: blur(0.75rem);
   display: grid;
   place-items: center;
-  padding: 0.875rem;
 }
-/* Sized in rem, not by font-size: an inline SVG, not type, with its stroke weight set on the
-   element by iconSvg. A yes deepens the tint and darkens the mark; a no keeps the faint plate
-   with the mark in the recessive gray. This theme has one hue to spend, so emphasis is DEPTH of
-   that hue, never a second colour. */
 .mrow .mcell svg {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
+/* A yes deepens the tint and takes the cobalt; a no keeps the faint ring with the mark in the
+   recessive gray. One hue, so emphasis is depth of it, never a second colour. */
 .mrow .mcell--yes {
-  background: color-mix(in srgb, var(--primary) 14%, var(--plate));
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
   color: var(--primary);
 }
 .mrow .mcell--no {

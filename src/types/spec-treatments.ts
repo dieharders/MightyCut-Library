@@ -49,7 +49,7 @@ export const LOOKS = [
   {
     name: "list",
     label: "List",
-    when: "2-5 short claims, one per line — the general-purpose list when each item is a sentence at most.",
+    when: "2-5 short claims as numbered rows, one per line — the general-purpose list when each item is a sentence at most.",
   },
   {
     name: "feature-cards",
