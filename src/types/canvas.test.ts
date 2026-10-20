@@ -85,6 +85,18 @@ describe("canvas presets", () => {
     expect(canvasFor("landscape-1080", 60).fps).toBe(60);
   });
 
+  test("every preset has a named aspect, and only the 16:9 ones are landscape", () => {
+    const { aspectOf, isLandscapePreset } = require("./canvas") as typeof import("./canvas");
+    for (const name of CANVAS_PRESET_NAMES) expect(aspectOf(CANVAS_PRESETS[name])).toBeDefined();
+    expect(aspectOf({ width: 1920, height: 1080 })).toBe("16:9");
+    expect(aspectOf({ width: 1280, height: 720 })).toBe("16:9");
+    expect(aspectOf({ width: 1080, height: 1920 })).toBe("9:16");
+    expect(aspectOf({ width: 1080, height: 1080 })).toBe("1:1");
+    expect(aspectOf({ width: 1440, height: 1080 })).toBe("4:3");
+    expect(aspectOf({ width: 1600, height: 1000 })).toBeUndefined();
+    expect(CANVAS_PRESET_NAMES.filter(isLandscapePreset)).toEqual(["landscape-1080", "landscape-720"]);
+  });
+
   test("isCanvasPreset does not admit inherited Object keys", () => {
     expect(isCanvasPreset("landscape-1080")).toBe(true);
     // The retired name must NOT resolve — it is what stored data and old flags will carry.
