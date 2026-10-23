@@ -50,9 +50,13 @@ export const CANVAS_PRESETS = {
   // Non-16:9 frames. A DECK is never composed at one of these (its treatments reflow only by
   // width — see remScaleFor); they exist for compositions authored to the frame directly, which
   // size their output from the root's data-width/data-height. The harness refuses a deck at one.
+  // Each in HD and in SD (720 on the short side), like the landscape pair.
   "portrait-1920": { width: 1080, height: 1920 },
+  "portrait-1280": { width: 720, height: 1280 },
   "square-1080": { width: 1080, height: 1080 },
+  "square-720": { width: 720, height: 720 },
   "standard-1080": { width: 1440, height: 1080 },
+  "standard-720": { width: 960, height: 720 },
 } as const satisfies Record<string, CanvasSize>;
 
 /** The frame shapes a preset can have, as a person names them. */
