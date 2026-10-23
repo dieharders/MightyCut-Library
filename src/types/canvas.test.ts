@@ -7,8 +7,10 @@ import {
   DEFAULT_CANVAS_PRESET,
   DEFAULT_FPS,
   DESIGN_CANVAS,
+  aspectOf,
   canvasFor,
   isCanvasPreset,
+  isLandscapePreset,
   type CanvasSize,
 } from "./canvas";
 import { wrapSubComposition } from "../pipeline/sub-composition";
@@ -86,7 +88,6 @@ describe("canvas presets", () => {
   });
 
   test("every preset has a named aspect, and only the 16:9 ones are landscape", () => {
-    const { aspectOf, isLandscapePreset } = require("./canvas") as typeof import("./canvas");
     for (const name of CANVAS_PRESET_NAMES) expect(aspectOf(CANVAS_PRESETS[name])).toBeDefined();
     expect(aspectOf({ width: 1920, height: 1080 })).toBe("16:9");
     expect(aspectOf({ width: 1280, height: 720 })).toBe("16:9");
