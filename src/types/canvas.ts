@@ -47,7 +47,36 @@ export type CanvasSize = { readonly width: number; readonly height: number };
 export const CANVAS_PRESETS = {
   "landscape-1080": { width: 1920, height: 1080 },
   "landscape-720": { width: 1280, height: 720 },
+  // Non-16:9 frames. A DECK is never composed at one of these (its treatments reflow only by
+  // width — see remScaleFor); they exist for compositions authored to the frame directly, which
+  // size their output from the root's data-width/data-height. The harness refuses a deck at one.
+  // Each in HD and in SD (720 on the short side), like the landscape pair.
+  "portrait-1920": { width: 1080, height: 1920 },
+  "portrait-1280": { width: 720, height: 1280 },
+  "square-1080": { width: 1080, height: 1080 },
+  "square-720": { width: 720, height: 720 },
+  "standard-1080": { width: 1440, height: 1080 },
+  "standard-720": { width: 960, height: 720 },
 } as const satisfies Record<string, CanvasSize>;
+
+/** The frame shapes a preset can have, as a person names them. */
+export type Aspect = "16:9" | "9:16" | "1:1" | "4:3";
+
+/**
+ * A size's aspect, as one of the four shapes above. Reduced by the greatest common divisor, so
+ * 1280x720 and 1920x1080 both answer "16:9"; a size that is none of the four has no name here
+ * and answers undefined rather than a made-up ratio.
+ */
+export const aspectOf = (size: CanvasSize): Aspect | undefined => {
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  const g = gcd(size.width, size.height);
+  const ratio = `${size.width / g}:${size.height / g}`;
+  return ratio === "16:9" || ratio === "9:16" || ratio === "1:1" || ratio === "4:3" ? ratio : undefined;
+};
+
+/** Whether a preset is a 16:9 frame — the only shape a deck's treatments are laid out for. */
+export const isLandscapePreset = (name: CanvasPresetName): boolean =>
+  aspectOf(CANVAS_PRESETS[name]) === "16:9";
 
 export type CanvasPresetName = keyof typeof CANVAS_PRESETS;
 
@@ -83,7 +112,8 @@ export const BASE_FONT_PX = 16;
  * consistent with rem. It follows that a preset of a DIFFERENT ASPECT RATIO scales to fit
  * the width and simply leaves vertical slack — that is honest rather than correct, because
  * re-proportioning a 16:9 deck for a portrait frame is a reflow problem, not a scale one.
- * Every preset today shares one aspect ratio, so the distinction has no effect yet.
+ * The non-16:9 presets in the table are therefore never used to compose a deck (the harness
+ * refuses them at plan and create time); they size compositions authored to the frame itself.
  */
 export const remScaleFor = (canvas: CanvasSize): number => canvas.width / DESIGN_CANVAS.width;
 
