@@ -135,10 +135,11 @@ export const DECO_CSS = `.deco {
   background: var(--d-bg, transparent);
   border: var(--d-border, none);
   border-radius: var(--d-radius, 0);
-  /* Rectangular shapes (box + pattern) get a crisp box-shadow — painted in the same
+  /* Square-cornered shapes (box + pattern) get a crisp box-shadow — painted in the same
      layer as the border, so it never seams against the background under fractional
-     preview scaling. Polygon shapes have no box-shadow and instead cast an alpha-
-     following filter drop-shadow (set inline) so the shadow hugs the SVG silhouette. */
+     preview scaling. Polygon shapes and ROUNDED boxes instead cast an alpha-following
+     filter drop-shadow (set inline): on a curve a box-shadow leaves a light seam
+     between the border and the shadow (see decorationLayout). */
   box-shadow: var(--d-boxshadow, none);
   filter: var(--d-filter, none);
   z-index: var(--d-z, 1);
@@ -173,7 +174,14 @@ const decorationLayout = (p: DecoParams): Record<string, string> => {
     // shadow-only; polygons already have their SVG stroke.
     if (s.box || s.pattern)
       vars["--d-border"] = `${EDGE_REM}rem solid var(--dark)`;
-    vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--dark)`;
+    // ROUNDED boxes (circle, ticket, capsule) take the filter drop-shadow too. A box-shadow
+    // is clipped to OUTSIDE the border box, so along a curve the border's anti-aliased outer
+    // edge and the shadow's inner edge each half-cover the same pixels and the ground shows
+    // through between them — a light seam around every round decoration. A drop-shadow is
+    // painted whole UNDER the element, so the edge blends ink into ink. Square corners have
+    // no AA edge for that to happen on, and keep the box-shadow.
+    if (s.radius) vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--dark))`;
+    else vars["--d-boxshadow"] = `${off} ${off} 0 0 var(--dark)`;
   } else {
     vars["--d-filter"] = `drop-shadow(${off} ${off} 0 var(--dark))`;
   }
